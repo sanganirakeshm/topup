@@ -1,0 +1,1604 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock stylesheets %}
+
+{% block body %}
+{% block fos_user_content %}
+{% trans_default_domain 'FOSUserBundle' %}
+<div class="innerBg">
+	<div class="signup content min_cont_hight">
+		{% if app.user %}
+			<div class="container text-right no-border">
+                <div class="row"><div class="col-xs-12">
+			<h6 class="color-blue line-height-20">Welcome {{app.user.username}}</h6>
+				</div></div>	</div>
+		{% endif %}
+
+
+        {% set noOfItems = 0 %}
+		<div class="container no-border">
+           <div class="row"><div class="col-lg-12"><div id="cartmsg" class="pay_ment_success_msg"></div></div>
+           <div class="col-lg-12">{% include "DhiUserBundle::flashMessage.html.twig" %}</div></div></div>
+        <div class="container">
+           <div class="row">
+        	    <div class="heading">
+                    <div class="col-xs-12">
+               		<h2>Order Summary</h2>
+                </div>
+                </div>
+                <div class="inner_content pucchasesummeryinnercontent">
+
+
+                <div class="panel-group col-lg-12" id="summary-accordion">
+			        <div class="panel panel-default">
+			            <div class="panel-heading">
+			                <h4 class="panel-title">
+			                    <a data-toggle="collapse" data-parent="#summary-accordion" href="#collapseSummary" id="collapseSummaryPannelTitle">Summary</a>
+			                </h4>
+			            </div>
+			            <div id="collapseSummary" class="panel-collapse collapse in">
+			                <div class="panel-body">
+			                	{{ form_start(form, {'method': 'POST', 'action': '', 'attr': {'id': 'frmSummary', 'onsubmit':'return proccedActivation()'}  }) }}
+			                	<input type="hidden" name="isStepOneCompleted" id="isStepOneCompleted" value="0" />
+			                	{% set freeService = 1 %}
+			                	{% set TotalUnusedCredit = 0 %}
+			                	{% set paybleAmount = 0 %}
+			                	<table class="table table-bordered">
+
+			                    	{% if summaryData.CartAvailable == 1 %}
+			                    		{% set totalPartnerDiscount = 0 %}
+			                    		{% set totalIPTVAmount = 0 %}
+			                    		{% set totalAddOnAmount = 0 %}
+			                    		{% set totalISPAmount = 0 %}
+			                    		{% set totalCreditAmount = 0 %}
+
+			                    		{% set cartData = summaryData.Cart %}
+
+			                    		{% if summaryData.IsIPTVAvailabledInCart == 1 %}
+			                    			{% set iptvPackages = cartData.IPTV.RegularPack %}
+  				                    			<tr>
+							                        <th rowspan="{{ iptvPackages|length + 1 }}" style="color:#093C71">ExchangeVUE Packages</th>
+							                        <th width="300">Package</th>
+							                        <th width="200">Price</th>
+							                    </tr>
+							                {% for iptvPackage in iptvPackages %}
+
+			                    				{% set discountedAmount = 0 %}
+
+				                    			<tr id="row_{{ iptvPackage.servicePurchaseId }}">
+									            	<td>{{ iptvPackage.packageName }}</td>
+									                <td>${{ iptvPackage.actualAmount }}</td>
+									                {% set totalIPTVAmount = totalIPTVAmount + iptvPackage.actualAmount %}
+												</tr>
+
+												{% if cartData.IPTV.unusedCredit > 0 %}
+													{% if summaryData.IsBundleAvailabledInCart == 0 %}
+														<tr>
+											            	<td align="right" colspan="2"><i>Existing ExchangeVUE Pack Unused credit</i></td>
+											                <td>-{{ cartData.IPTV.unusedCredit }}</td>
+														</tr>
+														{% set totalIPTVAmount = totalIPTVAmount - cartData.IPTV.unusedCredit %}
+													{% endif %}
+													{% set TotalUnusedCredit = TotalUnusedCredit + cartData.IPTV.unusedCredit %}
+												{% endif %}
+
+												{# if iptvPackage.promotionOffPer > 0 %}
+													{% set totalIPTVAmount = totalIPTVAmount - iptvPackage.promotionOffAmount %}
+												{% endif #}
+
+												{% if iptvPackage.discountCodeAmount > 0 %}
+													{% set totalPartnerDiscount = totalPartnerDiscount + iptvPackage.discountCodeAmount %}
+												{% endif %}
+
+												{% if iptvPackage.bundleDiscount > 0 %}
+													{# {% set discountedAmount = (iptvPackage.amount * iptvPackage.bundleDiscount) / 100 %}
+													<tr>
+				                    					<td align="right" colspan="2"><i>{{ iptvPackage.bundleName }}</i></td>
+				                    					<td>-${{ discountedAmount|number_format(2) }}</td>
+				                    				</tr>
+			                    					{% set totalIPTVAmount = totalIPTVAmount - discountedAmount %} #}
+			                    				{% endif %}
+
+			                    			{% endfor %}
+			                    			{% if summaryData.IsBundleAvailabledInCart == 0 %}
+			                    				<tr>
+			                    					<td align="right" colspan="2"><b>Sub Total</b></td>
+			                    					<td><b>${{ totalIPTVAmount|number_format(2) }}</b></td>
+			                    				</tr>
+			                    			{% endif %}
+
+			                    		{% endif %}
+
+			                    		{% if summaryData.IsAddOnAvailabledInCart == 1 %}
+
+			                    			{% set addOnPackages = cartData.IPTV.AddOnPack %}
+					                    		<tr>
+							                        <th rowspan="{{ addOnPackages|length + 1 }}" style="color:#093C71">Premium Packages</th>
+							                        <th width="300">Package</th>
+							                        <th width="200">Price</th>
+							                    </tr>
+
+			                    			{% for addOnPackage in addOnPackages %}
+
+			                    				{% set discAddOns = '' %}
+												{% if addOnPackage.discountPercentage > 0 %}
+
+													{% set discAddOns = '('~addOnPackage.discountPercentage~'% ISP discount $'~addOnPackage.amount~' - $'~addOnPackage.discountAmount~')' %}
+												{% endif %}
+
+				                    			<tr id="row_{{ addOnPackage.servicePurchaseId }}">
+									            	<td>{{ addOnPackage.packageName }} <span class="pull-right"><i>{{ discAddOns }}</i></span></td>
+									                <td>${{ addOnPackage.payableAmount }}</td>
+												</tr>
+												{% set totalAddOnAmount = totalAddOnAmount + addOnPackage.payableAmount %}
+			                    			{% endfor %}
+			                    				{% if summaryData.IsBundleAvailabledInCart == 0 %}
+				                    				<tr>
+				                    					<td align="right" colspan="2"><b>Sub Total</b></td>
+				                    					<td><b>${{ totalAddOnAmount|number_format(2) }}</b></td>
+				                    				</tr>
+			                    				{% endif %}
+			                    		{% endif %}
+
+			                    		{% if summaryData.IsISPAvailabledInCart == 1 %}
+			                    			{% set ispPackages = cartData.ISP.RegularPack %}
+			                    				<tr>
+							                        <th rowspan="{{ ispPackages|length + 1 }}" style="color:#093C71">ISP Packages</th>
+							                        <th width="300">Package</th>
+							                        <th width="200">Price</th>
+							                    </tr>
+
+			                    			{% for ispPackage in ispPackages %}
+				                    			<tr id="row_{{ ispPackage.servicePurchaseId }}">
+									            	<td>
+                                                                                            {% if ispPackage.bandwidth >= 1024%}
+                                                                                                {% set mbbandwidth = ispPackage.bandwidth/1024%}
+                                                                                                {{ ispPackage.packageName~' - '~mbbandwidth~'MB - '~ispPackage.validity~' day(s)' }}
+                                                                                            {% else %}
+                                                                                                {{ ispPackage.packageName~' - '~ispPackage.bandwidth~'k - '~ispPackage.validity~' day(s)' }}
+                                                                                            {% endif %}
+                                                                                        </td>
+									                <td>${{ ispPackage.actualAmount }}</td>
+												</tr>
+												{% set totalISPAmount = totalISPAmount + ispPackage.actualAmount %}
+
+												{% if cartData.ISP.unusedCredit > 0 %}
+													{% if summaryData.IsBundleAvailabledInCart == 0 %}
+														<tr>
+											            	<td align="right" colspan="2"><i>Existing ISP Pack Unused credit</i></td>
+											                <td>-{{ cartData.ISP.unusedCredit }}</td>
+														</tr>
+														{% set totalISPAmount = totalISPAmount - cartData.ISP.unusedCredit %}
+													{% endif %}
+													{% set TotalUnusedCredit = TotalUnusedCredit + cartData.ISP.unusedCredit %}
+												{% endif %}
+
+                                                                                                {% if ispPackage.discountCodeAmount > 0 %}
+													{% set totalPartnerDiscount = totalPartnerDiscount + ispPackage.discountCodeAmount %}
+												{% endif %}
+
+												{% if ispPackage.bundleDiscount > 0 %}
+													{# {% set discountedAmount = (ispPackage.amount * ispPackage.bundleDiscount) / 100 %}
+													<tr>
+				                    					<td align="right" colspan="2"><i>{{ ispPackage.bundleName }}</i></td>
+				                    					<td>-${{ discountedAmount|number_format(2) }}</td>
+				                    				</tr>
+			                    					{% set totalISPAmount = totalISPAmount - discountedAmount %} #}
+			                    				{% endif %}
+			                    			{% endfor %}
+			                    			{% if summaryData.IsBundleAvailabledInCart == 0 %}
+		                    					<td align="right" colspan="2"><b>Sub Total</b></td>
+			                    					<td><b>${{ totalISPAmount|number_format(2) }}</b></td>
+			                    				</tr>
+			                    			{% endif %}
+			                    			</tbody>
+			                    		{% endif %}
+
+			                    		{% if summaryData.IsCreditAvailabledInCart == 1 %}
+
+					                    		<tr>
+							                        <th rowspan="2" style="color:#093C71">Credit Purchase</th>
+							                        <th>Description</th>
+							                        <th>Price</th>
+							                    </tr>
+
+						                    	{% set purchaseCredits = cartData.Credit %}
+						                    	{% for credit in purchaseCredits %}
+				                    			<tr>
+									            	<td>{{ credit.credit }} ExchangeVUE Credits</td>
+									                <td>${{ credit.amount }}</td>
+												</tr>
+												{% set totalCreditAmount = totalCreditAmount + credit.amount %}
+
+												{% endfor %}
+												<tr>
+                                                    <td align="right" colspan="2"><b>Sub Total</b></td>
+                                                    <td><b>${{ totalCreditAmount|number_format(2) }}</b></td>
+												</tr>
+											</tbody>
+										{% endif %}
+                                        {% set grandTotal = totalIPTVAmount + totalAddOnAmount + totalISPAmount + totalCreditAmount %}
+                                        {% set paybleAmount = grandTotal %}
+                                        {% if totalPartnerDiscount > 0 %}
+                                        	{% set paybleAmount = paybleAmount - totalPartnerDiscount %}
+                                    		{% set paybleAmount = paybleAmount|number_format(2) %}
+                                        {% endif %}
+
+		                    			{% if summaryData.IsBundleAvailabledInCart == 1 %}
+				                    		{% set bundleCart = cartData.Bundle.RegularPack %}
+				                    		<tr>
+				                    			<td align="right" colspan="2"><b>Sub Total</b></td>
+			                    				<td><b>${{ grandTotal|number_format(2) }}</b></td>
+				                    		</tr>
+				                    		{# % set paybleAmount = paybleAmount - totalPartnerDiscount % #}
+		                    				{% if TotalUnusedCredit > 0 %}
+					                            <tr>
+					                                <td colspan="2" align="right"><i>Total Applied Credit</i></td>
+					                                <td><i> - ${{ TotalUnusedCredit|number_format(2) }}</i></td>
+					                            </tr>
+					                            {% set grandTotal = grandTotal - TotalUnusedCredit %}
+				                        	{% endif %}
+			                    			{% set grandTotal = grandTotal - summaryData.TotalbundleDiscount %}
+											<tr>
+												<td align="right" colspan="2"><i>{{ bundleCart.bundleName }}</i></td>
+												<td>
+													<i> - ${{ summaryData.TotalbundleDiscount|number_format(2) }}</i>
+												</td>
+											</tr>
+										{% endif %}
+										{% if summaryData.TotalPromotionOff > 0 %}
+											<tr>
+												<td align="right" colspan="2"><i>Promotion Off ({{ summaryData.TotalPromotionPer }}%)</i></td>
+												<td>
+													<i> - ${{ summaryData.TotalPromotionOff|number_format(2) }}</i>
+												</td>
+											</tr>
+                                                                                        {% set promotionPaybleAmount = paybleAmount|number_format(2) %}
+											{% set grandTotal = (grandTotal|number_format(2) - summaryData.TotalPromotionOff) %}
+											{% set paybleAmount = promotionPaybleAmount - summaryData.TotalPromotionOff %}
+										{% endif %}
+					                    <tr>
+
+					                    	{% if summaryData.isDiscountCodeApplied == 1 %}
+					                    		<td align="right" colspan="2">
+					                    			<i>Discount applied {{summaryData.discountCodeRate}}%</i>
+					                    		</td>
+					                    		<td><i>- ${{ summaryData.discountCodeAmount|number_format(2) }}</i>
+					                    			<a class="btn btn-sm btn-danger" href="javascript:void(0);" onclick="deleteCouponCode();" >x</a></td>
+					                    		{% set grandTotal = grandTotal - summaryData.discountCodeAmount %}
+					                    	{% else %}
+					                    		{% if paybleAmount > 0 and summaryData.isEmployee == 0 %}
+							                        <td align="right" colspan="2">
+							                            <div id="discountLink" >
+							                                <a href="javascript:void(0);" onclick="$('#discountCode').val('');$('#discountBox').removeClass('hide');$('#discountLink').addClass('hide');"> Have a Discount Code?</a>
+	                                                    </div>
+														<div id="responseMsg"></div>
+	                                                    <div id="discountBox" class="hide">
+	                                                    	<div class="row">
+							                                <div class="col-md-6 col-md-offset-6 col-sm-12 col-xs-12">
+								                                <input type="text" class="form-control" id="discountCode"  name="discountCode" value=""/>
+								                                <a class="btn btn-sm btn-default" href="javascript:void(0);" onclick="checkValidCode('discount',123,{{ grandTotal|number_format(2) }});"> Apply</a>
+								                                <a class="btn btn-sm btn-danger" href="javascript:void(0);" onclick="$('#discountBox').addClass('hide');$('#discountLink').removeClass('hide');$('#discountCode').val('');"> X</a>
+							                                </div>
+							                                </div>
+							                            </div>
+							                            <i><div class="pull-right" id="discountLabel"></div></i>
+							                        </td>
+							                        <td><div class="discountAmo hide"><i><span id="disocuntAmount"></span></i> <a class="btn btn-sm btn-danger" href="javascript:void(0);" onclick="deleteCouponCode();" >x</a></div></td>
+						                    	{% endif %}
+					                    	{% endif %}
+					                    </tr>
+			                    		<tr>
+											<td align="right" colspan="2"><b>Grand Total</b></td>
+                                            <td><b><div id="grandTotal">${{ grandTotal|number_format(2) }}</div></b></td>
+			                    		</tr>
+
+
+			                    		<tr>
+											<td colspan="3">
+												<div style="font-size: 18px" class="pull-left">
+													<a href="{{url('dhi_user_account')}}" class="btn btn-lg btn-default margBot20 margTop20" id="continue">Continue Shopping</a>
+												</div>
+												<div style="font-size: 18px" class="pull-right">
+                                                    {% if summaryData.IsBundleAvailabledInCart == 1 %}
+                                                        {% set paybleAmount = paybleAmount - summaryData.TotalbundleDiscount|number_format(2) %}
+                                                    {% endif %}
+
+                                                    {% if paybleAmount > 0 and summaryData.isEmployee == 0 %}
+														<input type="button" name="submit" value="Next" class="btn btn-lg btn-blue margBot20 margTop20" onclick="confirmOrderSummary('frmSummary','{{ isISPAddedForIPTV }}');" id='proceedcheck'/>
+													{% else %}
+														<input type="submit" name="submit" value="Proceed" class="btn btn-lg btn-default margBot20 margTop20"/>
+													{% endif %}
+												</div>
+											</td>
+			                    		</tr>
+
+			                    		<input type="hidden" name="paybleAmount" id="paybleAmount" value="{{ paybleAmount }}" />
+			                    	{% else %}
+			                    		<tr>
+											<td colspan="2" align="center">Your cart is empty</td>
+										</tr>
+										<tr>
+											<td colspan="2">
+												<div style="font-size: 18px" class="pull-left">
+													<a href="{{url('dhi_user_account')}}" class="btn btn-lg btn-default margBot20 margTop20" id="continue">Continue Shopping</a>
+												</div>
+											</td>
+										</tr>
+			                    	{% endif %}
+					            </table>
+					            {{ form_end(form) }}
+			                </div>
+			            </div>
+			        </div>
+			        
+			        {% if paybleAmount > 0 and summaryData.isEmployee == 0 and (summaryData.IsIPTVAvailabledInCart == 1 or summaryData.IsISPAvailabledInCart == 1 or summaryData.IsAddOnAvailabledInCart == 1 or summaryData.IsCreditAvailabledInCart == 1) %}
+			        <div class="panel panel-default">
+			            <div class="panel-heading">
+			                <h4 class="panel-title">
+			                    <a data-toggle="collapse" data-parent="#summary-accordion" href="#collapsePaymentOptions" id="collapsePaymentOptionsPannelTitle">Payment Options</a>
+			                </h4>
+			            </div>
+			            <div id="collapsePaymentOptions" class="panel-collapse collapse">
+			                <div class="panel-body">
+
+			                	{{ form_start(form, {'method': 'POST', 'action': '', 'attr': {'id': 'frmPaymentOptions'}  }) }}
+			                	<input type="hidden" name="processStep" id="paymentOptions" class="form-control" value="paymentOptions">
+			                	<input type="hidden" name="isStepThreeCompleted" id="isStepThreeCompleted" value="0" />
+			                	<div class="row">
+								<div class="col-xs-12">
+			                		<div class="row">
+				                		<div class="col-md-12">
+				                			{# <div class="col-md-3 col-sm-6 col-xs-12">
+											 	<div class="paymentBox">
+							                		<input type="radio" id="cc" name="paymentBy" value="cc" onclick="showCardinfoBox(this.value)"/>
+							                		<label>Credit Card</label>
+							                		<br/>
+							                		<img src="{{ asset('bundles/dhiuser/images/cc-logo.jpg') }}" style=""/>
+					                			</div>
+					                		</div>
+
+					                		<div class="col-md-3 col-sm-6 col-xs-12">
+							                	<div class="paymentBox">
+													<input type="radio" id="paypal" name="paymentBy" value="paypal" onclick="showCardinfoBox(this.value)"/>
+							                		<label>Paypal</label>
+							                		<br/>
+							                		<img src="{{ asset('bundles/dhiuser/images/paypal-logo.jpg') }}" style=""/>
+							                	</div>
+						                	</div> #}
+					                		{# Removing payment gateways temporary #}
+						                	{#{% if 1 == 0 %}#}
+	                                            <div class="col-md-3 col-sm-6 col-xs-12">
+												<div class="paymentBox">
+							                		<input type="radio" {% if app.session.get('chasePaymentType') is defined and app.session.get('chasePaymentType') != '' %}selected="selected"{% endif %} id="chase" name="paymentBy" value="chase" onclick="showCardinfoBox(this.value);"/>
+							                		<label>Pay by Credit card / Debit card</label>
+							                		<br/>
+						                		</div></div>
+
+												{% if userServiceLocation|length > 0 and userServiceLocation['IsMilstarEnabled'] == '1' %}
+							                	<div class="col-md-3 col-sm-6 col-xs-12">
+							                		<div class="paymentBox">
+													<input type="radio" id="milstar" name="paymentBy" value="milstar" onclick="showCardinfoBox(this.value)"/>
+							                		<label>Milstar</label>
+							                	</div></div>
+	                                            {% endif %}
+                                            {#{% endif %}#}
+
+				                		</div>
+                                        <div class="col-md-12" id="chaseinfo" style="display:none;">
+                                            <div class="panel panel-primary">
+                                                <div class="panel-heading">
+                                                    <b>Pay by Credit card / Debit card</b>
+                                                </div>
+                                                <div class="panel-body row">
+	                                                <div>
+	                                                	<div class="col-md-4">
+	                                                		<label><input type="radio" {% if app.session.get('chasePaymentType') is defined and app.session.get('chasePaymentType') == 'new-profile' %}selected="selected"{% endif %} name="chasePaymentType" class="cls-chase-option" id="new-profile" data-target="form-profile" value="new-profile"/> Payment With New Profile</label>
+	                                                	</div>
+                                                        {% if isChaseProfileExists == 1 %}
+                                                            <div class="col-md-4">
+                                                                <label><input type="radio" {% if app.session.get('chasePaymentType') is defined and app.session.get('chasePaymentType') == 'with-profile' %}selected="selected"{% endif %} name="chasePaymentType" class="cls-chase-option" id="with-profile" data-target="with-profile" value="with-profile"/> Payment With Existing Profile</label>
+                                                            </div>
+                                                        {% endif %}
+	                                                	<div class="col-md-4">
+	                                                		<label><input type="radio" {% if app.session.get('chasePaymentType') is defined and app.session.get('chasePaymentType') == 'without-profile' %}selected="selected"{% endif %} name="chasePaymentType" class="cls-chase-option" id="without-profile" data-target="form-profile" value="without-profile"/> Payment Without Profile</label>
+	                                                	</div>
+	                                                </div>
+                                                	<div class="cls-hidden col-md-12 cls-chase-container cls-chase-form-profile">
+                                                		<div class="panel panel-primary">
+														    <div class="panel-heading">
+														        <b>Card Detail</b>
+														    </div>
+														    <div class="panel-body row">
+														    	<div class="form-group col-sm-6 col-md-6 cc-bx">
+														            <label class="col-sm-4 control-label">First Name</label>
+														            <div class="col-sm-8">
+														            	<input type="text" name="ChaseWP[Firstname]" id="ChaseWpFirstname" class="form-control" placeholder="First Name" value="{% if chaseWPInfo['Firstname'] is defined %}{{ chaseWPInfo['Firstname'] }}{% endif %}">
+																		<label id="ChaseWpFirstname-error" class="error" for="ChaseWpFirstname"></label>
+														            </div>
+														        </div>
+
+														        <div class="form-group col-sm-6 col-md-6 cc-bx">
+														            <label class="col-sm-4 control-label">Last Name</label>
+														            <div class="col-sm-8">
+														        		<input type="text" name="ChaseWP[Lastname]" id="ChaseWpLastname" class="form-control" placeholder="Last Name" value="{% if chaseWPInfo['Firstname'] is defined %}{{ chaseWPInfo['Lastname'] }}{% endif %}">
+																		<label id="ChaseWpLastname-error" class="error" for="ChaseWpLastname"></label>
+														            </div>
+														        </div>
+
+														        <div class="form-group col-sm-6 col-md-6 cc-bx clearfix">
+														            <label class="col-sm-4 control-label">Card Type</label>
+														            <div class="col-sm-8">
+														            	<select name="chc[CardType]" data-placeholder="Choose One" class="form-control" id="ChaseWpCardType">
+														                    <option {% if chaseWPInfo['CardType'] is defined and chaseWPInfo['CardType'] == 'Visa' %}selected="selected"{% endif %} value="Visa">Visa</option>
+																			<option {% if chaseWPInfo['CardType'] is defined and chaseWPInfo['CardType'] == 'Mastercard' %}selected="selected"{% endif %} value="Mastercard">Mastercard</option>
+																			<option {% if chaseWPInfo['CardType'] is defined and chaseWPInfo['CardType'] == 'American Express' %}selected="selected"{% endif %} value="American Express">American Express</option>
+																			<option {% if chaseWPInfo['CardType'] is defined and chaseWPInfo['CardType'] == 'Discover' %}selected="selected"{% endif %} value="Discover">Discover</option>
+																			<option {% if chaseWPInfo['CardType'] is defined and chaseWPInfo['CardType'] == 'JCB' %}selected="selected"{% endif %} value="JCB">JCB</option>
+																			<option {% if chaseWPInfo['CardType'] is defined and chaseWPInfo['CardType'] == 'Diners Club' %}selected="selected"{% endif %} value="Diners Club">Diners Club</option>
+														                </select>
+														                <label id="ChaseWpCardType-error" class="error" for="ChaseWpCardType"></label>
+														            </div>
+														        </div>
+
+														        <div class="form-group col-sm-6 col-md-6 cc-bx">
+														            <label class="col-sm-4 control-label">Card Number</label>
+														            <div class="col-sm-8 removeSpin">
+                                                                                                                                <input type="text" name="chc[CardNumber]" id="ChaseWpCardNumber" class="form-control" placeholder="Card Number" maxlength="19" value="" autocomplete="off">
+                                                                                                                                <label id="ChaseWpCardNumber-error" class="error" for="ChaseWpCardNumber">
+                                                                                                                                    {% if chaseUserErrorMsg and chaseUserErrorMsg.control == 'ChaseWpCardNumber' %}
+                                                                                                                                        {{ chaseUserErrorMsg.message }}
+                                                                                                                                    {% endif %}
+                                                                                                                                </label>
+														            </div>
+														        </div>
+
+														        <div class="form-group col-sm-6 col-md-6 cc-bx clearfix">
+														            <label class="col-sm-4 col-xs-12 control-label">Expiry Date</label>
+														            <div class="col-sm-4 col-xs-6">
+														            	<select name="chc[ExpMonth]" data-placeholder="Choose One" class="form-control" id="ChaseWpExpMonth">
+														                    <option value="">Month</option>
+														                    {% for month in expiresMonth %}
+														                    <option value="{{ month }}">{{ month }}</option>
+														                    {% endfor %}
+														                </select>
+														                <label id="ChaseWpExpMonth-error" class="error" for="ChaseWpExpMonth"></label>
+														            </div>
+														            <div class="col-sm-4 col-xs-6">
+														            	<select name="chc[ExpYear]" data-placeholder="Choose One" class="form-control" id="ChaseWpExpYear">
+														                    <option value="">Year</option>
+														                    {% for year in expiresYear %}
+														                    <option value="{{ year }}">{{ year }}</option>
+														                    {% endfor %}
+														                </select>
+														                <label id="ChaseWpExpYear-error" class="error" for="ChaseWpExpYear"></label>
+														            </div>
+														        </div>
+
+														        <div class="form-group col-sm-6 col-md-6 cc-bx">
+														            <label class="col-sm-4 control-label">CVV</label>
+														            <div class="col-sm-8">
+                                                                                                                                <input type="password" name="chc[Cvv]" id="ChaseWpCvv" class="form-control" placeholder="CVV" value="" onkeypress="return isNumberKey(event)" autocomplete="off" maxlength="4">
+                                                                                                                                <label id="ChaseWpCvv-error" class="error" for="ChaseWpCvv">
+                                                                                                                                    {% if chaseUserErrorMsg and chaseUserErrorMsg.control == 'ChaseWpCvv' %}
+                                                                                                                                        {{ chaseUserErrorMsg.message }}
+                                                                                                                                    {% endif %}
+                                                                                                                                </label>
+														            </div>
+														        </div>
+														    </div>
+														</div>
+														<div class="panel panel-primary">
+														    <div class="panel-heading">
+														        <b>Billing Address</b>
+														    </div>
+														    <div class="panel-body row">
+														        <div class="form-group col-sm-6 col-md-6 cc-bx">
+														            <label class="col-sm-4 control-label">Address</label>
+														            <div class="col-sm-8">
+														        		<input type="text" name="ChaseWP[Address]" id="ChaseWpAddress" class="form-control" placeholder="Address" value="{% if chaseWPInfo['Address'] is defined %}{{ chaseWPInfo['Address'] }}{% endif %}">
+																		<label id="ChaseWpAddress-error" class="error" for="ChaseWpAddress"></label>
+														            </div>
+														        </div>
+
+														        <div class="form-group col-sm-6 col-md-6 cc-bx">
+														            <label class="col-sm-4 control-label">Address 2</label>
+														            <div class="col-sm-8">
+														        		<input type="text" name="ChaseWP[Address2]" id="ChaseWpAddress2" class="form-control" placeholder="Address" value="{% if chaseWPInfo['Address2'] is defined %}{{ chaseWPInfo['Address2'] }}{% endif %}">
+																		<label id="ChaseWpAddress2-error" class="error" for="ChaseWpAddress2"></label>
+														            </div>
+														        </div>
+
+														        <div class="form-group col-sm-6 col-md-6 cc-bx clearfix">
+														            <label class="col-sm-4 control-label">City</label>
+														            <div class="col-sm-8">
+														            	<input type="text" name="ChaseWP[City]" id="ChaseWpCity" class="form-control" placeholder="City" value="{% if chaseWPInfo['City'] is defined %}{{ chaseWPInfo['City'] }}{% endif %}">
+																		<label id="ChaseWpCity-error" class="error" for="ChaseWpCity"></label>
+														            </div>
+														        </div>
+
+														        <div class="form-group col-sm-6 col-md-6 cc-bx">
+														            <label class="col-sm-4 control-label">Zip Code</label>
+														            <div class="col-sm-8">
+                                                                                                                                <input type="text" name="ChaseWP[Zipcode]" id="ChaseWpZipcode" class="form-control" placeholder="Zip Code" maxlength="10" value="{% if chaseWPInfo['Zipcode'] is defined %}{{ chaseWPInfo['Zipcode'] }}{% endif %}">
+																		<label id="ChaseWpZipcode-error" class="error" for="ChaseWpZipcode"></label>
+														            </div>
+														        </div>
+
+														        <div class="form-group col-sm-6 col-md-6 cc-bx clearfix">
+														            <label class="col-sm-4 control-label">Country</label>
+														            <div class="col-sm-8">
+														            	<select name="ChaseWP[Country]" data-placeholder="Choose One" class="form-control" id="ChaseWpCountry">
+																			<option value="">Choose One</option>
+																			{% if country %}
+																				{% for key,val in country %}
+														                    	<option {% if chaseWPInfo['Country'] is defined and chaseWPInfo['Country'] == key %}selected="selected"{% endif %} value="{{ key }}">{{ val }}</option>
+														                    	{% endfor %}
+														                    {% endif %}
+																		</select>
+																		<label id="ChaseWpCountry" class="error" for="ChaseWpCountry"></label>
+														            </div>
+														        </div>
+
+														        <div class="form-group col-sm-6 col-md-6 cc-bx">
+														            <label class="col-sm-4 control-label">Province</label>
+														            <div class="col-sm-8">
+														            	<select name="ChaseWP[State]" id="ChaseWpState" class="form-control" placeholder="Province" value="" />
+														            		<option value="">Choose One</option>
+																			{% if state %}
+																				{% for key,val in country %}
+										                                    	<option {% if chaseWPInfo['State'] is defined and chaseWPInfo['State'] == key %}selected="selected"{% endif %} value="{{ key }}">{{ val }}</option>
+										                                    	{% endfor %}
+										                                    {% endif %}
+																		</select>
+																		<label id="ChaseWpState-error" class="error" for="ChaseWpState"></label>
+														            </div>
+														        </div>
+														    </div>
+														</div>
+                                                    </div>
+                                                    <div class="cls-hidden cls-chase-container cls-chase-with-profile">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+				                		<div class="col-md-9" id="cardinfo" style="display:none;">
+
+			                                <div class="panel panel-primary">
+			                                    <div class="panel-heading">
+                                                                <b>Credit Card Detail</b>
+			                                    </div>
+			                                    <div class="panel-body row">
+			                                    	<div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">First Name</label>
+		                                                <div class="col-sm-8">
+		                                                	<input type="text" name="Billing[Firstname]" id="Firstname" class="form-control" placeholder="First Name" value="">
+															<label id="Firstname-error" class="error" for="Firstname"></label>
+		                                                </div>
+		                                            </div>
+
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Last Name</label>
+		                                                <div class="col-sm-8">
+	                                                		<input type="text" name="Billing[Lastname]" id="Lastname" class="form-control" placeholder="Last Name" value="">
+															<label id="Lastname-error" class="error" for="Lastname"></label>
+		                                                </div>
+		                                            </div>
+
+			                                        <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Card Type</label>
+		                                                <div class="col-sm-8">
+		                                                	<select name="cc[CardType]" data-placeholder="Choose One" class="form-control" id="CardType">
+					                                            <option value="">Choose One</option>
+					                                            <option value="Visa">Visa</option>
+					                                            <option value="MasterCard">MasterCard</option>
+					                                            <option value="Discover">Discover</option>
+					                                            <option value="Amex">Amex</option>
+					                                        </select>
+					                                        <label id="CardType-error" class="error" for="CardType"></label>
+		                                                </div>
+		                                            </div>
+
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Card Number</label>
+		                                                <div class="col-sm-8 removeSpin">
+		                                                    <input type="number" name="cc[CardNumber]" id="CardNumber" class="form-control" placeholder="Card Number" maxlength="16" value="" pattern="[0-9]*" inputmode="numeric">
+		                                                    <label id="CardNumber-error" class="error" for="CardNumber"></label>
+		                                                </div>
+		                                            </div>
+
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 col-xs-12 control-label">Expiry Date</label>
+		                                                <div class="col-sm-4 col-xs-6">
+		                                                	<select name="cc[ExpMonth]" data-placeholder="Choose One" class="form-control" id="ExpMonth">
+					                                            <option value="">Month</option>
+					                                            {% for month in expiresMonth %}
+					                                            <option value="{{ month }}">{{ month }}</option>
+					                                            {% endfor %}
+					                                        </select>
+					                                        <label id="ExpMonth-error" class="error" for="ExpMonth"></label>
+		                                                </div>
+		                                                <div class="col-sm-4 col-xs-6">
+		                                                	<select name="cc[ExpYear]" data-placeholder="Choose One" class="form-control" id="ExpYear">
+					                                            <option value="">Year</option>
+					                                            {% for year in expiresYear %}
+					                                            <option value="{{ year }}">{{ year }}</option>
+					                                            {% endfor %}
+					                                        </select>
+					                                        <label id="ExpYear-error" class="error" for="ExpYear"></label>
+		                                                </div>
+		                                            </div>
+
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">CVV</label>
+		                                                <div class="col-sm-8">
+		                                                    <input type="password" name="cc[Cvv]" id="Cvv" class="form-control" placeholder="CVV" value="">
+		                                                    <label id="Cvv-error" class="error" for="Cvv"></label>
+		                                                </div>
+		                                            </div>
+			                                    </div><!-- panel-body -->
+			                                </div>
+
+			                                <div class="panel panel-primary">
+			                                    <div class="panel-heading">
+			                                        <b>Billing Address</b>
+			                                    </div>
+			                                    <div class="panel-body row">
+
+
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Address</label>
+		                                                <div class="col-sm-8">
+	                                                		<input type="text" name="Billing[Address]" id="Address" class="form-control" placeholder="Address" value="">
+															<label id="Address-error" class="error" for="Address"></label>
+		                                                </div>
+		                                            </div>
+
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">City</label>
+		                                                <div class="col-sm-8">
+		                                                	<input type="text" name="Billing[City]" id="City" class="form-control" placeholder="City" value="">
+															<label id="City-error" class="error" for="City"></label>
+		                                                </div>
+		                                            </div>
+
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">State</label>
+		                                                <div class="col-sm-8">
+		                                                	<input type="text" name="Billing[State]" id="State" class="form-control" placeholder="State" value="">
+															<label id="State-error" class="error" for="State"></label>
+		                                                </div>
+		                                            </div>
+
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Zip Code</label>
+		                                                <div class="col-sm-8">
+		                                                	<input type="text" name="Billing[Zipcode]" id="Zipcode" class="form-control" placeholder="Zip Code" value="">
+															<label id="Zipcode-error" class="error" for="Zipcode"></label>
+		                                                </div>
+		                                            </div>
+
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Country</label>
+		                                                <div class="col-sm-8">
+		                                                	<select name="Billing[Country]" data-placeholder="Choose One" class="form-control" id="Country">
+																<option value="">Choose One</option>
+																{% if country %}
+																	{% for key,val in country %}
+							                                    	<option value="{{ key }}">{{ val }}</option>
+							                                    	{% endfor %}
+							                                    {% endif %}
+															</select>
+															<label id="Country" class="error" for="Country"></label>
+		                                                </div>
+		                                            </div>
+
+			                                    </div><!-- panel-body -->
+			                                </div>
+
+										</div>
+
+										<div class="col-md-9" id="milstarinfo" style="display:none;">
+
+			                                <div class="panel panel-primary">
+			                                    <div class="panel-heading">
+			                                        <b>Milstar Detail</b>
+			                                    </div>
+			                                    <div class="panel-body row">
+			                                        <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Card Number</label>
+		                                                <div class="col-sm-8">
+		                                                    <input type="text" name="milstar[MCardNumber]" id="MCardNumber" class="form-control" placeholder="Card Number" maxlength="16" value="">
+		                                                    <label id="MCardNumber-error" class="error" for="MCardNumber"></label>
+		                                                </div>
+		                                            </div>
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Zipcode</label>
+		                                                <div class="col-sm-8">
+		                                                    <input type="text" name="milstar[MZipcode]" id="MZipcode" class="form-control" placeholder="Zip Code" value="">
+		                                                    <label id="MZipcode-error" class="error" for="MZipcode"></label>
+		                                                </div>
+		                                            </div>
+			                                    </div><!-- panel-body -->
+			                                </div>
+										</div>
+
+									</div>
+			                	</div>
+
+			                	<div class="col-sm-12 text-right margTop20 clearfix">
+			                		{#<span id="recurringBx" style="display: none;">
+			                			<input type="checkbox" name="recurringPayment" id="recurringPayment" value="1"> Do you want to renew your package automatically on every month?
+			                		</span>#}
+									<input type="button" name="submit" value="Submit" id="submitId" class="btn btn-lg btn-blue" onclick="confirmOrderSummary('frmPaymentOptions','');">
+								</div>
+								</div>
+
+								{{ form_end(form) }}
+			                </div>
+			            </div>
+			        </div>
+
+			        {% endif %}
+			    </div>
+			    </div>
+
+						<div class="cls-godaddy-seal">
+							<span id="siteseal">
+								<script type="text/javascript" src="https://seal.godaddy.com/getSeal?sealID=g7ry6yGGHSFo7O6xaCnxnTLTPn30OaqVmuhN59NzRT6cpdWBaZOeqkk1IrBW"></script>
+							</span>
+						</div>
+
+        </div>  </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+        noOfItems = '{{noOfItems}}';
+</script>
+<div id="ajax-loader-bx" style="display:none;">
+	<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+	<div id="loader-text">Please wait....</div>
+</div>
+{% endblock fos_user_content %}
+{% endblock body %}
+{% block javascripts %}
+{{ parent() }}
+
+<script type="text/javascript">
+function checkUser(){
+	$.ajax({
+    	url: "{{path('dhi_user_check_session_login')}}",
+    	type: 'POST',
+    	dataType: 'json',
+    	success: function(result){
+    		if (result.status == 0) {
+    			window.location.reload();	
+    		}
+    	}
+    });
+}
+
+function isNumberKey(evt){
+    var charCode = (evt.which) ? evt.which : event.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+        return false;
+    return true;
+}
+
+$(function checkUserLogin(){
+    setTimeout(function(){
+    	checkUser();
+    	checkUserLogin();
+    }, 5000);
+});
+
+$(document).ready(function() {
+    
+        $("#ChaseWpCardNumber").val('');
+        $("#ChaseWpCvv").val('');
+        
+	$(document).ajaxStart(checkUser);
+        
+        $.validator.addMethod("regex_valid_chase_address", function(value, element, regexpr) {
+            return regexpr.test(value);
+        }, "Please enter valid Address. Character % is not allowed.");
+        
+        $.validator.addMethod("regex_valid_chase_city", function(value, element, regexpr) {
+            return regexpr.test(value);
+        }, "Please enter valid City. Character % is not allowed.");
+        
+        $.validator.addMethod("regex_alphanumeric", function(value, element, regexpr) {
+            return regexpr.test(value);
+        }, "Please enter only alphanumeric.");
+            
+	$(".cls-chase-option").click(function(event) {
+		var thisVal = $(this).data('target');
+		$('#ajax-loader-bx').show();
+		$(".cls-chase-container").fadeOut('slow');
+		$('.cls-chase-'+thisVal).fadeIn('slow');
+		$('#ajax-loader-bx').hide();
+	});
+
+    var paymentType = $('input[name=paymentBy]:checked', '#frmPaymentOptions').val();
+    $("#"+paymentType).prop('checked',false);
+
+	$('#frmBillingAddress').validate({
+        rules: {
+            "Billing[Firstname]": {
+                "required": true
+            },
+            "Billing[Lastname]": {
+                "required": true
+            },
+            "Billing[Address]": {
+                "required": true,
+            },
+            "Billing[City]": {
+                "required": true,
+            },
+            "Billing[State]": {
+                "required": true
+            },
+            "Billing[Zipcode]": {
+                "required": true
+            },
+            "Billing[Country]": {
+                "required": true
+            }
+        },
+        messages: {
+        	"Billing[Firstname]": {
+            	"required": "Please enter first name.",
+            },
+            "Billing[Lastname]": {
+            	"required": "Please enter last name.",
+            },
+            "Billing[Address]": {
+            	"required": "Please enter address.",
+            },
+            "Billing[City]": {
+            	"required": "Please enter city.",
+            },
+            "Billing[State]": {
+            	"required": "Please enter state.",
+            },
+            "Billing[Zipcode]": {
+            	"required": "Please enter zip code.",
+            },
+            "Billing[Country]": {
+            	"required": "Please select country.",
+            }
+        }
+    });
+
+
+	$('#frmPaymentOptions').validate({
+        rules: {
+            "paymentBy": {
+                "required": true
+            }
+        },
+        messages: {
+        	"paymentBy": {
+            	"required": "Please select any one payment option.",
+            }
+        }
+    });
+
+	$("#ChaseWpCountry").change(function() {
+		var countryId = $(this).val();
+		$.ajax({
+			type: "POST",
+			url: "{{ path('dhi_user_get_state') }}",
+			data: {countryId:countryId},
+			beforeSend: function( xhr ) {
+				$('#ajax-loader-bx').show();
+			},
+			success:function(result){
+				$('#ChaseWpState').empty();
+				var s= document.getElementById('ChaseWpState');
+				s.options[0]= new Option('Select State', '');
+				$.each(result,function(key,value){
+                                    var selectedState = '';
+                                    var selected = '';
+                                    {% if chaseWPInfo.State is defined %} 
+                                        selectedState = '{{ chaseWPInfo.State }}';
+                                    {% endif %}
+                                    if(key == selectedState){
+                                        selected = 'selected=selected';
+                                    }
+                                    $("#ChaseWpState").append('<option value="' + key + '" '+ selected +'>'  +   value + '</option>');
+				});
+				$('#ajax-loader-bx').hide();
+			}
+		});
+	}).change();
+
+	{% if app.session.get('chasePaymentType') is defined and app.session.get('chasePaymentType') is not null%}
+		$('#ajax-loader-bx').show();
+		confirmOrderSummary('frmSummary','1');
+		$("#chase").click();
+		$("#{{app.session.get('chasePaymentType')}}").click();
+		$('#ajax-loader-bx').hide();
+	{% endif %}
+});
+
+function showDiscountBox(){
+    $('#discountBox').show();
+}
+
+function confirmOrderSummary(formName,isISPAddedForIPTV) {
+    var checkDetailUrl = '{{ path('dhi_payment_process_confirm_detail', {'step' : 'stepNumber'}) }}';
+
+    if(formName == 'frmSummary'){
+		processCheckoutDetail(formName,checkDetailUrl);
+	}
+
+	if(formName == 'frmBillingAddress'){
+		if($('#'+formName).valid()){
+            processCheckoutDetail(formName,checkDetailUrl);
+		}
+	}
+
+	if(formName == 'frmPaymentOptions'){
+
+		isValidate = validatePaymentMethodForm(formName);
+
+        if(isValidate){
+
+			if($('#'+formName).valid()){
+
+                processCheckoutDetail(formName,checkDetailUrl);
+			}
+		}
+	}
+}
+
+
+function processCheckoutDetail(name,ajaxUrl){
+
+    if(name == 'frmSummary') {
+
+     	ajaxUrl = ajaxUrl.replace('stepNumber', 1);
+     	var postData = $('#'+name).serializeArray();
+       
+    }
+
+    if(name == 'frmBillingAddress') {
+        ajaxUrl = ajaxUrl.replace('stepNumber', 2);
+        var postData = $('#'+name+',#frmSummary').serializeArray();
+    }
+
+    if(name == 'frmPaymentOptions') {
+        ajaxUrl = ajaxUrl.replace('stepNumber', 3);
+        var postData = $('#'+name+',#frmSummary').serializeArray();
+    }
+
+	$.ajax({
+		type: "POST",
+		url: ajaxUrl,
+		data: postData,
+		beforeSend: function( xhr ) {
+
+		    $('#ajax-loader-bx').show();
+		},
+		success:function(result){
+
+			var obj = jQuery.parseJSON( result );
+
+			var isGlobalError = false;
+
+			if(obj['requestStep'] == 1 && obj['stepOneResponse'] != ''){
+
+				processStepOne(obj['stepOneResponse']);
+				$('#ajax-loader-bx').hide();
+			}else if(obj['requestStep'] == 2 && obj['stepTwoResponse'] != ''){
+
+				processStepTwo(obj['stepTwoResponse']);
+				$('#ajax-loader-bx').hide();
+			}else if(obj['requestStep'] == 3 && obj['stepThreeResponse'] != ''){
+
+				processStepThree(obj['stepThreeResponse']);
+
+			}else{
+
+				if(obj['status'] == 'failed'){
+
+					var errorMsg = obj['message'];
+				}else{
+					var errorMsg = 'Something went wrong in ajax request.';
+				}
+
+				$('#cartmsg').html(disErrorMsg('warning',errorMsg));
+				$('#ajax-loader-bx').hide();
+			}
+
+
+		}
+	});
+}
+
+function processStepOne(obj){
+	var isStepOneSuccess = false;
+
+	if(obj['status'] == 'success'){
+
+		isStepOneSuccess = true;
+	}else if(obj['status'] == 'error'){
+
+		displayServerErrorMsg(obj['errorMessages']); //Show error message
+	}else if(obj['status'] == 'failed'){
+
+		$('#cartmsg').html(disErrorMsg('warning',obj['message']));
+	}else{
+
+		$('#cartmsg').html(disErrorMsg('warning','Something went wrong in ajax request.'));
+	}
+
+	if(isStepOneSuccess == false){
+
+		collapseOpenTab('collapseSummary');
+	}else{
+		collapseOpenTab('collapsePaymentOptions');
+	}
+}
+
+function processStepTwo(obj){
+	var isStepTwoSuccess = false;
+
+	if(obj['status'] == 'success'){
+
+		isStepTwoSuccess = true;
+	}else if(obj['status'] == 'error'){
+
+		displayServerErrorMsg(obj['errorMessages']); //Show error message
+	}else if(obj['status'] == 'failed'){
+
+		$('#cartmsg').html(disErrorMsg('warning',obj['message']));
+	}else{
+
+		$('#cartmsg').html(disErrorMsg('warning','Something went wrong in ajax request.'));
+	}
+
+	if(isStepTwoSuccess == false){
+
+		collapseOpenTab('collapsebillingAddress');
+	}else{
+		collapseOpenTab('collapsePaymentOptions');
+	}
+}
+
+function processStepThree(obj){
+
+	var isStepThreeSuccess = false;
+	var deersForMilstar = '{{ isDearsAuthenticatedForMilstar }}' ;
+
+	if(obj['status'] == 'success'){
+
+		isStepThreeSuccess = true;
+	}else if(obj['status'] == 'error'){
+
+		displayServerErrorMsg(obj['errorMessages']); //Show error message
+	}else if(obj['status'] == 'failed'){
+
+		$('#cartmsg').html(disErrorMsg('warning',obj['message']));
+	}else{
+
+		$('#cartmsg').html(disErrorMsg('warning','Something went wrong in ajax request.'));
+	}
+
+	if(isStepThreeSuccess == false){
+
+		collapseOpenTab('collapsePaymentOptions');
+		$('#ajax-loader-bx').hide();
+	}else{
+
+		if(obj['status'] == 'success' && obj['paymentBy'] != ''){
+
+			if(obj['paymentBy'] == 'milstar' && deersForMilstar == 2){
+				$('#ajax-loader-bx').hide();
+				deersNotificationForMlistar();
+			}else{
+
+				$('#ajax-loader-bx').show();
+				window.location.href = '{{ path('dhi_do_payment_process') }}';
+			}
+
+		}else{
+
+			$('#ajax-loader-bx').hide();
+		}
+		collapseOpenTab('collapsePaymentOptions');
+	}
+
+}
+
+
+function collapseOpenTab(tabId){
+
+	//$('.panel-collapse.in').collapse('hide');
+	if(!$( "#"+tabId ).hasClass( "in" )){
+
+		$( "#"+tabId+"PannelTitle" ).trigger( "click" );
+	}
+}
+
+function displayServerErrorMsg(errorMessages){
+	if(errorMessages != ''){
+		for (var key in errorMessages) {
+
+			$("#"+key+"-error").html(errorMessages[key]).show();
+		}
+	}
+}
+
+function validatePaymentMethodForm(formName){
+
+	var paymentType = $('input[name=paymentBy]:checked', '#frmPaymentOptions').val();
+
+	if(paymentType == 'cc'){
+
+        $('#CardType').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please select card type.",
+            }
+        });
+
+        $('#CardNumber').rules('add', {
+            required: true,
+            digits: true,
+            maxlength: 16,
+            minlength: 14,
+            messages: {
+                required:  "Please enter card number.",
+                digits: "Only digits allowed.",
+                maxlength: "Maximum 16 digits allowed.",
+                minlength: "Minimum 14 digits required.",
+            }
+        });
+
+        $('#ExpMonth').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please select month.",
+            }
+        });
+
+        $('#ExpYear').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please select year.",
+            }
+        });
+
+        $('#Cvv').rules('add', {
+            required: true,
+            maxlength: 5,
+            digits: true,
+            messages: {
+                required:  "Please enter cvv.",
+                maxlength: "Maximum 5 digits allowed.",
+                digits: "Only digits allowed.",
+
+            }
+        });
+
+        $('#Firstname').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter first name.",
+            }
+        });
+        $('#Lastname').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter last name.",
+            }
+        });
+        $('#Address').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter address.",
+            }
+        });
+        $('#City').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter city.",
+            }
+        });
+        $('#State').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter state.",
+            }
+        });
+        $('#Zipcode').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter zip code.",
+            }
+        });
+        $('#Country').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please select country.",
+            }
+        });
+
+        return true;
+	}else if(paymentType == 'paypal'){
+
+		return true;
+	}else if(paymentType == 'milstar'){
+
+		$('#MCardNumber').rules('add', {
+            required: true,
+            maxlength: 16,
+            minlength: 14,
+            digits: true,
+            messages: {
+                required:  "Please enter milstar credit card number.",
+                maxlength: "Maximum 16 digits allowed.",
+                minlength: "Minimum 14 digits required.",
+                digits: "Only digits allowed.",
+            }
+        });
+
+		$('#MZipcode').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter zipcode.",
+            }
+        });
+
+		return true;
+	}else if(paymentType == 'chase'){
+
+		var chasePaymentType = $('input[name=chasePaymentType]:checked', '#frmPaymentOptions').val();
+		if (chasePaymentType == 'with-profile') {
+			return true;
+		}else if(chasePaymentType == 'new-profile' || chasePaymentType == 'without-profile'){
+			$('#ChaseWpCardType').rules('add', {
+	            required: true,
+	            messages: {
+	                required:  "Please select card type.",
+	            }
+	        });
+
+	        $('#ChaseWpCardNumber').rules('add', {
+	            required: true,
+	            regex_alphanumeric: /^[A-Za-z0-9]+$/,
+	            maxlength: 19,
+	            minlength: 14,
+	            messages: {
+	                required:  "Please enter card number.",
+                        regex_alphanumeric: "Card number contains only alphanumeric.",
+	                maxlength: "Maximum 19 characters allowed.",
+	                minlength: "Minimum 14 characters required.",
+	            }
+	        });
+
+	        $('#ChaseWpExpMonth').rules('add', {
+	            required: true,
+	            messages: {
+	                required:  "Please select month.",
+	            }
+	        });
+
+	        $('#ChaseWpExpYear').rules('add', {
+	            required: true,
+	            messages: {
+	                required:  "Please select year.",
+	            }
+	        });
+
+	        $('#ChaseWpCvv').rules('add', {
+	            required: true,
+	            maxlength: 4,
+	            digits: true,
+	            messages: {
+	                required:  "Please enter cvv.",
+	                maxlength: "Maximum 4 digits allowed.",
+	                digits: "Only digits allowed.",
+
+	            }
+	        });
+
+	        $('#ChaseWpFirstname').rules('add', {
+	            required: true,
+                    regex_alphanumeric: /^[A-Za-z0-9 ]+$/,
+                    maxlength: function(element){
+                        return (29 - ($("#ChaseWpLastname").val().length)); 
+                    },
+	            messages: {
+	                required:  "Please enter first name.",
+                        regex_alphanumeric: "First name contains only alphanumeric and space.",
+                        maxlength: "Maximum 29 characters allowed in Fullname.",
+	            }
+	        });
+	        $('#ChaseWpLastname').rules('add', {
+	            required: true,
+                    regex_alphanumeric: /^[A-Za-z0-9 ]+$/,
+                    maxlength: function(element){
+                        return (29 - ($("#ChaseWpFirstname").val().length)); 
+                    },
+	            messages: {
+	                required:  "Please enter last name.",
+                        regex_alphanumeric: "Last name contains only alphanumeric and space.",
+                        maxlength: "Maximum 29 characters allowed in Fullname.",
+	            }
+	        });
+	        $('#ChaseWpAddress').rules('add', {
+	            required: true,
+                    maxlength: 30,
+                    regex_valid_chase_address: /^[^%]*$/,
+	            messages: {
+	                required:  "Please enter address.",
+                        maxlength: "Maximum 30 characters allowed.",
+                        regex_valid_chase_address: "Please enter valid Address. Character % is not allowed.",
+	            }
+	        });
+	        $('#ChaseWpAddress2').rules('add', {
+	            maxlength: 30,
+                    regex_valid_chase_address: /^[^%]*$/,
+	            messages: {
+	                maxlength: "Maximum 30 characters allowed.",
+                        regex_valid_chase_address: "Please enter valid Address 2. Character % is not allowed.",
+	            }
+	        });
+	        $('#ChaseWpCity').rules('add', {
+	            required: true,
+                    maxlength: 20,
+                    regex_valid_chase_city: /^[^%]*$/,
+	            messages: {
+	                required:  "Please enter city.",
+                        maxlength: "Maximum 20 characters allowed.",
+                        regex_valid_chase_city: "Please enter valid City. Character % is not allowed."
+	            }
+	        });
+	        $('#ChaseWpState').rules('add', {
+	            required: true,
+	            messages: {
+	                required:  "Please enter province.",
+	            }
+	        });
+	        $('#ChaseWpZipcode').rules('add', {
+	            required: true,
+                    maxlength: 10,
+	            messages: {
+	                required:  "Please enter zip code.",
+                        maxlength: "Maximum 10 characters allowed.",
+	            }
+	        });
+	        $('#ChaseWpCountry').rules('add', {
+	            required: true,
+	            messages: {
+	                required:  "Please select country.",
+	            }
+	        });
+
+	        return true;
+
+		}else{
+			return false;
+		}
+
+	}else{
+
+		var err = disErrorMsg('warning','Please select valid payment options for payment.');
+		$('#cartmsg').html(err);
+		return false;
+	}
+}
+
+function checkValidCode(codeType,userid,amount){
+    $('.msgBoxCont').html('');
+            var discountCode = $('#discountCode').val();
+            var userId = userid;
+            if(discountCode){
+            	var postData = 'userDiscountCode='+discountCode+'&codeType='+'&userId='+userId+'&codeType'+codeType+'&amount='+amount;
+	            if(codeType){
+	                var checkCodeUrl = '{{ path('dhi_admin_discount_code_validation') }}';
+	            	$.ajax({
+						type: "POST",
+						url: checkCodeUrl,
+						data: postData,
+						beforeSend: function( xhr ) {
+						    $('#ajax-loader-bx').show();
+						},
+						success:function(result){
+	                            // SET label  to view after discount
+	                            if(result.success){
+
+	                            	if(result.discountPercentage == 100){
+	                            		window.location.reload();
+	                            	}
+
+	                                $("#discountBox").hide();
+                                    if(result.percentageType == 'amount'){
+                                        $("#discountLabel").text("Discount ");
+                                    }else if(result.percentageType == 'percentage'){
+                                        $("#discountLabel").text("Discount applied "+result.percentage+"% " );
+                                    }
+	                                $("#disocuntAmount").text("- "+"$"+result.discountAmount);
+	                                $(".discountAmo").removeClass("hide");
+
+	                                $("#grandTotal").text("$"+result.finalAmount);
+                                    //chase payment changes start
+
+                                    var total = $('#grandTotal').text();
+                                    //chase payment changes stop
+	                                // SET amount to submit after discount
+	                                $("#paybleAmount").val(result.finalAmount);
+
+                                     if(result.percentageType == 'amount'){
+                                        var err = disErrorMsg('success',"Success. $"+result.discountAmount+" Discount applied");
+                                    }else if(result.percentageType == 'percentage'){
+                                        var err = disErrorMsg('success',"Success. "+result.percentage+"% Discount applied");
+                                    }else{
+                                        var err = disErrorMsg('success',"Success. "+result.percentage+"% Discount applied");
+                                    }
+	                                $('#cartmsg').html(err);
+	                                scroll_to('cartmsg');
+
+
+	                            } else if(result.error) {
+	                               var msg = "Please enter a different Discount Code.";
+	                               var finalMessage = "";
+
+	                                if(result.error == 'codeNotExists'){
+	                                    finalMessage = "Invalid code. Please enter a valid Discount Code.";
+
+	                                } else if(result.error == 'codeInActive'){
+	                                    finalMessage =  "Invalid code. Please enter a valid Discount Code.";
+
+	                                } else if(result.error == 'alreayUsed'){
+	                                    finalMessage = "The code you entered is already used. " + msg;
+
+	                                } else if(result.error == 'codeExpire'){
+	                                    finalMessage = "The code you entered is expired. " + msg;
+	                                } else if(result.error == 'emptyCode'){
+	                                	finalMessage = "Please enter promo code. ";
+	                                }
+	                                var err = disErrorMsg(((result.success) ? 'success' : 'warning'),finalMessage);
+                                        $('#discountCode').val('');
+	                                $('#cartmsg').html(err);
+	                                scroll_to('cartmsg');
+	                            }
+	                            $('#ajax-loader-bx').hide();
+							},
+	                       	error : function(result){
+	                           var err = disErrorMsg('warning','Something is wrong please try after sometime.');
+	                            $('#cartmsg').html(err);
+	                            scroll_to('cartmsg');
+	                            return false;
+                            }
+					});
+	            }
+	        }else{
+	        	var err = disErrorMsg('warning',"Please enter promo code. ");
+                $('#cartmsg').html(err);
+                scroll_to('cartmsg');
+	        }
+        }
+
+
+
+
+
+
+/* ensure any open panels are closed before showing selected */
+$('#summary-accordion').on('show.bs.collapse', function () {
+    $('#summary-accordion .in').collapse('hide');
+});
+
+
+function scroll_to(div){
+	$('html, body').animate({
+
+		scrollTop: $("#"+div).offset().top
+	},1000);
+}
+
+function showCardinfoBox(val){
+	$('#ajax-loader-bx').show();
+	if(val == 'cc'){
+		$('#milstarinfo').hide();
+		$('#cardinfo').show();
+		$('#recurringBx').hide();
+        $('#chaseinfo').hide();
+
+	}else if(val == 'milstar'){
+		$('#milstarinfo').show();
+		$('#cardinfo').hide();
+		$('#recurringBx').hide();
+        $('#chaseinfo').hide();
+
+	}else if(val == 'chase'){
+		$('#milstarinfo').hide();
+        $('#chaseinfo').show();
+		$('#cardinfo').hide();
+		$('#recurringBx').hide();
+
+	}else{
+        $('#chaseinfo').hide();
+		$('#milstarinfo').hide();
+		$('#cardinfo').hide();
+		$('#recurringBx').show();
+
+	}
+	$('#recurringPayment').prop('checked', false); // Checks it
+	$('#ajax-loader-bx').hide();
+}
+
+function proccedActivation(){
+
+	$('#frmSummary').attr('action', '{{ path('dhi_service_active_by_credit') }}');
+
+	return true;
+}
+
+function deersNotificationForMlistar(){
+	 //var grandtotal = $('#grandtotalid').text() == "" ? 0 : $('#grandtotalid').text();
+	$.confirm({
+		title: 'Alert!',
+		content: 'DEERS authentication is required for Milstar payment. Do you want to proceed?',
+		icon: '',
+	    confirmButton: 'Yes',
+        cancelButton: 'No',
+        confirmButtonClass: 'btn-info',
+        cancelButtonClass: 'btn-danger',
+	    theme: 'white',
+        animation: 'scale',
+        animationSpeed: 400,
+        animationBounce: 1.5,
+        keyboardEnabled: false,
+        container: 'body',
+	    cancel: function(){
+
+	    },
+	    confirm: function(){
+			window.location.href = '{{ path('dhi_user_deers_auth', {'type' : 'milstarpayment'}) }}';
+	    },
+	    backgroundDismiss: false,
+        autoClose: false,
+        closeIcon: true
+	});
+}
+
+function deleteCouponCode(){
+	$.ajax({
+		type: "POST",
+		url: '{{path('dhi_ajax_remove_discount')}}',
+		data: {
+			action: 'remove'
+		},
+		beforeSend: function( xhr ) {
+		    $('#ajax-loader-bx').show();
+		},
+		success:function(result){
+	        if(result.status == 'success'){
+	            location.reload();
+	        } else {
+	            var err = disErrorMsg('warning',result.msg);
+	            $('#cartmsg').html(err);
+	        }
+	        $('#ajax-loader-bx').hide();
+		},
+	   	error : function(result){
+	        var err = disErrorMsg('warning','Something is wrong please try after sometime.');
+	        $('#cartmsg').html(err);
+	        return false;
+	    }
+	});
+}
+
+</script>
+
+{% endblock javascripts %}

@@ -1,0 +1,123 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block body %}
+	<section class="content-header">
+		<h1>Edit Business</h1>
+	</section>
+	<section class="content">
+    	<div class="box box-success">
+            <form action="{{ path('dhi_admin_business_edit', { id : business.id}) }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="edit_partner_form" novalidate>
+				<div class="box-body form-group-section">	
+                <div class="form-group col-sm-12 col-md-4 col-lg-4">
+                    <label class="control-label">Business Name: </label>
+                    <div>
+                        {{ form_widget(form.name, {'attr':{'placeholder':'Business Name','class':'form-control'}})}}
+                        <div class="serverError">{{ form_errors(form.name) }}</div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12 col-md-8 col-lg-8" style="height:auto;">
+                    <label class="control-label">Description: </label>
+                    <div>
+                        {{ form_widget(form.description, { 'attr': { 'placeholder': 'Description', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.description) }}</div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">POC Name: </label>
+                    <div>
+                        {{ form_widget(form.pocName, { 'attr': { 'placeholder': 'POC Name', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.pocName) }}</div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">POC Email: </label>
+                    <div>
+                        {{ form_widget(form.pocEmail, { 'attr': { 'placeholder': 'POC Email Address', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.pocEmail) }}</div>
+                        <label id="ajaxEmailMsg"></label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">POC Phone: </label>
+                    <div>
+                        {{ form_widget(form.pocPhone, { 'attr': { 'placeholder': 'POC Phone Number', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.pocPhone) }}</div>
+                    </div>
+                </div>
+                
+                
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Status: </label>
+                    <div>
+                        {{ form_widget(form.status, { 'attr': { 'placeholder': 'Active', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.status) }}</div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-8">
+                    <label class="control-label">Reason: </label>
+                    <div>
+                        {{ form_widget(form.reason, { 'attr': { 'placeholder': 'Active', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.reason) }}</div>
+                    </div>
+                </div>
+            </div>
+			<div class="box-footer">		
+                {{ form_rest(form) }}
+                <div class=" col-sm-6 edit-btn-bx">
+                    <input type="submit" name="edit" value="Edit" class="btn btn-success"/>
+                    <a href="{{ path('dhi_admin_business_list') }}" class="btn btn-default">Back</a>
+                </div>
+			</div>	
+            </form>
+		</div>
+	</section>	
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('bundles/dhiuser/js/commonFunction.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#edit_partner_form').validate({
+                rules: {
+                    "dhi_admin_business[pocEmail]": {
+                        "email": true
+                    },
+                    "dhi_admin_business[name]": {
+                        "required": true,
+                        "remote": {
+                            url: "{{ path("dhi_admin_business_check_name") }}",
+                            type: "post",
+                            data:{
+                                action:'edit',
+                                id: {{ id }}
+                            }
+                        }
+                    },
+                    "dhi_admin_business[status]": {
+                        "required": true
+                    },
+                    "dhi_admin_business[reason]": {
+                        "required": true,
+                        "maxlength": 255
+                    }
+                },
+                messages: {
+                    "dhi_admin_business[pocEmail]": {
+                        "email": "Please enter valid email"
+                    },
+                    "dhi_admin_business[name]" : {
+                         "required" : "Please Enter Business Name",
+                         "remote": "The business name is already exists."
+                    },
+                    "dhi_admin_business[status]": {
+                        "required": "Please select status"
+                    },
+                    "dhi_admin_business[reason]": {
+                        "required": "Please enter reason",
+                        "maxlength": "Reason can have maximum 255 characters"
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock javascripts %}

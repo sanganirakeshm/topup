@@ -1,0 +1,12 @@
+{% if channelList  %}
+    {% for channel in channelList %}
+        {% if arrChannelImage[channel] is defined and arrChannelImage[channel] != '' %}
+            <img alt="{{ channel }}" src="{{ asset('uploads/channels/'~arrChannelImage[channel]) }}">
+        {% else %}
+            {{ channel }}&nbsp;
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<div>
+    <a href="javascript:void(0);" onclick="showChannelList('{{ packageId }}')" id="showAllChannels_{{ packageId }}">Show All Channels</a>
+</div>

@@ -1,0 +1,136 @@
+
+<form action="javascript:void(0);" {{ form_enctype(form) }} method="POST" class="" id="addMacAddress" novalidate>
+    <div class="full-width">
+    	<div class="form-group full-width">
+    	  <div class="row">
+			<div class="serverError mac-top">
+						{% if form_errors(form.macAddress) %}
+							<ul>
+								<li>Confirmation mail has been sent to the owner</li>
+							</ul>
+						{% endif %}
+				</div>  
+    		<div class="col-sm-8">
+    			{{ form_widget(form.macAddress, { 'attr': {'class' : 'form-control','data-prompt-position': 'topRight', 'placeholder': 'User Mac Address'}}) }}
+    			{% if form_errors(form.macAddress) %}
+    				<div class="serverError" id="serverErrorMacAdd">{{ form_errors(form.macAddress) }}</div>
+                {% endif %}
+			</div>
+            <div class="col-sm-4">
+            	<input type="submit" name="submit" id="submitAddMacAddress" value="Save" class="submitBtn btn btn-blue full-width">
+			</div>
+			
+        {{ form_rest(form) }}                        
+		</div>             
+		</div>                                  
+    </div>
+</form>
+{% block javascripts %}
+
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        
+         $("#dhi_user_mac_address_macAddress").keyup(function(){
+
+            // store current positions in variables
+            var start = this.selectionStart,
+                end = this.selectionEnd;
+
+            // do your stuff
+            $(this).val( $(this).val().toUpperCase());
+
+            // restore from variables...
+            this.setSelectionRange(start, end);
+        });
+         
+         $.validator.addMethod("regex_mac", function(value, element, regexpr) {
+             return regexpr.test(value);
+         }, "Please enter valid mac address example: 48-51-B7-F2-67-82");
+         
+         $('#addMacAddress').validate({
+             rules: {
+                 "dhi_user_mac_address[macAddress]": {
+                     "required": true,
+                     "regex_mac": /^([0-9A-F]{2}[-]){5}([0-9A-F]{2})$/,                     
+                 }
+             },
+             messages: {
+                 "dhi_user_mac_address[macAddress]": {
+                     "required": "Please enter mac address.",
+                     "regex_mac": "Please enter valid mac address example: 48-51-B7-F2-67-82"                   
+                 },                 
+             },
+             onkeyup: function(element) {
+            	 
+            	 if($(element).valid() == false){
+            		 
+            		 $('.serverError').html('');
+            	 }
+             },
+             submitHandler: function(form) {
+            	 
+            	 $.ajax({
+                     type: "POST",
+                     url: "{{path('dhi_user_mac_address')}}",
+                     data: $("#addMacAddress").serialize(),
+                     beforeSend: function() {
+                     
+                         $('#ajax-loader-bx').show();
+                     
+                     },
+                     success: function(result)
+                     {
+                         var flagArr = jQuery.parseJSON(result);
+                         $('#ajax-loader-bx').hide();
+                         if (flagArr) {
+
+                             if (flagArr['error'])
+                             {
+
+                                 $("#form-body").show();
+                                 $("#form-body").html(flagArr['error']);
+
+                             }
+                             else if(flagArr.status == 'failure') {
+                                 $("#serverErrorMacAdd").html('');
+                                 flashMsg = disErrorMsg('danger', flagArr.detail);
+                                 $("#flash-message").html(flashMsg);
+                             }    
+                             else {
+
+                                 flashMsg = disErrorMsg('success', 'Mac address added successfully.');
+                                 $("#flash-message").html(flashMsg);
+
+                                 $("#dhi_user_mac_address_macAddress").val("");
+                                 $("#form-body").hide();
+
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '{{path('dhi_user_mac_address_list')}}',
+                                     success: function(result)
+                                     {
+                                         var flagMacAddress = jQuery.parseJSON(result);
+
+                                         if (flagMacAddress['status'] != 'failure') {
+
+                                             if (flagMacAddress['totalMacAddress'] > '{{app.session.get('maxMacAddress')}}' || '{{app.session.get('maxMacAddress')}}' == flagMacAddress['totalMacAddress']) {
+
+                                                 $("#add-mac-address").hide();
+                                             }
+                                             $("#mac-address-list").html(flagMacAddress['status']);                                             
+                                         }
+                                     }
+                                 });
+                             }
+                         }
+                     }
+                 });
+            	 
+            	 return false;
+             }
+         });
+    });
+    
+</script>
+{% endblock javascripts %}

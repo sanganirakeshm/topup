@@ -1,0 +1,169 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+
+{% endblock stylesheets %}
+{% block body %}
+
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>		
+
+    <section class="content-header">
+        <h1>Milstar Failure Report</h1>
+    </section>
+    <section class="content">	
+
+         <div class="row">
+             
+                    <div class="col-lg-12">
+                        <div class="box box-success">
+                            <form method="get">
+                                <div class="box-body">
+                                    <div class="form-group col-md-4">
+                                                        
+                                        <div class="row"><div class="col-sm-12" id="requestId"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <div class="row"><div class="col-sm-12" id="userName"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                                        
+                                        <div class="row"><div class="col-sm-12" id="email"></div></div>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </form>
+                            
+                        </div>
+                        
+                    </div>
+             
+                </div>		
+        
+        	
+
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="addNewBtnsGrp">
+                    {% if admin_permission.checkPermission('milstar_transaction') %}
+                        <a class="btn btn-success pull-right margin-top5" href="{{ path('dhi_milstar_transaction_lookup') }}">Milstar Transaction Report</a>
+                    {% endif %}
+                </div>
+                <table id="milstarFailureTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Request<br/>Id</th>
+                            <th>Transaction<br/>Amount</th>
+                            <th>Facility</th>
+                            <th>Failure<br/>Code</th>
+                            <th>IP Address</th>
+                            <th>User Name</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Item<br/>Number</th>
+                            <th>Purchase Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>        
+</section>	                    
+<div id="ajax-loader-bx" style="display:none;">
+    <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+    <div id="loader-text">Please wait....</div>
+</div>                
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}    
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            dTable = $('#milstarFailureTable').dataTable({
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: false,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                multipleSelection: true,
+                //iDisplayLength: 2,
+
+                sAjaxSource: "{{ path('dhi_admin_milstar_failure_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "Id", "bSearchable": false, "bSortable": true, "bVisible": false},
+                    {"sName": "RequestId", "bSearchable": true, "bSortable": true},
+                    {"sName": "TotalAmount"},
+                    {"sName": "FacNbr"},
+                    {"sName": "FailCode"},
+                    {"sName": "IPAddress"},
+                    {"sName": "UserName","bSearchable": true},
+                    {"sName":"FirstName"},
+                    {"sName":"LastName"},
+                    {"sName": "Email","bSearchable": true},
+                    {"sName": "packageId"},
+                    {"sName": "PurchaseDate"},
+                ],
+                aaSorting: [[0, 'asc']]
+
+            });
+            $('#milstarFailureTable').dataTable().columnFilter({
+                sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+                aoColumns: [
+                    {type: "text", sSelector: "#requestId"},
+                    null,
+                    null,
+                    null,
+                    null,
+                    {type: "text", sSelector: "#userName"},
+                    null,
+                    null,
+                    {type: "text", sSelector: "#email"}
+                    
+                ]
+            });
+
+            $("input").addClass("form-control");
+            $("select").addClass("form-control");
+
+           
+
+        });
+
+
+    </script>  
+
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+{% block body %}
+
+    <section class="mainBanner">
+        <div class="bannerText"></div>
+    </section>
+
+    <section class="welcomeText">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 welcomeIcons">
+                    <div class="welcomeLeftArrow"></div>
+                    <div class="welcomeIconsBg"><a href="#"><img src="{{ asset('bundles/dhiuser/images/chat-icon.png') }}"></a> <a href="#"><img src="{{ asset('bundles/dhiuser/images/location-icon.png') }}"></a> <a href="#"><img src="{{ asset('bundles/dhiuser/images/contact-icon.png') }}"></a></div>
+                    <div class="welcomeRightArrow"></div>
+                </div>
+                <article class="col-lg-12"><p>Lorem ipsum dolor sit amet conse ctetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. </p>
+                    <p>Lorem ipsum dolor sit amet conse ctetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <main class="cd-main-content">
+
+    <section id="aboutusMenu" class="cd-section aboutUs">
+        <div class="container">
+            <div class="row">
+                <h2>About Us</h2>
+                <span class="titleline"></span>
+                <article class="col-md-12"><p>Lorem ipsum dolor sit amet conse ctetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. </p>
+                    <p>Lorem ipsum dolor sit amet conse ctetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="servicesMenu" class="cd-section ourServices">
+        <div class="container">
+            <div class="row">
+                <div class="ourServicesImg"></div>
+                <h2>Services</h2>
+                <span class="titleline"></span>
+                <div class="clearfix"></div>
+                <article class="col-sm-10 col-md-10 col-lg-9"><p>Lorem ipsum dolor sit amet conse ctetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. </p>
+                </article>
+                <div class="clearfix"></div>
+                <div class="col-xs-12 col-sm-12 col-md-10 col-lg-9 servicesTab">
+                    <ul class="nav nav-tabs col-sm-8 col-md-4 col-lg-4" role="tablist">
+                      <li role="presentation" class="active"><a href="#connectTab" aria-controls="connectTab" role="tab" data-toggle="tab"><span class="serviceIcons"><i class="talkIcon"></i> <label class="leftArrow"></label></span> Connect to Talk</a></li>
+                      <li role="presentation"><a href="#connectLaugh" aria-controls="connectLaugh" role="tab" data-toggle="tab"><span class="serviceIcons"><i class="laughIcon"></i> <label class="leftArrow"></label></span> Connect to Laugh</a></li>
+                      <li role="presentation"><a href="#connectNews" aria-controls="connectNews" role="tab" data-toggle="tab"><span class="serviceIcons"><i class="newsIcon"></i> <label class="leftArrow"></label></span> Connect to News</a></li>
+                    </ul>
+
+                    <div class="tab-content col-xs-12 col-sm-8  col-md-8 col-lg-8 row">
+                        <div role="tabpanel" class="tab-pane fade in active" id="connectTab">
+                            <article><p>Webcam and talk whenever you want; as long as you want on Skype, FaceTime and more... Set up your Twitter feed and connect with friends and family on Facebook, Instagram, Tumblr, Google+ and more...</p></article> 
+                            <div class="socialLogo">
+                                <p><a href="#"><img src="{{ asset('bundles/dhiuser/images/facebook-logo.png') }}"></a> <a href="#"><img src="{{ asset('bundles/dhiuser/images/twitter-logo.png') }}"></a></p>
+                                <p><a href="#"><img src="{{ asset('bundles/dhiuser/images/skype-logo.png') }}"></a> <a href="#"><img src="{{ asset('bundles/dhiuser/images/youtube-logo.png') }}"></a></p>
+                            </div>
+                      </div>
+                        <div role="tabpanel" class="tab-pane fade" id="connectLaugh">
+                            <article><p>Check out today's funniest videos on YouTube, FunnyOrDie, Break, Deadspin, TMZ.com and more...</p></article> 
+                            <div class="socialLogo">
+                                <p><a href="#"><img src="{{ asset('bundles/dhiuser/images/facebook-logo.png') }}"></a> <a href="#"><img src="{{ asset('bundles/dhiuser/images/twitter-logo.png') }}"></a></p>
+                                <p><a href="#"><img src="{{ asset('bundles/dhiuser/images/skype-logo.png') }}"></a> <a href="#"><img src="{{ asset('bundles/dhiuser/images/youtube-logo.png') }}"></a></p>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" id="connectNews">
+                            <article><p>Stay in the know with breaking news on news.yahoo.com, news.google.com, cnn.com, espn.com and more. Follow the headlines and go in-depth on the stories that matter most to you...</p></article> 
+                            <div class="socialLogo">
+                                <p><a href="#"><img src="{{ asset('bundles/dhiuser/images/facebook-logo.png') }}"></a> <a href="#"><img src="{{ asset('bundles/dhiuser/images/twitter-logo.png') }}"></a></p>
+                                <p><a href="#"><img src="{{ asset('bundles/dhiuser/images/skype-logo.png') }}"></a> <a href="#"><img src="{{ asset('bundles/dhiuser/images/youtube-logo.png') }}"></a></p>
+                            </div>
+                        </div>
+                    </div>
+
+              </div>
+            </div>
+        </div>
+    </section>
+
+    {#<div class="cd-section" id="contactMenu">    
+        <section class="contactUs">
+            <div class="container">
+                <div class="row">
+                    <h2>Support</h2>
+                    <span class="titleline"></span>
+                    <div class="clearfix"></div>
+                    <div class="twoCol col-sm-12 col-lg-7">
+                        <article>
+                            <p><strong>Lorem ipsum dolor sit amet conse ctetur adipisicing elit, sed do eiusmod tempor</strong></p>
+                            <p>Lorem ipsum dolor sit amet conse ctetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p> 
+                            <p>Lorem ipsum dolor sit amet conse ctetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. </p>
+                        </article>
+                    </div>
+                    <div class="twoCol col-sm-12 col-lg-5">
+                        <article>
+                            <p><strong>Lorem ipsum dolor sit amet conse ctetur adipisicing elit, sed do eiusmod tempor</strong></p>
+                            <p>Lorem ipsum dolor sit amet conse ctetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p> 
+                        </article>
+                    </div>
+                    <div>
+                        {{ render(controller('DhiUserBundle:Support:support' )) }}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>#}
+
+    </main>
+{% endblock body %}

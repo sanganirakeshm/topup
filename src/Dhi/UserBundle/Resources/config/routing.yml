@@ -1,0 +1,290 @@
+dhi_user_landing_page:
+    path:     /
+    defaults: { _controller: DhiUserBundle:Security:login }
+
+dhi_user_homepage:
+    path:     /home/{param}
+    defaults: { _controller: DhiUserBundle:Security:login,param:0 }
+
+dhi_user_error:
+    path:     /error
+    defaults: { _controller: DhiUserBundle:Homepage:error }
+
+#dhi_user_about:
+#    path:     /about
+#    defaults: { _controller: DhiUserBundle:Homepage:about }
+
+dhi_user_faq:
+    path:     /faq
+    defaults: { _controller: DhiUserBundle:Homepage:faq }
+
+dhi_password_reset_success:
+    path:     /password-reset-success
+    defaults: { _controller: DhiUserBundle:Resetting:resetSuccess }
+
+dhi_user_reset_password:
+    path:     /resetting/reset/{token}
+    defaults: { _controller: DhiUserBundle:Resetting:reset }
+
+dhi_user_account:
+    path:     /account
+    defaults: { _controller: DhiUserBundle:Account:index }
+
+dhi_user_get_state:
+    path:     /get-state
+    defaults: { _controller: DhiUserBundle:Account:getState }
+
+dhi_user_check_email:
+    path:     /check-email
+    defaults: { _controller: DhiUserBundle:Account:checkEmail }
+
+dhi_user_check_valid_username:
+    path:     /verify-user
+    defaults: { _controller: DhiUserBundle:Account:checkValidUsername }
+    
+dhi_user_check_valid_username_only:
+    path:     /verify-user-only
+    defaults: { _controller: DhiUserBundle:Account:checkValidUsernameOnly }
+
+dhi_user_profile:
+    path:     /userprofile/{tab}
+    defaults: { _controller: DhiUserBundle:Account:accountUpdate,tab:1 }
+
+dhi_user_account_type_update:
+    path:     /account/type
+    defaults: { _controller: DhiUserBundle:Account:type}
+
+dhi_user_deers_auth:
+    path:     /deers-auth
+    defaults: { _controller: DhiUserBundle:User:deersAuth }
+
+fos_user_security_login:
+    path:     /login
+    defaults: { _controller: DhiUserBundle:Security:login }
+
+fos_user_resetting_request:
+    pattern:  /resetting/request
+    defaults: { _controller: DhiUserBundle:Resetting:request }
+
+fos_user_resetting_send_email:
+   pattern:  /resetting/send-email
+   defaults: { _controller: DhiUserBundle:Resetting:sendEmail }
+   
+fos_user_resetting_check_email:
+   pattern:  /resetting/check-email
+   defaults: { _controller: DhiUserBundle:Resetting:checkEmail }
+fos_user_resetting_reset:
+   pattern:  /reset/{token}
+   defaults: { _controller: DhiUserBundle:Resetting:reset }
+   
+fos_user_registration_register:
+   pattern:  /register
+   defaults: { _controller: DhiUserBundle:Registration:register }
+   
+fos_user_registration_check_email:
+   pattern:  /register/check-email
+   defaults: { _controller: DhiUserBundle:Registration:checkEmail }
+
+fos_user_registration_confirm:
+   pattern:  /confirm/{token}
+   defaults: { _controller: DhiUserBundle:Registration:confirm }
+   
+fos_user_registration_confirmed:
+   pattern:  /confirmed
+   defaults: { _controller: DhiUserBundle:Registration:confirmed }
+
+dhi_user_verification_success:
+    path:     /email-verification-success
+    defaults: { _controller: DhiUserBundle:Registration:emailVerificationSuccess }
+
+dhi_user_email_verification_failed:
+    path:     /resend-email-verification/{token}
+    defaults: { _controller: DhiUserBundle:Registration:resend }
+
+dhi_user_plan_add:
+    path:     /add-plan
+    defaults: { _controller: DhiUserBundle:Plan:add }
+
+dhi_user_plan_maintenance:
+    path:     /maintenance
+    defaults: { _controller: DhiUserBundle:Plan:maintenance }
+
+dhi_user_support:
+    path:     /support
+    defaults: { _controller: DhiUserBundle:Support:support }
+
+dhi_user_support_validate:
+    path:     /supportvalidate
+    defaults: { _controller: DhiUserBundle:Support:validateform }
+
+dhi_user_support_get_listing:
+    path:     /support/get/listing
+    defaults: { _controller: DhiUserBundle:Support:getListing }
+
+dhi_test_selevision:
+    path:     /test/selevision-ws
+    defaults: { _controller: DhiUserBundle:Test:selevisionWs }
+
+dhi_purchase_history:
+    path:     /purchase-history
+    defaults: { _controller: DhiUserBundle:PurchaseHistory:purchaseHistory }
+
+dhi_purchase_history_exportpdf:
+    path:     /purchase-history/export
+    defaults: { _controller: DhiUserBundle:PurchaseHistory:exportpdf }
+
+dhi_purchase_history_print:
+    path:     /purchase-history/print
+    defaults: { _controller: DhiUserBundle:PurchaseHistory:print }
+
+dhi_view_recurring_profile:
+    path:     /view-recurring-profile/{id}
+    defaults: { _controller: DhiUserBundle:PurchaseHistory:viewRecurringProfile, id:0 }
+
+dhi_recurring_profile_history_json:
+    pattern:  /recurring-profile-list-json
+    defaults: { _controller: DhiUserBundle:PurchaseHistory:viewRecurringProfileJson}
+
+dhi_customer_refund:
+    path:     /refund/{id}
+    defaults: { _controller: DhiUserBundle:User:refund }
+
+dhi_user_mac_address:
+    path:     /mac-address/{id}
+    defaults: { _controller: DhiUserBundle:UserMacAddress:macAddress, id:0}
+
+dhi_user_mac_address_list:
+    path:     /mac-address-list/{id}
+    defaults: { _controller: DhiUserBundle:UserMacAddress:listMacAddress, id:0}
+
+dhi_user_mac_address_remove:
+    path:     /mac-address-remove/{id}
+    defaults: { _controller: DhiUserBundle:UserMacAddress:deleteMacAddress}
+
+dhi_user_mac_address_edit:
+    path:     /edit-mac-address/{id}
+    defaults: { _controller: DhiUserBundle:UserMacAddress:editMacAddress}
+
+dhi_user_mac_address_add:
+    path:     /add-mac-address
+    defaults: { _controller: DhiUserBundle:UserMacAddress:addMacAddress}
+
+dhi_account_summary_tabs:
+    path:     /account-summary/{tab}
+    defaults: { _controller: DhiUserBundle:Account:ajaxAccountSummary,tab:1}
+
+dhi_user_homepage_test:
+    path:     /test
+    defaults: { _controller: DhiUserBundle:Homepage:index }
+
+dhi_user_purchase_credit:
+    path:     /credit
+    defaults: { _controller: DhiUserBundle:User:purchaseCredit }
+
+dhi_user_credit:
+    path:     /purchase-credit
+    defaults: { _controller: DhiUserBundle:Account:purchaseUserCredit }
+
+dhi_user_purchase_history_json:
+    pattern:  /purchase-history-list-json
+    defaults: { _controller: DhiUserBundle:PurchaseHistory:purchaseHistoryJson }
+
+dhi_user_expanded_purchase_history:
+    pattern:  /purchase-history/expand-purchase-history
+    defaults: { _controller: DhiUserBundle:PurchaseHistory:expandedPurchaseHistory }
+
+dhi_user_token_resend_email:
+    path:     /resend-email
+    defaults: { _controller: DhiUserBundle:Registration:resendEmail }
+
+dhi_user_invalid_token:
+    path:     /invalid-token
+    defaults: { _controller: DhiUserBundle:Registration:invalidVerificationToken }
+
+dhi_user_mac_address_confirm:
+    pattern:  /mac-address-confirm
+    defaults: { _controller: DhiUserBundle:UserMacAddress:confirm }
+
+dhi_user_mac_address_verification_success:
+    path:     /mac-address-verification-success
+    defaults: { _controller: DhiUserBundle:UserMacAddress:emailVerificationSuccess }
+
+dhi_user_mac_address_invalidate_token:
+     path:     /mac-address-invalid-token
+     defaults: { _controller: DhiUserBundle:UserMacAddress:invalidToken }
+
+dhi_ajax_get_service_plan:
+    path:     /get-service-plan
+    defaults: { _controller: DhiUserBundle:Account:ajaxGetServicePlan }
+
+dhi_ajax_get_bundleiptv_plan:
+    path:     /get-bundleiptv-plan
+    defaults: { _controller: DhiUserBundle:Account:ajaxGetBundleIptvModal }
+
+dhi_ajax_get_package_detail:
+    path:     /get-package-plan
+    defaults: { _controller: DhiUserBundle:Account:ajaxGetPackageName }
+
+dhi_ajax_get_dashboard_service:
+    path:     /get-dashboard-service
+    defaults: { _controller: DhiUserBundle:Account:ajaxGetDashboardService }
+
+dhi_ajax_get_promo_code:
+    path:     /get-promo-code
+    defaults: { _controller: DhiUserBundle:Account:ajaxGetPromoCode }
+
+dhi_ajax_get_addon_plan:
+    path:     /get-addon-plan
+    defaults: { _controller: DhiUserBundle:Account:ajaxGetAddonModal }
+
+dhi_admin_discount_code_validation:
+    pattern:  /check-discount-code-validation
+    defaults: { _controller: DhiUserBundle:User:checkDiscountCode }
+
+dhi_login:
+    path:     /internet/login
+    defaults: { _controller: DhiUserBundle:Security:login , affiliate : bv }
+
+dhi_signup:
+    path:     /internet/register
+    defaults: { _controller: DhiUserBundle:Registration:register , affiliate : bv }
+
+dhi_user_aradial_password_auth:
+    path:     /account/aradial-auth
+    defaults: { _controller: DhiUserBundle:Account:checkAradialAuth }
+
+dhi_ajax_apply_promo_code:
+    path:	 /apply-promo-code
+    defaults: { _controller: DhiUserBundle:Account:ajaxApplyPromoCode }
+
+dhi_ajax_redeem_promo_code:
+    path:	 /redeem-promo-code
+    defaults: { _controller: DhiUserBundle:Account:ajaxRedeemPromoCode }
+
+dhi_user_check_aradial_email_available:
+    path:    /account/aradial-email-avaiable
+    defaults: { _controller:  DhiUserBundle:Account:checkAradialMailAvailable }
+
+dhi_login_netgate:
+    path:     /netgate/login
+    defaults: { _controller: DhiUserBundle:Security:login , affiliate : netgate }
+
+dhi_signup_netgate:
+    path:     /netgate/register
+    defaults: { _controller: DhiUserBundle:Registration:register , affiliate : netgate }
+
+dhi_user_check_session_login:
+    path:    /check-user-login
+    defaults: { _controller:  DhiUserBundle:Account:checkUserLogin }
+
+dhi_user_refer_friends:
+    path:     /refer-friend
+    defaults: { _controller: DhiUserBundle:User:inviteFriend }
+    
+dhi_user_check_inviteer_email:
+    path:     /refer-friend/check-emailid
+    defaults: { _controller: DhiUserBundle:User:checkUniqueInvitation }
+
+dhi_ajax_get_checkout:
+    path:     /get-checkout
+    defaults: { _controller: DhiUserBundle:Account:ajaxGetCheckout }

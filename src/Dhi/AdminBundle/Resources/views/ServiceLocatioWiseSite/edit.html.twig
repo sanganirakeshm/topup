@@ -1,0 +1,78 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/dhiadmin/FCBKcomplete/style.css') }}" type="text/css" media="screen" charset="utf-8" />		
+{% endblock %}
+{% block body %}
+
+    <section class="content-header">
+        <h1>Edit Service Location Wise Site</h1>
+    </section>
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <section class="content">
+        <div class="box box-success">
+            <div class="row">
+                <div class="col-sm-12">
+                    <form action="{{ path('dhi_admin_service_location_to_sites_edit',{'id': objServiceLocationWiseSite.id}) }}" method="POST" {{ form_enctype(form) }} id="locationWiseSiteForm" class="form-horizontal" novalidate>		            
+                        <div class="box-body form-group-section">
+
+                            <div class="form-group col-md-4">
+                                <label class="control-label">Service Location: </label>
+                                <input type="text" class="form-control" value="{{objServiceLocationWiseSite.serviceLocation.name}}" readonly>
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label class="control-label">Site: </label>
+                                {{ form_widget(form.whiteLabel, { 'attr': { 'placeholder': 'Site', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form.whiteLabel) }}</div>	
+                            </div>
+                        </div>
+                        <div class="box-footer">		
+                            <div class="col-sm-12">
+                                <input type="submit" name="edit" value="Update" class="btn btn-success"/>
+                                <a href="{{ path('dhi_admin_service_location_to_sites_list') }}" class="btn btn-default">Back</a>
+                            </div>
+                        </div>
+                        {{ form_rest(form) }}
+                    </form>
+
+                </div>
+            </div>
+    </section>	
+    {{ tinymce_init() }}
+
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('bundles/dhiadmin/FCBKcomplete/jquery.fcbkcomplete.js') }}" type="text/javascript" charset="utf-8"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#locationWiseSiteForm').validate({
+                rules: {
+                    "dhi_admin_service_location_wise_site[serviceLocation]": {
+                        "required": true
+                    },
+                    "dhi_admin_service_location_wise_site[whiteLabel]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_admin_service_location_wise_site[serviceLocation]": {
+                        "required": "Please select service location"
+                    },
+                    "dhi_admin_service_location_wise_site[whiteLabel]": {
+                        "required": "Please select site"
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock javascripts %}

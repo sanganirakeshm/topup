@@ -1,0 +1,193 @@
+{% block body %}
+<table class="table table-bordered table-responsive" style="width:100%;">
+	{% if purchaseHistoryDetail|length > 0 %}
+	
+		{% set ispArrLegnth = 0 %} 
+		{% if 'ISP' in purchaseHistoryDetail|keys %}
+			
+			{% set ispArrLegnth = purchaseHistoryDetail.ISP|length %}
+			
+			{% if ispArrLegnth > 0 %}
+			
+					<tr>
+						<th rowspan="{{ ispArrLegnth + 1 }}">ISP</th>
+						<th>Package</th>
+						<th>Package Amount</th>
+						<th>Purchase Amount</th>
+						<th>Service Location</th>
+						<th>Payment Status</th>
+					<!--	<th>Activation Status</th> -->
+						<th>Date</th>
+						<!--<th>Expiry Date</th>-->
+					</tr>
+				{% for ispPurchase in purchaseHistoryDetail.ISP %}
+				
+					<tr>
+						<td>{{ ispPurchase.packageName }}</td>
+						<td>${{ ispPurchase.packageActualAmount }}</td>
+						<td>${{ ispPurchase.packagePaybleAmount }}</td>
+						<td>{{ ispPurchase.serviceLocation }}</td>
+						<td>{{ ispPurchase.paymentStatus }}</td>
+					<!--	<td>{#{ ispPurchase.activationStatus }#}</td> -->
+						<td>{{ ispPurchase.activationDate }}</td>
+					<!--	<td>{#{ ispPurchase.expiryDate }#}</td> -->
+					</tr>				
+				{% endfor %}
+			{% endif %}	
+		{% endif %}
+
+		{% set tvodArrLegnth = 0 %} 
+		{% if 'TVOD' in purchaseHistoryDetail|keys %}
+			
+			{% set tvodArrLegnth = purchaseHistoryDetail.TVOD|length %}
+			
+			{% if tvodArrLegnth > 0 %}
+			
+					<tr>
+						<th rowspan="{{ tvodArrLegnth + 1 }}">TVOD</th>
+						<th>Package</th>
+						<th>Package Amount</th>
+						<th>Purchase Amount</th>
+                                                <th>Service Location</th>
+						<th>Payment Status</th>
+					<!--	<th>Activation Status</th> -->
+						<th>Date</th>
+						<!--<th>Expiry Date</th>-->
+					</tr>
+				{% for tvodPurchase in purchaseHistoryDetail.TVOD %}
+				
+					<tr>
+						<td>{{ tvodPurchase.packageName }}</td>
+						<td>${{ tvodPurchase.packageActualAmount }}</td>
+						<td>${{ tvodPurchase.packagePaybleAmount }}</td>
+						<td>{{ tvodPurchase.serviceLocation }}</td>
+						<td>{{ tvodPurchase.paymentStatus }}</td>
+					<!--	<td>{#{ tvodPurchase.activationStatus }#}</td> -->
+						<td>{{ tvodPurchase.activationDate }}</td>
+					<!--	<td>{#{ tvodPurchase.expiryDate }#}</td> -->
+					</tr>				
+				{% endfor %}
+			{% endif %}	
+		{% endif %}
+	
+		{% set iptvArrLegnth = 0 %} 
+		{% if 'IPTV' in purchaseHistoryDetail|keys %}
+			
+			{% set iptvArrLegnth = purchaseHistoryDetail.IPTV|length %}
+			
+			{% if iptvArrLegnth > 0 %}
+			
+					<tr>
+						<th rowspan="{{ iptvArrLegnth + 1 }}">ExchangeVUE Package</th>
+						<th>Package</th>
+						<th>Package Amount</th>
+						<th>Purchase Amount</th>
+						<th>Service Location</th>
+						<th>Payment Status</th>
+					<!--	<th>Activation Status</th> -->
+						<th>Date</th>
+						<!--<th>Expiry Date</th>-->
+					</tr>
+				{% for iptvPurchase in purchaseHistoryDetail.IPTV %}
+				
+					<tr>
+						<td>{{ iptvPurchase.packageName }}</td>
+						<td>${{ iptvPurchase.packageActualAmount }}</td>
+						<td>${{ iptvPurchase.packagePaybleAmount }}</td>
+                                                <td>{{ iptvPurchase.serviceLocation }}</td>
+						<td>{{ iptvPurchase.paymentStatus }}</td>
+						
+						<td>{{ iptvPurchase.activationDate }}</td>
+						
+					</tr>				
+				{% endfor %}
+			{% endif %}	
+		{% endif %}
+		
+		{% set addOnArrLegnth = 0 %} 
+		{% if 'AddOn' in purchaseHistoryDetail|keys %}
+			
+			{% set addOnArrLegnth = purchaseHistoryDetail.AddOn|length %}
+			
+			{% if addOnArrLegnth > 0 %}
+			
+					<tr>
+						<th rowspan="{{ addOnArrLegnth + 1 }}">Premium Package</th>
+						<th>Package</th>
+						<th>Package Amount</th>
+						<th>Purchase Amount</th>
+                                                <th>Service Location</th>
+						<th>Payment Status</th>
+					<!--	<th>Activation Status</th> -->
+						<th>Date</th>
+						<!--<th>Expiry Date</th>-->
+					</tr>
+				{% for addOnPurchase in purchaseHistoryDetail.AddOn %}
+				
+					<tr>
+						<td>{{ addOnPurchase.packageName }}</td>
+						<td>${{ addOnPurchase.packageActualAmount }}</td>
+						<td>${{ addOnPurchase.packagePaybleAmount }}</td>
+                                                <td>{{ addOnPurchase.serviceLocation }}</td>
+						<td>{{ addOnPurchase.paymentStatus }}</td>
+						
+						<td>{{ addOnPurchase.activationDate }}</td>
+						
+					</tr>				
+				{% endfor %}
+			{% endif %}	
+		{% endif %}
+		
+		{% set creditArrLegnth = 0 %} 
+		{% if 'Credit' in purchaseHistoryDetail|keys %}
+			
+			{% set creditArrLegnth = purchaseHistoryDetail.Credit|length %}
+			
+			{% if creditArrLegnth > 0 %}
+	
+					<tr>
+						<th rowspan="{{ creditArrLegnth + 1 }}">Credit Purchase</th>
+						<th colspan="3">Description</th>
+						<th>Payment Status</th>
+						<th>Price</th>		
+					</tr>
+				{% for creditPurchase in purchaseHistoryDetail.Credit %}					
+					<tr>
+						<td colspan="3">{{ creditPurchase.packageName }}</td>
+						<td>{{ creditPurchase.paymentStatus }}</td>
+						<td>${{ creditPurchase.packagePaybleAmount }}</td>		
+					</tr>
+				{% endfor %}
+			{% endif %}
+		{% endif %}
+		
+		{% set compensationArrLegnth = 0 %} 
+		{% if 'Compensation' in purchaseHistoryDetail|keys %}
+			
+			{% set compensationArrLegnth = purchaseHistoryDetail.Compensation|length %}
+			
+			{% if compensationArrLegnth > 0 %}
+				{% set compLabel = '' %}
+				{% for compensationPurchase in purchaseHistoryDetail.Compensation %}					
+					{% set compLabel =  compLabel~compensationPurchase.service~" "~compensationPurchase.validity~"hrs Comp, " %}
+				{% endfor %}
+				<tr>
+					<th rowspan="{{ compensationArrLegnth + 1 }}">{{ compLabel|trim(", ") }}</th>
+					<th colspan="6">Service</th>
+					<th>Time</th>		
+				</tr>
+				{% for compensationPurchase in purchaseHistoryDetail.Compensation %}					
+					<tr>
+						<td colspan="6">{{ compensationPurchase.service }}</td>
+						<td>{{ compensationPurchase.validity }}hrs</td>
+					</tr>
+				{% endfor %}
+			{% endif %}
+		{% endif %}	
+		
+	
+	{% else %}
+	<tr><td>No Record Found</td></tr>
+	{% endif %}
+</table>
+{% endblock body %}

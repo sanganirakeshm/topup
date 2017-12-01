@@ -1,0 +1,69 @@
+{% trans_default_domain 'FOSUserBundle' %}
+
+
+<div class="login-box">
+      <div class="login-logo">
+	  <a href="{{ url('dhi_admin_dashboard') }}"><img src="{{ asset('bundles/dhiadmin/images/dhi_telecom_logo.png') }}" width="180" height="70"></a>
+      </div>
+	  <div class="login-box-body">
+		<h4 class="login-box-msg">Reset Password</h4>
+            
+                {% block fos_user_content %}
+                    {% trans_default_domain 'FOSUserBundle' %}
+                    
+                    <form action="{{ path('dhi_admin_reset_password', {'token': token}) }}" {{ form_enctype(form) }} method="POST" class="fos_user_resetting_reset" id="fos_user_resetting_reset" novalidate>
+                        
+                           
+                            <div class="form-group has-feedback resetBottom">
+                                
+                                {{ form_widget(form.plainPassword.first, { 'attr': {'placeholder': 'New Password', 'class': 'form-control'}}) }}
+                                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                                <div class="serverError">{{ form_errors(form.plainPassword.first) }}</div>
+                                
+							</div>
+
+							<div class="form-group has-feedback resetBottom">
+                                
+                                {{ form_widget(form.plainPassword.second, { 'attr': {'placeholder': 'Confirm Password', 'class': 'form-control'}}) }}
+                                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                                <div class="serverError">{{ form_errors(form.plainPassword.second) }}</div>
+                                
+							</div>
+							{{ form_rest(form) }}
+                        <div class="row">
+                            <div class="col-xs-12">
+								<input type="submit" value="{{ 'resetting.reset.submit'|trans }}" class="btn btn-success " />
+							</div>
+						</div>
+                        
+                    </form>
+                {% endblock fos_user_content %}
+            
+        </div>
+    </div>
+
+{#
+<div class="loginBg">
+    <div class="login">
+        <div class="loginForm">
+            <h1>Reset Password</h1>
+            <ul>
+                <form action="{{ path('dhi_admin_reset_password', {'token': token}) }}" {{ form_enctype(form) }} method="POST" class="fos_user_resetting_reset" id="fos_user_resetting_reset" novalidate>
+                    <li>
+                        {{ form_widget(form.plainPassword.first, { 'attr': {'placeholder': 'New Password'}}) }}
+                        {{ form_errors(form.plainPassword.first) }}
+                    </li>
+                    <li>
+                        {{ form_widget(form.plainPassword.second, { 'attr': {'placeholder': 'Confirm Password'}}) }}
+                        {{ form_errors(form.plainPassword.second) }}
+                    </li>
+                    {{ form_rest(form) }}
+                    <li class="submit">
+                        <input type="submit" class="submitBtn" value="{{ 'resetting.reset.submit'|trans }}" />
+                    </li>
+                </form>
+            </ul>
+        </div>
+    </div>
+</div>
+#}

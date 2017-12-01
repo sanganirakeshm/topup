@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dhi-portal" default="deploy">
+	<property name="phpmd"   value="${basedir}/bin/phpmd"/>
+	<property name="phpunit" value="${basedir}/bin/phpunit"/>
+	<property name="phpcpd" value="${basedir}/bin/phpcpd"/>
+	<property name="phpcs" value="${basedir}/bin/phpcs"/>
+	<property name="pdepend" value="${basedir}/bin/pdepend"/>
+
+	<!-- Use this when you want to test the current code -->
+	<target name="dev" depends="phpunit"/>
+
+	<!-- This makes a deploy but does not pull the git -->
+	<target name="deploy" depends="prepare,composer-update,db-update,clear-cache,phpmd-ci,phpcpd-ci,phpcs-ci,phpunit"/>
+
+	<!-- Prepare for build -->
+	<target name="prepare" depends="create-folders,purge-cache"/>
+
+	<!-- Remove the logs and cache folders -->
+	<target name="clean" description="Cleanup remains from old build">
+		<delete dir="${basedir}/app/var/build/logs"/>
+	</target>
+
+	<!-- Create new logs and cache folders -->
+	<target name="create-folders" depends="clean" description="Prepare for build, create some folders">
+		<mkdir dir="${basedir}/app/cache"/>
+		<mkdir dir="${basedir}/app/logs"/>
+	</target>
+
+	<target name="phpunit" description="Run unit tests with PHPUnit">
+		<exec executable="${phpunit}" failonerror="true">
+			<arg line="--log-junit ${basedir}/build/logs/phpunit.xml -c ${basedir}/app/phpunit.xml.dist"/>
+		</exec>
+	</target>
+        
+    <target name="adminphpunit" description="Run unit tests with PHPUnit">
+		<exec executable="${phpunit}" failonerror="true">
+			<arg line="--log-junit ${basedir}/build/logs/phpunit.xml -c ${basedir}/app/phpunitadmin.xml.dist"/>
+		</exec>
+	</target>
+
+ 	<target name="userphpunit" description="Run unit tests with PHPUnit">
+		<exec executable="${phpunit}" failonerror="true">
+			<arg line="--log-junit ${basedir}/build/logs/phpunit.xml -c ${basedir}/app/phpunituser.xml.dist"/>
+		</exec>
+	</target>
+
+	<target name="phpcpd" unless="phpcpd.done" description="Find duplicate code using PHPCPD and print human readable output. Intended for usage on the command line before committing.">
+		<exec executable="${phpcpd}" taskname="phpcpd">
+			<arg path="${basedir}/src" />
+		</exec>
+		<property name="phpcpd.done" value="true"/>
+	</target>
+
+	<target name="phpcpd-ci" unless="phpcpd.done" description="Find duplicate code using PHPCPD and log result in XML format. Intended for usage within a continuous integration environment.">
+		<exec executable="${phpcpd}" taskname="phpcpd">
+			<arg value="--log-pmd" />
+			<arg path="${basedir}/build/logs/pmd-cpd.xml" />
+			<arg path="${basedir}/src" />
+		</exec>
+		<property name="phpcpd.done" value="true"/>
+	</target>
+
+	<target name="composer-update" description="Update Composer">
+		<exec executable="php" failonerror="true">
+			<arg line="-d memory_limit=-1 /usr/bin/composer update"/>
+		</exec>
+	</target>
+
+	<target name="phpmd" unless="phpmd.done" description="Perform project mess detection using PHPMD and print human readable output. Intended for usage on the command line before committing.">
+		<exec executable="${phpmd}" taskname="phpmd">
+			<arg path="${basedir}/src" />
+			<arg value="text" />
+			<arg path="${basedir}/app/pmd.xml" />
+		</exec>
+		<property name="phpmd.done" value="true"/>
+	</target>
+
+    <target name="phpmd-ci" unless="phpmd.done" description="Perform project mess detection using PHPMD and log result in XML format. Intended for usage within a continuous integration environment.">
+		<exec executable="${phpmd}" taskname="phpmd">
+	   	<arg path="${basedir}/src" />
+			<arg value="xml" />
+			<arg path="${basedir}/app/pmd.xml" />
+			<arg value="--reportfile" />
+			<arg path="${basedir}/build/logs/pmd.xml" />
+		</exec>
+  		<property name="phpmd.done" value="true"/>
+ 	</target>
+
+	<target name="clear-apc" description="Clear the apc cache">
+		<exec executable="php" dir="${basedir}" failonerror="false">
+			<arg line="app/console apc:clear"/>
+		</exec>
+	</target>
+	
+	<target name="db-update" description="Update database schemda">
+		<exec executable="php" dir="${basedir}" failonerror="true">
+			<arg line="app/console doctrine:schema:update --force"/>
+		</exec>
+	</target>
+
+	<target name="purge-cache" description="Removes cache with force">
+		<delete includeEmptyDirs="true">
+			<fileset dir="${basedir}/app/cache" includes="**/*"/>
+		</delete>
+	</target>
+
+	<target name="clear-cache" description="Clear all the caches">
+		<exec executable="php" dir="${basedir}" failonerror="true">
+			<arg line="app/console cache:clear --env=prod --no-debug"/>
+		</exec>
+		<exec executable="php" dir="${basedir}" failonerror="true">
+			<arg line="app/console cache:clear --env=dev --no-debug"/>
+		</exec>
+	</target>
+
+	<target name="phpcs" unless="phpcs.done" description="Find coding standard violations using PHP_CodeSniffer and print human readable output. Intended for usage on the command line before committing.">
+  		<exec executable="${phpcs}" taskname="phpcs">
+   			<arg value="--standard=PSR2" />
+   			<arg value="--extensions=php" />
+   			<arg value="--ignore=autoload.php" />
+   			<arg path="${basedir}/src" />
+  		</exec>
+		<property name="phpcs.done" value="true"/>
+ 	</target>
+
+ 	<target name="phpcs-ci" unless="phpcs.done" description="Find coding standard violations using PHP_CodeSniffer and log result in XML format. Intended for usage within a continuous integration environment.">
+  		<exec executable="${phpcs}" output="/dev/null" taskname="phpcs">
+   			<arg value="--report=checkstyle" />
+   			<arg value="--report-file=${basedir}/build/logs/checkstyle.xml" />
+   			<arg value="--standard=PSR2" />
+   			<arg value="--extensions=php" />
+   			<arg value="--ignore=autoload.php" />
+   			<arg path="${basedir}/src" />
+  		</exec>
+  	</target>
+
+  	<target name="pdepend" unless="pdepend.done" description="Calculate software metrics using PHP_Depend and log result in XML format. Intended for usage within a continuous integration environment.">
+	  <exec executable="${pdepend}" taskname="pdepend">
+	    <arg value="--jdepend-xml=${basedir}/build/logs/jdepend.xml" />
+	    <arg value="--jdepend-chart=${basedir}/build/pdepend/dependencies.svg" />
+	    <arg value="--overview-pyramid=${basedir}/build/pdepend/overview-pyramid.svg" />
+	    <arg path="${basedir}/src" />
+	  </exec>
+	  <property name="pdepend.done" value="true"/>
+	</target>
+</project>

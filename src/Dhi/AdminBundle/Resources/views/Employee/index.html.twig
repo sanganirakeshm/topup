@@ -1,0 +1,289 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block body %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+    #logModel .modal-dialog{
+        width:835px;
+    }
+    </style>
+{% endblock stylesheets %}
+
+<div id="flash-message" class="msgBoxCont"></div>
+{% include "DhiUserBundle::flashMessage.html.twig" %}
+<div class="delBoxCont"></div>		
+<section class="content-header"><h1>Search Employee</h1></section>
+<section class="content">	
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="box box-success">
+				<form method="get">
+					<div class="box-body">
+					<div class="row">
+                                                <div class="form-group col-md-3">
+                                                    <input type="text" name="firstname" class="text_filter form-control search_init" id="firstname" placeholder="First Name" >
+                                                </div>
+                                                <div class="form-group col-md-3">
+                                                    <input type="text" name="lastname" class="text_filter form-control search_init" id="lastname" placeholder="Last Name" >
+                                                </div>
+						<div class="form-group col-md-3">
+							<div id="username"></div>
+						</div>
+						<div class="form-group col-md-3">
+							<div id="email"></div>
+						</div>                                    
+						<div class="form-group col-md-3">
+							<div id="ActiveService"></div>
+						</div>  
+                            <div class="form-group col-md-3">
+							<div id="ServiceLocation"></div>
+						</div>
+
+						
+					</div></div>
+				</form>
+			</div>
+		</div>
+	</div>		
+
+	<div class="box box-success">
+        <div class="box-body">
+			<div class="row">
+				<div class="col-xs-12">  
+                    {% if admin_permission.checkPermission('employee_create') %}
+                       <div class="addNewBtnsGrp">
+                        <a href="{{ path('dhi_employee_new') }}" class="btn btn-success pull-right margin-top5">Add new employee</a>
+                       </div>
+                    {% endif %}
+	                <table id="userTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+	                    <thead>
+	                        <tr>
+	                            <th width="40">Id</th>
+	                            <th width="100">Name</th>
+	                            <th width="100">Username</th>
+	                            <th width="160">Email</th>
+	                            <th width="80">Active<br> Services</th>
+                              <th width="80">Service<br> Location</th>
+	                            <th width="130">Activation<br>Date</th>
+                              <th width="130">Expiry<br>Date</th>
+	                            <th></th>                                       
+	                            <th width="60">Action</th>
+	                        </tr>
+	                    </thead>
+	                </table>
+                </div>
+            </div>
+    	</div>
+	</div>        
+</section>  
+
+          
+<div id="ajax-loader-bx" style="display:none;">
+	<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+	<div id="loader-text">Please wait....</div>
+</div>
+
+<div class="modal fade" id="logModel" tabindex="-1" role="dialog" aria-labelledby="logModel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+<div class="modal fade" id="compensationModel" tabindex="-1" role="dialog" aria-labelledby="compensationModel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+{% endblock body %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+
+<script type="text/javascript">
+    
+     $(document).ready(function () {
+          
+            deleteAjaxSource = '{{ path('dhi_admin_delete_employee') }}';
+           
+            dTable = $('#userTable').dataTable({
+               
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                bPaginate:true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_employee_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_dashboard') }}";
+                                }
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "Id", "bSearchable": false, "bSortable": true, "bVisible": false},
+                    {"sName": "Name","bSearchable": false,"bSortable": true},
+                    {"sName": "Username", "bSearchable": true, "bSortable": true},
+                    {"sName": "Email", "bSearchable": true, "bSortable": true},
+                    {"sName": "ActiveServices", "bSearchable": true, "bSortable": false},
+                    {"sName": "ServiceLocation", "bSearchable": true, "bSortable": false},
+                    {"sName": "ActivationDate", "bSearchable": false, "bSortable": false},
+                    {"sName": "ExpiryDate", "bSearchable": false, "bSortable": false},
+                    {"sName": "ServiceSettings", "bSearchable": false, "bSortable": false, "bVisible": false},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false},
+                    
+                ],
+                "fnServerParams": function ( aoData ) {
+                    aoData.push( { "name": "firstname", "value": $("#firstname").val() } );
+                    aoData.push( { "name": "lastname", "value": $("#lastname").val() } );
+                },
+                aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+                        	
+                          
+                        	var actionFlag = row[9].split('^');
+                        	var dataId = actionFlag[0];    
+                                var flagSetting = actionFlag[2];
+                                var firstlastname = row[1];
+                                var username = actionFlag[3];
+                                var isActiveService = row[4];
+                                
+                                var headTitle = "Employee Delete";
+                                var msg = 'Are you sure you want to delete this Employee?';
+                                var returnData = "";
+                                
+                                returnData += "<a href='javascript:void(0);' class='selectLink'>Select <span class='fa fa-angle-down'></span></a>";
+                                returnData += "<ul class='selectDropdown' style='display: none;'>";
+                                
+                                {% if admin_permission.checkPermission('view_employee') %}
+                                
+                                	var viewUrl = '{{ path('dhi_admin_view_employee', {'id': 'user_id'}) }}';
+                                	var viewUser = viewUrl.replace("user_id", dataId);
+                                	returnData +='<li><a href="'+viewUser+'" title="Employee Details">View</a></li>';                    
+                            	{% endif %}
+                             
+                                {% if admin_permission.checkPermission('employee_update') %}
+                                    var editUrl = '{{ path('dhi_admin_edit_employee', {'id': 'user_id'}) }}';
+                                    var editUser = editUrl.replace("user_id", dataId);
+                                    returnData +='<li><a href="'+editUser+'"  title="Edit"> Edit</a></li>';
+                                {% endif %}
+
+                                {% if admin_permission.checkPermission('employee_purchase_detail') %}
+                                    var purchaseDetailUrl = '';
+                                    /*{% if admin.serviceLocations|length > 1 %}
+									   purchaseDetailUrl = '{{ path('dhi_admin_employee_service_location_list', {'id': 'user_id'}) }}';
+                                    {% else %}
+                                        purchaseDetailUrl = '{{ path('dhi_admin_employee_service_details', {'id': 'user_id'}) }}';
+                                    {% endif %}*/
+
+                                    purchaseDetailUrl = '{{ path('dhi_admin_employee_service_details', {'id': 'user_id'}) }}';
+                                    var purchaseDetailUser = purchaseDetailUrl.replace("user_id", dataId);
+                                    returnData +='<li><a href="'+purchaseDetailUser+'"  title="Purchase Details">Services</a></li>';
+                                    
+                            	{% endif %}
+
+                                {% if admin_permission.checkPermission('employee_login_log') %}
+                                    returnData += '<li><a href="javascript:void(0)"  onclick="showLogBox('+dataId+')">Log</a></li>';
+                                {% endif %}
+
+                                {% if admin_permission.checkPermission('employee_delete') %}
+                                	var deleteUrl = '{{ path('dhi_admin_delete_employee', {'id': 'user_id'}) }}';
+                                	var finalPath = deleteUrl.replace("user_id", dataId);
+                                	returnData +='<li><a href="javascript:void(0)"  title="Delete" onclick="return deleterecord(' + dataId + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" +')">Delete</a></li>';  
+                               	{% endif %}
+                           
+                                returnData += "</ul>";
+        
+                                  
+                            return returnData;
+                        },
+                        "aTargets": [9]
+                    }
+                ],
+                aaSorting: [[0, 'DESC']]
+            });
+             $('#userTable').dataTable().columnFilter({
+            aoColumns: [
+              null,    
+             {type: "text", sSelector: "#username"},
+             {type: "text", sSelector: "#email"},
+             {type: "select", sSelector: "#ActiveService", values: ['IPTV', 'ISP', 'IPTV and ISP']},
+             {type: "select", sSelector: "#ServiceLocation", values: {{ serviceLocations|json_encode|raw }}}
+             ]
+        });
+
+        var usegridtable = $('#userTable').DataTable();
+        $('#firstname').focus(function(){
+           usegridtable.fnDraw(true);
+        });
+        $('#firstname').blur(function(){
+            usegridtable.fnDraw(true);
+        });
+         
+        $('#lastname').focus(function(){
+            usegridtable.fnDraw(true);
+        });
+        $('#lastname').blur(function(){
+            usegridtable.fnDraw(true);
+        });
+         
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+    });
+
+    function disErrorMsg(msgType, msg) {
+
+        var html = '';
+        html += '<div class="alert alert-' + msgType + '">';
+        html += '<button type="button" class="close" data-dismiss="alert">&times;</button>';
+        html += msg
+        html += '</div>';
+        return html;
+    } 
+
+    function showLogBox(dataId) {
+        var logUrl = '{{ path('dhi_admin_employee_log_detail', {'id': 'user_id'}) }}';
+            logUrl = logUrl.replace("user_id", dataId);
+        
+        $('#ajax-loader-bx').show();
+        $('#logModel .modal-content').load(logUrl, { id:dataId},function (result) {
+            
+            $('#ajax-loader-bx').hide();
+            $('#logModel').modal({show: true});
+        });
+    }
+    
+    function closeModelPopup() {
+        $('#logModel').modal('hide');
+        //window.location.reload();
+    }
+</script>
+
+{% endblock javascripts %}

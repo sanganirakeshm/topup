@@ -1,0 +1,29 @@
+{% if countrywiseServices|length > 0 %}
+	{# if services|length == 1 %}
+		<input type="hidden" name="service" class="cls-dhi_user_support_service" id="dhi_user_support_service" value="{{ services[0].id }}" />
+	{% else %}
+		<div class="form-group half-width">
+			<select id="dhi_user_support_service" name="service" required="required" class="form-control cls-dhi_user_support_service" placeholder="service" aria-required="true">
+				<option value="" selected="selected">Select Service</option>
+				{% for service in services %}
+					{% if service.name|upper in ['IPTV', 'ISP'] %}
+						<option value="{{ service.id }}">{{ service.name }}</option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		</div>
+	{% endif #}
+	<div class="form-group half-width">
+		<select id="dhi_user_support_service" name="service" required="required" class="form-control cls-dhi_user_support_service" placeholder="service" aria-required="true">
+			<option value="" selected="selected">Select Service</option>
+			{% for countrywiseService in countrywiseServices %}
+				{# {% for service in countrywiseService %} #}
+					{% if countrywiseService.services.name|upper in ['IPTV', 'ISP'] %}
+						{% set service = countrywiseService.services %}
+						<option value="{{ service.id }}">{{ service.name }}</option>
+					{% endif %}
+				{# {% endfor %} #}
+			{% endfor %}
+		</select>
+	</div>
+{% endif %}

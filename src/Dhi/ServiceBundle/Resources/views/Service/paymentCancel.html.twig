@@ -1,0 +1,13 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+{% block body %}
+<div class="innerBg">
+	<div class="container">
+    	<div class="row">
+        	{% include "DhiUserBundle::flashMessage.html.twig" %}
+        	<h3>Payment Cancelled</h3>
+			<p>You have selected to cancel your PayPal transaction and return to ExchangeVUE.<br/>To restart your transaction please click the 'Account' link above.</p>						
+		</div>
+	</div>
+</div>
+{% endblock body %}
+

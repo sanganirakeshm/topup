@@ -1,0 +1,339 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">   	
+    <style type="text/css">
+        .responsiveTable{overflow: auto;width:100%; }
+        .responsiveTable th input[type="checkbox"].form-control{width:13px;height:13px;}
+       
+    </style>
+{% endblock stylesheets %}
+{% block body %}
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>		
+    <section class="content-header">
+        <h1>Tikilive Promo Code</h1>
+    </section>
+    
+    <section class="content">	
+        {% if admin_permission.checkPermission('tikilive_promo_code_search_filter') %}
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get">
+                        <div class="box-body">
+                            <div class="form-group col-md-3">
+                                <div class="row"><div class="col-sm-12" id="planName">
+                                 <span class="filterColumn filter_select">
+                                            <select class="select_filter form-control serviceloc">
+                                                <option value="" class="search_init">Plan Name</option>
+                                                 {% for key,tikiliveplanname in tikiliveplannames %}
+                                                    <option value="{{ key }}">{{ key }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </span>   
+                                 </div></div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <div class="row"><div class="col-sm-12" id="promocode"></div></div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <div class="row"><div class="col-sm-12" id="batchnumber"></div></div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <div class="row"><div class="col-sm-12" id="isRedeemed"></div></div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <div class="row"><div class="col-sm-12" id="Redeemdby"></div></div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <div class="row"><div class="col-sm-12" id="packageName"></div></div>
+                            </div>
+                           
+                            <div class="form-group col-md-3">
+                                <div class="row"><div class="col-sm-12" id="status"></div></div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <div class="row"><div class="col-sm-12" id="creeatedby"></div></div>
+                            </div>
+                             <div class="form-group col-md-6">
+                                <div class="row"><div class="col-sm-12" id="redeemedDate"></div></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">  
+                        <div class="addNewBtnsGrp">
+                            {% if admin_permission.checkPermission('tikilive_active_user_list') or admin_permission.checkPermission('tikilive_active_user_export_csv') %}
+                                <a href="{{ path('dhi_admin_tikilive_active_uset_list') }}" class="btn btn-success pull-right margin-top5">Active User Report</a>
+                            {% endif %}
+                            {% if admin_permission.checkPermission('tikilive_promo_code_import') %}   
+                                <a href="{{ path('dhi_admin_tikilive_promo_code_import') }}" class="btn btn-success pull-right margin-top5">Import</a>
+                            {% endif %}
+                            {% if admin_permission.checkPermission('tikilive_promocode_export_csv') %}   
+                                <a id ="exporttikilve" href="{{ path('dhi_admin_tikilive_promo_code_exportcsv') }}" class="btn btn-success pull-right margin-top5">Export CSV</a>
+                            {% endif %}
+                            {% if admin_permission.checkPermission('tikilive_promo_code_status') %}   
+                                <a id="enableAll" href="javascript:void(0);" class="btn btn-success pull-right margin-top5" onclick="changestatuspromocode('enable')">Enable</a>
+                                <a id="disableAll" href="javascript:void(0);" class="btn btn-success pull-right margin-top5" onclick="changestatuspromocode('disable')">Disable</a>
+                            {% endif %}
+                           
+                        </div>
+                        <table id="promoCodeTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover" width="100%">
+                            <thead>
+                                <tr>
+                                    <th width="20"><input type="checkbox" name="multicheck" id="multicheck"></th>
+                                    <th width="80">Batch<br>Name</th>
+                                    <th width="90">Promo<br/>Code</th>
+                                    <th width="50">IPTV<br/>Plan Name</th>
+                                    <th width="70">Is Displayed?</th>
+                                    <th width="100">Internet<br/> Plan Name</th>
+                                    <th width="70">Display Date</th>
+                                    <th width="110">TikiLive<br/> Redemption <br/>Date</th>
+                                    <th width="70">Redeemed<br/> By</th>
+                                    <th width="50">Status</th>
+                                    <th width="70">Imported <br/>Date</th> 
+                                    <th width="70">Imported <br/>By</th>
+                                    <th width="50">Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiadmin/js/datatables/extras/FixedColumns/media/js/FixedColumns.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            dTable = $('#promoCodeTable').dataTable({
+            "oLanguage": {
+            "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+            },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                scrollX: true,
+                iDisplayLength:{{ record_per_page }},
+                sAjaxSource: '{{ path('dhi_admin_tikilive_promo_code_list_json')}}',
+                
+                "fnServerData": function (sUrl, aoData, fnCallback, oSettings) {
+                oSettings.jqXHR = $.ajax({
+                "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                        if (json.sError) {
+                        oSettings.oApi._fnLog(oSettings, 0, json.sError);
+                        }
+                        $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                        fnCallback(json);
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                        /*if ( error == "parsererror" ) {
+                         window.location = "{{ path('dhi_admin_dashboard') }}";
+                         }*/
+                        }
+                        
+                });
+                },
+                fnDrawCallback: function () {
+                   if (this.fnSettings().fnRecordsTotal() == 0) {
+                        $("#enableAll").addClass('disabled');
+                        $("#disableAll").addClass('disabled');
+                        $('#exporttikilve').addClass('disabled');
+                   } else {
+                        $("#enableAll").removeClass('disabled');
+                        $("#disableAll").removeClass('disabled');
+                        $("#exporttikilve").removeClass('disabled');
+                   }    
+                },
+                aoColumns: [
+                {"sName": "srno", "bSearchable": false, "bSortable": false},
+                {"sName": "batchNumber", "bSearchable": true, "bSortable": true},
+                {"sName": "promoCode", "bSearchable": true, "bSortable": true},
+                {"sName": "planName", "bSearchable": true, "bSortable": true},
+                {"sName": "isRedeemed", "bSearchable": true, "bSortable": true},
+                {"sName": "packageName", "bSearchable": true, "bSortable": true},
+                {"sName": "displayDate", "bSearchable": false, "bSortable": true},
+                {"sName": "redeemedDate", "bSearchable": true, "bSortable": true},
+                {"sName": "redeemedBy", "bSearchable": true, "bSortable": true},
+                {"sName": "Status", "bSearchable": true, "bSortable": true},
+                {"sName": "createdAt", "bSearchable": false, "bSortable": true},
+                {"sName": "createdBy", "bSearchable": true, "bSortable": true},
+                {"sName": "Action", "bSearchable": true, "bSortable": false},
+                ],
+                aoColumnDefs: [
+                {
+                "mRender": function(data, type, row) {
+                var id = row[12]
+                var reedemed = row[4];
+                var status = row[9];
+                var returnData = '';
+                if (reedemed == 'No'){
+                {% if admin_permission.checkPermission('tikilive_promo_code_status') %}
+                            var statusLabel = '';
+                            if (status == 'Enabled'){
+                              statusLabel = 'Disable';
+                            } else if(status == 'Disabled'){
+                              statusLabel = 'Enable';
+                            }
+                   var url = '{{ path('dhi_admin_tikilive_promo_code_status', {'id': 'promo_id', 'status': 'promo_status'}) }}';
+                                var url = url.replace("promo_id", id);
+                                var url = url.replace("promo_status", status);
+                                returnData += '<a href="' + url + '" class="btn btn-success" title="' + statusLabel + '"> ' + statusLabel + '</a>';
+
+                {% endif %}
+                
+            
+            
+            
+                        } else{
+                        returnData += '<a href="javascript:void(0);" class="btn btn-disabled" title="' + status + '"> ' + status + '</a>';
+                        }
+
+                        return returnData;
+                        },
+                                "aTargets": [12]
+                        }
+                        ],
+                        aaSorting: [[12, 'desc']]
+                });
+     
+    
+        $(".datatable").wrap("<div class='responsiveTable'></div>");
+    
+                {% if admin_permission.checkPermission('tikilive_promo_code_search_filter') %}
+                    $('#promoCodeTable').dataTable().columnFilter({
+                        sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+                        aoColumns: [
+                            null,
+                            {type: "text", sSelector: "#batchnumber"},
+                            {type: "text", sSelector: "#promocode"},
+                            {type: "select", sSelector: "#planName", values: {{tikiliveplannames|json_encode()|raw}}},
+                            {type: "select", sSelector: "#isRedeemed", values: ['Yes', 'No']},
+                            {type: "text", sSelector: "#packageName"},
+                            null,
+                            {type: "date-range", sSelector: "#redeemedDate"},
+                            {type: "text", sSelector: "#Redeemdby"},
+                            {type: "select", sSelector: "#status", values: ['Enabled', 'Disabled']},
+                            null,
+                            {type: "text", sSelector: "#creeatedby"}, null
+                        ]
+                    });
+                 {% endif %}
+                
+                $("input").addClass("form-control");
+                $("#redeemedDate input").addClass("admins");
+                $("select").addClass("form-control");
+
+                $("#redeemedDate .date_range_filter:first").attr('placeholder','TikiLive Redemption Date');
+                $("#redeemedDate .date_range_filter:last").attr('placeholder','TikiLive Redemption Date');
+                $("#redeemedDate .date_range_filter:first").change(function(event) {
+                    $("#redeemedDate .date_range_filter:last").datepicker("option", "minDate", $(this).val());
+                }).keyup(function(e) {
+                    if(e.keyCode == 8 || e.keyCode == 46) {
+                        $.datepicker._clearDate(this);
+                    }
+                });
+                $("#redeemedDate .date_range_filter:last").change(function(event) {
+                    $("#redeemedDate .date_range_filter:first").datepicker("option", "maxDate", $(this).val());
+                }).keyup(function(e) {
+                    if(e.keyCode == 8 || e.keyCode == 46) {
+                        $.datepicker._clearDate(this);
+                    }
+                });
+                $(".filter_date_range .date_range_filter.hasDatepicker").attr({ readonly: 'true' });
+    
+	  });
+                  
+
+                function changestatuspromocode(type){
+                    
+                    
+                    var checked = $("input[type=checkbox]:checked"); //find all checked checkboxes + radio buttons
+                    var nbChecked = checked.size();
+                    if(nbChecked > 0){
+                        var allVals = [];
+                        $("input[type=checkbox]:checked").each(function() {
+                           allVals.push($(this).val());
+                         });
+                         
+                         
+                         $.ajax({
+                             type: "POST",
+                             url: '{{ path('dhi_admin_tikilive_promo_code_multi_status_change') }}',
+                             data: { promocodeids: allVals, statustype: type},
+                             beforeSend: function (xhr) {
+                                $('#ajax-loader-bx').show();
+                              },
+                             success: function (result) {
+                                
+                                 window.location.href = '{{ path('dhi_admin_tikilive_promo_code_list') }}';
+                             }    
+                         });
+                    } else {
+                        showAlertBox('Please select atleast one Promo Code.');
+                        return false;
+                    }
+                }
+                
+                function showAlertBox(msg){
+                    if(msg){
+                        $.alert({
+                            title: 'Alert!',
+                            content: msg,
+                            confirmButtonClass: 'btn-info',
+                            theme: 'white',
+                            animation: 'scale',
+                            animationSpeed: 400,
+                            animationBounce: 1.5,
+                            keyboardEnabled: false,
+                            container: 'body',
+                            confirm: function(){},
+                            backgroundDismiss: false,
+                            autoClose: false,
+                            closeIcon: true
+                        });
+                    }
+                }
+
+                $('#multicheck').click(function () {
+                    if (this.checked) { // check select status
+                        $('.tikilivecheckbox').each(function () { //loop through each checkbox
+                            this.checked = true;  //select all checkboxes with class "checkbox1"               
+                        });
+                    } else {
+                        $('.tikilivecheckbox').each(function () { //loop through each checkbox
+                            this.checked = false; //deselect all checkboxes with class "checkbox1"                       
+                        });
+                    }
+                });
+                
+                
+    </script>
+
+{% endblock javascripts %}

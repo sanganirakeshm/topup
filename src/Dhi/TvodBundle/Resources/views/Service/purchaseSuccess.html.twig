@@ -1,0 +1,63 @@
+
+{% if url %}
+<form action="{{url}}" name="frmStatus" id="frmStatus" method="post">
+
+    {% if purchasedSummaryData and purchasedSummaryData.RecurringStatus != '' %}
+        {# <input type="hidden" name="RecurringStatus" value="{{purchasedSummaryData.RecurringStatus}}" /> #}
+    {% endif %}
+
+    
+    {# <input type="hidden" name="errNo" value="{{ errNo }}" /> #}
+
+
+    {% if purchasedSummaryData.OrderNumber is defined and purchasedSummaryData.OrderNumber != '' %}
+
+        {# if purchasedSummaryData.TransactionId is defined and purchasedSummaryData.TransactionId != '' %}
+            <input type="hidden" name="transactionId" value="{{ purchasedSummaryData.TransactionId }}" />
+        {% endif #}
+
+        {# if purchasedSummaryData.PurchasedDate is defined and purchasedSummaryData.PurchasedDate != '' %}
+            <input type="hidden" name="purchasedDate" value="{{ purchasedSummaryData.PurchasedDate }}" />
+        {% endif #}
+
+        {% if purchasedSummaryData.PaymentMethod is defined and purchasedSummaryData.PaymentMethod != '' %}
+            {# <input type="hidden" name="paymentMethod" value="{{ purchasedSummaryData.PaymentMethod }}" /> #}
+        {% endif %}
+
+        {% set tvodArrLength = purchasedSummaryData.TVOD|length %}
+            {% if tvodArrLength > 0 %}
+                {% for tvodPurchase in purchasedSummaryData.TVOD %}
+                    {% if tvodPurchase.isDiscountAvailable == 1 %}
+                        {# <input type="hidden" name="discription" value="{{ tvodPurchase.Discription }}" />
+                        <input type="hidden" name="totalDiscount" value="{{ tvodPurchase.TotalDiscount }}" /> #}
+
+                    {% elseif tvodPurchase.isUnusedCreditAvailable == 1 %}
+                        {# <input type="hidden" name="discription" value="{{ tvodPurchase.Discription }}" />
+                        <input type="hidden" name="totalDiscount" value="{{ tvodPurchase.TotalUnusedCredit }}" /> #}
+
+                    {% else %}
+                        <!--
+                            <input type="hidden" name="packageName" value="{# tvodPurchase.packageName }}" />
+                            <input type="hidden" name="packageActualAmount" value="{{ tvodPurchase.packageActualAmount }}" />
+                            <input type="hidden" name="TVODTotalPaybleAmount" value="{{ purchasedSummaryData.TVODTotalPaybleAmount|number_format(2) #}" />    
+                        -->
+                        <input type="hidden" name="packageStatus" value="{{ tvodPurchase.packageStatus }}" />
+                        <input type="hidden" name="paymentStatus" value="{{ tvodPurchase.paymentStatus }}" />
+
+                        {% if tvodPurchase.packageStatus == 'failed' or tvodPurchase.paymentStatus != 'Completed' %}
+                            {% set status = 'error' %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                        
+            {% endif %}
+    {% endif %}
+    
+    <input type="hidden" name="status" value="{{ status }}" />
+    <input type="hidden" name="message" value="{{ message }}" />
+
+</form>
+<script type="text/javascript">
+    document.forms['frmStatus'].submit()
+</script>
+{% endif %}

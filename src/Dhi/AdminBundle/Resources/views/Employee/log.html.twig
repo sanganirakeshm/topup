@@ -1,0 +1,87 @@
+{% block body %}
+<div class="modal-header">
+	<h4 class="modal-title" id="channelModal-title">Log Summary</h4>
+</div>
+<div class="modal-body">
+	    <table id="userLogTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Admin</th>
+                    <th>Employee</th>
+                    <th>Activity</th>
+        		    <th>Description</th>
+        		    <th>IP</th>
+        		    <th>Date Time</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-default" id="closeBtn" onclick="parent.closeModelPopup()">Close</button>
+</div>
+{% endblock body %}
+
+{% block javascripts %}
+
+
+	<script type="text/javascript">
+
+    $(document).ready(function () {
+
+    		jsonLink = '{{ path('dhi_admin_employee_activity_log_json', {'id': 'user_id'}) }}';
+    		jsonLink = jsonLink.replace('user_id', {{id}});
+
+          	lTable = $('#userLogTable').dataTable({
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                bPaginate:true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: jsonLink,
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "Admin","bSearchable": false,"bSortable": true},
+                    {"sName": "User","bSearchable": false,"bSortable": true},
+                    {"sName": "Activity","bSearchable": false,"bSortable": true},
+                    {"sName": "Description", "bSearchable": false, "bSortable": false},
+                    {"sName": "IP", "bSearchable": true, "bSortable": true},
+                    {"sName": "Date Time", "bSearchable": true, "bSortable": true}
+                ],
+                aaSorting: [[5, 'DESC']]
+            });
+
+		$("input").addClass("form-control");
+        	$("select").addClass("form-control");
+        });
+	</script>
+{% endblock javascripts %}

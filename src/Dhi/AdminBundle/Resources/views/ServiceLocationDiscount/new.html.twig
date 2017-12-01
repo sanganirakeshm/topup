@@ -1,0 +1,372 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+<section class="content-header">
+	  <h1>Add Service Location Bundle Discount</h1>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+			<div class="box box-success">
+          		<form action="{{ path('dhi_admin_service_location_discount_new') }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="form-location-discount">
+                <div class="box-body">		            
+					<div class="form-group col-md-8">
+                    	<label class="control-label">Service Location: </label>                   
+                        {{ form_widget(form.serviceLocation, { 'attr': { 'placeholder': 'Service Location', 'class': 'form-control inputServiceLocation', 'onchange':'checkDiscountRange("","")'}}) }}
+                        <div class="serverError">{{ form_errors(form.serviceLocation) }}</div>                    
+                    </div>
+                
+                	{% macro tagCollectionItem(formData) %}
+	                   	{% if formData is defined %}
+						    {% set name = formData.vars.name %}
+						{% else %}
+						    {% set name = formData.vars.full_name %}
+						{% endif %}
+					
+						<div data-content="{{ name }}" id="discountbx_{{ name }}">
+	                   		<input type="hidden" name="numberIndex{{ name }}" value="{{ name }}" id="_txt"/>
+	                   		{{form_widget(formData.collectionIndex, { 'attr': { 'value': name }}) }}
+	                   		<div class="form-group col-md-8">
+			                    <div class="row">
+									<div class=" col-md-6">							 
+								 		<label class="control-label">From Amount: </label>		                    
+			                        	{{ form_widget(formData.minAmount, { 'attr': { 'placeholder': 'From Amount', 'class': 'form-control inputFromAmount','onchange':'checkDiscountRange("","")'}}) }}
+			                        	<div class="serverError">{{ form_errors(formData.minAmount) }}</div>	
+			                        	<label id="fromamount-error-{{ name }}" class="error custom-err"></label>	                    
+			                    	</div>
+			                   		<div class="col-md-6">
+			                    		<label class="control-label">To Amount: </label>		                   
+			                        	{{ form_widget(formData.maxAmount, { 'attr': { 'placeholder': 'To Amount', 'class': 'form-control inputToAmount','onchange':'checkDiscountRange("","")'}}) }}
+			                        	<div class="serverError">{{ form_errors(formData.maxAmount) }}</div>
+			                        	<label id="toamount-error-{{ name }}" class="error custom-err"></label>
+			                    	</div>
+								</div>
+			                </div>
+			                <div class="form-group col-md-8  margin-bottom10">
+			                    <label class="control-label">Discount(%): </label>		                    
+		                        {{ form_widget(formData.percentage, { 'attr': { 'placeholder': 'Discount', 'class': 'form-control inputDiscount'}}) }}
+		                        <div class="serverError">{{ form_errors(formData.percentage) }}</div>		                    
+			                </div>		                
+			                <div class="form-group col-md-8 rmbtn  margin-bottom10">
+								<a class="btn-remove btn-add btn btn-default pull-right" data-related="{{ name }}">Remove</a>
+							</div>		              								
+						</div>								    
+					{% endmacro %}   
+                	<div id="collectionIpzone" data-prototype="{{ _self.tagCollectionItem(form.serviceLocationDiscounts.vars.prototype)|escape }}">
+                   	{% for serviceLocationDiscount in form.serviceLocationDiscounts %}
+                   		{{ _self.tagCollectionItem(serviceLocationDiscount) }}                    	                    
+					{% endfor %}                                
+					</div>
+				
+					<div class="col-md-8 add-btn-bx">
+						<a class="btn-add btn btn-success pull-right margin-bottom10" data-target="collectionIpzone">Add More</a>
+					</div>
+                </div>
+				{{ form_rest(form) }}
+               	<div class="box-footer">
+				  	<div class="col-md-8 add-btn-bx">
+				        <input type="submit" name="add" value="Add" class="btn btn-success"/>
+                        <a href="{{ path('dhi_admin_ip_zone_list') }}" class="btn btn-default">Back</a>
+                    </div>
+			   	</div>		                
+				</form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+<script type="text/javascript">
+        
+    var isValidFromRangeAmt = true;
+    var isValidToRangeAmt = true;
+        
+	$('.btn-add').click(function(event) {
+	    var collectionHolder = $('#' + $(this).attr('data-target'));
+	    var prototype = collectionHolder.attr('data-prototype');
+	    var form = prototype.replace(/__name__/g, collectionHolder.children().length);
+	
+	    collectionHolder.append(form);
+	    
+	    addValidationRule();
+	    return false;
+	});
+	$('.btn-remove').live('click', function(event) {
+		var name = $(this).attr('data-related');
+	    $('*[data-content="'+name+'"]').remove();
+        isAnyRangeError($(this).attr('data-related'));
+	    addValidationRule();
+	    checkDiscountRange("","");
+	    return false;
+	});
+	/*$(".inputFromAmount").live('change',function () {
+            
+        errorId   = $(this).attr('id')+"-custom-error";
+        $("#"+errorId).remove();
+        errorHtml = "<label id="+errorId+" style='display:block;color:red;'>This range is already exits</label>";
+        
+        if(!fromSlotRange($(this).val(), $(this).attr('id'))) { //returns true
+        	isValidFromRangeAmt = false;
+            $(this).after(errorHtml);
+        }else{
+            $("#"+errorId).remove();
+            isValidFromRangeAmt = true;
+        }
+        
+    });
+    $(".inputToAmount").live('change',function () {
+        
+        errorId   = $(this).attr('id')+"-custom-error";
+        $("#"+errorId).remove();
+        errorHtml = "<label id="+errorId+" style='display:block;color:red;'>This range is already exits</label>";
+        
+        if(!toSlotRange($(this).val(), $(this).attr('id'))) { //returns true
+        	isValidToRangeAmt = false;
+            $(this).after(errorHtml);
+        }else{
+            $("#"+errorId).remove();
+            isValidToRangeAmt = true;
+        }
+        
+    });*/
+        
+	$(document).ready(function() {
+		
+    	var name = $('#discountbx_0 div.rmbtn').remove();
+    	
+        $('#form-location-discount').validate({
+        	rules: {
+                "dhi_service_location[serviceLocation][]": {
+                    "required": true
+                }
+            },
+            messages: {
+                "dhi_service_location[serviceLocation][]": {
+                    "required": "Please select service location."
+                }
+            },
+            submitHandler: function(form) {
+                
+                /*if(isValidFromRangeAmt && isValidToRangeAmt) {
+                	
+                	form.submit();
+                }*/
+                
+				checkDiscountRange('submitFrom',form);
+				
+				return false;
+            }
+        });
+        
+        addValidationRule();
+    });
+    
+	function addValidationRule(){
+    	
+		$('.inputFromAmount').each(function(e) {
+    		
+			var fromId = this.id; 
+			var toId = fromId.replace('minAmount', "maxAmount");
+		         
+			$(this).rules('add', {
+				required: true,
+		        number: true,
+		        le:'#'+toId,
+		        maxlength: 9,
+				messages: {
+	                required:  "Please enter From Amount.",
+	                number:  "Please enter valid amount.",
+	                le: "Must be less than or equal to TO amount.",
+	                maxlength: "From Amount can have maximum 9 digits."
+				}
+			});
+        });
+    	
+		$('.inputToAmount').each(function() {
+			
+            var toId = this.id; 
+            var fromId = toId.replace('maxAmount', "minAmount");
+            
+            $(this).rules('add', {
+                required: true,
+                number: true,
+                ge:'#'+fromId,
+                maxlength: 9,
+                messages: {
+                    required:  "Please enter To Amount.",
+                    number:  "Please enter valid amount.",
+                    ge: "Must be greater than or equal to FROM amount.",
+                    maxlength: "To Amount can have maximum 9 digits."
+                }
+            });
+        });
+		
+        $('.inputDiscount').each(function() {
+    		
+            $(this).rules('add', {
+                required: true,
+                number: true,
+                maxlength: 9,
+                messages: {
+                    required:  "Please enter discount.",
+                    number:  "Please enter valid discount amount.",
+                    maxlength: "Discount(%) can have maximum 9 digits."
+                }
+            });
+        });
+    }
+    
+	$.validator.addMethod('le', function(value, element, param) {
+		
+		if(parseFloat(value) > parseFloat($(param).val())){
+			return false;
+		}else{
+			return true;
+		}		
+	    //return this.optional(element) || value <= $(param).val();
+	      
+	}, 'Invalid');
+	
+	$.validator.addMethod('ge', function(value, element, param) {
+		
+		if(parseFloat(value) < parseFloat($(param).val())){
+			return false;
+		}else{
+			return true;
+		}
+	      //return this.optional(element) || value >= $(param).val();
+
+	}, 'Invalid');
+        
+   	function fromSlotRange(currValue,currentId) {
+       
+     	var isValidFromValue = true;
+		$('.inputFromAmount').each(function() {
+       
+			var fromId = this.id; 
+       		var toId = fromId.replace('minAmount', "maxAmount");
+       
+			if( currentId!=fromId ) {
+			    
+			    if(parseFloat($("#"+fromId).val()) > 0 && parseFloat($("#"+toId).val()) > 0 ) {
+			        
+			        if(parseFloat(currValue) >= parseFloat($("#"+fromId).val()) && parseFloat(currValue) <= parseFloat($("#"+toId).val())) {
+			            
+			            if(isValidFromValue) {
+			                isValidFromValue = false;
+			            }
+			        }
+			    }
+			}
+     	});
+		
+      	return isValidFromValue;  
+	}
+  
+	function toSlotRange(currValue,currentId) {
+       
+		var isValidToValue = true;
+      	$('.inputToAmount').each(function() {
+        
+			var toId = this.id; 
+			var fromId = toId.replace('maxAmount', "minAmount");
+        
+			if( currentId!=toId ) {
+            
+				if(parseFloat($("#"+fromId).val()) > 0 && parseFloat($("#"+toId).val()) > 0 ) {
+					
+					if(parseFloat(currValue) >= parseFloat($("#"+fromId).val()) && parseFloat(currValue) <= parseFloat($("#"+toId).val())) {
+                    
+						if(isValidToValue) {
+                        	isValidToValue = false;
+						}
+					}
+            	}
+        	}
+		});
+      	
+      	return isValidToValue;  
+	}
+  
+  function isAnyRangeError(dataId) {
+      
+      errorId   = "dhi_service_location_serviceLocationDiscounts_"+dataId+"_minAmount-custom-error"+"-custom-error";
+      $("#"+errorId).remove();
+      errorHtml = "<label id="+errorId+" style='display:block;color:red;'>This range is already exits</label>";
+      
+      fromValue = $("#dhi_service_location_serviceLocationDiscounts_"+dataId+"_minAmount").val();
+      fromId    = "dhi_service_location_serviceLocationDiscounts_"+dataId+"_minAmount";
+      
+      toValue = $("#dhi_service_location_serviceLocationDiscounts_"+dataId+"_maxAmount").val();
+      toId    = "dhi_service_location_serviceLocationDiscounts_"+dataId+"_maxAmount";
+      
+      if(!fromSlotRange(fromValue, fromId)) { //returns true
+    	isValidFromRangeAmt = false;
+        $(this).after(errorHtml);
+      }else{
+        $("#"+errorId).remove();
+        isValidFromRangeAmt = true;
+      }
+      
+      if(!toSlotRange(toValue, toId)) { //returns true
+    	  isValidToRangeAmt = false;
+        	$(this).after(errorHtml);
+      }else{
+        $("#"+errorId).remove();
+        isValidToRangeAmt = true;
+      }
+  }
+  
+  function checkDiscountRange(type,frm) {
+  	
+  		var flag = false;
+  		$.ajax({
+			
+			type: "POST",
+			url: "{{ path('dhi_admin_valid_discount_range') }}",
+			data: $('#form-location-discount').serializeArray(),	
+			beforeSend: function( xhr ) {
+				
+			    $('#ajax-loader-bx').show();
+			},
+			success:function(result){
+				
+				var obj = jQuery.parseJSON( result );
+				$('.custom-err').html('').hide();
+				
+				if(obj['status'] == 'success') {
+					
+					if(type == 'submitFrom') {
+						
+						frm.submit();
+					}					
+				}
+				
+				if(obj['status'] == 'error') {
+					
+					$.each(obj['error'], function(idx) {
+						
+				        $.each(this, function(k, val) {
+
+				        	if(k == 'minAmount') {
+
+				        		$('#fromamount-error-'+idx).html(val).show();				        		
+				        	}
+				        	
+				        	if(k == 'maxAmount') {
+				        		
+				        		$('#toamount-error-'+idx).html(val).show();				        		
+				        	}				            
+				        });
+				    });					
+				} 
+				
+				$('#ajax-loader-bx').hide();
+			}
+		})			
+  }
+   
+</script>
+{% endblock javascripts %}

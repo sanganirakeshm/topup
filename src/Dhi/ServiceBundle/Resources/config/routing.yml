@@ -1,0 +1,110 @@
+dhi_service_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: DhiServiceBundle:Default:index }
+
+dhi_service_addcart:
+    path:     /plan/addcart
+    defaults: { _controller: DhiServiceBundle:Service:addCart}
+
+dhi_service_purchaseverification:
+    path:     /service/purchaseverification
+    defaults: { _controller: DhiServiceBundle:Service:purchaseverification}
+
+dhi_service_plan:
+    path:     /package/{service}/{addon}
+    defaults: { _controller: DhiServiceBundle:Service:package, service:null, addon:null}
+
+dhi_service_paymentcancel:
+    path:     /service/paymentcancel/{id}
+    defaults: { _controller: DhiServiceBundle:Service:paymentCancel, id:null }
+
+dhi_service_paymentconfirm:
+    path:     /paypal/paymentconfirm
+    defaults: { _controller: DhiServiceBundle:Paypal:paymentconfirm }
+
+dhi_service_purchase_order_confirm:
+    path:     /purchase-order-comfirmation
+    defaults: { _controller: DhiServiceBundle:Service:orderComfirmation }
+
+dhi_service_channel_list:
+    path:     /service/channel-list/{packageId}
+    defaults: { _controller: DhiServiceBundle:Service:channelList }
+
+dhi_service_premium_channel_list:
+    path:     /service/premium-channel-list/{packageId}
+    defaults: { _controller: DhiServiceBundle:Service:premiumChannelList }
+
+dhi_service_active_by_credit:
+    path:     /service/proceed-activation
+    defaults: { _controller: DhiServiceBundle:Service:activateFreePlan }
+
+
+dhi_payment_process_confirm_detail:
+    path:     /confirm-payment-detail/{step}
+    defaults: { _controller: DhiServiceBundle:ConfirmOrder:confirmPaymentDetail,step:null }
+
+dhi_do_payment_process:
+    path:     /do-payment-process
+    defaults: { _controller: DhiServiceBundle:ConfirmOrder:doPaymentProcess }
+
+dhi_paymentby_dodirect:
+    path:     /dodirect-process
+    defaults: { _controller: DhiServiceBundle:Paypal:dodirectProcess }
+
+dhi_paymentby_expresscheckout:
+    path:     /service/paypalexpresscheckout
+    defaults: { _controller: DhiServiceBundle:Paypal:paypalexpresscheckout }
+
+dhi_paymentby_milstar:
+    path:     /milstar-payment
+    defaults: { _controller: DhiServiceBundle:MilstarPayment:milstarProcess }
+
+dhi_process_payment_option:
+    path:     /payment/{paymentby}
+    defaults: { _controller: DhiServiceBundle:Service:processPaymentOption, paymentby:null}
+
+
+
+dhi_package_select:
+    path:     /package-select/{service}
+    defaults: { _controller: DhiServiceBundle:Service:packageSelect, service:null}
+
+dhi_service_remove:
+    path:     /service-remove/{service}
+    defaults: { _controller: DhiServiceBundle:Service:serviceRemove, service:null}
+
+dhi_remove_package_ajax:
+    path:     /service-remove/{service}
+    defaults: { _controller: DhiServiceBundle:Service:serviceRemove, service:null}
+
+dhi_service_promo_code:
+    path:     /service/promo-code/{promocode}
+    defaults: { _controller: DhiServiceBundle:Service:promoCode,promocode:null}
+
+dhi_ajax_add_to_cart_packages:
+    path:     /add-to-cart-package/{extendPlan}
+    defaults: { _controller: DhiServiceBundle:Service:ajaxAddToCartPackage, extendPlan:false}
+
+dhi_ajax_add_to_cart_bundles:
+    path:     /add-to-cart-bundle/{extendPlan}
+    defaults: { _controller: DhiServiceBundle:Service:ajaxAddToCartBundle, extendPlan:false}
+
+dhi_ajax_remove_cart_packages:
+    path:     /remove-cart-package
+    defaults: { _controller: DhiServiceBundle:Service:ajaxRemoveCartPackage}
+
+dhi_ajax_get_isp_packages:
+    path:     /get-package/{service}
+    defaults: { _controller: DhiServiceBundle:Service:getPackage, service:null}
+
+dhi_ajax_remove_discount:
+    path:     /remove-discount
+    defaults: { _controller: DhiServiceBundle:Service:removeDiscountCoupon}
+
+dhi_service_check_service_avaibility:
+    path:     /service/check-avaibility
+    defaults: { _controller: DhiServiceBundle:Service:checkAvaibility }
+
+dhi_paymentby_chase:
+    path:     /dodirect-chase-process
+    defaults: { _controller: DhiServiceBundle:ChasePayment:doDirectProfilePayment }

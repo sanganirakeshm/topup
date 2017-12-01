@@ -1,0 +1,1059 @@
+{% extends "DhiAdminBundle::layout.html.twig" %} 
+{% block body %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+    #refundPaymentModal .modal-dialog{
+    	width:835px;
+    }
+    </style>
+{% endblock stylesheets %}
+<section class="content">
+    <div class="row">
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+        <div class="col-md-3">
+            <div class="box box-success">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+
+                            <h4 class="mainTitle">
+                                <b>User Detail</b>
+                            </h4>
+
+				<table class="table table-bordered table-hover">
+
+                                <tr>
+                                    <th>Username</th>
+                                    <td>{{ user.username }}  {% if admin_permission.checkPermission('user_update') %}<span class="pull-right"><a href="{{ path('dhi_admin_edit_customer', {'id': user.id}) }}" class="btn btn-success">Edit user</a></span>{% endif %}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>{{ user.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Firstname</th>
+                                    <td>{{ user.firstname }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Lastname</th>
+                                    <td>{{ user.lastname }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td>{{ user.phone }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Address</th>
+                                    <td>{{ user.address }}</td>
+                                </tr>
+                                <tr>
+                                    <th>City</th>
+                                    <td>{{ user.city }}</td>
+                                </tr>
+                                <tr>
+                                    <th>State</th>
+                                    <td>{{ user.state }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Zip</th>
+                                    <td>{{ user.zip }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Country</th>
+                                    <td>{{ user.country ? user.country.name : '' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Active</th>
+                                    <td>{{ user.isEnabled ? 'Active' : 'Inactive'}}</td>
+                                </tr>
+                                 <tr>
+                                    <th>Service <br/>Location</th>
+                                    <td><b>{{ user.userServiceLocation ? user.userServiceLocation.name : '-' }}</b></td>
+                                </tr>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        
+        <div class="row">
+        <div class="col-md-12">
+            <div class="box box-success">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h4 class="mainTitle">
+                                <b>User Setting Detail</b>
+                            </h4>
+                            <table class="table table-bordered table-hover">
+                                
+                                        <tr>
+                                            <th width="380">Max Mac Address</th>
+                                            <td>
+                                                {% if user.userSetting and user.userSetting.macAddress %}
+                                                    
+                                                    {{ user.userSetting.macAddress}}
+                                                {% else %}
+                                                    {{ app.session.get('mac_address') }}
+                                                {% endif %}    
+                                        </tr>
+                                        
+                                        <tr>
+                                            <th width="380">Max Daily Transaction</th>
+                                            <td>
+                                                {% if user.userSetting and user.userSetting.maxDailyTransaction %}
+                                                    
+                                                    {{ user.userSetting.maxDailyTransaction}}
+                                                {% else %}
+                                                    {{ app.session.get('max_daily_transaction') }}
+                                                {% endif %}    
+                                        </tr>
+                                      
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </div>                                    
+
+       	<div class="col-md-9">
+            <div class="box box-success">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h4 class="mainTitle pull-left">
+                                <b>User Active Service(s)</b>
+                            </h4>
+
+                            
+                            <table class="table table-bordered table-hover">
+                                <thead>
+	                                <tr>
+										<th nowrap="nowrap">Service</th>
+										<th nowrap="nowrap">Package<br/>Name</th>
+										<th nowrap="nowrap">Service<br/>Location</th>
+										<th nowrap="nowrap">Package<br/>Amount</th>
+										<th nowrap="nowrap">Discount<br/>Amount</th>
+										<th nowrap="nowrap">Previous Plan<br/>Unused Credit</th>
+										<th nowrap="nowrap">Remaining<br/>Time</th>										
+										<th nowrap="nowrap">Activated<br/>Date</th>
+										<th nowrap="nowrap">Expiry<br/>Date</th>
+										<th nowrap="nowrap">Action</th>
+									</tr>
+								</thead>
+								{% if activeServiceList|length > 0 %}
+								    {% set isServiceFound = 0 %}
+									{% if 'ISP' in activeServiceList|keys %}
+			
+										{% set ispLength   = activeServiceList.ISP|length %}				
+										{% if ispLength > 0 %}
+											
+											{% set i = 0 %}		
+											{% for ispService in activeServiceList.ISP if ispService.purchaseType != 'BUNDLE' %}
+											    {% set isServiceFound = 1 %}
+												<tr>
+													{% if i == 0 %}
+													<td rowspan="{{ ispLength }}" align="center"><b>ISP</b></td>
+													{% endif %}
+                                                    {% if ispService.validityType == "HOURS" %}
+                                                        {% set validityCaps = "Hour(s)" %}
+                                                    {% else %}
+                                                        {% set validityCaps = "Day(s)" %}
+                                                    {% endif %}
+                                                    
+													<td>{{ ispService.packageName~' - '~ispService.bandwidth~'k - '~ispService.validity~' '~validityCaps }}</td>
+													<td>{{ ispService.serviceLocation }}</td>
+													<td>${{ ispService.actualAmount }}</td>
+													<td>${{ ispService.discountAmount }}</td>
+													<td>{{ ispService.unusedCredit }}</td>
+													<td>{{ ispService.remainingDays }}</td>													
+													<td>{{ ispService.activationDate }}</td>
+													<td>{{ ispService.expiryDate }}</td>
+													<td nowrap="nowrap">
+                                                        {% if admin_permission.checkPermission('user_refund') %}
+                                                         {#   {% if ispService.paymentMethod == 'Promo Code' and ispService.isExtend == 0 %}
+
+                                                            {% else %}#}
+                                                               <a href="javascript:void(0)" class="btn btn-success pull-right" onclick="showRefundPaymentBox('{{ ispService.userId }}','{{ ispService.userServiceId }}', 'ISP','')">Refund</a>
+                                                            
+{#                                                            {% endif %}#}
+                                                        {% endif %}
+                                                    </td>
+												</tr>
+												{% set i = i + 1 %}
+											{% endfor %}
+											
+										{% endif %}
+									{% endif %}
+									
+									{% if 'IPTV' in activeServiceList|keys %}
+			
+										{% set iptvLength   = activeServiceList.IPTV|length %}				
+										{% if iptvLength > 0 %}
+											
+											{% set i = 0 %}		
+											{% for iptvService in activeServiceList.IPTV if iptvService.purchaseType != 'BUNDLE' %}			
+											    {% set isServiceFound = 1 %}      
+												<tr>
+													{% if i == 0 %}
+													<td rowspan="{{ iptvLength }}" align="center"><b>ExchangeVUE Packages</b></td>
+													{% endif %}
+													<td>{{ iptvService.packageName }}</td>
+                                                                                                        <td>{{ iptvService.serviceLocation }}</td>
+													<td>${{ iptvService.actualAmount }}</td>
+													<td>${{ iptvService.discountAmount }}</td>
+													<td>{{ iptvService.unusedCredit }}</td>
+													<td>{{ iptvService.remainingDays }}</td>													
+													<td>{{ iptvService.activationDate }}</td>
+													<td>{{ iptvService.expiryDate }}</td>													
+													<td nowrap="nowrap">
+                                                        {% if admin_permission.checkPermission('user_refund') %}
+                                                            {#{% if iptvService.paymentMethod == 'Promo Code' and iptvService.isExtend == 0 %}
+
+                                                            {% else %}#}
+                                                                <a href="javascript:void(0)" class="btn btn-success pull-right" onclick="showRefundPaymentBox('{{ iptvService.userId }}','{{ iptvService.userServiceId }}', 'IPTV','')">Refund</a>
+{#                                                            {% endif %}#}
+                                                        {% endif %}
+                                                    </td>													
+												</tr>
+												{% set i = i + 1 %}
+											{% endfor %}
+											
+										{% endif %}
+									{% endif %}
+									
+									{% if 'AddOn' in activeServiceList|keys %}
+            
+                                        {% set addOnLength   = activeServiceList.AddOn|length %}
+                                        {% if addOnLength > 0 %}
+                                            
+                                            {% set i = 0 %} 
+                                            {% for addOnService in activeServiceList.AddOn %}
+                                                {% set isServiceFound = 1 %}
+                                                <tr>
+                                                    {% if i == 0 %}
+                                                    <td rowspan="{{ addOnLength }}" align="center"><b>Premium Package</b></td>
+                                                    {% endif%}
+                                                    <td>{{ addOnService.packageName }}</td>
+                                                    <td>{{ addOnService.serviceLocation }}</td>
+                                                    <td>${{ addOnService.actualAmount }}</td>
+                                                    <td>${{ addOnService.discountAmount }}</td>
+                                                    <td>{{ addOnService.unusedCredit }}</td>
+                                                    <td>{{ addOnService.remainingDays }}</td>                                                   
+                                                    <td>{{ addOnService.activationDate }}</td>
+                                                    <td>{{ addOnService.expiryDate }}</td>
+                                                    <td><a href="javascript:void(0)" class="btn btn-success pull-right" onclick="showRefundPaymentBox('{{ addOnService.userId }}','{{ addOnService.userServiceId }}', 'IPTVPremium','')">Refund</a></td>
+                                                </tr>
+                                                
+                                                {% set i = i + 1 %}
+                                            {% endfor %}                                            
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if 'BUNDLE' in activeServiceList|keys %}
+            
+                                        {% set bundleLength   = activeServiceList.BUNDLE|length %}
+                                        {% if bundleLength > 0 %}
+                                            
+                                            {% set i = 0 %}     
+                                            {% for bundleId, bundleService in activeServiceList.BUNDLE %}
+                                                {% set isServiceFound = 1 %}      
+                                                {% if 'ISP' in bundleService|keys and 'IPTV' in bundleService|keys %}
+                                                    {% set bundleLength   = 3 %}
+                                                {% else %}
+                                                    {% set bundleLength   = 2 %}
+                                                {% endif %}
+                                                <tr>
+                                                    {% if i == 0 %}
+                                                        <td rowspan=" {{ bundleLength }} " align="center"><b>{{bundleService.displayBundleName}}</b></td>
+                                                    {% endif %}
+                                                    {% if 'ISP' in bundleService|keys %}
+                                                        {% for bundlePackage in bundleService.ISP %}
+                                                            <tr>
+                                                                <td ><b>ISP</b><br/>{{ bundlePackage.packageName~' - '~bundlePackage.bandwidth~'k - '~bundlePackage.validity~' day(s)' }}</td>
+                                                                <td>{{ bundlePackage.serviceLocation }}</td>
+                                                                <td>${{ bundlePackage.actualAmount }}</td>
+                                                                <td>${{ bundlePackage.discountAmount }}</td>
+                                                                <td>{{ bundlePackage.unusedCredit }}</td>
+                                                                <td>{{ bundlePackage.remainingDays }}</td>
+                                                                <td>{{ bundlePackage.activationDate }}</td>
+                                                                <td>{{ bundlePackage.expiryDate }}</td>
+                                                                <td rowspan="{{ bundleLength }}" >
+                                                                    {% if admin_permission.checkPermission('user_refund') %}
+                                                                       {# {% if bundlePackage.paymentMethod == 'Promo Code' and bundlePackage.isExtend == 0 %}
+
+                                                                        {% else %}#}
+                                                                            <a href="javascript:void(0)" class="btn btn-success pull-right" onclick="showRefundPaymentBox('{{ bundleService.userId }}','{{ bundleService.userServiceId|join(',') }}', 'BUNDLE','')">Refund</a>
+{#                                                                        {% endif %}#}
+                                                                    {% endif %}
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                        
+                                                    {% if 'IPTV' in bundleService|keys %}
+                                                        {% for bundlePackage in bundleService.IPTV %}
+                                                            <tr>
+                                                                <td nowrap="nowrap"><b>IPTV</b><br/>{{ bundlePackage.packageName }}</td>
+                                                                <td>{{ bundlePackage.serviceLocation }}</td>
+                                                                <td>${{ bundlePackage.actualAmount }}</td>
+                                                                <td>${{ bundlePackage.discountAmount }}</td>
+                                                                <td>{{ bundlePackage.unusedCredit }}</td>
+                                                                <td>{{ bundlePackage.remainingDays }}</td>                         
+                                                                <td>{{ bundlePackage.activationDate }}</td>
+                                                                <td>{{ bundlePackage.expiryDate }}</td>
+                                                                {% if admin_permission.checkPermission('user_refund') and 'ISP' not in bundleService|keys %}
+                                                                   {# {% if bundlePackage.paymentMethod == 'Promo Code' and bundlePackage.isExtend == 0 %}
+
+                                                                    {% else %}#}
+                                                                        <td rowspan="{{ bundleLength }}" >
+                                                                            <a href="javascript:void(0)" class="btn btn-success pull-right" onclick="showRefundPaymentBox('{{ bundleService.userId }}','{{ bundleService.userServiceId|join(',') }}', 'BUNDLE','')">Refund</a>
+                                                                        </td>
+{#                                                                    {% endif %}#}
+                                                                {% endif %}
+                                                            </tr>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                </tr>
+                                                {% set i = i + 1 %}
+                                            {% endfor %}
+                                            
+                                        {% endif %}
+                                    {% endif %}
+								{% else %}								
+									<tr><td colspan="9" align="center">No active service found.</td></tr>	
+								{% endif %}
+
+                                {% if isServiceFound == 0 %}
+                                    <tr><td colspan="9" align="center">No active service found.</td></tr>   
+                                    {% if admin_permission.checkPermission('user_apply_promocode') %}
+                                        <div class="pull-right">
+                                            <button class="btn btn-success open-promocode-popup" data-id="{{ user.id }}">Apply Promo Code</button>
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    {% if admin_permission.checkPermission('user_plan_expire_by_customer_support') %}
+                                        <div class="pull-right">
+                                            <button class="btn btn-success change-plan" data-id="{{ user.id }}">De-Activate Plan</button>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            </table>                                                       
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-9">
+            <div class="box box-success">
+                <div class="box-body">
+                    <div class="row">
+
+                        <div class="col-xs-12">
+
+                            <h4 class="mainTitle">
+                                <b>Your Credit Balance &nbsp;: <span>&nbsp; {{user.userCredit ? user.userCredit.TotalCredits : '0'}}</span></b>
+                            </h4>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-9">
+            <div class="box box-success">
+                <div class="box-body">
+                    <div class="row">
+
+                        <div class="col-xs-12">
+
+                            <h4 class="mainTitle">
+
+                                <b>Set Top Box Mac Address<span>&nbsp;(Maximum: {{app.session.get('mac_address')}})</span></b>
+                                {% if admin_permission.checkPermission('mac_address_create') %}
+                                {% if app.session.get('mac_address') > userMacAddress|length %}
+                                <a href="javascript:void(0);" id="add-mac-address" class="btn btn-success pull-right">Add Mac Address</a>
+                                {% endif%}
+                                {% endif%}
+
+                            </h4>
+
+                        </div>
+
+                        <div class="col-xs-12">
+
+                            <div id="form-body">
+
+                            </div>   
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        
+        
+          {% if admin_permission.checkPermission('mac_address_list') or admin_permission.checkPermission('mac_address_update') or admin_permission.checkPermission('mac_address_delete') or admin_permission.checkPermission('mac_address_create') %}
+        <div class="row">
+           
+              <div class="col-md-12">
+                
+            <div class="box box-success">
+                <div id="flash-message" class="msgBoxCont"></div>
+                <div class="box-body">
+                    <div class="row">
+
+                        <div class="col-xs-12">
+                            <h4 class="mainTitle">
+                                <b>User Mac Address</b>
+                            </h4>
+
+                            <div class="tab-content col-lg-12" id="mac-address-list">
+                            
+                             {{ include('DhiAdminBundle:UserMacAddress:list.html.twig', {'userMacAddress': userMacAddress}) }}
+                              
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div></div>
+         {% endif %}
+
+    </div>
+
+    
+</section>
+<div id="ajax-loader-bx" style="display:none;">
+	<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+	<div id="loader-text">Please wait....</div>
+</div>
+<div class="modal fade" id="refundPaymentModal" tabindex="-1" role="dialog" aria-labelledby="refundPaymentModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+<div class="modal fade" id="redeemPromocodeModal" tabindex="-1" role="dialog" aria-labelledby="redeemPromocodeModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="" id="frmRedeemPromoCode" name="frmRedeemPromoCode">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <h4 class="modal-title" id="channelModal-title">Redeem Promo Code</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Promo Code</label>
+                                <input class="form-control" id="txtPromoCode" placeholder="Please Enter Promo Code" name="txtPromoCode" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success pull-right btnRedeemPromoCode">Redeem</button>
+                    <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="promocodeDetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Do You Want To Apply ?</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3">Promo Code</div>
+                    <div class="col-md-8 col-md-offset-1" id="promoCodeName"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Package Name</div>
+                    <div class="col-md-8 col-md-offset-1" id="promoPackageName"></div>
+                </div>
+                <div class="row" id ="disableDescription">
+                    <div class="col-md-3">Description</div>
+                    <div class="col-md-8 col-md-offset-1" id="promoPackageDescription"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Package Duration</div>
+                    <div class="col-md-8 col-md-offset-1" id="promoValidity"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary pull-right" onclick="applyPromoCode($('#promoCodeName').text())">Apply</button>
+                <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>        
+        
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('bundles/dhiuser/js/jquery.toaster.js') }}"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function() {
+
+        $("#frmRedeemPromoCode").validate({
+            rules:{
+                "txtPromoCode" : {
+                    "required" : true
+                }
+            }, 
+            messages:{
+                "txtPromoCode" : {
+                    "required" : "Please enter promo code"
+                }
+            }
+        });
+
+        $(".btnRedeemPromoCode").click(function(event) {
+            event.preventDefault();
+            $('#ajax-loader-bx').show();
+            if ($("#frmRedeemPromoCode").valid()) {
+                var promo = $("#frmRedeemPromoCode #txtPromoCode").val();
+                var userId = '{{ user.id }}';
+                var promoAction = 'redeem';
+                $.ajax({
+                    url: '{{ path("dhi_admin_user_redeem_promocode") }}',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {user: userId, promoCode: promo, promoAction: promoAction},
+                    success: function(result){
+                        $('#ajax-loader-bx').hide()
+                        
+                        if (result.status == 'success') {
+                            $.toaster({
+                                priority : 'success',
+                                title : '',
+                                message : result.message,
+                                settings : {timeout:5000}
+                            });
+                            
+                            $("#redeemPromocodeModal").modal('hide');
+                            $("#promoCodeName").text(result.promoName);
+                            $("#promoPackageName").text(result.packageName);
+                            if(result.description)
+                            {
+                                $('#disableDescription').show();
+                                $("#promoPackageDescription").text(result.description);
+                            }
+                            else
+                            {
+                                $('#disableDescription').hide();
+                                $("#promoPackageDescription").text('N/A');
+                            }
+                            $("#promoValidity").text(result.validity + ' Hour(s)');
+                            $("#promocodeDetail").modal('show');
+
+                        }else{
+                            $.toaster({
+                                priority : 'danger',
+                                title : '',
+                                message : result.message,
+                                settings : {timeout:5000}
+                            });
+                        }
+                    }
+                });
+            }else{
+                $('#ajax-loader-bx').hide();
+            }
+
+        });
+        
+        $(".open-promocode-popup").click(function(event) {
+            $('#ajax-loader-box').show();
+            $('#ajax-loader-box').hide();
+            $('#redeemPromocodeModal #txtPromoCode').val("");
+            $('#redeemPromocodeModal').modal({show: true});
+        });
+
+        $(".change-plan").click(function(event) {
+            event.preventDefault();
+            var userId = $(this).data('id');
+            $.confirm({
+                title: 'De-Activate Plan',
+                content: 'Are you sure you want to expire all active plans?',
+                icon: '',
+                confirmButton: 'Yes',
+                cancelButton: 'No',
+                confirmButtonClass: 'btn-info',
+                cancelButtonClass: 'btn-danger',
+                theme: 'white',
+                animation: 'scale',
+                animationSpeed: 400,
+                animationBounce: 1.5,
+                keyboardEnabled: false,
+                container: 'body',
+                confirm: function() {
+                    $('#ajax-loader-bx').show();
+                    $.ajax({
+                        url: '{{ path("dhi_admin_user_support_plan_change") }}',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {id: userId},
+                        success: function(result){
+                            window.location.reload();
+                            $('#ajax-loader-bx').hide();
+                        }
+                    });
+                },
+                cancel: function() {},
+                contentLoaded: function() {},
+                backgroundDismiss: false,
+                autoClose: false,
+                closeIcon: true,
+            });
+        });
+
+        // render form to add mac address
+        $("#add-mac-address").live("click", function() {
+
+            $.ajax({
+                type: "POST",
+                url: '{{ path('dhi_admin_mac_address_add', {'userId' : app.request.get('id')}) }}',
+                 beforeSend: function() {
+                    
+                       $('#ajax-loader-bx').show();
+                    
+                    },
+                success: function(result)
+                {
+                    if (result) {
+                        $('#ajax-loader-bx').hide();
+                        $("#form-body").show();
+                        $("#form-body").html(result);
+                        return true;
+                    }
+
+                }
+            });
+
+        });
+
+        // delete mac address
+        $("[id^=delete-mac-address]").live("click", function() {
+
+            var id = $(this).attr('data');
+            var flag = false;
+
+            $.confirm({
+                title: 'Delete Mac Address',
+                content: 'Are you sure you want to delete this mac address?',
+                icon: '',
+                confirmButton: 'Yes',
+                cancelButton: 'No',
+                confirmButtonClass: 'btn-info',
+                cancelButtonClass: 'btn-danger',
+                theme: 'white',
+                animation: 'scale',
+                animationSpeed: 400,
+                animationBounce: 1.5,
+                keyboardEnabled: false,
+                container: 'body',
+                confirm: function() {
+                    
+                    if (id) {
+                        
+                        var deleteUrl = '{{path('dhi_admin_mac_address_remove', {'id' : 'macId', 'userId' : app.request.get('id')})}}';
+                        deleteUrl = deleteUrl.replace('macId', id);
+
+                        $.ajax({
+                            type: "POST",
+                            url: deleteUrl,
+                            beforeSend: function() {
+                    
+                                     $('#ajax-loader-bx').show();
+                    
+                                    },
+                            success: function(result)
+                            {
+                                $('#ajax-loader-bx').hide();  
+                                var flagMacAddress = jQuery.parseJSON(result);
+                                
+                                $("#editMacAddress").hide();
+                                $("#addMacAddress").hide();
+                                
+                                if(flagMacAddress.error && flagMacAddress['status'] == 'failure') {
+                                            
+                                            flashMsg = disErrorMsg('danger', flagMacAddress.error);
+                                            $("#flash-message").html(flashMsg);
+                                            return false;
+                                        
+                                }   
+
+                                if (flagMacAddress['status'] != 'failure') {
+
+                                    if ('{{app.session.get('mac_address')}}' > flagMacAddress['totalMacAddress']) {
+
+                                        $("#add-mac-address").show();
+
+                                    }
+
+                                    flashMsg = disErrorMsg('success', 'Mac address deleted successfully.');
+                                    $("#flash-message").html(flashMsg);
+
+                                    $("#mac-address-list").html(flagMacAddress['status']);
+                                    return true;
+
+                                }
+
+                            }
+                        });
+
+                    }
+                },
+                cancel: function() {
+                    
+                },
+                contentLoaded: function() {
+                },
+                backgroundDismiss: false,
+                autoClose: false,
+                closeIcon: true,
+            });
+
+
+        });
+
+        // edit mac address
+        $("[id^=edit-mac-address]").live("click", function() {
+
+            var id = $(this).attr('data');
+
+            if (id) {
+
+                var editUrl = '{{path('dhi_admin_mac_address_edit', {'id' : 'macId', 'userId' : app.request.get('id')})}}';
+                editUrl = editUrl.replace('macId', id);
+
+                $.ajax({
+                    type: "POST",
+                    url: editUrl,
+                     beforeSend: function() {
+                    
+                       $('#ajax-loader-bx').show();
+                    
+                    },
+                    success: function(result)
+                    {
+                        if (result) {
+                            $('#ajax-loader-bx').hide();
+                            $("#form-body").show();
+                            $("#form-body").html(result);
+                            return true;
+                        }
+
+                    }
+                });
+
+            }
+
+        });
+
+        // add mac address 
+        /* $("#submitAddMacAddress").live("click", function() {
+            
+            if ($("#addMacAddress").valid()) {
+
+                $.ajax({
+                    type: "POST",
+                    url: "{ {path('dhi_admin_mac_address', {'type' : 'add', 'userId' : app.request.get('id')})}}",
+                    data: $("#addMacAddress").serialize(),
+                    beforeSend: function() {
+                    
+                       $('#ajax-loader-bx').show();
+                    
+                    },
+                    success: function(result)
+                    {
+                        
+                        var flagArr = jQuery.parseJSON(result);
+                        $('#ajax-loader-bx').hide();
+                        if (flagArr) {
+
+                            if (flagArr['error'])
+                            {
+
+                                $("#form-body").show();
+                                $("#form-body").html(flagArr['error']);
+
+                            }
+                            else if (flagArr['failure'])
+                            {
+                                
+                                flashMsg = disErrorMsg('danger', flagArr['failure']);
+                                $("#flash-message").html(flashMsg);
+
+                                $("#dhi_user_mac_address_macAddress").val("");
+                                $("#form-body").hide();
+
+
+                            }
+                            else if(flagArr.status == 'failure') {
+                                
+                                flashMsg = disErrorMsg('danger', flagArr.detail);
+                                $("#flash-message").html(flashMsg);
+                                $("#dhi_user_mac_address_macAddress").val("");
+                                $("#form-body").hide();
+                                
+                            } 
+
+                            else {
+                                
+                                flashMsg = disErrorMsg('success', 'Mac address added successfully.');
+                                $("#flash-message").html(flashMsg);
+
+                                $("#dhi_user_mac_address_macAddress").val("");
+                                $("#form-body").hide();
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: '{ {path('dhi_admin_mac_address_list', {'id' : app.request.get('id')})}}',
+                                    success: function(result)
+                                    {
+                                        var flagMacAddress = jQuery.parseJSON(result);
+
+                                        if (flagMacAddress['status'] != 'failure') {
+
+                                            if (flagMacAddress['totalMacAddress'] > '{ {app.session.get('mac_address')}}' || '{ {app.session.get('mac_address')}}' == flagMacAddress['totalMacAddress']) {
+
+                                                $("#add-mac-address").hide();
+
+                                            }
+
+                                            $("#mac-address-list").html(flagMacAddress['status']);
+                                            return true;
+
+                                        }
+
+                                    }
+                                });
+
+                            }
+                        }
+
+                    }
+
+                });
+
+
+            }
+            else {
+
+                $(".serverError").hide();
+                $('#dhi_user_mac_address_macAddress').rules('add', {
+                    required: true,
+                    messages: {
+                        required: "Please enter mac address.",
+                    }
+                });
+            }
+        }); */
+
+        // edit mac address 
+        /* $("#submitEditMacAddress").live("click", function() {
+
+            if ($("#editMacAddress").valid()) {
+
+                id = $("#edit-id").val();
+
+                var editUrl = "{ {path('dhi_admin_mac_address', {'id' : 'userMacId', 'userId' : app.request.get('id'), 'type' : 'edit'})}}";
+
+                url = editUrl.replace("userMacId", id);
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: $("#editMacAddress").serialize(),
+                    beforeSend: function() {
+                    
+                       $('#ajax-loader-bx').show();
+                    
+                    },
+                    success: function(result)
+                    {
+
+                        var flagArr = jQuery.parseJSON(result);
+                         $('#ajax-loader-bx').hide();
+
+                        if (flagArr['failure'] && flagArr['status'] == 'failure')
+                        {
+                            flashMsg = disErrorMsg('danger', flagArr['failure']);
+                            $("#flash-message").html(flashMsg);
+
+                            $("#dhi_user_mac_address_macAddress").val("");
+                            $("#form-body").hide();
+
+
+                        }
+                        
+                        else if (flagArr['error'] && flagArr['status'] == 'failure')
+                        {
+
+                            $("#form-body").show();
+                            $("#form-body").html(flagArr['error']);
+
+                        }
+                        else if(flagArr.status == 'failure') {
+                            
+                               flashMsg = disErrorMsg('danger', flagArr.detail);
+                               $("#flash-message").html(flashMsg);
+                               
+                               $("#dhi_user_mac_address_macAddress").val("");
+                               $("#form-body").hide();
+                               
+                        } 
+                        
+                        else {
+
+                            flashMsg = disErrorMsg('success', 'Mac address updated successfully.');
+                            $("#flash-message").html(flashMsg);
+
+                            $("#dhi_user_mac_address_macAddress").val("");
+                            $("#form-body").hide();
+
+                            $.ajax({
+                                type: "POST",
+                                url: '{ {path('dhi_admin_mac_address_list', {'id' : app.request.get('id')})}}',
+                                success: function(result)
+                                {
+
+                                    var flagMacAddress = jQuery.parseJSON(result);
+
+
+                                    if (flagMacAddress['status'] != 'failure') {
+
+                                        if (flagMacAddress['totalMacAddress'] > '{ {app.session.get('mac_address')}}' || '{ {app.session.get('mac_address')}}' == flagMacAddress['totalMacAddress']) {
+
+                                            $("#add-mac-address").hide();
+
+                                        }
+
+                                        $("#mac-address-list").html(flagMacAddress['status']);
+                                        return true;
+
+                                    }
+
+
+                                }
+                            });
+
+                        }
+
+                    }
+
+                });
+
+            }
+            else {
+
+                $(".serverError").hide();
+                $('#dhi_user_mac_address_macAddress').rules('add', {
+                    required: true,
+                    messages: {
+                        required: "Please enter mac address.",
+                    }
+                });
+            }
+
+        }); */
+
+
+        
+        
+    });
+
+    function applyPromoCode(promocode) {
+        var promo = promocode;
+        var userId = '{{ user.id }}';
+        var promoAction = 'apply';
+        $('#ajax-loader-bx').show();
+        $.ajax({
+            url: '{{ path("dhi_admin_user_redeem_promocode") }}',
+            type: 'POST',
+            dataType: 'json',
+            data: {user: userId, promoCode: promo, promoAction: promoAction},
+            success: function(result){
+                $('#ajax-loader-bx').hide();
+                if(result.status == 'success')
+                {
+                    $('#promocodeDetail').modal('hide');
+                    window.location.reload();
+                    $.toaster({
+                        priority : 'success',
+                        title : '',
+                        message : result.message,
+                        settings : {timeout:5000}
+                    });
+                }
+                else
+                {
+                    $.toaster({
+                        priority : 'error',
+                        title : '',
+                        message : result.message,
+                        settings : {timeout:5000}
+                    });
+                }
+            }
+        });
+    }
+
+    function disErrorMsg(msgType, msg) {
+
+        var html = '';
+        html += '<div class="alert alert-' + msgType + '">';
+        html += '<button type="button" class="close" data-dismiss="alert">&times;</button>';
+        html += msg
+        html += '</div>';
+        return html;
+    }
+    
+    function showRefundPaymentBox(userId, userServiceId, packageType, finalRefundAmount) {
+    	
+        var refundUrl = '{{ path('dhi_admin_customer_refund') }}';
+        
+        $('#ajax-loader-bx').show();
+        $('.modal-content').load(refundUrl, { userId:userId, userServiceId:userServiceId, packageType:packageType, finalRefundAmount:finalRefundAmount },function (result) {
+        	
+            $('#ajax-loader-bx').hide();
+            $('#refundPaymentModal').modal({show: true});
+        });
+    }
+    
+    function closeModelPopup() {
+    	
+    	$('#refundPaymentModal').modal('hide');
+        window.location.reload();
+    }
+
+</script>
+
+{% endblock javascripts %}

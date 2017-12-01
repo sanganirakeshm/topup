@@ -1,0 +1,14 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block body %}
+    <div class="innerBg">
+        <div class="container">
+            <div class="row">
+                {% block fos_user_content %}
+                    Your password reset link is expired. Please resend it again
+                    <br />
+                    <a href="{{ path('fos_user_resetting_request') }}">Resend</a>
+                {% endblock fos_user_content %}
+            </div>
+        </div>
+    </div>
+{% endblock body %}

@@ -1,0 +1,117 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+{{ parent() }}
+<link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+
+{% endblock stylesheets %}
+{% block body %}
+
+
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>		
+
+    <section class="content-header">
+        <h1>Recurring History</h1>
+    </section>
+    <section class="content">	
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">  
+                    	<div style="padding: 0px 0px 10px 0px;">
+		                	<div><b>Username: </b> {{ (user)?user.userName:'' }}</div>
+		                	<div><b>Recurring Profile Id: </b>{{ (objRecurringProfile)?objRecurringProfile.profileId:'' }}</div>
+		                	<div><b>Profile Start Date: </b>{{  (objRecurringProfile)?objRecurringProfile.profileStartDate|date('m/d/Y'):'' }}</div>               		   	
+	                	</div>	
+                        {# if admin_permission.checkPermission('email_campaign_create') #}
+                        <div class="addNewBtnsGrp">
+                            <a href="{{ path('dhi_admin_purchase_history') }}" class="btn btn-success pull-right margin-top5" >Back To Purchase History</a>                                                            
+                        </div>
+                        {# endif #}
+                        <table id="recurringHistoryTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+							<thead>
+                                  <tr>
+                                        <th>Profile Id</th>
+                                        <th>Profile Status</th>
+                                        <th>Payment Recevied Date</th>
+                                        <th>Next Due Date</th>
+                                        <th>Final Due Date</th>
+                                        <th>Amount</th>
+                                        <th>No. Of Completed Cycle</th>
+                                        <th>No. Of Remaining Cycle</th>                                        
+                                    </tr>
+							</thead>
+            			</table>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </section>	                    
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>                
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}    
+    <script type="text/javascript">
+    
+    $(document).ready(function(){
+
+    	var recurringJsonUrl = '{{ path('dhi_admin_recurring_profile_history_json', {'id': 'recurring_profile_id'}) }}';
+        var recurringJson = recurringJsonUrl.replace("recurring_profile_id", {{ recurringProfileId }});
+        
+    	var dTable = $('#recurringHistoryTable').dataTable({
+            "oLanguage": {
+                "sLengthMenu": "Display _MENU_ Records",
+                "sZeroRecords": "<center>No Recurring History Found!</center>",
+                "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                "sInfoFiltered": "(filtered from _MAX_ total records)"
+            },
+            responsive: false,
+            bJQueryUI: false,
+            bProcessing: true,
+            bServerSide: true,
+            bFilter: true,            
+            iDisplayLength: '10',
+            sAjaxSource: recurringJson,
+            "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+            aoColumns: [
+				{"sName": "profileId"},
+				{"sName": "profileStatus"},
+                {"sName": "paymentReceviedDate", "bSortable": false},
+                {"sName": "nextBillingDate", "bSearchable": false, "bSortable": false},
+                {"sName": "finalDueDate", "bSearchable": false, "bSortable": false},
+                {"sName": "amount"},
+                {"sName": "completedCycle"},
+                {"sName": "remainingCycle"}
+            ],           
+            aaSorting: [[2, 'desc']]
+        });    	    	   	    
+    });
+    
+	</script>
+{% endblock javascripts %}

@@ -1,0 +1,271 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+	<section class="content-header">
+		<h1>Edit ISP Pin</h1>
+	</section>		  
+
+	<section class="content">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-success">
+					<form action="{{ path('dhi_admin_isp_pin_edit',{ 'id': id }) }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="form-isp-pin" novalidate>
+						<div class="box-body form-group-section">
+
+							<div class="form-group col-md-3">
+								<label class="control-label">Service Location: </label>
+								<div>
+									{{ form_widget(form.serviceLocation, { 'attr': { 'placeholder': 'Service Location', 'class': 'form-control'}}) }}
+									<div class="serverError">{{ form_errors(form.serviceLocation) }}</div>
+								</div>
+							</div>
+
+							<div class="form-group col-md-3">
+								<label class="control-label">Plan: </label>
+								<div>
+									{{ form_widget(form.package, { 'attr': { 'placeholder': 'Plan', 'class': 'form-control'}}) }}
+									<div class="serverError">{{ form_errors(form.package) }}</div>
+								</div>
+							</div>
+
+							<div class="form-group col-md-3">
+                                <label class="control-label">Pin Type: </label>
+                                <div>{{ form_widget(form.isp_type, { 'attr': { 'placeholder': '', 'class': 'form-control'}}) }}
+                                    <div class="serverError">{{ form_errors(form.isp_type) }}</div>
+                                </div>
+                            </div>
+
+							<div class="form-group col-md-3" style="display: none;" id="name">
+                                <label class="control-label">Name: </label>
+                                <div>{{ form_widget(form.name, { 'attr': { 'placeholder': 'Name', 'class': 'form-control'}}) }}
+                                    <div class="serverError">{{ form_errors(form.name) }}</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-3" style="display: none;" id="email">
+                                <label class="control-label">Email: </label>
+                                <div>{{ form_widget(form.email, { 'attr': { 'placeholder': 'Email', 'class': 'form-control'}}) }}
+                                    <div class="serverError">{{ form_errors(form.email) }}</div>
+                                </div>
+                            </div>
+
+
+							<div class="form-group col-md-3">
+								<label class="control-label">Username: </label>
+								<div>
+									{{ form_widget(form.username, { 'attr': { 'placeholder': 'Username', 'class': 'form-control'}}) }}
+									<div class="serverError">{{ form_errors(form.username) }}</div>
+								</div>
+							</div>
+
+							<div class="form-group col-md-3">
+								<label class="control-label">Validity: </label>
+								<div>
+									{{ form_widget(form.validity, { 'attr': { 'placeholder': 'Validity', 'class': 'form-control'}}) }}
+									<div class="serverError">{{ form_errors(form.validity) }}</div>
+								</div>
+							</div>
+
+							
+						</div>
+								
+						<div class="box-body form-group-section">
+							
+							<div class="form-group col-md-9">
+								<label class="control-label"><font color="red">*</font>Customer update information note:</label>
+								<div>
+									<textarea name="isp-edit-pin-note" id="isp-edit-pin-note" cols="144"></textarea>
+								</div>
+							</div>
+
+							
+						</div>	
+								
+						<div class="box-footer">
+							{{ form_rest(form) }}
+							<div class="col-md-8 add-btn-bx"> 
+								<input type="submit" name="update" value="Update" class="btn btn-success"/>
+								<a href="{{ path('dhi_admin_isp_pin_list') }}" class="btn btn-default">Back</a>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="content-header">
+		<h1>Change Password</h1>
+	</section>		  
+
+	<section class="content">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-success">
+					<form action="{{ path('dhi_admin_isp_pin_edit',{ 'id': id }) }}" method="POST" {{ form_enctype(changePasswordForm) }} class="form-horizontal" id="form-change-pwd" novalidate>
+						<div class="box-body form-group-section">
+
+							<div class="form-group col-md-4">
+								<label class="control-label">New Password: </label>
+								<div>
+									{{ form_widget(changePasswordForm.password.first, { 'attr': { 'placeholder': 'New Password', 'class': 'form-control'}}) }}								
+									<div class="serverError">{{ form_errors(changePasswordForm.password.first) }} </div>
+								</div>
+							</div>
+
+							<div class="form-group col-md-4">
+								<label class="control-label">Confirm Password: </label>
+								<div>
+									{{ form_widget(changePasswordForm.password.second, { 'attr': { 'placeholder': 'Confirm Password', 'class': 'form-control'}}) }}
+									<div class="serverError">{{ form_errors(changePasswordForm.password.second) }} </div>
+								</div>
+							</div>
+
+							<div class="form-group col-md-6">
+								<label class="control-label"><font color="red">*</font>Customer update information note:</label>
+								<div>
+									<textarea name="change-password-pin-note" id="change-password-pin-note" cols="144"></textarea>
+								</div>
+							</div>	
+
+						</div>
+
+						<div class="box-footer">
+							{{ form_rest(changePasswordForm) }}
+							<div class="col-md-8 add-btn-bx"> 
+								<input type="submit" name="update" value="Update" class="btn btn-success"/>
+								<a href="{{ path('dhi_admin_isp_pin_list') }}" class="btn btn-default">Back</a>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+	<script type="text/javascript">
+
+		$(document).ready(function () {
+
+			var flagType = false;
+			
+			if($("#dhi_isp_pin_isp_type").val() == 'Business') {
+				
+				flagType = true;
+				$("#name").show();
+				$("#email").show();
+			}
+			
+			$("#dhi_isp_pin_isp_type").change(function () {
+
+				if ($("#dhi_isp_pin_isp_type").val() == 'Business') {
+
+					flagType = true;
+					$("#name").show();
+					$("#email").show();
+				} else {
+
+					flagType = false;
+					$("#name").hide();
+					$("#email").hide();
+				}
+
+			});
+
+			$('#form-isp-pin').validate({
+				rules: {
+					"dhi_isp_pin[serviceLocation]": {
+						"required": true
+					},
+					"dhi_isp_pin[package]": {
+						"required": true
+					},
+					"dhi_isp_pin[username]": {
+						"required": true
+					},
+					"dhi_isp_pin[password]": {
+						"required": true
+					},
+					"dhi_isp_pin[validity]": {
+						"required": true,
+						"digits": true
+					},
+					"isp-edit-pin-note": "required",
+					"dhi_isp_pin[email]": {
+						required: function () {
+							if (flagType) {
+								return true;
+							} else {
+								return false;
+							}
+						},
+						email: true
+					},
+					"dhi_isp_pin[name]": {
+						required: function () {
+							if (flagType) {
+								return true;
+							} else {
+								return false;
+							}
+						}
+					},
+				},
+				messages: {
+					"dhi_isp_pin[serviceLocation]": {
+						"required": "Please select service location."
+					},
+					"dhi_isp_pin[package]": {
+						"required": "Please select plan."
+					},
+					"dhi_isp_pin[username]": {
+						"required": "Please enter usernamae."
+					},
+					"dhi_isp_pin[password]": {
+						"required": "Please enter password."
+					},
+					"dhi_isp_pin[validity]": {
+						"required": "Please enter validity."
+					},
+					"isp-edit-pin-note": "Please enter customer update note.",
+					"dhi_isp_pin[email]": {
+						"required": "Please enter email.",
+						"email": "Please enter valid email address."
+					},
+					"dhi_isp_pin[name]": {
+						"required": "Please enter name."
+					},
+				}
+			});
+
+
+			$('#form-change-pwd').validate({
+				rules: {
+					"dhi_change_isp_pin[password][first]": {
+						"required": true
+					},
+					"dhi_change_isp_pin[password][second]": {
+						"required": true,
+						"equalTo": "#dhi_change_isp_pin_password_first"
+					},
+					"change-password-pin-note": "required"
+				},
+				messages: {
+					"dhi_change_isp_pin[password][first]": {
+						"required": "Please enter new password."
+					},
+					"dhi_change_isp_pin[password][second]": {
+						"required": "Please enter confirm password."
+					},
+					"change-password-pin-note": "Please enter customer update note."
+				}
+			});
+
+		});
+
+	</script>
+{% endblock javascripts %}

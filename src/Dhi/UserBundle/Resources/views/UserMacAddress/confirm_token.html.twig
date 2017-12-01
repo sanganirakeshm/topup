@@ -1,0 +1,22 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% trans_default_domain 'FOSUserBundle' %}
+{% block body %}
+
+<section class="content">
+    
+        <div class="min_cont_hight">
+            <div class="row">
+                {% block fos_user_content %}
+                    <div class="msgBox verif_succ_box">
+                        <div class="msgboxin">
+                            <p>This mac-address verification link has expired.</p>
+                           
+                        </div>
+                    </div>
+                {% endblock fos_user_content %}
+            </div>
+        </div>
+   
+</section>    
+{% endblock body %}

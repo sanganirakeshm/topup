@@ -1,0 +1,62 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Add Package</h1>
+                
+                <form action="{{ path('dhi_admin_support_location_new') }}" method="POST" id="add_location" class="form-horizontal" novalidate>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Support Location: </label>
+                        <div class="col-sm-6">
+                            {{ form_widget(form.name, { 'attr': { 'placeholder': 'Support Location', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.name) }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Location Short Code: </label>
+                        <div class="col-sm-6">
+                            {{ form_widget(form.code, { 'attr': { 'placeholder': 'Location Short Code', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.code) }}</div>
+                        </div>
+                    </div>
+                    
+                    {{ form_rest(form) }}
+
+                    <div>
+                        <div class="col-sm-offset-2 col-sm-0">
+                            <input type="submit" class="btn btn-default" name="add" value="Add"/>
+                            <a href="{{ path('dhi_admin_support_location_list') }}" class="btn btn-info">Back</a>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+   
+{% endblock body %}
+    
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            
+            $("#add_location").validate({
+                rules: {
+                    "dhi_user_support_location[name]": "required",
+                    "dhi_user_support_location[code]": "required",
+                },
+                messages: {
+                    "dhi_user_support_location[name]": "Please enter support location.",
+                    "dhi_user_support_location[code]": "Please enter location short code.",
+                }
+            });
+        });
+    </script>
+{% endblock javascripts %}

@@ -1,0 +1,31 @@
+{% block body %}
+	<h1>Business Promo Code</h1>
+	<p>Business Name: {{ batch.business.name }}</p>
+	{% if PromoCodes|length > 0 %}
+		<table class="purchase_table" style="width:100%;" cellspacing="0" cellpadding="5">
+			<tr>
+				<th>Code</th>
+				<th>Plan Name</th>
+				<th>Life</th>
+                <th>Note</th>
+				<th>Use by Date</th>
+			</tr>
+			{% set total = 0 %}
+
+			{% for key, promocode in PromoCodes %}
+				<tr>
+					<td>{{ promocode.code }}</td>
+					{% if promocode.packageName is not empty %}
+						<td>{{ promocode.packageName }}</td>
+					{% else %}
+						<td>{{ promocode.displayBundleName }}</td>
+					{% endif %}
+					<td>{{ promocode.duration }} Hour(s)</td>
+                    <td>{{ promocode.note }} </td>
+					<td>{{ promocode.expirydate ? promocode.expirydate|date("m/d/Y") : 'N/A' }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	{% endif %}
+
+{% endblock body %}

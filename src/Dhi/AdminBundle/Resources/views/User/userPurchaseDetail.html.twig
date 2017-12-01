@@ -1,0 +1,342 @@
+{% extends "DhiAdminBundle::layout.html.twig" %} 
+{% block body %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+    #refundPaymentModal .modal-dialog{
+    	width:750px;
+    }
+    </style>
+{% endblock stylesheets %}
+<section class="content-header">
+	<h1>Service Purchase ({{ (user)?user.username:'' }})</h1>
+</section>
+<section class="content">	
+    <div class="row">
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+        <div class="col-md-8">
+            <div class="box box-success">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                          <div class="row">
+                        <div class="col-xs-12">
+                        	<h4 class="mainTitle pull-left">
+                                <b>{{ (summaryData.PurchasedAvailable == 1)?'Upgrage':'Add' }} Service</b>
+                            </h4>
+                            <div class="pull-right">
+                                {% if summaryData.IsBundleAvailabledInCart == 0 and summaryData.IsAddOnAvailabledInCart == 0 and summaryData.IsIPTVAvailabledInCart == 0 and summaryData.IsISPAvailabledInCart == 0 %}
+                                  <select class="btnChangeServiceLocation btn" name="service_location">
+                                    {% for location in serviceLocations %}
+                                        <option value="{{ location.id }}" {{ (userLocationId == location.id) ? 'selected' : '' }}>{{ location.name }}</option>
+                                    {% endfor %}
+                                  </select>
+                                {% endif %}
+
+                                {# if isOnlySingleLocation > 1 %}
+                                  <a href="{{ path('dhi_admin_user_service_location_list', {'id': user.id }) }}" class="btn btn-success pull-right">Back</a>
+                                {% else #}
+                                  <a href="{{ path('dhi_admin_user_list') }}" class="btn btn-success pull-right">Back</a>
+                                {# endif #}
+                              </div>
+                            </div>
+                          </div>
+	                        <div id="plan_tab">
+								<ul class="nav nav-tabs">
+									{% if summaryData.AvailableServicesOnLocation|length > 0%}
+									
+										{% if 'BUNDLE' in summaryData.AvailableServicesOnLocation %}
+                      <li id="tabBUNDLE"><a href="{{ path('dhi_admin_user_view_plan', {'userId': user.id,'service': 'BUNDLE' }) }}">Bundle Plan</a></li>
+                    {% endif %}
+
+                    {% if 'ISP' in summaryData.AvailableServicesOnLocation %}
+										  <li id="tabISP"><a href="{{ path('dhi_admin_user_view_plan', {'userId': user.id,'service': 'ISP' }) }}">ISP Plan</a></li>
+										{% endif %}
+										{% if 'IPTV' in summaryData.AvailableServicesOnLocation %}
+										  <li id="tabIPTV"><a href="{{ path('dhi_admin_user_view_plan', {'userId': user.id, 'service': 'IPTV' }) }}">ExchangeVUE Plan</a></li>
+
+										  <li id="tabPremium"><a href="{{ path('dhi_admin_user_view_plan', {'userId': user.id, 'service': 'Premium' }) }}">Premium Package</a></li>
+										{% endif %}
+									{% endif %}
+										<!-- <li id="tabCredit"><a href="{{ path('dhi_admin_user_view_plan', {'userId': user.id, 'service': 'Credit' }) }}">Credit</a></li> -->							    	
+							  	</ul>					  	
+							</div>                          	                                                      
+                        </div>                        
+                    </div>                    
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="box box-success">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                        	<h4 class="mainTitle">
+                                <b>Order Summary</b>
+                            </h4>
+	                        <div id="tabsOrderSummary">
+								<ul class="nav nav-tabs">
+									<li id="tabAccount"><a href="{{ path('dhi_admin_user_account_summary', {'tab': 1, 'userId': user.id }) }}">Current Account*</a></li>
+									<li id="tabOrder"><a href="{{ path('dhi_admin_user_account_summary', {'tab': 2, 'userId': user.id }) }}">View Updates*</a></li>																    	
+							  	</ul>					  	
+							</div>                          	                                                      
+                        </div>                        
+                    </div>                    
+                </div>
+            </div>
+        </div>
+		
+    </div>
+</section>
+<div id="ajax-loader-bx" style="display:none;">
+	<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+	<div id="loader-text">Please wait....</div>
+</div>
+
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+<script type="text/javascript">
+
+	var loadUrl = "{{ path('dhi_admin_user_addto_cart', {'extendPlan' : 0}) }}",
+		  ajaxLocationUrl = "{{ path('dhi_admin_user_change_locaiton')}}";
+
+    $(document).ready(function() {
+		
+   		$( "#plan_tab" ).tabs({
+   			active:0,      			
+   			beforeLoad: function( event, ui ) {   
+   				$('.tab-content').remove();
+   				$('li.ui-tabs-active').removeClass('active');
+   				$('#ajax-loader-bx').show();
+   			},
+   			load: function( event, ui ) { 
+   				
+   				$('#ajax-loader-bx').hide();   				
+   				$('li.ui-tabs-active').addClass('active');
+   			}
+   		});
+   		
+   		$( "#tabsOrderSummary" ).tabs({
+   			active:{{ summaryData.CartAvailable }},      			
+   			beforeLoad: function( event, ui ) {   				
+   				$('li.ui-tabs-active').removeClass('active');
+   				$('#ajax-loader-bx').show();
+   			},
+   			load: function( event, ui ) { 
+   				
+   				$('#ajax-loader-bx').hide();   				
+   				$('li.ui-tabs-active').addClass('active');
+   			}
+   		});
+
+      $(".btnChangeServiceLocation").change(function(){
+        var locationId = $(this).val()
+            user = {{ (user)?user.id:'' }};
+        $.ajax({
+          type: "POST",
+          url: ajaxLocationUrl,
+          data: {
+            'action':'update',
+            'id' : locationId,
+            'userId' : user
+          }, 
+          beforeSend: function( xhr ) {
+            $('#ajax-loader-bx').show();
+          },
+          success:function(result){
+            window.location.reload();
+          }
+        });
+      });
+
+   		//$( "#plan_tab" ).tabs( "disable", 1 );
+   		
+   		/*var tabISPIndex 	= $("#tabISP").index();
+   		var tabIPTVIndex 	= $("#tabIPTV").index();
+   		var tabPremiumIndex = $("#tabPremium").index();
+   		var tabCreditIndex 	= $("#tabCredit").index();*/
+   		
+   		validateTabs('disabledTabs','onload','');
+   		
+   			
+    });
+    
+	function addExtend(serviceId, type) {
+		
+		
+		loadUrl = "{{ path('dhi_admin_user_addto_cart', {'extendPlan' : 'planId'}) }}";
+		loadUrl = loadUrl.replace('planId', serviceId);
+		submitPackage('');
+		
+		
+	}
+	
+    function submitPackage(nextTabId){
+    	
+    	var postData = $('#frmplan').serializeArray();  
+    	$.ajax({
+    		
+    		type: "POST",
+    		url: loadUrl,
+    		data: postData,	
+    		beforeSend: function( xhr ) {
+    			
+    		    $('#ajax-loader-bx').show();
+    		},
+    		success:function(result){
+    			
+    			var obj = jQuery.parseJSON( result );
+    			
+    			if(obj['status'] == 'failed'){
+    				
+    				showAlertBox(obj['msg'],'');
+    				nextTabId = '';
+    			}
+    			if(obj['status'] == 'success'){
+                                $(".btnChangeServiceLocation").remove();
+    				$( "#tabsOrderSummary" ).tabs( "option", "active", $("#tabOrder").index() );
+    				$( "#tabsOrderSummary" ).tabs('load',$("#tabOrder").index());   
+					
+					if(obj['PREMIUM'] == 1) {
+					
+						$("#divPREMIUM").hide();
+				
+					}
+					
+					if(obj['IPTV'] == 1) {
+					
+						$("#divIPTV").hide();
+				
+					}
+					
+					if(obj['ISP'] == 1) {
+					
+						$("#divISP").hide();
+				
+					}
+					
+    			}
+				
+				
+    			validateTabs('disabledTabs','onload',nextTabId);
+    			$('#ajax-loader-bx').hide();
+    			
+    		}
+    	});
+		return true;
+    }
+    
+    function validateTabs(type,eventType,tabId){
+    	
+    	var userId = '{{ user.id }}';
+    	
+		$.ajax({
+    		
+    		type: "POST",
+    		url: "{{ path('dhi_admin_validate_tabs') }}",
+    		data: {type:type, userId:userId, eventType:eventType, tabId:tabId},	
+    		beforeSend: function( xhr ) {
+    			
+    		    $('#ajax-loader-bx').show();
+    		},
+    		success:function(result){
+    			
+    			var obj = jQuery.parseJSON( result );
+    			
+    			if(obj['disabledTabId'] != ''){
+    				
+    				for (var key in obj['disabledTabId']) {
+        				
+    					disabledTabid = obj['disabledTabId'][key];
+    					disbledTabIndex = $("#"+disabledTabid).index();
+    					
+    					$( "#plan_tab" ).tabs("disable", disbledTabIndex);
+    					$( "#"+disabledTabid ).attr("onclick","validateTabs('disabledTabs','tabclick','"+disabledTabid+"')");
+              $( '#'+disabledTabid).addClass('disabled');
+              $( '#'+disabledTabid).css('pointer-events','none');
+        		}
+    				
+    				if(eventType == 'tabclick' && obj['msg'] != ''){    					
+    					showAlertBox(obj['msg'],'');
+    				}    				
+    			}
+    			if(obj['enabledTabId'] != ''){
+    				
+	    			for (var key in obj['enabledTabId']) {
+	    				
+  						enabledtabid = obj['enabledTabId'][key];
+  						enabledTabIndex = $("#"+enabledtabid).index();
+                                                $( '#'+enabledtabid).css('pointer-events','auto');
+                                                $( '#'+enabledtabid).removeClass('disabled');
+						$( "#plan_tab" ).tabs( "enable", enabledTabIndex);    									    				
+	    			}
+	    			
+	    			if(tabId != 'tabIPTV'){
+	    				
+	    				$('#plan_tab').tabs("option", "active", $("#"+tabId).index());
+	    			}
+    			}
+    			
+    			$('#ajax-loader-bx').hide();
+    		}
+    	});	
+    }
+    
+    function displayNotification(type){
+    	
+    	if(type == 'IPTV') {
+    		
+    		action = 'IPTVPlanSelectNotification';
+    	}
+    	
+		  if(type == 'ISP') {
+    		
+    		action = 'ISPPlanSelectNotification';
+    	}
+    	
+    	msg = 'You need to select ISP plan with 30days validaity for ExchangeVUE plan.';		
+		  showAlertBox(msg, action);
+	  }
+    
+    function showAlertBox(msg,action){
+    	
+    	if(msg){
+    		
+    		$.alert({
+    			title: 'Alert!',
+    			content: msg,
+    			confirmButtonClass: 'btn-info',
+    			theme: 'white',
+    	        animation: 'scale',
+    	        animationSpeed: 400,
+    	        animationBounce: 1.5,
+    	        keyboardEnabled: false,
+    	        container: 'body',
+    		    confirm: function(){
+    		    	
+    		    	if(action == 'IPTVPlanSelectNotification') {
+						
+						var enabledTabIndex = $("#tabIPTV").index();						
+						$( "#plan_tab" ).tabs('load',enabledTabIndex);    	
+    				}
+    		    	
+					if(action == 'ISPPlanSelectNotification') {
+						
+						var enabledTabIndex = $("#tabISP").index();						
+						$( "#plan_tab" ).tabs('load',enabledTabIndex);    	
+    				}    		    	
+    		    },
+    		    backgroundDismiss: false,
+    	        autoClose: false,
+    	        closeIcon: true
+    		});
+    	}
+    }
+    
+</script>
+
+{% endblock javascripts %}

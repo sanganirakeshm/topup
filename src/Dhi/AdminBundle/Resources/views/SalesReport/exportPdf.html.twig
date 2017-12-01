@@ -1,0 +1,62 @@
+{% block body %}
+	<h1>Sales Report  {{saleDate ? saleDate : ''}}</h1>  
+	{% if salesData|length > 0 %}
+		<table class="purchase_table" style="width:100%;" cellspacing="0" cellpadding="5">
+			<tr>
+				<th>Service Location</th>
+				<th>Service Type</th>
+				<th>Payment Method</th>
+				<th>Total Sales</th>			
+			</tr>
+
+			{% set locationKey = '' %} 
+			{% set serviceType = '' %}
+			{% set grandTotal = '' %}
+			{% set previousLocationKey = '' %}
+			{% set previousServiceType = '' %}
+			
+
+			{% for keySales, sales in salesData %}
+
+				{% set locationKey = keySales %}
+
+				{% for keyServiceRecord, serviceRecord in sales %}
+
+					{% set serviceType = keyServiceRecord  %}
+
+					{% for key, record in serviceRecord %}
+
+						{% set grandTotal = (grandTotal + record['totalAmountPaymentMethod'])  %}
+						<tr class="">
+							{#{% if previousLocationKey == locationKey %}
+							<td></td>
+							{% else  %}#}
+								<td>{{ locationKey }}</td>
+							{#{% endif %}	#}
+							{#{% if previousServiceType == serviceType %}
+								<td></td>
+							{% else %}#}
+							<td>{{ serviceType }}</td>
+							{#{% endif %}	#}
+							<td>{{ key }}</td>
+							<td>${{ record['totalAmountPaymentMethod'] }}</td>
+							{#{% set previousLocationKey = locationKey  %}
+							{% set previousServiceType = serviceType  %}#}
+						</tr>
+						
+					{% endfor %}	
+					
+				{% endfor %}
+				
+				<tr class="">
+					<td></td>
+					<td></td>
+					<td><b>{{ 'Grand Total For '~locationKey~' Location' }}</b></td>
+					<td><b>{{ '$'~grandTotal }}</b></td>
+				</tr>
+			    
+			{% endfor %}	
+		</table>
+	{% endif %}
+
+{% endblock body %}

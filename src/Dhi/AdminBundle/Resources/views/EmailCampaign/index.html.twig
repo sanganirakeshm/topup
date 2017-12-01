@@ -1,0 +1,184 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+{% endblock stylesheets %}
+
+{% block body %}
+
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+	<div class="delBoxCont"></div>		
+        
+         <section class="content-header">
+              <h1>Email campaign</h1>
+            </section>
+            <section class="content">	
+		
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="box box-success">
+                            <form method="get">
+                                <div class="box-body">
+                                    <div class="form-group col-md-4">
+                                        <div class="row"><div class="col-sm-12" id="subject"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <div class="row"><div class="col-sm-12" id="emailType"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <div class="row"><div class="col-sm-12" id="status"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-8">
+                                        <div class="row"><div class="col-sm-12" id="date-range"></div></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>		
+                 
+                <div class="box box-success">
+                    <div class="box-body">
+			<div class="row">
+         		    <div class="col-xs-12">  
+                            {% if admin_permission.checkPermission('email_campaign_create') %}
+                               <div class="addNewBtnsGrp">
+                                <a href="{{ path('dhi_admin_email_campaign_new') }}" class="btn btn-success pull-right margin-top5">Add Email Campaign</a>
+                               </div>
+                            {% endif %}
+			    <table id="emailCampaignTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Email Type</th>
+                                        <th>Service</th>
+                                        <th>Status</th>
+                                        <th>Email Sent Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>        
+            </section>	                
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+        
+        $(document).ready(function () {
+          
+            deleteAjaxSource = '{{ path('dhi_admin_email_campaign_delete') }}';
+           
+            dTable = $('#emailCampaignTable').dataTable({
+               
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_email_campaign_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "Subject","bSearchable": true,"bSortable": true,},
+                    {"sName": "EmailType", "bSearchable": true, "bSortable": true},
+                    {"sName": "Service", "bSearchable": false, "bSortable": false},
+                    {"sName": "Status", "bSearchable": true, "bSortable": true},
+                    {"sName": "SentAt", "bSearchable": true, "bSortable": true},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false}
+                ],
+                aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+                        	
+                        	var actionFlag = row[5].split('^');
+                        	var dataId = actionFlag[0];
+                                var headTitle = "Email Campaign Delete";
+                                var msg = 'Are you sure you want to delete this email campaign?';
+                                var returnData = "<table><tr>";
+                             
+                                if(row[7] == 'Sent'){
+                                    {% if admin_permission.checkPermission('email_campaign_history') %}
+                                        var historyUrl = '{{ path('dhi_admin_email_campaign_history', {'campaignId': 'email_id'}) }}';
+                                        var historyEmail = historyUrl.replace("email_id", dataId);
+                                        returnData +='<td><a href="'+historyEmail+'" class="btn btn-success" title="History"> History</a></td>';
+                                    {% endif %}                                
+                                }else{
+                                    {% if admin_permission.checkPermission('email_campaign_update') %}
+                                        var editUrl = '{{ path('dhi_admin_email_campaign_edit', {'id': 'email_id'}) }}';
+                                        var editEmail = editUrl.replace("email_id", dataId);
+                                        returnData +='<td><a href="'+editEmail+'" class="btn btn-success" title="Edit"> Edit</a></td>';
+                                    {% endif %}                                
+
+
+                                   {% if admin_permission.checkPermission('email_campaign_delete') %}
+                                    var deleteUrl = '{{ path('dhi_admin_email_campaign_delete', {'id': 'email_id'}) }}';
+                                    var finalPath = deleteUrl.replace("email_id", dataId);
+                                    returnData +='<td><a href="javascript:void(0)" class="btn btn-danger" title="Delete" onclick="return deleterecord(' + dataId + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" +')">Delete</a></td>';  
+                                   {% endif %}
+                               }
+
+                            return returnData;
+                        },
+                        "aTargets": [5]
+                    }
+                ],
+                aaSorting: [[5, 'asc']]
+            });
+            $('#emailCampaignTable').dataTable().columnFilter({
+                sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+                aoColumns: [
+                    {type: "text", sSelector: "#subject"},
+                    {type: "select", sSelector: "#emailType", values: ['Marketing', 'Support']},
+                    null,
+                    {type: "select", sSelector: "#status", values: ['Inactive', 'In Progress','Sending','Sent']},
+                    {type: "date-range", sSelector: "#date-range"}
+                ]
+            });
+
+            $("input").addClass("form-control");
+            $("select").addClass("form-control");
+
+            $("#date-range .date_range_filter:first").change(function(event) {
+                $("#date-range .date_range_filter:last").datepicker("option", "minDate", $(this).val());
+            });
+            $("#date-range .date_range_filter:last").change(function(event) {
+                $("#date-range .date_range_filter:first").datepicker("option", "maxDate", $(this).val());
+            });
+
+        });
+    </script>
+    
+{% endblock javascripts %}

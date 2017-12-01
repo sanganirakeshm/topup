@@ -1,0 +1,34 @@
+<div class="row">
+<div class="full-width">
+<table class="table table-bordered table-hover">
+    <tr>
+
+        <th>Mac Address</th>
+        <th>Action</th>
+
+    </tr>
+    {% if userMacAddress|length > 0 %}
+    
+        {% for record in userMacAddress %}
+
+                <tr>
+                    <td>{{record.macAddress}}</td>
+
+                     <td>
+                          <a href="javascript:void(0);" class="btn-sm btn-default editMacAddress" id="edit-mac-address-{{record.id}}" data="{{record.id}}">Edit</a>&nbsp;
+                          <a href="javascript:void(0);" class="btn-sm btn-danger deleteMacAddress" id="delete-mac-address-{{record.id}}" data="{{record.id}}">Delete</a>
+                     </td>
+                </tr>
+                
+        {% endfor %}
+        
+    {% else %}
+                
+        <tr>
+            <td colspan="2" align="center">No Record Found!</td>
+        </tr>
+    
+{% endif %}
+</table>
+</div>
+</div>

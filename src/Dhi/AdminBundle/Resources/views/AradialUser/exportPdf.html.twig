@@ -1,0 +1,31 @@
+{% block body %}
+	<h1>Aradial User History</h1>
+	{% if aradialUserData|length > 0 %}
+	<table class="purchase_table" style="width:100%;" cellspacing="0" cellpadding="5">
+		<tr>
+			<th>Username</th>
+			<th>Email</th>
+			<th>NasName</th>
+                        <th>StartTime</th>
+			<th>StopTime</th>
+			<th>CallerId</th>
+			<th>CalledId</th>
+			<th>FramedAddress</th>
+		</tr>
+		{% for aradialUser in aradialUserData %}
+                        <tr >
+				<td>{{ aradialUser.userName}}</td>
+				<td>{{ aradialUser.email}}</td>
+                                <td>{{ aradialUser.nasName}}</td>
+                                <td>{{ aradialUser.startTime}}</td>
+                                <td>{{ aradialUser.stopTime}}</td>
+                                <td>{{ aradialUser.callerId}}</td>
+                                <td>{{ aradialUser.calledId}}</td>
+                                <td>{{ aradialUser.framedAddress}}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	{% endif %}
+
+
+{% endblock body %}

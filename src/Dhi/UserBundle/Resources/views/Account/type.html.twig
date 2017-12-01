@@ -1,0 +1,93 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <style type="text/css">
+        .ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }
+        .error{margin-left: 15px;}
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+{% block fos_user_content %}
+{% trans_default_domain 'FOSUserBundle' %}
+<div class="loginBg">
+    <div class="register">
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+        <div class="registerForm">
+            
+            <h1>Please select your account type</h1>
+            <ul class="radiooption">
+            <form action="{{ path('dhi_user_account_type_update') }}" {{ form_enctype(form) }} method="POST" class="fos_user_profile_edit" id="fos_user_profile_edit" novalidate>
+                <li>  
+                    {% if form_errors(form.userType) %}
+                        <div class="serverError">{{ form_errors(form.userType) }}</div>
+                    {% endif %}
+                    {{ form_widget(form.userType, { 'attr': {'style': '', 'data-prompt-position': 'topRight', 'placeholder': 'Username'}}) }}
+                    
+                </li>
+                <li class="submit"><input name="update_type" id="update_type"  type="submit" value="Update" class="submitBtn"></li>
+             </form>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Deers Authentication</h4>
+      </div>
+      <div class="modal-body">
+          <p> For US Military personal, Deers authentication is required. For Deers authenticaiton you must have www.shopmyexchange.com account.Please <a href="{{ path('dhi_user_deers_auth') }}">Click Here</a> if you have www.shopmyexchange.com account.</p>
+          <p class="text-center"> OR </p>
+          <p> Please <a href="https://www.shopmyexchange.com/account/register">Click Here</a> if you want to create new account on <a href="https://www.shopmyexchange.com/account/register">www.shopmyexchange.com.</a> </p>    
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock fos_user_content %}
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            $('#fos_user_profile_edit').validate({
+                rules: {
+                    "dhi_user_account_update[userType]": {
+                        "required": true}
+                },
+                messages: {
+                    "dhi_user_account_update[userType]": {
+                        "required": "Please select atleast one option .",
+                    }
+                }
+            });
+            
+            // Open Popup 
+            $("#update_type").click(function(){
+                var radioOption =  $("input[type='radio'][id^='dhi_user_account_type_update_userType_']:checked");
+                if(radioOption.val() == 'US Military'){
+                  
+                  $('#myModal').modal({
+                    keyboard: false,
+                    backdrop: 'static'
+                  })
+                  return false;  
+                }
+                
+                return true;
+            });
+
+        });
+    </script>
+
+{% endblock javascripts %}

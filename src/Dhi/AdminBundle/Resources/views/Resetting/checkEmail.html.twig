@@ -1,0 +1,18 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% trans_default_domain 'FOSUserBundle' %}
+{% block body %}
+    
+        <div class="container min_cont_hight">
+            <div class="row">
+                {% block fos_user_content %}
+                     <div class="msgBox">
+                         <div class="msgboxin">
+                            An email has been sent to {{email}}. It contains a link you must click to reset your password. <a href="{{ path('admin_login')}}">Click To Login</a>   
+                         </div>
+                     </div>
+                
+                {% endblock %}
+            </div>
+        </div>
+    
+{% endblock body %}

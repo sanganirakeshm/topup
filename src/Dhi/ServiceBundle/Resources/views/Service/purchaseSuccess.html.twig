@@ -1,0 +1,370 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+{% block body %}
+{% set brand = app.session.get('brand') %}
+            {% set brandName = '' %}
+            {% set brandDomain = '' %}
+            {% if brand %}
+                {% set brandName = brand.name %}
+                {% set brandDomain = brand.domain %}
+            {% endif %}
+    <section class="content">
+    	{% if app.user %}	
+			<div class="container text-right no-border">
+                <div class="row"><div class="col-xs-12">
+			<h6 class="color-blue line-height-20">Welcome {{app.user.username}}</h6>
+				</div></div>	</div>	
+		{%endif%}
+    	{# **** Step 1 ***** #}
+        <div class="container" id="step-1"> 
+           	
+            <div class="row">
+                
+                <div class="heading">
+                    
+                    <div class="col-xs-12">
+                        <h2>Thank you for your {{brandName}} purchase.</h2>
+                        	
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="msgBoxContainer">
+                <div class="col-xs-12" id="flash">{% include "DhiUserBundle::flashMessage.html.twig" %}</div>
+            </div>
+                    
+            <div class="inner_content">
+                {% if istikilivepromocode == 1 %}
+                    <div class="watch_bx">
+                       {{ tikiliveMsg|raw }}
+                    </div>
+                    &nbsp;
+                {% endif %}
+                {#{% if purchasedSummaryData.PaymentStatus == "Completed" %}
+            		<div class="watch_bx">
+             			Click 'Watch Online' above, download the <a href="https://play.google.com/store/apps/details?id=com.vianeos.exchangevue" target="_blank">app</a>, or hook up your <a href="{{ path('dhi_user_profile', {tab:3}) }}">set top box</a> to start watching NOW!
+    You’re ready to go! Visit <a href="https://{{ app.request.host }}/">{{ app.request.host }}</a>. All you need to do is log in, then click a channel to start watching!
+    				</div>
+                {% endif %}#}
+				{%  if purchasedSummaryData.RecurringStatus == 1 %}   
+				<h4>Your recurring payment profile successfully created. Now, your plan will be automatically renew on every month.</h4>
+				{% endif %}
+				{%  if purchasedSummaryData.RecurringStatus == 2 or purchasedSummaryData.RecurringStatus == 3 %}   
+				<h4>Your recurring payment profile has not been created.</h4>
+				{% endif %}
+                {% if purchasedSummaryData.PaymentStatus == "Completed" %}
+              	     <h4>Your order is now complete. Transaction details are below.</h4>
+                {% else %}
+                    <h4 class="voided">Your purchase could not be completed , please try again later or contact customer service it this persists</h4>
+                {% endif %}
+              	
+            {% if purchasedSummaryData.OrderNumber != '' %}
+                {% set ispArrLength = 0 %}
+                {% set TotalUnusedCredit = 0 %}
+                {% set TotalDiscountCodeAmount = 0 %}
+               <div class="resposiveTable">
+                <table class="table table-bordered">
+                    <tr>
+                        <th colspan="5">
+                            <b>User:</b> {{ purchasedSummaryData.firstName }} {{ purchasedSummaryData.lastName }}<br/>
+                            <b>Transaction ID:</b> {{ purchasedSummaryData.TransactionId }}<br/>
+                            <b>Date:</b> {{ purchasedSummaryData.PurchasedDate }}<br/>
+                            <b>Payment Method:</b> {{ purchasedSummaryData.PaymentMethod }}<br/>
+                        </th>                    
+                    </tr>
+
+                    {% if 'ISP' in purchasedSummaryData|keys %}
+
+                        {% set ispArrLength = purchasedSummaryData.ISP|length %}
+                        {% if ispArrLength > 0 %}
+                            <tr>
+                                <th rowspan="{{ ispArrLength + 1 }}" style="color:#7a212e">Internet Package</th>
+                                <th>Package</th>
+                                <th>Activation Status</th>
+                                <th>Payment Status</th>
+                                <th>Price</th>                    
+                            </tr>
+                            {% for ispPurchase in purchasedSummaryData.ISP %}
+
+                                {% if ispPurchase.isDiscountAvailable == 1 %}								                
+                                    <tr>
+                                        <td colspan="3" align="right"><i>{{ ispPurchase.Discription }}</i></td>
+                                        <td>-${{ ispPurchase.TotalDiscount }}</td>                    
+                                    </tr>
+                                {% elseif ispPurchase.isUnusedCreditAvailable == 1 %}
+                                    <tr>
+                                        {% if purchasedSummaryData.isBundleDiscountApplied == 0 %}
+                                            <td colspan="3" align="right"><i>{{ ispPurchase.Discription }}</i></td>
+                                            <td>-${{ ispPurchase.TotalUnusedCredit }}</td>
+                                        {% endif %}
+                                        {% set TotalUnusedCredit = TotalUnusedCredit + ispPurchase.TotalUnusedCredit %}
+                                    </tr>
+
+                                {% elseif ispPurchase.isBundleDiscountAvailable == 1 %}
+                                    <tr>
+                                        {# <td colspan="3" align="right"><i>{{ ispPurchase.bundleName }}</i></td>
+                                        <td>-${{ ispPurchase.bundleDiscountAmount|number_format(2) }}</td>                     #}
+                                    </tr>
+
+                                {% else %}
+                                    {% if ispPurchase.validityType == "HOURS" %}
+                                        {% set validityCaps = "Hour(s)" %}
+                                    {% else %}
+                                        {% set validityCaps = "Day(s)" %}
+                                    {% endif %}
+                                    
+                                    <tr>
+                                        <td>
+                                            {% if ispPurchase.bandwidth >= 1024%}
+                                                {% set mbbandwidth = ispPurchase.bandwidth/1024%}
+                                                {{ ispPurchase.packageName~' - '~mbbandwidth~'MB - '~ispPurchase.validity~' '~validityCaps }}
+                                            {% else %}
+                                                {{ ispPurchase.packageName~' - '~ispPurchase.bandwidth~'k - '~ispPurchase.validity~' '~validityCaps }}
+                                            {% endif %} 
+                                        </td>
+                                        
+                                        {% if ispPurchase.packageStatus == "Failed" %}<td class="filedVoided">{% else %}<td>{% endif %}{{ ispPurchase.packageStatus }}</td>
+                                        <td>
+                                            {% if ispPurchase.paymentStatus == "Refunded" %}
+                                                Voided
+                                            {% else %}
+                                                {{ ispPurchase.paymentStatus }}
+                                            {% endif %}
+                                        </td>
+                                        <td>${{ ispPurchase.packageActualAmount }}</td>                    
+                                    </tr>
+                                {% endif %}
+                                {% if ispPurchase.totalDiscountCodeAmount is defined and ispPurchase.totalDiscountCodeAmount != 0 and  ispPurchase.totalDiscountCodeAmount is not null%}
+                                    {% set TotalDiscountCodeAmount = TotalDiscountCodeAmount + ispPurchase.totalDiscountCodeAmount %}
+                                {% endif %}    
+                            {% endfor %}
+                            {% if purchasedSummaryData.isBundleDiscountApplied == 0 and purchasedSummaryData.TotalBundleDiscount == 0 %}
+                                <tr>
+                                    <td colspan="4" align="right"><b><i>Sub Total</i></b></td>
+                                    <td>${{ purchasedSummaryData.ISPTotalActualAmount|number_format(2) }}</td>                    
+                                </tr>
+                            {% endif %}    
+                        {% endif %}
+                    {% endif %}
+
+                    {% if 'IPTV' in purchasedSummaryData|keys %}
+
+                        {% set iptvArrLength = purchasedSummaryData.IPTV|length %}
+                        {% if iptvArrLength > 0 %}
+                            <tr>
+                                <th rowspan="{{ iptvArrLength + 1 }}" style="color:#7a212e">ExchangeVUE Package</th>
+                                <th>Package</th>
+                                <th>Activation Status</th>
+                                <th>Payment Status</th>
+                                <th>Price</th>                    
+                            </tr>
+                            {% for iptvPurchase in purchasedSummaryData.IPTV %}
+
+                                {% if iptvPurchase.isDiscountAvailable == 1 %}								                
+                                    <tr>
+                                        <td colspan="3" align="right"><i>{{ iptvPurchase.Discription }}</i></td>
+                                        <td>-${{ iptvPurchase.TotalDiscount }}</td>                    
+                                    </tr>
+                                {% elseif iptvPurchase.isUnusedCreditAvailable == 1 %}
+                                    <tr>
+                                        {% if purchasedSummaryData.isBundleDiscountApplied == 0 %}
+                                            <td colspan="3" align="right"><i>{{ iptvPurchase.Discription }}</i></td>
+                                            <td>-${{ iptvPurchase.TotalUnusedCredit }}</td>                    
+                                        {% endif %}
+                                        {% set TotalUnusedCredit = TotalUnusedCredit + iptvPurchase.TotalUnusedCredit %}
+                                    </tr>
+
+                                {% elseif iptvPurchase.isBundleDiscountAvailable == 1 %}
+                                    <tr>
+                                        {# <td colspan="3" align="right"><i>{{ iptvPurchase.bundleName }}</i></td>
+                                        <td>-${{ iptvPurchase.bundleDiscountAmount|number_format(2) }}</td>                     #}
+                                    </tr>
+
+                                {% else %}
+                                    <tr>
+                                        <td>{{ iptvPurchase.packageName }}</td>
+                                        {% if iptvPurchase.packageStatus == "Failed" %}<td class="filedVoided">{% else %}<td>{% endif %}{{ iptvPurchase.packageStatus }}</td>
+                                        <td>
+                                            {% if iptvPurchase.paymentStatus == "Refunded" %}
+                                                Voided
+                                            {% else %}
+                                                {{ iptvPurchase.paymentStatus }}
+                                            {% endif %}
+                                        </td>
+                                        <td>${{ iptvPurchase.packageActualAmount }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if iptvPurchase.totalDiscountCodeAmount is defined and iptvPurchase.totalDiscountCodeAmount != 0 and  iptvPurchase.totalDiscountCodeAmount is not null%}
+                                    {% set TotalDiscountCodeAmount = TotalDiscountCodeAmount + iptvPurchase.totalDiscountCodeAmount %}
+                                {% endif %}    
+                            {% endfor %}
+                            {% if purchasedSummaryData.isBundleDiscountApplied == 0 and purchasedSummaryData.TotalBundleDiscount == 0 %}
+                                <tr>
+                                    <td colspan="4" align="right"><b><i>Sub Total</i></b></td>
+                                    <td>${{ purchasedSummaryData.IPTVTotalActualAmount|number_format(2) }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+
+
+                    {% if 'AddOn' in purchasedSummaryData|keys %}
+
+                        {% set addOnArrLength = purchasedSummaryData.AddOn|length %}
+                        {% if addOnArrLength > 0 %}
+                            <tr>
+                                <th rowspan="{{ addOnArrLength + 1 }}" style="color:#7a212e">Premium Packages</th>
+                                <th>Package</th>
+                                <th>Activation Status</th>
+                                <th>Payment Status</th>
+                                <th>Price</th>                    
+                            </tr>
+                            {% for addOnPurchase in purchasedSummaryData.AddOn %}
+
+                                {% if addOnPurchase.isDiscountAvailable == 1 %}                                              
+                                    <tr></tr>
+                                {% elseif addOnPurchase.packageName is defined %}
+                                <tr>
+                                    <td>{{ addOnPurchase.packageName }}</td>
+                                   {% if addOnPurchase.packageStatus == "Failed" %}<td class="filedVoided">{% else %}<td>{% endif %}{{ addOnPurchase.packageStatus }}</td>
+                                    <td>
+                                        {% if addOnPurchase.paymentStatus == "Refunded" %}
+                                            Voided
+                                        {% else %}
+                                            {{ addOnPurchase.paymentStatus }}
+                                        {% endif %}
+                                    </td>
+                                    <td>${{ addOnPurchase.packageActualAmount }}</td>                    
+                                </tr>
+                                {% endif %}
+                                {% if addOnPurchase.totalDiscountCodeAmount is defined and addOnPurchase.totalDiscountCodeAmount != 0 and  addOnPurchase.totalDiscountCodeAmount is not null%}
+                                    {% set TotalDiscountCodeAmount = TotalDiscountCodeAmount + addOnPurchase.totalDiscountCodeAmount %}
+                                {% endif %}    
+                            {% endfor %}
+                            <tr>
+                                {% if purchasedSummaryData.isBundleDiscountApplied == 0 and purchasedSummaryData.TotalBundleDiscount == 0 %}
+                                    <td colspan="4" align="right"><i>Sub Total</i></td>
+                                    <td>${{ purchasedSummaryData.AddOnTotalActualAmount|number_format(2) }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if 'Credit' in purchasedSummaryData|keys %}
+
+                        {% set creditArrLength = purchasedSummaryData.Credit|length %}
+                        {% if creditArrLength > 0 %}
+                            <tr>
+                                <th rowspan="{{ creditArrLength + 1 }}" style="color:#7a212e">Credit Purchase</th>
+                                <th colspan="2">Description</th>
+                                <th>Payment Status</th>
+                                <th>Price</th>                    
+                            </tr>
+                            {% for creditPurchase in purchasedSummaryData.Credit %}
+                                <tr>
+                                    <td colspan="2">{{ creditPurchase.packageName }}</td>			                	
+                                    <td>{{ creditPurchase.paymentStatus }}</td>
+                                    <td>${{ creditPurchase.packageActualAmount }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan="4" align="right"><i>Sub Total</i></td>
+                                <td>${{ purchasedSummaryData.CreditTotalActualAmount|number_format(2) }}</td>                    
+                            </tr>
+                        {% endif %}
+                    {% endif %}
+
+
+                    {% set grandTotal = 0 %}
+                    {% set netPaidBy = 0 %}
+                    {% set totalRefund = 0 %}
+
+                    {% set grandTotal = purchasedSummaryData.PurchaseOrderNetPaidAmount %}
+
+                    {% if purchasedSummaryData.ServiceNetRefundedAmount == purchasedSummaryData.PurchaseOrderNetRefundedAmount %}
+
+                        {% set totalRefund = purchasedSummaryData.PurchaseOrderNetRefundedAmount %}
+                    {% endif %}
+
+                    {% set netPaidBy = grandTotal - totalRefund %}
+
+                    {% if purchasedSummaryData.discountCouponPercentage > 0 %}
+                        <tr>
+                            <td colspan="4" align="right">Promo Code Discount</td>
+                            <td><i>- ${{ purchasedSummaryData.discountCouponAmount|number_format(2) }}</i></td>
+                        </tr>
+                    {% endif %}
+
+                    {% if purchasedSummaryData.isBundleDiscountApplied == 1 or purchasedSummaryData.TotalBundleDiscount > 0 %}
+
+                        <tr>
+                            <td colspan="4" align="right"><b>Sub Total</b></td>
+                            <td><i> ${{ (grandTotal + purchasedSummaryData.TotalBundleDiscount + TotalUnusedCredit)|number_format(2) }}</i></td>
+                        </tr>
+                        {% if TotalUnusedCredit > 0 %}
+                            <tr>
+                                <td colspan="4" align="right"><i>Total Unused credit</i></td>
+                                <td><i> - ${{ TotalUnusedCredit|number_format(2) }}</i></td>
+                            </tr>
+                        {% endif %}
+                        {% if purchasedSummaryData.TotalPromotionOff > 0 %}
+                            <tr>
+                                <td colspan="4" align="right"><b>Promotion Off ({{ purchasedSummaryData.TotalPromotionPer }}%)</b></td>
+                                <td><i> - ${{ (purchasedSummaryData.TotalPromotionOff)|number_format(2) }}</i></td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <td colspan="4" align="right"><i>{{ purchasedSummaryData.BundleName }}</i></td>
+                            <td><i> - ${{ purchasedSummaryData.TotalBundleDiscount|number_format(2) }}</i></td>
+                        </tr>
+                    {% else %}
+                        {% if purchasedSummaryData.TotalPromotionOff > 0 %}
+                        <tr>
+                            <td colspan="4" align="right"><b>Promotion Off ({{ purchasedSummaryData.TotalPromotionPer }}%)</b></td>
+                            <td><i> - ${{ (purchasedSummaryData.TotalPromotionOff)|number_format(2) }}</i></td>
+                        </tr>
+                        {# set grandTotal = grandTotal - purchasedSummaryData.TotalPromotionOff #}
+                    {% endif %}
+
+                    {% endif %}
+                    {# if TotalDiscountCodeAmount != 0 and TotalDiscountCodeAmount is not null %}
+                        <tr>
+                            <td colspan="4" align="right"><b>Promo Code Discount</b></td>
+                            <td> - ${{ TotalDiscountCodeAmount|number_format(2) }}</td>                    
+                        </tr>
+                    {% endif #}
+                    <tr>
+                        <td colspan="4" align="right"><b>Grand Total</b></td>
+                        <td><b>${{ grandTotal|number_format(2) }}</b></td>                    
+                    </tr>
+
+                    {% if totalRefund > 0 %}
+                        <tr>
+                            <td colspan="5"><b>Voided Payment Summary</b></td>                                        
+                        </tr>
+                        <tr>
+                            <td colspan="4" align="right"><b><i>This amount voided in your selected payment option account.</i></b></td>
+                            <td><b><i>${{ totalRefund|number_format(2) }}</i></b></td>                    
+                        </tr>
+                    {% endif %}
+
+                </table>
+               </div>
+                {% if purchasedSummaryData['PaymentStatus'] == 'Completed' %}
+
+                    {% if purchasedSummaryData['PurchaseEmailSent'] == 1 %}
+                        <h5 class="success">Email receipt was sent to: {{ purchasedSummaryData['Email'] }}</h5>				
+                    {% else %}
+                        {% if  purchasedSummaryData['emailVerified'] == 1 %}
+                            <h5>Email receipt could not be emailed to: {{ purchasedSummaryData['Email'] }}</h5>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+            {% endif %}			
+
+            </div>
+        </div>            
+    </section>
+
+{% endblock body %}

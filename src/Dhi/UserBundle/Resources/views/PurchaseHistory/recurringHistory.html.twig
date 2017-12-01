@@ -1,0 +1,138 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+{% block body %}
+{% block fos_user_content %}
+{% trans_default_domain 'FOSUserBundle' %}
+<style>
+        .btn-disabled{
+            pointer-events: none;
+            cursor: default;
+        }
+        #print_pdf{position: absolute;
+            right: 120px;
+            top: 13px;}
+            table td .btn {
+    padding: 2px 6px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857;
+}
+    </style>
+<section class="content">
+	{% if app.user %}	
+	<div class="container text-right no-border">
+		<div class="row">
+			<div class="col-xs-12">
+				<h6 class="color-blue line-height-20">Welcome {{app.user.username}}</h6>
+			</div>
+		</div>	
+	</div>	
+	{%endif%}
+        		
+	<div class="container">
+		<div class="row">
+            	<div class="heading">
+	                <div class="col-xs-12">	
+	                	<h2 style="border-bottom: none;">Recurring History</h2>
+						<div style="padding: 0px 15px 0px 15px;font-size:14px;border-bottom: 1px solid #093C71;">
+		                	<div><b>Username: </b> {{ (user)?user.userName:'' }}</div>
+		                	<div><b>Recurring Profile Id: </b>{{ (objRecurringProfile)?objRecurringProfile.profileId:'' }}</div>
+		                	<div><b>Profile Start Date: </b>{{  (objRecurringProfile)?objRecurringProfile.profileStartDate|date('m/d/Y'):'' }}</div>               		   	
+	                	</div>			
+	                	<a href="{{path('dhi_purchase_history')}}" class="btn-sm btn-default pull-right" id="export_pdf">Back To Purchase History</a>								
+	             	</div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="message_container">
+                        <div class="col-xs-12">{% include "DhiUserBundle::flashMessage.html.twig" %}</div>
+                    </div>                    
+					<div class="col-xs-12">
+						<table id="recurringHistoryTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+							<thead>
+                                  <tr>
+                                        <th>Profile Id</th>
+                                        <th>Profile Status</th>
+                                        <th>Payment Recevied Date</th>
+                                        <th>Next Due Date</th>
+                                        <th>Final Due Date</th>
+                                        <th>Amount</th>
+                                        <th>No. Of Completed Cycle</th>
+                                        <th>No. Of Remaining Cycle</th>                                        
+                                    </tr>
+							</thead>
+            			</table> 
+					</div>	           		          
+            	</div>
+        </div>
+    </div>
+</section>
+                        
+<div id="ajax-loader-bx" style="display:none;">
+    <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+    <div id="loader-text">Please wait....</div>
+</div>
+{% endblock fos_user_content %}
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}    
+    <script type="text/javascript">
+    
+    $(document).ready(function(){
+
+    	var recurringJsonUrl = '{{ path('dhi_recurring_profile_history_json', {'id': 'recurring_profile_id'}) }}';
+        var recurringJson = recurringJsonUrl.replace("recurring_profile_id", {{ recurringProfileId }});
+        
+    	var dTable = $('#recurringHistoryTable').dataTable({
+            "oLanguage": {
+                "sLengthMenu": "Display _MENU_ Records",
+                "sZeroRecords": "<center>No Recurring History Found!</center>",
+                "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                "sInfoFiltered": "(filtered from _MAX_ total records)"
+            },
+            responsive: false,
+            bJQueryUI: false,
+            bProcessing: true,
+            bServerSide: true,
+            bFilter: true,            
+            iDisplayLength: '10',
+            sAjaxSource: recurringJson,
+            "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                oSettings.jqXHR = $.ajax( {
+                    "url":  sUrl,
+                    "data": aoData,
+                    "success": function (json) {
+                        if ( json.sError ) {
+                                oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                        }
+                        $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                        fnCallback( json );
+                    },
+                    "dataType": "json",
+                    "cache": false,
+                    "type": oSettings.sServerMethod,
+                    "error": function (xhr, error, thrown) {
+                        if ( error == "parsererror" ) {
+                                    window.location = "{{ path('dhi_admin_user_list') }}";
+                            }
+                    }
+                } );
+            },
+            aoColumns: [
+				{"sName": "profileId"},
+				{"sName": "profileStatus"},
+                {"sName": "paymentReceviedDate", "bSortable": false},
+                {"sName": "nextBillingDate", "bSearchable": false, "bSortable": false},
+                {"sName": "finalDueDate", "bSearchable": false, "bSortable": false},
+                {"sName": "amount"},
+                {"sName": "completedCycle"},
+                {"sName": "remainingCycle"}
+            ],           
+            aaSorting: [[2, 'desc']]
+        });    	    	   	    
+    });
+    
+	</script>
+{% endblock javascripts %}

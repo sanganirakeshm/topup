@@ -1,0 +1,21 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% block body %}
+    
+    <div class="innerBg content">
+        <div class="container min_cont_hight">
+            <div class="row">
+                {% block fos_user_content %}
+                    <div class="msgBox">
+                        <div class="msgboxin">
+                            {#Your password has been reset. Please <a href="{{ url('fos_user_security_login') }}">Login</a> with your new password#}
+                            <p>Congratulations, Your password has been reset successfully.</p>
+                            <p>Now you can <a href="{{ url('fos_user_security_login') }}">signin</a> with your new password</p>
+                        </div>
+                    </div>
+                {% endblock fos_user_content %}
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

@@ -1,0 +1,318 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+	<link rel="stylesheet" href="{{ asset('bundles/dhiadmin/FCBKcomplete/style.css') }}" type="text/css" media="screen" charset="utf-8" />
+
+    <style type="text/css">
+        .ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+<section class="content-header"><h1>Add Customer Promo Code</h1></section>
+<section class="content">
+	<div class="box box-success">
+		<form action="{{ path('dhi_admin_promo_code_new') }}" method="POST" {{ form_enctype(form) }} id="add_promo_code" class="form-horizontal" novalidate>
+		<div class="box-body">
+			<div class="col-xs-8">
+				<div class="form-group col-xs-6">
+					<label class="control-label">Service Location: </label>
+					{{ form_widget(form.serviceLocations, { 'attr': { 'placeholder': 'Service Location', 'class': 'form-control'}}) }}
+					<div class="serverError">{{ form_errors(form.serviceLocations) }}</div>
+					<label id="dhi_admin_promo_code_serviceLocations-error" class="error" for="dhi_admin_promo_code_serviceLocations"></label>
+				</div>
+				<div class="form-group col-sm-6">
+					<label class="control-label">Service: </label>
+					<div>
+						{{ form_widget(form.service, { 'attr': { 'placeholder': 'Service', 'class': 'form-control'}}) }}
+						<div class="serverError">{{ form_errors(form.service) }}</div>
+						<label id="dhi_admin_promo_code_service-error" class="error" for="dhi_admin_promo_code_service"></label>
+					</div>
+				</div>
+
+			</div>
+			<div class="col-xs-8">
+				<div class="form-group col-xs-12" id="promoPackage"  style="display:none;" >
+					<label class="control-label">Package Type: </label>
+					{{ form_widget(form.packageId, { 'attr': { 'placeholder': 'Package Type', 'class': 'form-control',}}) }}
+					<div class="serverError">{{ form_errors(form.packageId) }}</div>
+				</div>
+				<div class="form-group col-sm-6" style="display:none;">
+				   <label class="control-label">Promo Code: </label>
+				   <div>
+					   {{ form_widget(form.promocode, { 'attr': { 'placeholder': 'Promo Code' , 'class': 'form-control',}}) }}
+					   <label id="promoCode-error" class="error custom-err"></label>
+					   <div class="serverError">{{ form_errors(form.promocode) }}</div>
+				   </div>
+			   </div>
+			</div>
+			<div class="col-xs-8">
+				<div class="form-group col-sm-5" >
+	                <label class="control-label">Note: </label>
+	                <div>
+	                    {{ form_widget(form.note, { 'attr': { 'placeholder': 'Enter note', 'class': 'form-control'}}) }}
+	                    <div class="serverError">{{ form_errors(form.note) }}</div>
+	                </div>
+	            </div>
+	            <div class="form-group col-sm-3">
+	                <label class="control-label">Expiration Date: </label>
+	                <div>
+	                    {{ form_widget(form.expiredAt, { 'attr': { 'placeholder': 'Expiration Date' , 'class': 'form-control'}}) }}
+	                    <div class="serverError">{{ form_errors(form.expiredAt) }}</div>
+	                </div>
+	            </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">No of Codes: </label>
+                    {{ form_widget(form.noOfCodes, { 'attr': { 'placeholder': 'Enter no of codes', 'class': 'form-control'}}) }}
+                    <div class="serverError">{{ form_errors(form.noOfCodes) }}</div>
+                    <label id="dhi_admin_promo_code_serviceLocations-error" class="error"></label>
+                </div>
+
+			</div>
+			<div class="col-xs-8">
+				<div class="form-group col-sm-6">
+					<label class="control-label">Duration: </label>
+					<div>
+						{{ form_widget(form.duration, { 'attr': { 'placeholder': 'Enter duration in hours', 'class': 'form-control'}}) }}
+						<div class="serverError">{{ form_errors(form.duration) }}</div>
+					</div>
+				</div>
+				<div class="form-group col-sm-6">
+					<label class="control-label">Status: </label>
+					<div>
+						{{ form_widget(form.status, { 'attr': { 'placeholder': 'Select Status', 'class': 'form-control'}}) }}
+						<div class="serverError">{{ form_errors(form.status) }}</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="box-footer">
+		{{ form_rest(form) }}
+
+			<div class="col-sm-12">
+			    <div class="col-sm-6">
+					<a class="btn btn-info" id="preview">Preview</a>
+			        <input type="submit" class="btn btn-success" name="add" value="Add"/>
+			        <a href="{{ path('dhi_admin_promo_code_list') }}" class="btn btn-default">Back</a>
+			    </div>
+			</div>
+		</div>
+		</form>
+	</div>
+</section>
+
+{{ tinymce_init() }}
+
+<div class="modal fade" id="emailPreviewModal" tabindex="-1" role="dialog" aria-labelledby="emailPreviewModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+
+<div id="ajax-loader-bx" style="display:none;">
+	<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+	<div id="loader-text">Please wait....</div>
+</div>
+
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiadmin/FCBKcomplete/jquery.fcbkcomplete.js') }}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+        	$("#add_promo_code").submit(function() {
+    			// update underlying textarea before submit validation
+
+    			tinyMCE.triggerSave();
+    		}).validate({
+                ignore: [],
+
+                rules: {
+                	"dhi_admin_promo_code[serviceLocations]":  {
+                        "required": true
+                    },
+                	"dhi_admin_promo_code[service]": {
+                        "required": true
+                    },
+                    "dhi_admin_promo_code[packageId]": {
+                        "required": true
+                    },
+                    "dhi_admin_promo_code[noOfCodes]": {
+                        "required": true,
+                        "digits": true,
+                        "min": 1
+                    },
+                    "dhi_admin_promo_code[promocode]": {
+                        "required": false
+                    },
+                    "dhi_admin_promo_code[note]":{
+                        "required": true,
+                        "maxlength": 255
+                    },
+					"dhi_admin_promo_code[expiredAt]":{
+                        "required": true
+                    },
+					"dhi_admin_promo_code[duration]":{
+						  "required": true,
+						  "digits": true
+					},
+					"dhi_admin_promo_code[status]":{
+						  "required": true
+					}
+                },
+                messages: {
+					"dhi_admin_promo_code[serviceLocations]": {
+                        "required": "Please select a service location."
+                    },
+                	"dhi_admin_promo_code[service]": {
+                        "required": "Please select a service."
+                    },
+                    "dhi_admin_promo_code[packageId]": {
+                        "required": "Please select package."
+                    },
+                    "dhi_admin_partner_promo_code_batch[noOfCodes]": {
+                        "required": "Please enter number of codes you want to generate.",
+                        "digits": "Please enter valid number of code.",
+                        "min": "Please enter a value greater than or equal to 1."
+                    },
+                    "dhi_admin_promo_code[note]": {
+                        "required": "Please enter note.",
+                         "maxlength": "Note can have maximum 255 characters."
+                    },
+                    "dhi_admin_promo_code[expiredAt]": {
+                        "required": "Please enter expiry date."
+                    },
+					"dhi_admin_promo_code[duration]":{
+						  "required":  "Please enter duration.",
+						  "digits": "please enter only digits."
+					},
+					"dhi_admin_promo_code[status]":{
+						 "required": "Please select status."
+					}
+
+                }
+            });
+
+            $('#dhi_admin_promo_code_expiredAt').datepicker({
+				dateFormat: 'mm-dd-yy',
+                readOnly: true,
+                minDate: 0
+            });
+            $("#dhi_admin_promo_code_expiredAt").datepicker().datepicker("setDate", new Date());
+
+			//function previewCompensation() {
+			$("#preview").click(function(){
+			if($('#add_promo_code').valid()){
+					tinyMCE.triggerSave();
+
+					var postData   = $('#add_promo_code').serializeArray();;
+					var emailPreviewUrl = '{{ path('dhi_admin_promo_code_preview') }}';
+
+
+					$('#ajax-loader-box').show();
+					$('.modal-content').load(emailPreviewUrl,postData, function (result) {
+
+						$('#ajax-loader-box').hide();
+						$('#emailPreviewModal').modal({show: true});
+					});
+			}
+        });
+
+		$('#dhi_admin_promo_code_serviceLocations').change(function() {
+
+
+			var locationId = $('#dhi_admin_promo_code_serviceLocations').val();
+				$.ajax({
+							type: "POST",
+							url: "{{ path('dhi_admin_get_promo_service') }}",
+							data: {locationId:locationId},
+							beforeSend: function( xhr ) {
+
+								$('#ajax-loader-bx').show();
+							},
+							success:function(result){
+
+								$('#dhi_admin_promo_code_service').empty();
+								var s= document.getElementById('dhi_admin_promo_code_service');
+								s.options[0]= new Option('Select', '');
+								$.each(result,function(key,value){
+									var pkgId = key;
+									var pkgName = value;
+									//s.options[key]= new Option(pkgName, pkgId);
+									$("#dhi_admin_promo_code_service").append('<option value="' + key + '">'  +   value + '</option>');
+								});
+								
+								$('#ajax-loader-bx').hide();
+							}
+						});
+					}).change();
+
+		
+		
+		$('#dhi_admin_promo_code_serviceLocations,#dhi_admin_promo_code_service').change(function() {
+
+		var serviceId = $('#dhi_admin_promo_code_service').val();
+
+		var locationId = $('#dhi_admin_promo_code_serviceLocations').val();
+		
+			if(serviceId != 0 && locationId ) {
+				$('#promoPackage').show();
+				$.ajax({
+							type: "POST",
+							url: "{{ path('dhi_admin_get_promo_package') }}",
+							data: { serviceId:serviceId,locationId:locationId},
+							beforeSend: function( xhr ) {
+
+								$('#ajax-loader-bx').show();
+							},
+							success:function(result){
+
+								$('#dhi_admin_promo_code_packageId').empty();
+								$.each(result,function(key,value){
+									if(value.packageId) {
+										var pkgId = value.packageId;
+
+										if(value.packageType == "ISP"){
+
+											var validityCap = "";
+											if (value.isHourlyPlan) {
+												validityCap = "Hour(s)";
+											}else{
+												validityCap = "Day(s)";
+											}
+
+											var pkgName = value.validity + " " + validityCap + " - "+ value.packageName + " plan (up to " + value.bandwidth + "kbps) ";
+										}else{
+											var pkgName = value.packageName;
+										}
+
+										var pkgamunt  = value.amount;
+									} else if(value.bundle_id) {
+										var pkgId = value.bundle_id;
+										var pkgName = value.description;
+										var pkgamunt  =value.amount;
+									}
+									var s= document.getElementById('dhi_admin_promo_code_packageId');
+									s.options[key]= new Option(pkgName+' - $'+pkgamunt, pkgId);
+								});
+								$('#ajax-loader-bx').hide();
+							}
+						});
+
+			} else {
+			$('#promoPackage').hide();
+			}
+
+			});
+        });
+    </script>
+{% endblock javascripts %}

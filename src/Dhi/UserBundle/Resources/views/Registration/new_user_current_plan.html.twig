@@ -1,0 +1,54 @@
+{# empty Twig template #}
+{% extends "DhiUserBundle::layout.html.twig" %}
+{% block body %}
+    <section class="documentForm content">
+        {% trans_default_domain 'FOSUserBundle' %}
+
+        {% if app.user %}
+            <div class="container text-right no-border">
+                <div class="row"><div class="col-xs-12">
+                        <h6 class="color-blue line-height-20">Welcome {{app.user.username}}</h6>
+                    </div></div>	</div>
+                {%endif%}
+        <div class="container">
+            <div class="row">
+                <div class="heading">
+                    <div class="col-xs-12">
+                        <h2>Your Current Internet Plan Details </h2>
+						<a href="{{path('dhi_user_account')}}" class="continueBtnplanDetail btn btn-blue pull-right">Click to Continue &raquo;</a>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+
+                    <table class="table table-bordered table-bordered table-hover">
+                        <tbody>
+                            {% for key,value in plandetail %}
+                                <tr>
+                                    {% if( key == "Description" ) %}
+                                        <th>Plan Name</th>
+                                        <td>{{value}}</td>
+                                    {% endif %}
+                                    {% if( key == "Price" ) %}
+                                        <th>{{key}}</th>
+                                        <td>${{value}}</td>
+                                    {% endif %}
+                                    {% if( key == "ExpirationTime" ) %}
+                                        <th>Plan Duration</th>
+                                        <td>{{value}} Days</td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock body %}

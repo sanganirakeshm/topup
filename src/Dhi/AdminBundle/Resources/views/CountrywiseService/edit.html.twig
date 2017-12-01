@@ -1,0 +1,51 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+ <section class="content-header">
+	  <h1>Update Countrywise Service</h1>
+	</section>	
+<section class="content">
+        <div class="row">
+           <div class="col-md-12">
+           <div class="box box-success">
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+       
+    
+                    <form action="{{ path('dhi_countrywiseservice_edit', { 'id': id }) }}" {{ form_enctype(form) }} method="POST" class="form-horizontal" id="countrywise_services_edit" novalidate>
+					<div class="box-body">
+                    <div class="form-group  col-md-4">
+                            <label class="control-label">Country: </label>
+                           
+                                <input type="text" name="country" value="{{ service.country.name }}" class="form-control" disabled="true" aria-required="true"/>
+                          
+                        </div>
+
+                        <div class="form-group  col-md-4">
+                            <label class="control-label">Service: </label>
+                            
+                                <input type="text" name="country" value="{{ service.services.name }}" class="form-control" disabled="true" aria-required="true"/>
+                            
+                        </div>
+                            
+                        <div class="form-group  col-md-4">
+                            <label class="control-label">Status: </label>
+                            
+                                {{ form_widget(form.status, { 'attr': { 'placeholder': 'Status', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form.status) }}</div>
+                            
+                        </div>
+						</div>
+                        {{ form_rest(form) }}    
+                        <div class="box-footer">
+                                <div class="col-md-8 add-btn-bx">
+                            
+                                <input type="submit" name="edit" value="Update" class="btn btn-success"/>
+                                <a href="{{ path('dhi_countrywiseservice_list') }}" class="btn btn-default">Back</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+        </div>
+    </div>
+	</section>
+{% endblock body %}

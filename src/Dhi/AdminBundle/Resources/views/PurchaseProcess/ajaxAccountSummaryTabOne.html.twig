@@ -1,0 +1,158 @@
+{% block body %}
+{% set subTotalIPTV = 0 %}
+{% set subTotalISP = 0 %}
+
+
+<div class="col-md-12">
+	<div class="row">
+		<div class="summary-box">
+		
+			{% if 'IPTV' in summaryData.AvailableServicesOnLocation or 'BUNDLE' in summaryData.AvailableServicesOnLocation %}
+			<div class="table-responsive">
+				<table class="table mb30">
+                	<tbody>                		
+						<tr class="heading">
+							<td colspan="2">ExchangeVUE Service</td>                            
+						</tr>
+						
+						{% if summaryData.IsIPTVAvailabledInPurchased == 1 %}
+							<tr class="sub-heading">
+								<td>ExchangeVUE Package</td>
+		                    	<td>Price</td>
+							</tr>
+							{% if summaryData.Purchased.IPTV.RegularPack %}
+							
+								{% for iptvPackage in summaryData.Purchased.IPTV.RegularPack %}
+									<tr>
+										<td>{{ iptvPackage.packageName }}</td>
+			                            <td>${{ iptvPackage.amount }}</td>
+									</tr>
+									{% set subTotalIPTV = subTotalIPTV + iptvPackage.amount %}
+								{% endfor %}
+							{% endif %}
+							
+							{% if summaryData.IsAddOnAvailabledInPurchased == 1 %}
+							<tr class="sub-heading">
+								<td>Premium Package</td>
+		                    	<td>Price</td>
+							</tr>
+			
+								{% for addOnPackage in summaryData.Purchased.IPTV.AddOnPack %}
+								
+									<tr>
+										<td>{{ addOnPackage.packageName }}</td>
+				                    	<td>${{ addOnPackage.amount }}</td>
+									</tr>
+									{% set subTotalIPTV = subTotalIPTV + addOnPackage.amount %}
+								{% endfor %}
+							{% endif %}
+							
+							<tr>
+								<td><strong>ExchangeVUE Subtotal</strong></td>
+								<td><strong>${{ subTotalIPTV|number_format(2) }}</strong></td>				                
+							</tr>
+							
+						{% else %}
+							<td colspan="2">No package found</td>     
+						{% endif %}
+					</tbody>
+				</table>
+			</div>
+			{% endif %}
+			
+			
+			{% if 'ISP' in summaryData.AvailableServicesOnLocation or 'BUNDLE' in summaryData.AvailableServicesOnLocation %}
+			<div class="table-responsive">
+				<table class="table mb30">
+                	<tbody>                		
+						<tr class="heading">
+							<td colspan="2">Internet Service</td>                            
+						</tr>
+						
+						{% if summaryData.IsISPAvailabledInPurchased == 1 %}
+							<tr class="sub-heading">
+								<td>Package</td>
+		                    	<td>Price</td>
+							</tr>
+							{% if summaryData.Purchased.ISP.RegularPack %}
+							
+								{% for ispPackage in summaryData.Purchased.ISP.RegularPack %}
+									{% if ispPackage.validityType == "HOURS" %}
+                                        {% set validityCaps = "Hour(s)" %}
+                                    {% else %}
+                                        {% set validityCaps = "Day(s)" %}
+                                    {% endif %}
+									<tr>
+										<td>{{ ispPackage.packageName~' - '~ispPackage.bandwidth~'k - '~ispPackage.validity~' '~validityCaps }}</td>
+			                            <td>${{ ispPackage.amount }}</td>
+									</tr>
+									{% set subTotalISP = subTotalISP + ispPackage.amount %}
+								{% endfor %}
+							{% endif %}
+							
+							<tr>
+								<td><strong>Internet Subtotal</strong></td>
+								<td><strong>${{ subTotalISP|number_format(2) }}</strong></td>				                
+							</tr>
+							
+						{% else %}
+							<td colspan="2">No package found</td>     
+						{% endif %}
+					</tbody>
+				</table>
+			</div>
+			{% endif %}
+			
+			<div class="table-responsive">
+				<table class="table mb30">
+                	<tbody>                		
+						<tr class="heading">
+							<td colspan="2">Order Summary</td>                            
+						</tr>
+						{% if 'IPTV' in summaryData.AvailableServicesOnLocation and 'ISP' in summaryData.AvailableServicesOnLocation %}
+							{% if summaryData.IsBundleAvailabledInPurchased == 1 %}
+								{% if summaryData.Purchased.BUNDLE.RegularPack %}
+								
+									{% for ispPackage in summaryData.Purchased.BUNDLE.RegularPack %}
+										<tr>
+											<td>{{ ispPackage.bundleName }}</td>
+				                            <td>${{ ispPackage.bundleDiscountAmount|number_format(2) }}</td>
+										</tr>
+										{# set subTotalISP = subTotalISP - ispPackage.bundleDiscountAmount #}
+									{% endfor %}
+								{% endif %}
+							{% endif %}
+						{% endif %}
+						<tr>
+							<td><strong>Current Monthly total</strong></td>
+							<td><strong>${{ summaryData.TotalPurchasedAmount|number_format(2) }}</strong></td>				                
+						</tr>						
+					</tbody>
+				</table>
+			</div>
+			
+		</div>
+	</div>
+</div>
+{% endblock body %}
+
+{% block javascripts %}
+    <script type="text/javascript">
+
+
+        {% if summaryData.IsIPTVAvailabledInPurchased == 1 %}
+            $('#tabISP').addClass('disabled');
+            $('#tabISP').css('pointer-events','none');
+        {% endif %}
+        {% if summaryData.IsISPAvailabledInPurchased == 1 %}
+                $('#tabIPTV').addClass('disabled');
+                $('#tabIPTV').css('pointer-events','none');
+                {% if summaryData.IsBundleAvailabledInPurchased == 1 %}
+                        $('#tabPremium').removeClass('disabled');
+                    {% else %}
+                        $('#tabPremium').addClass('disabled');
+                        $('#tabPremium').css('pointer-events','none');
+                {% endif %}
+        {% endif %}
+    </script>
+{% endblock javascripts %}

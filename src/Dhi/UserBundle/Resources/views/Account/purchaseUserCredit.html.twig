@@ -1,0 +1,178 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock stylesheets %}
+
+{% block body %}
+    {% block fos_user_content %}
+        {% trans_default_domain 'FOSUserBundle' %}
+        <section class="signup content">
+            {# **** Step 1 ***** #}
+            <div class="container" id="step-1"> 
+
+                <div class="row">
+                    <div class="heading">
+                        <div class="col-xs-12">
+                            <h2>Purchase Credit</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="msgBoxContainer">
+                    <div class="col-xs-12" id="flash">{% include "DhiUserBundle::flashMessage.html.twig" %}</div>
+                </div>
+
+                {% set userCredit = '' %} 
+                {% set creditData = 0 %} 
+
+                {% if summaryData and 'Credit' in summaryData.Cart|keys and summaryData.Cart.Credit is not null %}
+                    {% set userCredit = summaryData.Cart.Credit[0].creditId %}    
+                {% endif %}
+
+                <form id="frmconfirm" method="POST" action="{{ path('dhi_user_credit') }}" name="myForm">
+
+                    {% set termUseChecked = '' %}
+
+                    <div class="col-xs-12">
+                        <input type="hidden" name="userPurchaseCredit" id="userPurchaseCredit" value="1">
+                        <ul class="nav nav-tabs nav-justified reviewtabber purchase_credit_list" id="ispTabView">
+                            <li id="iptv-credit-tab" class="active"><a href="#creditTab" data-toggle="tab">CREDIT</a></li>
+                        </ul>
+
+                        <div class="tab-content clearfix">
+                            {% set flag = false %}
+                            <div class="tab-pane active" id="creditTab" style="overflow:auto;">
+
+                                <table class="table table-bordered service-package ">
+                                    <thead></thead>
+                                    <tbody>
+
+                                        {% if credits and credits|length > 0 %}
+                                            {% set creditData = 1 %} 
+                                            {% for i in 1..2 %}
+
+                                                <tr>
+                                                    <th nowrap="nowrap">
+                                                        {% if i ==  1 %}
+                                                        <div class="center text-center">
+                                                            <span>None</span><br />
+                                                            <input type="radio" id="creditId" name="creditId" value="removeCredit" checked="checked" />                                                            
+                                                        </div>
+                                                        {% else %}
+                                                        <div class="center text-center">
+                                                            <span>No</span><br>
+                                                            <span>Credit</span>
+                                                        </div>
+                                                        {% endif %}
+                                                    </th>    
+                                                    {% for cKey, record in credits %}
+
+                                                        <th nowrap="nowrap">
+
+                                                            {% if i ==  1 %}
+                                                    
+                                                    <div class="center text-center">
+                                                        <span>${{ record.amount }}</span><br />
+                                                        <input type="radio" id="creditId{{ record.id }}" name="creditId" value="{{ record.id }}" {{ userCredit == record.id ? 'checked="checked"' : ''}} />
+                                                        <input type="hidden" id="creditAmT" name="creditAmt" value="{{record.amount}}">
+                                                        <input type="hidden" id="creditPurchase" name="creditPurchase" value="{{record.credit}}">
+                                                    </div>
+
+                                                {% else %}
+
+                                                    <div class="center text-center">
+                                                        <span>{{ record.credit }}</span><br>
+                                                        <span>Credit</span>
+                                                    </div>
+
+                                                {% endif %}
+
+                                                </th>
+
+                                            {% endfor %} 
+
+                                            </tr>  
+
+                                        {% endfor %} 
+
+                                    {% else %}
+
+                                        {% set flag = true %}
+                                        <tr><td>No Record found!</td></tr>
+
+                                    {% endif %}     
+
+                                    </tbody>
+                                </table>
+
+                                {% if flag == false %}
+
+                                    <div class="col-xs-12 text-right">
+                                        I agree to the <a href="#" data-toggle="modal" data-target="#termCondition">terms and conditions</a> 
+                                        <input type="checkbox" name="termsUse" id="termsUse" value="1" {{userCredit ? 'checked=checked' : ''}}/>
+                                    </div>
+                                    <div class="row">
+                                    <div class="col-xs-12 margTop20 margBot20">
+                                        <div class="pull-left">
+                                            <a href="{{path('dhi_user_account')}}" class="anchor-btn btn btn-danger" name="cancel">Cancel</a>
+                                        </div>
+                                        <div class="pull-right">
+                                            <input type="button" name="iptvAddToCartBtn" value="Add to Cart" class="anchor-btn  btn btn-blue">
+                                        </div>
+                                    </div>
+                                    </div>    
+
+                                {% endif %} 
+
+                            </div>  
+
+                            </form>
+
+                        </div>            
+                        </section>
+
+
+                    {% endblock fos_user_content %}
+                    {{ include('DhiServiceBundle:Service:termsUse.html.twig') }}
+                {% endblock body %}
+
+                {% block javascripts %}
+
+                    {{ parent() }}
+                    
+                    <script type="text/javascript">
+
+                        $(document).ready(function () {
+
+                            $('input[type="button"][name="iptvAddToCartBtn"]').click(function () {
+
+                                $flashMsg = '';
+
+                                if (!$('input[name=creditId]:checked', '#frmconfirm').val())
+                                {
+                                    $flashMsg = disErrorMsg('danger', 'Please select credit.');
+                                    $("#flash").html($flashMsg);
+                                    return false;
+                                }
+                                else if (!$('#termsUse').prop('checked')) {
+
+                                    $flashMsg = disErrorMsg('danger', 'Please accept terms of use.');
+                                    $("#flash").html($flashMsg);
+                                    return false;
+                                }
+                                else {
+
+                                    document.myForm.submit();
+                                }
+                                $("#flash").html($flashMsg);
+                                return false;
+
+                            });
+
+                        });
+
+                    </script>
+
+                {% endblock javascripts %}
+

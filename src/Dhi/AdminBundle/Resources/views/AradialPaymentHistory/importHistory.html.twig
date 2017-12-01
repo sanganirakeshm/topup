@@ -1,0 +1,53 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+    {% include "DhiUserBundle::flashMessage.html.twig" %}		
+    <section class="content-header">
+        <h1>Import Aradial Purchase History</h1>
+    </section>
+    <section class="content">
+        <div class="box box-success">
+            <form action="{{ path('dhi_admin_aradial_payment_history_import') }}" method="POST" class="form-horizontal" id="importHistory_form" enctype="multipart/form-data">
+                <div class="box-body">
+                    <div class="form-group col-sm-4">
+                        <label class="control-label">Select file to import history: </label>
+                        <div>
+                            <input name="file" id="file" type="file"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    
+                    <div class="form-group col-sm-4">
+                        <div class=" col-sm-6 add-btn-bx">
+                            <input type="submit" name="add" value="Import" class="btn btn-success"/>
+                            <a href="{{ path('dhi_admin_aradial_payment_history_list') }}" class="btn btn-info">Back</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>	
+
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#importHistory_form').validate({
+                rules: {
+                    "file": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "file": {
+                        "required": "Please select file."
+                    }
+                }
+            });
+        });
+    </script>
+
+{% endblock javascripts %}

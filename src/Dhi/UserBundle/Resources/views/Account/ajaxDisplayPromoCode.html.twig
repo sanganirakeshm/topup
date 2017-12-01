@@ -1,0 +1,8 @@
+
+{#{% if (expiredPackage == 1 and summaryData.IsISPAvailabledInPurchased == 0 and summaryData.IsAddOnAvailabledInPurchased == 0 and summaryData.IsIPTVAvailabledInPurchased == 0 and summaryData.IsBundleAvailabledInPurchased == 0 ) or (summaryData.IsISPAvailabledInCart ==0 and summaryData.IsIPTVAvailabledInCart == 0 and summaryData.IsAddOnAvailabledInCart == 0 and summaryData.IsBundleAvailabledInCart == 0) %}#}
+
+{% if ((expiredPackage == 1) or (summaryData.IsISPAvailabledInPurchased == 0 and summaryData.IsAddOnAvailabledInPurchased == 0 and summaryData.IsIPTVAvailabledInPurchased == 0 and summaryData.IsBundleAvailabledInPurchased == 0 )) and (summaryData.IsISPAvailabledInCart == 0 and summaryData.IsIPTVAvailabledInCart == 0 and summaryData.IsAddOnAvailabledInCart == 0 and summaryData.IsBundleAvailabledInCart == 0 and summaryData.isEmployee == 0) %}
+	<div class="redeemPromoCode redeemCustomerPromoCode">
+		<a href="javascript:void(0)" class="btn-sm btn-default openPromocodeModal" data-type="Customer" data-toggle="modal" data-target="">Redeem Promo Code</a>
+	</div>
+{% endif %}

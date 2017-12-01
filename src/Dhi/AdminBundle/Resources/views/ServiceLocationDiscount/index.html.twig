@@ -1,0 +1,67 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+<div class="container min_cont_hight">
+    <div class="row">
+	{% include "DhiUserBundle::flashMessage.html.twig" %}
+	<table class="table table-bordered table-hover">
+		<tr>
+			<td colspan="9">
+				<form method="get" id="searchService" action="{{ path('dhi_admin_service_list') }}">
+					<h4>Services Location Bundle Discount</h4>
+                    <div class="col-md-4"><input type="text" name="searchTxt" placeholder="Name" value="{{ (app.request.get('searchTxt')) ? app.request.get('searchTxt') : ''}}" class="form-control"></div>
+                    <input type="submit" name='search'value="Search" class="btn btn-default"/>&nbsp;&nbsp;<a href="{{ path(app.request.attributes.get('_route')) }}" class="btn btn-info">Clear</a>
+				</form>
+			</td>
+		</tr>
+		
+		<tr>
+			<td colspan="4" align="right">
+				{% if admin_permission.checkPermission('service_location_discount_create') %}
+				<a href="{{ path('dhi_admin_service_location_discount_new') }}" class="btn btn-default">Add Discount</a>&nbsp;&nbsp;
+				{% endif %}
+				{% if admin_permission.checkPermission('service_location_discount_list') %}
+				<a class="btn btn-default" href="{{ path('dhi_admin_ip_zone_list') }}">Back To Services Location List</a>
+				{% endif %}
+			</td>
+		</tr>
+		
+		<tr>
+        	{# sorting of properties based on query components #}
+            <th width="10%">{{ knp_pagination_sortable(pagination, 'Id', 's.id') }}</th>
+			<th{% if pagination.isSorted('name') %} class="sorted"{% endif %} >{{ knp_pagination_sortable(pagination, 'Name', 's.name') }}</th>
+			<th width="15%">Status</th>
+			<th width="15%">Action</th>
+		</tr>
+        {# table body #}
+        {% if (pagination|length > 0) %}
+        	{% for record in pagination %}
+            <tr {% if loop.index is odd %}class="color"{% endif %}>
+                <td>{{ record.id }}</td>
+                <td>
+                	{% if admin_permission.checkPermission('service_update') %}
+				    	<a href="{{ path('dhi_admin_service_edit', {'id': record.id})}}">{{ record.name }}</a>
+                	{% else %}
+                		{{ record.name }}
+                	{% endif %}
+                </td>
+                <td>{{ (record.status) ? 'Active' : 'Inactive' }}</td>
+                <td>
+					{% if admin_permission.checkPermission('service_update') %}
+                    	<a href="{{ path('dhi_admin_service_edit', {'id': record.id})}}">Edit</a>&nbsp;|&nbsp;                    	
+                	{% endif %}
+                	{% if admin_permission.checkPermission('service_delete') %}
+                    	<a href="{{ path('dhi_admin_service_delete', {'id': record.id})}}" onclick="return confirm('Are you sure want to delete?')">Delete</a>
+                	{% endif %}
+                </td>
+            </tr>
+        	{% endfor %}
+        {% else %}
+            <tr><td colspan="4" align="center">No records found.</td></tr>
+        {% endif %}
+        </table>
+        {# display navigation #}
+        <div class="navigation">{{ knp_pagination_render(pagination) }}</div>
+    </div>
+</div>
+{% endblock body %}

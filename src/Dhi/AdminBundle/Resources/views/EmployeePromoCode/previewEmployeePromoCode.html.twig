@@ -1,0 +1,78 @@
+{% block body %}
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title" id="channelModal-title">Preview</h4>
+</div>
+<div class="modal-body">
+	<div style="overflow-x:hidden;overflow-y:auto;max-height:450px;">
+		<div class="row">
+
+			<div class="col-sm-12">
+				{% if data %}
+					<div class="table-responsive">
+						<table class="table table-bordered mb30" style="width:550px;">
+                        	<tbody>
+								<tr>
+                                    <th nowrap="nowrap">Employee Name</th>
+                                    <td>{% if data.employeeName %} {{ data.employeeName }} {% endif %}
+									</td>
+								</tr>
+                                <tr>
+                                    <th nowrap="nowrap">Amount Type</th>
+                                    <td>{% if data.amountType %} {{ data.amountType }} {% endif %}
+									</td>
+								</tr>
+                                <tr>
+                                    <th nowrap="nowrap">Value</th>
+                                    <td>{% if data.amount %}
+                                            {% if data.amountType %}
+                                                {% if data.amountType == 'percentage' %}
+                                                    {{ data.amount|number_format(2)}}%
+                                                {% else %}
+                                                    ${{ data.amount|number_format(2) }}
+                                                {% endif %}
+                                            {% endif %}
+
+                                       {% endif %}
+									</td>
+								</tr>
+                                {% if data.noOfCodes is defined %}
+                                <tr>
+                                    <th nowrap="nowrap">No of Codes</th>
+                                    <td>{% if data.noOfCodes %} {{ data.noOfCodes }} {% endif %}
+									</td>
+								</tr>
+                                {% endif %}
+                                <tr>
+                                    <th nowrap="nowrap">Status</th>
+                                    <td>{% if data.status%} Active {% else %} Inactive {% endif %}
+									</td>
+								</tr>
+                                {#<tr>
+                                    <th nowrap="nowrap">Reason</th>
+                                    <td>{% if data.reason %} {{ data.reason }} {% endif %}
+									</td>
+								</tr>#}
+                                <tr>
+                                    <th nowrap="nowrap">Note</th>
+                                    <td>{% if data.note %} {{ data.note }} {% endif %}
+									</td>
+								</tr>
+                                
+							</tbody>
+						</table>
+					</div>
+
+
+				{% else %}
+				<p>Compensation data not available for preview.</p>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+</div>
+
+{% endblock body %}

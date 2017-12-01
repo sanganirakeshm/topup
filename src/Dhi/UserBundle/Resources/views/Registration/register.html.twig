@@ -1,0 +1,512 @@
+{#{% extends "DhiUserBundle::layout.html.twig" %}#}
+{% extends "DhiUserBundle::layout.html.twig" %}
+{% form_theme form 'DhiUserBundle::captcha.html.twig' %}
+{% block body %}
+{% block fos_user_content %}
+
+{% trans_default_domain 'FOSUserBundle' %}
+
+<section class="signup">
+	<div class="container-fluid">
+		<div class="row">
+		    <div class="flashOverlay hide"></div>
+                    <div id="flashnew" class="registermodal hide" >
+                        <a class="close authAradialPopupCancel" href="javascript:void(0);" onclick="$('#flashnew').addClass('hide');$('.flashOverlay').addClass('hide');">X</a>
+                        <div class="flashName">
+                            <label class="name">DHI Account Verification</label>
+                        </div>
+                        <div class="flashInside">
+                            <div class="form-group welcomelabel" >
+                                <div class="welcomemsg"></div>
+                                <div class="emailSentMsg"></div>
+                            </div>
+                            <div id="popupErrorMessage" class="text-center error1" style="margin-bottom: 5px;"></div>
+                            <div id="credentialInput">
+                                <div class="form-group">
+                                    <div class="col-lg-10 col-lg-offset-1 col-md-8 col-md-offset-2 col-sm-12 col-xs-12">
+                                    <label>User Name</label><input class="form-control" id="username" type="text" disabled="true"  disable>
+                                </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-10 col-lg-offset-1 col-md-8 col-md-offset-2 col-sm-12 col-xs-12">
+                                    <label>Password</label><input  class="form-control" id="password" type="password" >
+                                    </div>
+                                </div>
+                                <div class="col-lg-10 col-lg-offset-1 col-md-8 col-md-offset-2 col-sm-12 col-xs-12">
+
+                                </div>
+                            </div>
+{#                            <a href="javascript:void(0);" id="forgotPasswordLink" class="forgotPasswordLink1"> Forgot password?</a>#}
+                            <div class="btnBox">
+                                <a href="javascript:void(0);" id="forgotPasswordLink" class="forgotPasswordLink1"> Forgot password?</a>
+                                <a class="btn btn-success authAradialPopupCancel "  href="javascript:void(0);" >Cancel</a>
+                                <a class="btn btn-default"  href="javascript:void(0);" id="authAradial" >Submit</a>
+                                <a class="btn btn-default hide"  href="javascript:void(0);" id="authCountinuePopup" >Continue</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="flashForgotPassword" class="hide registermodal" >
+                        <a class="close authAradialPopupCancel" href="javascript:void(0);" onclick="$('#flashForgotPassword').addClass('hide');$('.flashOverlay').addClass('hide');">X</a>
+                        <div class="flashName">
+                            <label class="name">DHI Forgot Password</label>
+                        </div>
+                        <div class="flashInside">
+                            <div class="form-group welcomelabel" >
+                                 <div class="welcomemsg"></div>
+                                <div class="emailSentMsg"></div>
+                            </div>
+                            <div id="ErrorMessage" class="text-center error1" style="margin-bottom: 5px;"></div>
+                            <div class="form-group">
+                               <div class="col-lg-10 col-lg-offset-1 col-md-8 col-md-offset-2 col-sm-12 col-xs-12">
+                                   <label>Email </label><input  class="form-control" id="emailAradialPassword" type="text">
+                               </div>
+                            </div>
+                            <div class="btnBox">
+                                <a class="btn btn-success authAradialPopupCancel"  href="javascript:void(0);"  >Cancel</a>
+                                <a class="btn btn-default"  href="javascript:void(0);" id="sendEmailSubmit" >Submit</a>
+                            </div>
+                        </div>
+                    </div>
+			<div class="col-xs-12 col-sm-10 col-md-6">
+				<div class="row"><div class="col-lg-12"><h2 class="pull-left">Create an account</h2> <span class="pull-right alreadyaccount">Alread have an account? Click to <a href="{{ url('fos_user_security_login') }}" class="">sign in</a></span></div></div>
+				<div class="alert alert-info col-lg-12 signUpText">Welcome to our new customer portal! Along with the new look, this portal gives you the chance to bundle IPTV and Internet depending on your location. We hope you like it!</div>
+                <div class="row">
+                    <div class="msgBoxContainer">
+                        <div class="col-xs-12" id="flash">{% include "DhiUserBundle::flashMessage.html.twig" %}</div>
+                    </div>
+                </div>
+				<form action="{{ path('fos_user_registration_register') }}" {{ form_enctype(form) }} method="POST" class="fos_user_registration_register" id="fos_user_registration_register" novalidate>
+
+					<div class="form-group full-width">
+{#                                            <div class="flashNew" id="flashnew">#}
+
+
+						{{ form_widget(form.username, { 'attr': {'class': 'form-control', 'placeholder': 'Username'}}) }}
+
+                                                <div id="ajaxUsernameMsg"></div>
+                                                <div class="serverError">{% if form_errors(form.username) %}{{ form_errors(form.username) }}{% endif %}</div>
+					</div>
+                                        <input type="hidden" id="isVerifiedAradial" name="isVerifiedAradial" value="false"/>
+					<div class="form-group half-width">
+                                                {% set emailVal = '' %}
+                                                {% if email is defined %}
+                                                    {% set emailVal = email %}
+                                                {% endif%}
+						{{ form_widget(form.email.first, { 'attr': {'class': 'form-control', 'placeholder': 'Email address', 'value': emailVal}}) }}
+
+                                                <div id="ajaxEmailMsg"></div>
+                                                <div class="serverError">{% if form_errors(form.email.first) %}{{ form_errors(form.email.first) }}{% endif %}</div>
+                                        </div>
+					<div class="form-group half-width">
+						{{ form_widget(form.email.second, { 'attr': {'class': 'form-control', 'placeholder': 'Confirm email address'}}) }}
+                                                <div class="serverError">{% if form_errors(form.email.second) %}{{ form_errors(form.email.second) }}{% endif %}</div>
+					</div>
+                                        <div class="full-width"></div>
+				  	<div class="form-group half-width error_password">
+				  		{{ form_widget(form.plainPassword.first, { 'attr': {'class': 'form-control', 'placeholder': 'Password'}}) }}
+                        <div class="serverError">{% if form_errors(form.plainPassword.first) %}{{ form_errors(form.plainPassword.first) }}{% endif %}</div>
+
+                                        </div>
+					<div class="form-group half-width">
+						{{ form_widget(form.plainPassword.second, { 'attr': {'class': 'form-control', 'placeholder': 'Confirm password'}}) }}
+                        <div class="serverError">{% if form_errors(form.plainPassword.second) %}{{ form_errors(form.plainPassword.second) }}{% endif %}</div>
+					</div>
+					<div class="form-group half-width clearfix">
+						{{ form_widget(form.firstname, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'First name'}}) }}
+                        <div class="serverError">{% if form_errors(form.firstname) %}{{ form_errors(form.firstname) }}{% endif %}</div>
+					</div>
+					<div class="form-group half-width">
+						{{ form_widget(form.lastname, { 'attr': {'class': 'form-control', 'placeholder': 'Last name'}}) }}
+                        <div class="serverError">{% if form_errors(form.lastname) %}{{ form_errors(form.lastname) }}{% endif %}</div>
+					</div>
+					<div class="form-group half-width clearfix">
+						{{ form_widget(form.address, { 'attr': {'class': 'form-control', 'placeholder': 'Address'}}) }}
+                        <div class="serverError">{% if form_errors(form.address) %}{{ form_errors(form.address) }}{% endif %}</div>
+					</div>
+					<div class="form-group half-width">
+						{{ form_widget(form.city, { 'attr': {'class': 'form-control', 'placeholder': 'City'}}) }}
+                        <div class="serverError">{% if form_errors(form.city) %}{{ form_errors(form.city) }}{% endif %}</div>
+					</div>
+					<div class="form-group half-width clearfix">
+						{{ form_widget(form.state, { 'attr': {'class': 'form-control', 'placeholder': 'State'}}) }}
+                        <div class="serverError">{% if form_errors(form.state) %}{{ form_errors(form.state) }}{% endif %}</div>
+					</div>
+					<div class="form-group half-width">
+						{{ form_widget(form.zip, { 'attr': {'class': 'form-control', 'placeholder': 'Zip code'}}) }}
+                        <div class="serverError">{% if form_errors(form.zip) %}{{ form_errors(form.zip) }}{% endif %}</div>
+					</div>
+
+					<div class="pull-left half-width clearfix">
+					  	<div class="form-group full-width-in">
+					  		{{ form_widget(form.country, { 'attr': {'class': 'form-control', 'placeholder': 'Country'}}) }}
+                        	<div class="serverError">{% if form_errors(form.country) %}{{ form_errors(form.country) }}{% endif %}</div>
+						</div>
+						{% if (app.environment != 'test') %}
+					  	<div class="form-group full-width-in no-margin">
+							{{ form_widget(form.captcha) }}
+					  	</div>
+					  	<li class="captcha_3">
+                        	<div class="serverError">{% if form_errors(form.captcha) %}{{ form_errors(form.captcha) }}{% endif %}</div>
+                    	</li>
+					  	{% endif %}
+					</div>
+
+					{% if (app.environment != 'test') %}
+					<div class="pull-right half-width register_box">
+						<div class="form-group full-width-in">
+							<div class="checkbox">
+								<label>{{ form_widget(form.terms) }} By signing up, I agree to the <a href="javascript:void(0)" data-toggle="modal" data-target="#termCondition">Terms of Service</a>{{ form_widget(form.terms, { 'attr': {'class': 'pull-left', 'data-prompt-position': 'topRight'} }) }}.</label>
+								<div class="serverError">{% if form_errors(form.terms) %}{{ form_errors(form.terms) }}{% endif %}</div>
+							</div>
+					  	</div>
+
+					  	<div class="form-group full-width-in">
+{#					  		<button type="submit" class="btn btn-success full-width-in" onclick="$('.serverError').empty();" >{{ 'registration.submit'|trans }}</button>#}
+{#					  		<button type="submit" class="btn btn-success full-width-in" onclick="$('.serverError').contents().unwrap();" >{{ 'registration.submit'|trans }}</button>#}
+					  		<button type="submit" class="btn btn-success full-width-in" >{{ 'registration.submit'|trans }}</button>
+					  	</div>
+					</div>
+					{% endif %}
+                                        <input type="hidden" name="hdnEmail" id="hdnEmail" value="{{app.request.get('email')}}"> 
+                                        <input type="hidden" name="hdnToken" id="hdnToken" value="{{app.request.get('token')}}"> 
+				{{ form_rest(form) }}
+				</form>
+			</div>
+			<div class="col-xs-12 col-sm-2 col-md-6"></div>
+		</div>
+	</div>
+</section>
+
+{% endblock fos_user_content %}
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+
+        var isValidUser = true;
+
+        $(document).ready(function () {
+
+            $.validator.addMethod("regex", function(value, element, regexpr) {
+                return regexpr.test(value);
+            }, "Your username can contain characters, numbers and these special characters only - _ ! @ . / $.");
+            
+            $.validator.addMethod("regex_name", function(value, element, regexpr) {
+                return regexpr.test(value);
+            }, "Your name contain characters, numbers and these special character only - _");
+
+            $.validator.addMethod("regex_valid_char", function(value, element, regexpr) {
+                return regexpr.test(value);
+            }, "Please enter valid email.");
+
+        $("#forgotPasswordLink").click(function() {
+
+            $('#flashForgotPassword .welcomemsg').html("<p>Please provide your e-mail and your password will be sent to it</p>");
+
+            $('.emailSentMsg').text('');
+            $('#emailAradialPassword').val('');
+            $('#ErrorMessage').text('');
+             $('#flashnew').addClass('hide');
+             $('#flashForgotPassword').removeClass('hide');
+         });
+
+        $("#fos_user_registration_form_country").change(function() {
+
+			var countryId = $('#fos_user_registration_form_country').val();
+
+				$.ajax({
+							type: "POST",
+							url: "{{ path('dhi_user_get_state') }}",
+							data: {countryId:countryId, source: 'registration'},
+							beforeSend: function( xhr ) {
+
+								$('#ajax-loader-bx').show();
+							},
+							success:function(result){
+
+								$('#fos_user_registration_form_state').empty();
+								var s= document.getElementById('fos_user_registration_form_state');
+								s.options[0]= new Option('Select State', '');
+								$.each(result,function(key,value){
+									var pkgId = key;
+									var pkgName = value;
+									//s.options[key]= new Option(pkgName, pkgId);
+									$("#fos_user_registration_form_state").append('<option value="' + key + '">'  +   value + '</option>');
+								});
+
+								$('#ajax-loader-bx').hide();
+							}
+						});
+					}).change();
+
+
+
+        $("#fos_user_registration_register").submit(function() {
+
+                if ($(this).valid()) {
+
+                    checkEmailSource = '{{ path('dhi_user_check_valid_username') }}';
+
+                    var responseEmail = checkEmail($('#fos_user_registration_form_email_first').val(), 'registration');
+
+                    if(responseEmail) {
+                        return true;
+                    } else {
+                      //$("#ajaxEmailMsg").addClass("error1").removeClass("success1").removeClass("success").html("Please enter valid email.").show();
+                        return false;
+                    }
+
+                } else {
+
+                    $("#ajaxUsernameMsg").html('');
+                    $("#ajaxEmailMsg").html('');
+                }
+            }).validate({
+                rules: {
+                    "fos_user_registration_form[username]": {
+                        "required": true,
+                        "regex": /^[A-Za-z0-9-_!@./$]+$/,
+                        "minlength": 6,
+                        "maxlength": 32,
+                    },
+                    "fos_user_registration_form[email][first]": {
+                        "required": true,
+                        "regex_valid_char": /^[^'"]*$/,
+                        "email": true
+                    },
+                    "fos_user_registration_form[email][second]": {
+                        "required": true,
+                        "regex_valid_char": /^[^'"]*$/,
+                        "equalTo": "#fos_user_registration_form_email_first"
+                    },
+                    "fos_user_registration_form[plainPassword][first]": {
+                        "required": true,
+                        "regex": /^[A-Za-z0-9!@#$_]+$/,
+                        "minlength": 8,
+                        "maxlength": 18,
+                    },
+                    "fos_user_registration_form[plainPassword][second]": {
+                        "required": true,
+                        "equalTo": "#fos_user_registration_form_plainPassword_first"
+                    },
+                    "fos_user_registration_form[firstname]": {
+                        "required": true,
+                        "regex_name": /^[A-Za-z0-9 _-]+$/,
+                        "minlength": 3,
+                    },
+                    "fos_user_registration_form[lastname]": {
+                        "required": true,
+                        "regex_name": /^[A-Za-z0-9 _-]+$/,
+                        "minlength": 3,
+                    },
+                    "fos_user_registration_form[address]": {
+                        "required": true,
+                        "minlength": 3,
+                    },
+                    "fos_user_registration_form[city]": {
+                        "required": true,
+                        "minlength": 3,
+                    },
+                    "fos_user_registration_form[state]": {
+                        "required": true,
+{#                        "minlength": 2,#}
+                    },
+                    "fos_user_registration_form[zip]": {
+                        "required": true,
+                        "minlength": 5,
+                    },
+                    "fos_user_registration_form[country]": "required",
+                    "fos_user_registration_form[captcha]": "required",
+                    "fos_user_registration_form[terms]": "required"
+                },
+                messages: {
+                    "fos_user_registration_form[username]": {
+                        "required": "Please enter username.",
+                        "minlength": "Your username must have minimum 6 characters.",
+                        "maxlength": "Your username can have maximum 32 characters.",
+                        "regex": "Your username can contain characters, numbers and these special characters only - _ ! @ . / $."
+                    },
+                    "fos_user_registration_form[email][first]": {
+                        "required": "Please enter email address.",
+                        "email": "Please enter valid email."
+                    },
+                    "fos_user_registration_form[email][second]": {
+                        "required": "Please enter confirm email address.",
+                        "email": "Please enter valid email.",
+                        "equalTo" : "Email and confirm email do not match."
+                    },
+                    "fos_user_registration_form[plainPassword][first]": {
+                        "required": "Please enter password.",
+                        "minlength": "Your password must have minimum 8 characters.",
+                        "maxlength": "Your password can have maximum 18 characters.",
+                        "regex": "Your current password contains invalid characters. Passwords can contain characters, numbers and only these special characters: ! @ # $"
+                    },
+                    "fos_user_registration_form[plainPassword][second]": {
+                        "required": "Please enter confirm password.",
+                        "equalTo": "Password does not match the confirm password."
+                    },
+					"fos_user_registration_form[firstname]": {
+                        "required": "Please enter first name.",
+                        "regex_name": "Your first name contain characters, numbers and these special characters only - _",
+                        "minlength": "Your firstname must have minimum 3 characters.",
+                    },
+                    "fos_user_registration_form[lastname]": {
+                        "required": "Please enter last name.",
+                        "regex_name": "Your last name contain characters, numbers and these special characters only - _",
+                        "minlength": "Your lastname must have minimum 3 characters.",
+                    },
+                    "fos_user_registration_form[address]": {
+                        "required": "Please enter address.",
+                        "minlength": "Your address must have minimum 3 characters.",
+                    },
+                    "fos_user_registration_form[city]": {
+                        "required": "Please enter city.",
+                        "minlength": "Your city must have minimum 3 characters.",
+                    },
+                    "fos_user_registration_form[state]": {
+                        "required": "Please enter state.",
+{#                        "minlength": "Your state must have minimum 2 characters.",#}
+                    },
+                    "fos_user_registration_form[zip]": {
+                        "required": "Please enter zip code.",
+                        "minlength": "Your zip must have minimum 5 characters.",
+                    },
+                    "fos_user_registration_form[country]": "Please enter country.",
+                    "fos_user_registration_form[captcha]": "Please type characters in the image.",
+                    "fos_user_registration_form[terms]": "Please agree to terms of service."
+                },
+
+                onkeyup: function(element) {
+
+                    if($("#fos_user_registration_form_email_first").val() == "")
+                    {
+                        $("#ajaxEmailMsg").html('');
+                    }
+
+                    if($("#fos_user_registration_form_username").val() == "") {
+
+                        $("#ajaxUsernameMsg").html('');
+                    }
+
+                },
+                errorPlacement: function (error, element) {
+                    if (element.attr("id") == "fos_user_registration_form_username") {
+                        if(error.text()!='') {
+
+                            $("#ajaxUsernameMsg").html('');
+                        }
+                        error.insertAfter(element);
+                    } else {
+                        error.insertAfter(element);
+                    }
+
+                }
+            });
+
+             // check email is exists or not
+        $("#fos_user_registration_form_email_first").blur(function (event) {
+		      
+                checkEmailSource = '{{ path('dhi_user_check_valid_username') }}';
+                if($("#fos_user_registration_form_email_first").val() == ""){
+                   // $("#ajaxEmailMsg").html('Please enter email address.');
+				  $("#ajaxEmailMsg").html('');
+					return false;
+                }
+                
+                
+                var isEmailValid = checkEmail($(this).val(), 'registration');
+                
+                if(!isEmailValid && $("#fos_user_registration_form_email_first").val() != ""){
+                    
+                    //$("#ajaxEmailMsg").addClass("error1").removeClass("success1").removeClass("success").html("Please enter valid email.").show();
+                   //$("#ajaxEmailMsg").addClass("error1").removeClass("success1").removeClass("success").html("Email already used.").show();
+                    $("#fos_user_registration_form_email_first-error").html("").hide();
+                    
+                }
+        });
+        $('#sendEmailSubmit').click(function(){
+            var email  = $('#emailAradialPassword').val();
+            var regex = /^([\w-\.]+)([\w-]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+            var validEmail = regex.test(email);
+            if(!validEmail){
+                  $("#flashForgotPassword #ErrorMessage").html("Please enter a valid email address.");
+            }else{
+
+                var checkAuthSource = '{{ path('dhi_user_check_aradial_email_available') }}';
+                var emailAradial = $('#emailAradialPassword').val();
+                var supportSource = '{{path('dhi_user_support')}}';
+                sendEmailAuthAradial(checkAuthSource,emailAradial,supportSource);
+            }
+            return true;
+        });
+
+        $("#fos_user_registration_form_email_first").keyup(function (event) {
+                if($("#fos_user_registration_form_email_first").val() == "")
+                {
+                    $("#ajaxEmailMsg").html('');
+                }
+        });
+
+        $(".authAradialPopupCancel").click(function(){
+            var submitvalue = $("#authCountinuePopup").text();
+            $('#emailAradialPassword').val('');
+            $('#flashnew').addClass('hide');
+            $('#flashForgotPassword').addClass('hide');
+            $('.flashOverlay').addClass('hide');
+            $("#fos_user_registration_register :input").each(function(){
+                $(this).val('');
+            });
+        });
+
+        $("#authCountinuePopup").click(function(){
+            $('#flashnew').addClass('hide');
+            $('#flashForgotPassword').addClass('hide');
+            $('.flashOverlay').addClass('hide');
+        });
+
+        $("#fos_user_registration_form_username").blur(function (event) {
+                $('#password').val('');
+                checkEmailSource = '{{ path('dhi_user_check_valid_username') }}';
+                checkEmailSourceOnly = '{{ path('dhi_user_check_valid_username_only') }}';
+
+                regexpr_username = /^[A-Za-z0-9-_!@./$]+$/;
+
+                if(checkIsValidUserName() && regexpr_username.test($(this).val()))
+                {
+                        isValidUser = checkUsername($(this).val());
+                }else{
+                    $("#ajaxUsernameMsg").html('');
+                }
+
+        });
+
+
+
+        $('#authAradial').click(function(event){
+           var checkAuthSource = '{{ path('dhi_user_aradial_password_auth') }}';
+           var username = $('#username').val();
+           var password = $('#password').val();
+           var rep = checkAradialAuth(checkAuthSource,username,password);
+           $('#isVerifiedAradial').val(rep);
+        });
+
+        });
+
+        //check at client site username is valid or not
+        function checkIsValidUserName() {
+
+            isValidUserName = true;
+
+            if($("#fos_user_registration_form_username").val() == "" || $("#fos_user_registration_form_username").val().length > 32 || $("#fos_user_registration_form_username").val().length < 6)
+            {
+               $("#ajaxUsernameMsg").html('');
+               isValidUserName = false;
+            }
+
+            return isValidUserName;
+        }
+
+    </script>
+
+{% endblock javascripts %}

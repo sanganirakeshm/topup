@@ -1,0 +1,104 @@
+security:
+    encoders:
+        FOS\UserBundle\Model\UserInterface:
+            algorithm: bcrypt
+            cost:      14
+
+    role_hierarchy:
+        ROLE_USER:        ROLE_USER
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_READONLY:    ROLE_ADMIN
+        ROLE_HELPDESK:    ROLE_ADMIN
+        ROLE_CASHIER:     ROLE_HELPDESK
+        ROLE_MANAGER:     ROLE_CASHIER        
+        ROLE_SUPER_ADMIN: ROLE_MANAGER
+
+    providers:
+        fos_userbundle_admin:
+            id: fos_user.user_provider.username_email
+        fos_userbundle:
+            entity: { class: Dhi\UserBundle\Entity\User }
+            #id: fos_user.user_provider.username_email
+
+    firewalls:
+        admin:
+            context: admin
+            pattern: /admin/(.*)
+            form_login:
+                provider: fos_userbundle_admin
+                login_path: admin_login
+                check_path: admin_login_check
+                default_target_path: dhi_admin_dashboard
+                success_handler: admin_login_success_handler
+            logout:
+                path: admin_logout
+                target: admin_login
+                handlers: []
+                success_handler: logout_listener
+                invalidate_session: false
+            anonymous: true
+            context: admin
+            remember_me:
+                key: "%secret%"
+                lifetime: 31536000 # 365 days in seconds
+                path: /
+                domain: ~
+        main:
+            context: customer
+            pattern: ^/
+            form_login:
+                provider: fos_userbundle
+                csrf_provider: form.csrf_provider
+                default_target_path: /phonebook
+                success_handler: customer_login_success_handler
+                failure_handler: customer_login_success_handler
+            logout:       
+                path: fos_user_security_logout
+                target: fos_user_security_login
+                handlers: []
+                success_handler: logout_listener
+                invalidate_session: false
+            anonymous: true
+            remember_me:
+                key: "%secret%"
+                lifetime: 31536000 # 365 days in seconds
+                path: /
+                domain: ~
+            
+    access_control:
+        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/email-verification-success, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/resend-email-verification, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/family-topup/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        
+        
+        - { path: ^/account, role: ROLE_USER }
+        - { path: ^/phonebook/*, role: ROLE_USER }
+        - { path: ^/topup/*, role: ROLE_USER }
+        - { path: ^/purchase/*, role: ROLE_USER }
+        - { path: ^/recharge/*, role: ROLE_USER }        
+        - { path: ^/milstar/*, role: ROLE_USER }
+        - { path: ^/milstar-payment/*, role: ROLE_USER }
+        - { path: ^/confirmOrder/*, role: ROLE_USER }
+        - { path: ^/family/*, role: ROLE_USER }
+        
+        
+        - { path: ^/admin/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/resetting/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        #- { path: ^/admin/setting/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        
+        - { path: ^/admin/provider/*, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/admin/product/*, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/admin/email-campaign/*, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/admin/paypal-transaction-history/*, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/admin/credit-rate/*, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/admin/support-category/*, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/admin/support-location/*, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/admin/audit-logs/*, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/admin/setting/*, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/admin/user/set-max-number/*, role: [ROLE_NO_ACCESS] }
+        - { path: ^/admin/, role: ROLE_ADMIN }
+        

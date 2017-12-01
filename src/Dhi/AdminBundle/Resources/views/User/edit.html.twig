@@ -1,0 +1,368 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+	<!-- Content Header (Page header) -->
+	<section class="content-header"><h1>Edit Customer</h1></section>
+	 {% include "DhiUserBundle::flashMessage.html.twig" %}
+	<section class="content">
+		<div class="box box-success">
+			<form action="{{ path('dhi_admin_edit_customer', { 'id': user.id }) }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="edit_admin_form" novalidate>
+				<div class="box-body form-group-section">	
+					<div class="form-group col-sm-4">
+						<label class="control-label">Username: </label>
+						<div>
+							{{ form_widget(form.username, { 'attr': { 'placeholder': 'Username', 'class': 'form-control'}}) }}
+							<div class="serverError"> {{ form_errors(form.username) }} </div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4 error_password">
+						<label class="control-label">Firstname: </label>
+						<div>
+							{{ form_widget(form.firstname, { 'attr': { 'placeholder': 'Firstname', 'class': 'form-control'}}) }}
+							<div class="serverError"> {{ form_errors(form.firstname) }} </div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4 error_password">
+						<label class="control-label">Lastname: </label>
+						<div>
+							{{ form_widget(form.lastname, { 'attr': { 'placeholder': 'Lastname', 'class': 'form-control'}}) }}
+							<div class="serverError"> {{ form_errors(form.lastname) }} </div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4 clearfix">
+						<label class="control-label">Email: </label>
+						<div>
+							{{ form_widget(form.email, { 'attr': { 'placeholder': 'Email Address', 'class': 'form-control'}}) }}
+							<div class="serverError" id="emailServerErr"> {{ form_errors(form.email) }} </div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4">
+						<label class="control-label">Phone: </label>
+						<div>
+							{{ form_widget(form.phone, { 'attr': { 'placeholder': 'Phone', 'class': 'form-control', 'maxlength': 10}}) }}
+							<div class="serverError"> {{ form_errors(form.phone) }} </div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4">
+						<label class="control-label">Address: </label>
+						<div>
+							{{ form_widget(form.address, { 'attr': { 'placeholder': 'Address', 'class': 'form-control'}}) }}
+							<div class="serverError"> {{ form_errors(form.address) }} </div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4">
+						<label class="control-label">City: </label>
+						<div>
+							{{ form_widget(form.city, { 'attr': { 'placeholder': 'City', 'class': 'form-control'}}) }}
+							<div class="serverError"> {{ form_errors(form.city) }} </div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4">
+						<label class="control-label">State: </label>
+						<div>
+							{{ form_widget(form.state, { 'attr': { 'placeholder': 'State', 'class': 'form-control'}}) }}
+							<div class="serverError"> {{ form_errors(form.state) }} </div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4">
+						<label class="control-label">Zip Code: </label>
+						<div>
+							{{ form_widget(form.zip, { 'attr': { 'placeholder': 'Zip Code', 'class': 'form-control'}}) }}
+							<div class="serverError"> {{ form_errors(form.zip) }} </div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4">
+						<label class="control-label">Country: </label>
+						<div>
+							{{ form_widget(form.country, { 'attr': { 'placeholder': 'Country', 'class': 'form-control'}}) }}
+							<div class="serverError"> {{ form_errors(form.country) }} </div>
+						</div>
+					</div>
+
+					<div class="form-group col-sm-4">
+						<label class="control-label">Active: </label>
+						<div>
+							{{ form_widget(form.enabled, { 'attr': { 'placeholder': 'Active', 'class': 'form-control'}}) }}
+							<div class="serverError"> {{ form_errors(form.enabled) }} </div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4">
+						<label class="control-label">Opt Out of Marketing Emails: </label>
+						<div>
+							{{ form_widget(form.is_email_optout, { 'attr': {'class': ''}}) }}
+							<div class="serverError"> {{ form_errors(form.is_email_optout) }} </div>
+						</div>
+					</div>
+						
+					<div class="form-group col-sm-4">
+						<label class="control-label"><font color="red">*</font>Customer Information Update Note: </label>
+						<div>
+							<textarea name="profile-note" cols="144"></textarea>
+						</div>
+					</div>		
+						
+					
+				</div>
+
+				<div class="box-footer">	
+					{{ form_rest(form) }}
+					<div class="col-sm-6 add-btn-bx">
+						<div>
+							<input type="submit" name="update" value="Update" class="btn btn-success"/>
+							<a href="{{ path('dhi_admin_user_list') }}" class="btn btn-default">Back</a>
+						</div>
+					</div>
+				</div>                
+			</form>
+		</div>
+	</section>
+
+
+	<section class="content-header"><h1>Change Password</h1></section> 
+	<section class="content">
+		<div class="box box-success">
+			<form action="{{ path('dhi_admin_edit_customer', { 'id': user.id }) }}" method="POST" {{ form_enctype(changePasswordForm) }} class="form-horizontal" id="change_password_admin">
+				<div class="box-body">
+					<div class="form-group col-sm-4 error_password">
+						<label class="control-label">New Password: </label>
+						<div>
+							{{ form_widget(changePasswordForm.plainPassword.first, { 'attr': { 'placeholder': 'New Password', 'class': 'form-control'}}) }}
+							<div class="serverError">{{ form_errors(changePasswordForm.plainPassword.first) }} </div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4 error_password">
+						<label class="control-label">Confirm Password: </label>
+						<div>
+							{{ form_widget(changePasswordForm.plainPassword.second, { 'attr': { 'placeholder': 'Confirm Password', 'class': 'form-control'}}) }}
+							<div class="serverError">{{ form_errors(changePasswordForm.plainPassword.second) }} </div>
+						</div>
+					</div>
+						
+					<div class="form-group col-sm-6">
+						<label class="control-label"><font color="red">*</font>Customer Information Update Note: </label>
+						<div>
+							<textarea name="change-password-note" cols="144"></textarea>
+						</div>
+					</div>	
+				</div> 
+				<div class="box-footer">   
+					{{ form_rest(changePasswordForm) }}
+					<div class="col-sm-6 add-btn-bx">
+
+						<input type="submit" name="update" value="Update Password" class="btn btn-success"/>
+						<a href="{{ path('dhi_admin_user_list') }}" class="btn btn-default">Back</a>
+
+					</div>
+				</div>    
+			</form>
+		</div>
+	</section>
+
+	<section class="content-header"><h1>Set User settings</h1></section> 
+	<section class="content">
+		<div class="box box-success">
+			<form action="{{ path('dhi_admin_edit_customer', {'id': user.id}) }}" method="POST" {{ form_enctype(userSettingform) }} id="set_setting_form" class="form-horizontal">
+				<div class="box-body">
+					<div class="form-group col-sm-4">
+						<label class="control-label">Max Mac Address :</label>
+						<div>
+							{{ form_widget(userSettingform.mac_address, { 'attr': { 'placeholder': 'Max Number', 'class': 'form-control'}}) }}
+							<div class="serverError">{{ form_errors(userSettingform.mac_address) }}</div>
+						</div>
+					</div>
+					<div class="form-group col-sm-4">
+						<label class="control-label">Max Daily Transaction :</label>
+						<div>
+							{{ form_widget(userSettingform.max_daily_transaction, { 'attr': { 'placeholder': 'Max Daily Transaction', 'class': 'form-control'}}) }}
+							<div class="serverError">{{ form_errors(userSettingform.max_daily_transaction) }}</div>
+						</div>
+					</div>
+						
+					<div class="form-group col-sm-6">
+						<label class="control-label"><font color="red">*</font>Customer Information Update Note: </label>
+						<div>
+							<textarea name="user-setting-note" cols="144"></textarea>
+						</div>
+					</div>	
+				</div>
+				<div class="box-footer">   
+					{{ form_rest(userSettingform) }}
+					<div class="col-sm-6 add-btn-bx">
+
+						<input type="submit" name="submit" value="Update" class="btn btn-success"/>
+						<a href="{{ path('dhi_admin_user_list') }}" class="btn btn-default">Back</a>
+
+					</div>
+				</div>   
+			</form>
+		</div>
+	</section>    
+
+
+
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+	<script type="text/javascript">
+		$(document).ready(function () {
+			//$('#dhi_admin_registration_username').prop('readonly', true);
+
+			$(document).ready(function () {
+				$.validator.addMethod("regex_username", function (value, element, regexpr) {
+					return regexpr.test(value);
+				}, "Your username contain characters, numbers and these special characters only - _ ! # @ . / $.");
+
+                                $.validator.addMethod("regex_name", function(value, element, regexpr) {
+                                    return regexpr.test(value);
+                                }, "Your name contain characters, numbers and these special character only - _");
+
+                                $.validator.addMethod("regex_valid_char", function(value, element, regexpr) {
+                                    return regexpr.test(value);
+                                }, "Please enter valid email.");
+
+				$('#edit_admin_form').validate({
+					rules: {
+						"dhi_admin_registration[username]": {
+							"required": true,
+							"regex_username": /^[A-Za-z0-9-_!@./#$]+$/,
+							"minlength": 6,
+							"maxlength": 32,
+						},
+						"dhi_admin_registration[email]": {
+							"required": true,
+                            {#"regex_valid_char": /^[^'"]*$/,#}
+                         	"regex_valid_char": /^([\w-\.]+)([\w-]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+							"email": true
+						},
+						"dhi_admin_registration[phone]": {
+							"required": false,
+							"regex_username": /^(\s*|\d+)$/,
+							"maxlength": 10
+						},
+						"dhi_admin_registration[firstname]": {
+                                                    "required": true,
+                                                    "regex_name": /^[A-Za-z0-9 _-]+$/
+                                                },
+                                                "dhi_admin_registration[lastname]": {
+                                                    "required": true,
+                                                    "regex_name": /^[A-Za-z0-9 _-]+$/
+                                                },
+						"dhi_admin_registration[address]": "required",
+						"dhi_admin_registration[city]": "required",
+						"dhi_admin_registration[state]": "required",
+						"dhi_admin_registration[zip]": {"required": true, "maxlength": 12},
+						"dhi_admin_registration[country]": "required",
+						"dhi_admin_registration[userServiceLocation]": "required",
+						"profile-note": "required"
+
+					},
+					messages: {
+						"dhi_admin_registration[username]": {
+							"required": "Please enter username.",
+							"minlength": "Your username must have minimum 6 characters.",
+							"maxlength": "Your username can have maximum 32 characters."
+
+						},
+						"dhi_admin_registration[email]": {
+							"required": "Please enter an email.",
+							"email": "Please enter valid email."
+						},
+						"dhi_admin_registration[phone]": {
+							//  "required": "Please enter phone number.",
+							"maxlength": "Phone number must have maximum 10 digit.",
+							"regex_username": "Please enter valid phone number."
+						},
+						"dhi_admin_registration[firstname]": {
+                                                    "required": "Please enter first name.",
+                                                    "regex_name": "Your first name contain characters, numbers and these special character only - _"
+                                                },
+                                                "dhi_admin_registration[lastname]": {
+                                                    "required": "Please enter last name.",
+                                                    "regex_name": "Your last name contain characters, numbers and these special character only - _"
+                                                },
+						"dhi_admin_registration[address]": "Please enter address.",
+						"dhi_admin_registration[city]": "Please enter city.",
+						"dhi_admin_registration[state]": "Please enter state.",
+						"dhi_admin_registration[zip]": {"required": "Please enter zip code.", "maxlength": "Zip Code can have maximum 12 characters."},
+						"dhi_admin_registration[country]": "Please enter country.",
+						"dhi_admin_registration[userServiceLocation]": "Please select service location.",
+						"profile-note": "Please enter note for customer update."
+
+					},
+					errorPlacement: function (error, element) {
+						if (element.attr("id") == "dhi_admin_registration_email") {
+							if (error.text() != '') {
+								$("#emailServerErr").html('');
+							}
+							error.insertAfter(element);
+						}
+						else {
+							error.insertAfter(element);
+						}
+					}
+				});
+
+				$.validator.addMethod("regex_password", function (value, element, regexpr) {
+					return regexpr.test(value);
+				}, "Your current password contains invalid characters. Passwords can contain characters, numbers and only these special characters: ! @ # $");
+
+				$('#change_password_admin').validate({
+					rules: {
+						"dhi_admin_changepassword[plainPassword][first]": {
+							"required": true,
+							"regex_password": /^[A-Za-z0-9!@#$_]+$/,
+							"minlength": 8,
+							"maxlength": 18,
+						},
+						"dhi_admin_changepassword[plainPassword][second]": {
+							"required": true,
+							"equalTo": "#dhi_admin_changepassword_plainPassword_first"
+						},
+						"change-password-note" : "required"
+					},
+					messages: {
+						"dhi_admin_changepassword[plainPassword][first]": {
+							"required": "Please enter password.",
+							"minlength": "Your password must have minimum 8 characters.",
+							"maxlength": "Your password can have maximum 18 characters."
+						},
+						"dhi_admin_changepassword[plainPassword][second]": {
+							"required": "Please enter confirm password.",
+							"equalTo": "Password does not match the confirm password."
+						},
+						"change-password-note" : "Please enter note for customer update."
+					}
+				});
+
+				$('#set_setting_form').validate({
+					rules: {
+						"dhi_admin_user_setting[mac_address]": {
+							"digits": true,
+							"max": 100
+						},
+						"dhi_admin_user_setting[max_daily_transaction]": {
+							"digits": true,
+							"max": 100
+						},
+						"user-setting-note" : "required"
+					},
+					messages: {
+						"dhi_admin_user_setting[mac_address]": {
+							"digits": "Please enter valid number.",
+							"maximum": "Maximum allow 100 number"
+						},
+						"dhi_admin_user_setting[max_daily_transaction]": {
+							"digits": "Please enter valid number.",
+							"maximum": "Maximum allow 100 number"
+						},
+						"user-setting-note" : "Please enter note for customer update."
+					}
+
+				});
+
+
+			});
+
+		});
+	</script>
+{% endblock javascripts %}

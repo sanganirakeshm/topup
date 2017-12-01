@@ -1,0 +1,241 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block body %}
+
+
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>		
+
+    <section class="content-header">
+        <h1>Purchase History</h1>
+    </section>
+    <section class="content">	
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get" id="searchService">
+                        <div class="box-body">
+                            <div class="row">
+							<div class="form-group col-md-4">
+							 <div id="username"></div>
+                            </div>
+							</div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>		
+
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">  
+                       
+                        <div class="addNewBtnsGrp">
+                            {% if not admin_permission.checkPermission('user_purchase_history_export') %}
+                                <a href="{{ path('dhi_admin_purchase_export_pdf',app.request.query.all) }}" class="btn btn-success pull-right margin-top5" id="export_pdf" >Export PDF</a>                             
+                                <a href="{{ path('dhi_admin_purchase_export_csv',app.request.query.all) }}" class="btn btn-success pull-right margin-top5" id="export_csv" >Export CSV</a>
+                                <a href="javascript:void(0)" class="btn btn-success pull-right margin-top5" onclick="print_list()" id="export_print" >Print</a>               
+                            {% endif %} 
+                        </div>
+                       
+                        <table id="purchaseHistoryTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th width="100">Order Number</th>
+                                    <th>Username</th>
+                                    <th>Purchased Service</th>
+                                    <th>Payment Method</th>
+                                    <th>Payment Status</th>
+                                    <th>Total Amount</th>
+                                    <th>Refund Amount</th>
+                                    <th>Purchase Date</th>                                        
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </section>	                    
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>                
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}    
+    <script type="text/javascript">
+                                $(document).ready(function () {
+
+                                    dTable = $('#purchaseHistoryTable').dataTable({
+                                        "oLanguage": {
+                                            "sLengthMenu": "Display _MENU_ Records",
+                                            "sZeroRecords": "<center>No Record Found!</center>",
+                                            "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                                            "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                                            "sInfoFiltered": "(filtered from _MAX_ total records)"
+                                        },
+                                        responsive: false,
+                                        bJQueryUI: false,
+                                        bProcessing: true,
+                                        bServerSide: true,
+                                        bFilter: true,
+                                        //multipleSelection: true,
+                                        iDisplayLength:{{ record_per_page }},
+                                                sAjaxSource: "{{ path('dhi_admin_purchase_list_json') }}",
+                                                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                                                    oSettings.jqXHR = $.ajax( {
+                                                        "url":  sUrl,
+                                                        "data": aoData,
+                                                        "success": function (json) {
+                                                            if ( json.sError ) {
+                                                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                                                            }
+                                                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                                                            fnCallback( json );
+                                                        },
+                                                        "dataType": "json",
+                                                        "cache": false,
+                                                        "type": oSettings.sServerMethod,
+                                                        "error": function (xhr, error, thrown) {
+                                                            if ( error == "parsererror" ) {
+                                                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                                                }
+                                                        }
+                                                    } );
+                                                },
+                                        fnDrawCallback: function () {
+
+                                            if (this.fnSettings().fnRecordsTotal() == 0) {
+
+                                                $("#export_print").addClass('disabled');
+                                                $("#export_csv").addClass('disabled');
+                                                $("#export_pdf").addClass('disabled');
+                                            } else {
+
+                                                $("#export_print").removeClass('disabled');
+                                                $("#export_csv").removeClass('disabled');
+                                                $("#export_pdf").removeClass('disabled');
+                                            }
+                                        },
+                                        aoColumns: [
+                                            {"sClass": "details-control", "sDefaultContent": "", "bSearchable": false, "bSortable": false},
+                                            {"sName": "orderNumber"},
+                                            {"sName": "userName"},
+                                            {"sName": "purcasedService", "bSearchable": false, "bSortable": false},
+                                            {"sName": "paymentMethod", "bSearchable": false, "bSortable": false},
+                                            {"sName": "paymentStatus"},
+                                            {"sName": "totalAmount"},
+                                            {"sName": "refundAmount"},
+                                            {"sName": "purchaseDate"}
+                                        ],
+                                        aaSorting: [[8, 'desc']]
+                                    });
+
+
+
+                                    $('#purchaseHistoryTable').dataTable().columnFilter({
+                                        aoColumns: [
+                                            null,
+                                            null,
+                                            {type: "text", sSelector: "#username"}
+                                        ]
+                                    });
+
+                                    $("input").addClass("form-control");
+                                    $("select").addClass("form-control");
+
+                                    // Add event listener for opening and closing details
+                                    jQuery('#purchaseHistoryTable tbody').on('click', 'td.details-control', function () {
+
+                                        console.log(dTable);
+                                        var tr = $(this).closest('tr');
+
+                                        var nTr = $(this).parents('tr')[0];
+                                        if (dTable.fnIsOpen(nTr))
+                                        {
+
+                                            //this.src = "../examples_support/details_open.png";
+                                            dTable.fnClose(nTr);
+                                            tr.removeClass('shown');
+                                        }
+                                        else
+                                        {
+
+                                            //this.src = "../examples_support/details_close.png";
+                                            tr.addClass('shown');
+                                            var aData = dTable.fnGetData(nTr);
+                                            if (aData[1]) {
+
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: "{{ path('dhi_admin_expanded_purchase_history') }}",
+                                                    data: {orderNumber: aData[1]},
+                                                    beforeSend: function (xhr) {
+
+                                                        $('#ajax-loader-bx').show();
+                                                    },
+                                                    success: function (result) {
+
+                                                        $('#ajax-loader-bx').hide();
+                                                        dTable.fnOpen(nTr, result, 'details');
+                                                    }
+                                                })
+                                            }
+                                            //dTable.fnOpen( nTr, fnFormatDetails(dTable, nTr), 'details' );
+
+                                        }
+                                    });
+                                });
+
+
+
+                                function print_list() {
+
+                                    $('.topSrchBox').hide();
+                                    $('#export-item').hide();
+                                    $('table').next().hide();
+                                    $('body').addClass('sidebar-collapse');
+
+                                    $('#searchService').parent('div').hide();
+                                    $('div.addNewBtnsGrp').hide();
+                                    $('#purchaseHistoryTable_length').hide();
+
+                                    $.each($('tr#headerlink a'), function () {
+                                        $(this).attr('rel', $(this).attr('href'));
+                                        $(this).removeAttr('href');
+                                    });
+
+                                    $.each($('td#action-headerlink a'), function () {
+                                        $(this).attr('rel', $(this).attr('href'));
+                                        $(this).removeAttr('href');
+                                    });
+
+                                    window.print();
+
+                                    $('.topSrchBox').show();
+                                    $('#export-item').show();
+                                    $('table').next().show();
+                                    $('body').removeClass('sidebar-collapse');
+
+                                    $('#searchService').parent('div').show();
+                                    $('div.addNewBtnsGrp').show();
+                                    $('#purchaseHistoryTable_length').show();
+
+                                    $.each($('tr#headerlink a'), function () {
+                                        $(this).attr('href', $(this).attr('rel'));
+                                        $(this).removeAttr('rel');
+                                    });
+
+                                    $.each($('td#action-headerlink a'), function () {
+                                        $(this).attr('href', $(this).attr('rel'));
+                                        $(this).removeAttr('rel');
+                                    });
+
+                                }
+
+    </script>  
+
+{% endblock %}

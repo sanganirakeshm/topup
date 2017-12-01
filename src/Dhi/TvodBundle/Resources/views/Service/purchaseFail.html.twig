@@ -1,0 +1,80 @@
+<html>
+<body>
+    <form action="{{return_url}}" name="frmStatus" id="frmStatus" method="post">
+        
+    </form>
+</body>
+</html>
+
+
+
+{% block body %}
+    <section class="content">
+        {# **** Step 1 ***** #}
+        <div class="container" id="step-1"> 
+
+            <div class="row">
+
+                <div class="heading">
+                    <div class="col-xs-12">
+                        <h2>Thank you for using ExchangeVUE</h2>
+
+                    </div>
+                </div>
+            </div>
+            <div class="inner_content">
+                <h4>Your transcation has been cancelled. If you have any question or concerns please feel free to contact.</h4>
+                
+                {% if purchaseOrder %}
+                    <table class="table table-hover records_list table-bordered">			
+                        <thead>
+                            <tr>
+                                <th colspan="4">
+                                    <b>Transaction ID:</b> {{ purchaseOrder.orderNumber }}<br/>
+                                    <b>Date:</b> {{ purchaseOrder.createdAt|date('Y-m-d H:i:s') }}<br/>
+                                    {% if purchaseOrder.paymentMethod %}
+                                        <b>Payment Method:</b> {{ purchaseOrder.paymentMethod.name }}<br/>
+                                    {% endif %}						
+                                </th>
+                            </tr>
+                        </thead>
+
+                        {% if purchaseOrder.servicePurchases %}
+                            <tbody>
+                                <tr>
+                                    <td><b>Service</b></td>
+                                    <td><b>Package</b></td>
+                                    <td><b>Payment Status</b></td>
+                                    <td><b>Activation</b></td>
+                                    <td><b>Amount</b></td>
+                                </tr>
+                                {% set totamt = 0 %}
+                                {% set failAmt = 0 %}
+                                {% for purchase in purchaseOrder.servicePurchases %}
+                                    {% if purchase.rechargeStatus == 2 %}
+                                        {% set failAmt = failAmt + purchase.payableAmount %}
+                                    {% endif %}
+                                    {% set totamt = totamt + purchase.payableAmount %}
+                                    <tr>
+                                        <td>{{ purchase.service.name }}</td>
+                                        <td>{{ purchase.packageName }}</td>
+                                        <td><span style="color: #FF0000;">{{ purchase.paymentStatus}}</span></td>
+                                        <td>{{ purchase.activationStatus}}</td>
+                                        <td>${{ purchase.payableAmount }}</td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td align="right" colspan="4"><b>Total Amount</b></td>
+                                    <td>${{ (totamt - failAmt)|number_format(2) }}</td>
+                                </tr>
+                            </tbody>
+                        {% endif %}
+                    </table>
+                {% endif %}									
+                
+            </div>
+        </div>            
+    </section>
+
+
+{% endblock body %}

@@ -1,0 +1,190 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <style type="text/css">
+        .margin-top10 { margin-top:10px; }
+        .ui-datepicker-trigger { float: right; margin-top: -24px; margin-right: 1px; }
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+
+    <div class="container min_cont_hight">
+        <div class="row">
+            {% include "DhiUserBundle::flashMessage.html.twig" %}
+            <table class="table table-bordered table-hover">
+                <tr>
+                    <td colspan="10">
+                        
+                        <form method="get" action="{{ path('dhi_admin_support_list') }}" class="form-horizontal">
+                            <h4>Search Support</h4>
+                            <div class="form-group">
+                                <div class="col-md-3">
+                                    <select name="category" class="form-control" id="category">
+                                        <option value="">Category</option>
+                                        {% for category in supportCategories %}
+                                            <option value="{{ category.name }}">{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" name="email" placeholder="Email" value="{{ (app.request.get('email')) ? app.request.get('email') : ''}}" class="form-control">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" name="fromDate" id="fromDate" placeholder="Start Date" value="{{ (app.request.get('fromDate')) ? app.request.get('fromDate') : ''}}" class="form-control">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" name="toDate" id="toDate" placeholder="End Date" value="{{ (app.request.get('toDate')) ? app.request.get('toDate') : ''}}" class="form-control">
+                                </div>
+                                
+                            </div>
+                            
+                            <div class="form-group">
+                                
+                                
+                                <div class="col-md-3">
+                                    <select name="status" class="form-control" id="status">
+                                        <option value="">Status</option>
+                                        <option value="New">New</option>
+                                        <option value="InProgress">In Progress</option>
+                                        <option value="Resolved">Resolved</option>
+                                    </select>
+                                </div>   
+                                
+                                <div class="col-md-3">
+                                    <select name="emailStatus" class="form-control" id="emailStatus">
+                                        <option value="">Email Status</option>
+                                        <option value="NotActive">Not Active</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Sending">Sending</option>
+                                        <option value="Sent">Sent</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                <div class="pull-right">
+                                    <input type="submit" value="Search" class="btn btn-default"/>&nbsp;&nbsp;
+                                    <a href="{{ path(app.request.attributes.get('_route')) }}" class="btn btn-info">Clear</a>
+                                </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-12">
+                                
+                            </div>
+                        </form>
+                        
+                    </td>
+                </tr>
+                
+                <tr><td colspan="10" align="right">
+                    <div class="addNewBtnsGrp">
+                        <a href="{{ path('dhi_admin_support_category_list') }}" class="btn btn-default">Category List</a>
+                    </div>
+                </td></tr>
+                
+                <tr>
+                    <th>{{ knp_pagination_sortable(pagination, 'Id', 's.id') }}</th>
+                    <th{% if pagination.isSorted('username') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'User', 'u.username') }}</th>
+                    <th{% if pagination.isSorted('email') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Email', 's.email') }}</th>
+                    <th{% if pagination.isSorted('category') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Category', 'sc.name') }}</th>
+                    <th{% if pagination.isSorted('subject') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Subject', 's.subject') }}</th>
+                    <th{% if pagination.isSorted('status') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Status', 's.status') }}</th>
+                    <th{% if pagination.isSorted('emailStatus') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Email Status', 's.emailStatus') }}</th>
+                    <th{% if pagination.isSorted('date') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Date Time', 's.createdAt') }}</th>
+                    <th colspan="2" align="center">Actions</th>
+                </tr>
+
+                {% if (pagination|length > 0) %}
+                    {% for record in pagination %}
+                        <tr {% if loop.index is odd %}class="color"{% endif %}>
+                            <td>{{ record.id }}</td>
+                            <td>{{ record.user.username }}</td>
+                            <td>{{ record.email }}</td>
+                            <td>{{ record.supportCategory.name }}</td>
+                            <td>{{ record.subject }}</td>
+                            <td>{{ record.status }}</td>
+                            <td>{{ record.emailStatus }}</td>
+                            <td>{{ record.createdAt|date('m-d-Y H:i:s') }}</td>
+                            <td>
+                                {% if (record.status == 'New') %}
+                                    <a href="{{ path('dhi_user_support_change_status', {'id': record.id, 'status': record.status}) }}">Mark In Progress</a>
+                                {% elseif (record.status == 'InProgress') %}
+                                    <a href="{{ path('dhi_user_support_change_status', {'id': record.id, 'status': record.status}) }}">Mark Resolved</a>
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </td>
+                            <td><a href="{{ path('dhi_user_support_view', {'id': record.id}) }}">View</a></td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="10" align="center">No records found.</td></tr>
+                {% endif %}
+            </table>
+
+            <div class="navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            {#$('#date').datepicker({
+                showOn: "both",
+                buttonImage: '{{ asset("bundles/dhiadmin/images/calendar.gif") }}',
+                buttonImageOnly: true,
+                dateFormat: 'mm-dd-yy',
+                readOnly: true
+
+            }).keyup(function(e) {
+                if(e.keyCode == 8 || e.keyCode == 46) {
+                    $.datepicker._clearDate(this);
+                }
+            }).css({'width': $('#date').parent().width()-(16+5)+'px', 'float':'left', 'margin-right':'5px'});#}
+                    
+            $('#fromDate').datepicker({
+                showOn: "both",
+                buttonImage: '{{ asset("bundles/dhiadmin/images/calendar.gif") }}',
+                buttonImageOnly: true,
+                dateFormat: 'dd-mm-yy',
+                readOnly: true,
+                onSelect: function(selected) {
+                    $("#toDate").datepicker("option","minDate", selected);
+                }
+            }).keyup(function(e) {
+                if(e.keyCode == 8 || e.keyCode == 46) {
+                    $.datepicker._clearDate(this);
+                }
+            }).css({'width': $('#fromDate').parent().width()-(16+5)+'px', 'float':'left', 'margin-right':'5px'});
+            
+            $('#toDate').datepicker({
+                showOn: "both",
+                buttonImage: '{{ asset("bundles/dhiadmin/images/calendar.gif") }}',
+                buttonImageOnly: true,
+                dateFormat: 'dd-mm-yy',
+                readOnly: true,
+                onSelect: function(selected) {
+                    $("#fromDate").datepicker("option","maxDate", selected)
+                }
+            }).keyup(function(e) {
+                if(e.keyCode == 8 || e.keyCode == 46) {
+                    $.datepicker._clearDate(this);
+                }
+            }).css({'width': $('#toDate').parent().width()-(16+5)+'px', 'float':'left', 'margin-right':'5px'});
+                    
+        });
+        $("#category").val('{{ app.request.get('category') }}');
+        $("#status").val('{{ app.request.get('status') }}');
+        $("#emailStatus").val('{{ app.request.get('emailStatus') }}');
+    </script>
+{% endblock javascripts %}

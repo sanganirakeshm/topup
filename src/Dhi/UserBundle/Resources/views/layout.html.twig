@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta charset="UTF-8" />
+
+				{% set brand = app.session.get('brand') %}
+				{% set brandName = '' %}
+				{% set brandDomain = '' %}
+				{% set brandFavicon = '' %}
+				{% set brandHeaderLogo = '' %}
+				{% set brandFooterLogo = '' %}
+				{% set brandInnerBanner = '' %}
+				{% set backgroundImage = '' %}
+				{% set mainbgStyle = '' %}
+				{% if brand %}
+					{% set brandName = brand.name %}
+					{% set brandDomain = brand.domain %}
+					{% set brandHeaderLogo = brand.headerLogo %}
+					{% set brandFooterLogo = brand.footerLogo %}
+					{% set brandFavicon = brand.favicon %}
+					{% set brandInnerBanner = brand.innerPageBanner %}
+					{% set backgroundImage = brand.backgroundImage %}
+					{% set c_path = app.request.attributes.get('_route') %}
+					{% if c_path in ['dhi_user_account','dhi_purchase_history','dhi_user_profile'] %}
+						{% if brandInnerBanner %}
+							<style>
+							   body.body_bg{ background: none !important;}
+							</style>
+							{% set mainbgStyle = 'background-image: url("' ~ asset('uploads/whitelabel/brandingbannerinnerpage/'~brandInnerBanner) ~ '");     background-repeat: no-repeat;background-position: right bottom;' %}
+					  {% endif %}
+					{% endif %}
+					{% if brandFooterLogo %}
+				<style>
+				  .footer3rdparty .xuveSection .footerGreyLogo {background:url( {{ asset('uploads/whitelabel/footerlogo/'~brandFooterLogo) }}) no-repeat;}
+			</style>
+		  {% endif %}
+				{% endif %}
+	<title>{% block title %}Welcome {{ brandName }} {% endblock %}</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+				{% if brandFavicon %}
+					<link rel="icon" type="image/x-icon" href="{{ asset('uploads/whitelabel/favicon/'~brandFavicon) }}" />
+				{% else %}
+					<link rel="icon" type="image/x-icon" href="{{ asset('bundles/dhiuser/images/dhi-favicon.png') }}" />
+				{% endif %}
+
+	{% block stylesheets %}
+	  <link href="{{ asset('bundles/dhiuser/css/main.css') }}" rel="stylesheet" />
+	  {% stylesheets '@css_and_ui' output='bundles/dhiuser/css/combine.css' %}
+	  <link href="{{ asset_url }}" rel="stylesheet" />
+	  {% endstylesheets %}
+					   {% if backgroundImage %}
+						 <style>
+							 body.body_bg{background:url('{{ asset('uploads/whitelabel/backgroundimage/'~backgroundImage) }}') no-repeat;background-position: right 0 top 36px;}
+						 </style>
+					   {% else %}
+						 <style>   body.body_bg{ background: none !important;} </style>
+						{% endif %}
+	{% endblock %}
+
+  </head>
+	{% set filter = app.session.get('affiliate') %}
+	{% if affiliate is not defined %}
+	  <body class="body_bg">
+	{% else %}
+	  {% if app.request.get('_route') == 'dhi_signup' %}
+		<body class="body_bg  signin_bg">
+	  {% elseif app.request.get('_route') == 'dhi_signup_netgate' %}
+		<body class="body_bg  netgate_signin_bg">
+	  {% else %}
+		<body class="body_bg signup_bg">
+	  {% endif %}
+
+	{% endif %}
+	{% block header %}
+	  <div>
+		{#{% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+		  {{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} |
+		  <a href="{{ path('fos_user_security_logout') }}">
+			{{ 'layout.logout'|trans({}, 'FOSUserBundle') }}
+		  </a>
+		{% endif %}#}
+	  </div>
+
+	  {#{% for type, messages in app.session.flashbag.all() %}
+		{% for message in messages %}
+		  <div class="flash-{{ type }}">
+			{{ message }}
+		  </div>
+		{% endfor %}
+	  {% endfor %}#}
+	  {% if filter is null %}
+	  <header class="headerMain" style="{{ mainbgStyle }}">
+		<div class="container-fluid">
+		  <div class="row">
+					  <div class="pull-left Logo">
+					   {% if brandHeaderLogo %}
+						   <a href="{{ url('dhi_user_homepage') }}"> <img src="{{ asset('uploads/whitelabel/headerlogo/'~brandHeaderLogo) }}" width="" height="">  </a>
+					   {% endif %}
+					  </div>
+			<!--<div class="pull-right">
+			  {% if app.user %}
+				<div class="pull-right welcomeName">
+				  <b>Welcome {{ app.user.username}}</b>
+				</div>
+			  {% endif %}
+			</div>-->
+			{% if app.request.attributes.get('_route') != 'dhi_tvod_purchaseverification' %}
+			  <div class="mainNav">
+					<a href="javascript:void(0)" class="mobileMenu"><i class="fa fa-navicon"></i></a>
+					<nav>
+					  <ul>
+						{% if app.request.attributes.get('_route') == 'dhi_user_homepage' %}
+						  <li><a href="{{path('dhi_user_homepage')}}" class="scrollMenu {{ app.request.attributes.get('_route') == 'dhi_user_homepage' ? ' active' : ''}}">Home <i class="menuHover"></i></a></li>
+						  {#<li><a href="#aboutusMenu" class="scrollMenu">About <i class="menuHover"></i></a></li>
+						  <li><a href="#servicesMenu" class="scrollMenu">Services <i class="menuHover"></i></a></li>#}
+							  {#                                            <li><a href="#contactMenu" class="scrollMenu">Support <i class="menuHover"></i></a></li>#}
+						  <li><a href="{{ url('dhi_user_support') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_support' ? ' active' : ''}}">Support <i class="menuHover"></i></a></li>
+							{% else %}
+
+						  {% if filter is null %}
+							<li><a href="{{path('dhi_user_homepage')}}">Home<i class="menuHover"></i></a></li>
+						  {%endif%}
+						  <li><a href="{{ url('dhi_user_support') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_support' ? ' active' : ''}}">Support <i class="menuHover"></i></a></li>
+							{% endif %}
+
+						{% if app.user %}
+						  <li><a href="{{ url('dhi_user_account') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_account' ? ' active' : ''}}">Account <i class="menuHover"></i></a></li>
+						  <li><a href="{{ url('dhi_user_profile') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_profile' ? ' active' : ''}}">Profile <i class="menuHover"></i></a></li>
+
+						  <li><a href="{{ url('dhi_purchase_history') }}" class="{{ app.request.attributes.get('_route') == 'dhi_purchase_history' ? ' active' : ''}}">Purchase History<i class="menuHover"></i></a></li>
+						  {#<li><a href="javascript:void(0)" data-toggle="modal" data-target="#contact">Contact</a></li>
+																										 <li><a href="javascript:void(0)" data-toggle="modal" data-target="#privacyPolicy">Privacy Policy</a></li>
+																									   <li> <a href="javascript:void(0)" data-toggle="modal" data-target="#refundPolicy">Refund Policy</a></li>
+                                                    																			   <li>  <a href="javascript:void(0)" data-toggle="modal" data-target="#shipping">Shipping & Delivery</a></li> #}
+                                                  {% if app.session.has('isActiveReferModule') and app.session.get('isActiveReferModule') == 1 %}
+                                                        <li><a href="{{ url('dhi_user_refer_friends') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_refer_friends' ? ' active' : ''}}">Refer Friend<i class="menuHover"></i></a></li>
+                                                  {% endif %}
+                                                  {# <li><a href="https://{{brandDomain}}/" class="" target="_blank">Watch Online<i class="menuHover"></i></a></li> #}
+						  <li><a href="{{ url('fos_user_security_logout') }}">Logout <i class="menuHover"></i></a></li>
+						{% else %}
+
+						  {% if filter is null %}
+							<li><a href="{{ url('fos_user_security_login') }}" class="{{ app.request.attributes.get('_route') == 'fos_user_security_login' ? ' active' : ''}}">Sign in <i class="menuHover"></i></a></li>
+						  {% elseif (filter == 'bv') %}
+							<li><a href="{{ url('dhi_login') }}" class="{{ app.request.attributes.get('_route') == 'dhi_login' ? ' active' : ''}}">Sign in <i class="menuHover"></i></a></li>
+						  {% elseif (filter == 'netgate') %}
+							<li><a href="{{ url('dhi_login_netgate') }}" class="{{ app.request.attributes.get('_route') == 'dhi_login_netgate' ? ' active' : ''}}">Sign in <i class="menuHover"></i></a></li>
+						  {% endif %}
+
+						  {% if filter is null %}
+							<li><a href="{{ url('fos_user_registration_register') }}" class="{{ app.request.attributes.get('_route') == 'fos_user_registration_register' ? ' active' : ''}}">Sign up <i class="menuHover"></i></a></li>
+						  {% elseif (filter == 'bv') %}
+							<li><a href="{{ url('dhi_signup') }}" class="{{ app.request.attributes.get('_route') == 'dhi_signup' ? ' active' : ''}}">Sign up <i class="menuHover"></i></a></li>
+						  {% elseif (filter == 'netgate') %}
+							<li><a href="{{ url('dhi_signup_netgate') }}" class="{{ app.request.attributes.get('_route') == 'dhi_signup_netgate' ? ' active' : ''}}">Sign up <i class="menuHover"></i></a></li>
+						  {% endif %}
+																										{#<li><a href="javascript:void(0)" data-toggle="modal" data-target="#contact">Contact</a></li>
+																										 <li><a href="javascript:void(0)" data-toggle="modal" data-target="#privacyPolicy">Privacy Policy</a></li>
+																									   <li> <a href="javascript:void(0)" data-toggle="modal" data-target="#refundPolicy">Refund Policy</a></li>
+																									   <li>  <a href="javascript:void(0)" data-toggle="modal" data-target="#shipping">Shipping & Delivery</a></li> #}
+						  {# <li><a href="https://{{brandDomain}}/" class="" target="_blank">Watch Online<i class="menuHover"></i></a></li> #}
+						{% endif %}
+					  </ul>
+					</nav>
+			  </div>
+			{% endif %}
+		  </div>
+		</div>
+	  </header>
+	  {% else %}
+
+	  <header class="headerMain">
+		<div class="container-fluid">
+		  <div class="row">
+			{% if brandHeaderLogo %}
+			  <div class="pull-left logo"><a href="{{ url('dhi_user_homepage') }}"><img src="{{ asset('uploads/whitelabel/headerlogo/'~brandHeaderLogo) }}" width="" height=""></a></div>
+			{% endif %}
+
+			{% if app.request.attributes.get('_route') == 'dhi_login' or app.request.attributes.get('_route') == 'dhi_signup' %}
+			  <div class="pull-left logo"><a href="{{ url('dhi_user_homepage') }}"><img src="{{ asset('bundles/dhiuser/images/dhilogonew.jpg') }}" ></a></div>
+						{% elseif app.request.attributes.get('_route') == 'dhi_login_netgate' or app.request.attributes.get('_route') == 'dhi_signup_netgate' %}
+			  <div class="pull-left logo"><a href="{{ url('dhi_user_homepage') }}"><img src="{{ asset('bundles/dhiuser/images/dhilogonewnetgate.png') }}" ></a></div>
+			{% endif %}
+
+			<div class="mainNav">
+			  <a href="javascript:void(0)" class="mobileMenu"><i class="fa fa-navicon"></i></a>
+			  <nav>
+					<ul>
+
+						<li><a href="{{path('dhi_user_homepage')}}" class="scrollMenu">Home <i class="menuHover"></i></a></li>
+						{#<li><a href="#aboutusMenu" class="scrollMenu">About <i class="menuHover"></i></a></li>
+						<li><a href="#servicesMenu" class="scrollMenu">Services <i class="menuHover"></i></a></li>#}
+							{#                                            <li><a href="#contactMenu" class="scrollMenu">Support <i class="menuHover"></i></a></li>#}
+						<li><a href="{{ url('dhi_user_support') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_support' ? ' active' : ''}}">Support <i class="menuHover"></i></a></li>
+
+					  {% if app.user %}
+						<li><a href="{{ url('dhi_user_account') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_account' ? ' active' : ''}}">Account <i class="menuHover"></i></a></li>
+						<li><a href="{{ url('dhi_user_profile') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_profile' ? ' active' : ''}}">Profile <i class="menuHover"></i></a></li>
+
+						<li><a href="{{ url('dhi_purchase_history') }}" class="{{ app.request.attributes.get('_route') == 'dhi_purchase_history' ? ' active' : ''}}">Purchase History<i class="menuHover"></i></a></li>
+																							   {# <li><a href="javascript:void(0)" data-toggle="modal" data-target="#contact">Contact</a></li>
+																										 <li><a href="javascript:void(0)" data-toggle="modal" data-target="#privacyPolicy">Privacy Policy</a></li>
+																									   <li> <a href="javascript:void(0)" data-toggle="modal" data-target="#refundPolicy">Refund Policy</a></li>
+																									   <li>  <a href="javascript:void(0)" data-toggle="modal" data-target="#shipping">Shipping & Delivery</a></li> #}
+						{# <li><a href="https://{{brandDomain}}/" class="" target="_blank">Watch Online<i class="menuHover"></i></a></li> #}
+						<li><a href="{{ url('fos_user_security_logout') }}">Logout <i class="menuHover"></i></a></li>
+					  {% else %}
+
+						{% if affiliate is not defined %}
+						  <li><a href="{{ url('fos_user_security_login') }}" class="{{ app.request.attributes.get('_route') == 'fos_user_security_login' ? ' active' : ''}}">Sign in <i class="menuHover"></i></a></li>
+												{% elseif affiliate == 'bv' %}
+						  <li><a href="{{ url('dhi_login') }}" class="{{ app.request.attributes.get('_route') == 'dhi_login' ? ' active' : ''}}">Sign in <i class="menuHover"></i></a></li>
+												{% elseif affiliate == 'netgate' %}
+						  <li><a href="{{ url('dhi_login_netgate') }}" class="{{ app.request.attributes.get('_route') == 'dhi_login_netgate' ? ' active' : ''}}">Sign in <i class="menuHover"></i></a></li>
+						{% endif %}
+						{% if affiliate is not defined %}
+						  <li><a href="{{ url('fos_user_registration_register') }}" class="{{ app.request.attributes.get('_route') == 'fos_user_registration_register' ? ' active' : ''}}">Sign up <i class="menuHover"></i></a></li>
+						{% elseif affiliate == 'bv' %}
+						  <li><a href="{{ url('dhi_signup') }}" class="{{ app.request.attributes.get('_route') == 'dhi_signup' ? ' active' : ''}}">Sign up <i class="menuHover"></i></a></li>
+												{% elseif affiliate == 'netgate' %}
+						  <li><a href="{{ url('dhi_signup_netgate') }}" class="{{ app.request.attributes.get('_route') == 'dhi_signup_netgate' ? ' active' : ''}}">Sign up <i class="menuHover"></i></a></li>
+						{% endif %}
+																							   {# <li><a href="javascript:void(0)" data-toggle="modal" data-target="#contact">Contact</a></li>
+																										 <li><a href="javascript:void(0)" data-toggle="modal" data-target="#privacyPolicy">Privacy Policy</a></li>
+																									   <li> <a href="javascript:void(0)" data-toggle="modal" data-target="#refundPolicy">Refund Policy</a></li>
+																									   <li>  <a href="javascript:void(0)" data-toggle="modal" data-target="#shipping">Shipping & Delivery</a></li> #}
+						{# <li><a href="https://{{brandDomain}}/" class="" target="_blank">Watch Online<i class="menuHover"></i></a></li> #}
+					  {% endif %}
+					</ul>
+				  </nav>
+			</div>
+
+		  </div>
+		</div>
+	  </header>
+
+	   {%endif%}
+	{% endblock header %}
+
+	{% block body %}
+
+	{% endblock %}
+
+	{% if app.request.attributes.get('_route') != 'dhi_tvod_purchaseverification' %}
+	  {% block footer %}
+	  {% if filter is null or (app.request.attributes.get('_route') != 'dhi_login' and app.request.attributes.get('_route') != 'dhi_signup' and app.request.attributes.get('_route') != 'dhi_login_netgate' and app.request.attributes.get('_route') != 'dhi_signup_netgate' ) %}
+	  <footer id="stickyShopping">
+		<div class="container-fluid">
+		  <div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 ">
+
+				 <div class="xuve_logo">
+				<figure>
+																	{% if brandFooterLogo %}
+																		 <img src="{{ asset('uploads/whitelabel/footerlogo/'~brandFooterLogo) }}">
+																	{% endif %}
+				</figure>
+																</div>
+
+			<div class="xuveFindOut">
+			  <h4>FIND OUT MORE</h4>
+			  <div class="footer_menu">
+				<div class="row">
+				  <div class="col-xs-12 col-sm-4 col-md-3">
+					<a href="{{ url('dhi_user_homepage') }}">Home</a>
+					{#<a href="{{ url('dhi_user_about') }}">About</a>#}
+					<a href="{{ url('dhi_user_faq') }}">FAQ</a>
+										<a href="javascript:void(0)" data-toggle="modal" data-target="#contact">Contact</a>
+										{% if not app.user %}
+					  {% if filter is null %}
+						<a href="{{ url('fos_user_security_login') }}" class="{{ app.request.attributes.get('_route') == 'fos_user_security_login' ? ' active' : ''}}">Sign In </a>
+											{% elseif filter == 'bv' %}
+						<a href="{{ url('dhi_login') }}" class="{{ app.request.attributes.get('_route') == 'dhi_login' ? ' active' : ''}}">Sign In </a>
+											{% elseif filter == 'netgate' %}
+						<a href="{{ url('dhi_login_netgate') }}" class="{{ app.request.attributes.get('_route') == 'dhi_login_netgate' ? ' active' : ''}}">Sign In </a>
+					  {% endif %}
+
+					  {% if filter is null %}
+						<a href="{{ url('fos_user_registration_register') }}" class="{{ app.request.attributes.get('_route') == 'fos_user_registration_register' ? ' active' : ''}}">Sign Up </a>
+											   {% elseif filter == 'bv' %}
+						<a href="{{ url('dhi_signup') }}" class="{{ app.request.attributes.get('_route') == 'dhi_signup' ? ' active' : ''}}">Sign Up </a>
+											{% elseif filter == 'netgate' %}
+						<a href="{{ url('dhi_signup_netgate') }}" class="{{ app.request.attributes.get('_route') == 'dhi_signup_netgate' ? ' active' : ''}}">Sign Up </a>
+					  {% endif %}
+  {#                      <a href="{{ url('fos_user_security_login') }}">Sign In</a>#}
+  {#                      <a href="{{ url('fos_user_registration_register') }}">Sign Up</a>#}
+					{% endif %}
+
+				  </div>
+				  <div class="col-xs-12 col-sm-8 col-md-8">
+																				 <a href="{{ url('dhi_user_support') }}">Support</a>
+
+																				<a href="javascript:void(0)" data-toggle="modal" data-target="#refundPolicy">Refund Policy</a>
+																				 <a href="javascript:void(0)" data-toggle="modal" data-target="#privacyPolicy">Privacy Policy</a>
+					 <a href="javascript:void(0)" data-toggle="modal" data-target="#shipping">Shipping & Delivery </a>
+					<a href="javascript:void(0)" data-toggle="modal" data-target="#termCondition">Terms & Conditions</a>
+					<a href="{{ url('dhi_user_landing_page',{'location' : 'home'}) }}">Global Home</a>
+																				{{ render(controller('DhiUserBundle:Homepage:setTopupLink')) }}
+				  </div>
+				</div>
+
+			</div>
+
+
+
+			<!--div class="col-xs-12 col-sm-4 col-md-4 connectWithUs">
+			</div-->
+		  </div>
+		</div>
+	  </footer>
+																		<section class="bottomFooter">
+																			<div class="container-fluid">
+		  <div class="row">
+																<div class="col-md-12 col-xs-12  text-left">
+				  <p>&copy; {{ "now"|date("Y") }}. {{ brandName }}. All rights reserved.</p>
+				</div>
+										</div></div></section>
+	   {% else %}
+
+	  {% if app.request.attributes.get('_route') == 'dhi_login' or app.request.attributes.get('_route') == 'dhi_signup' or app.request.attributes.get('_route') == 'dhi_login_netgate' or app.request.attributes.get('_route') == 'dhi_signup_netgate' %}
+		{% set clsFooter3rdparty = "grayFooter" %}
+	  {% else %}
+		{% set clsFooter3rdparty = "" %}
+	  {% endif %}
+
+	  <footer class="footer3rdparty {{ clsFooter3rdparty }}">
+		<div class="container-fluid">
+		  <div class="row">
+			<div class="col-xs-12 col-sm-8 col-md-6 xuveSection">
+			  <div class="row">
+							  <div class="col-xs-12 col-sm-6 col-md-6"><div class="footerGreyLogo"></div></div>
+			  <div class="col-xs-12 col-sm-6 col-md-6">
+							<h4>FIND OUT MORE</h4>
+			  <div class="footer_menu">
+				<div class="row">
+				  <div class="col-xs-12 col-sm-4 col-md-4">
+					<ul>
+					<li><a href="{{ url('dhi_user_homepage') }}">Home</a></li>
+					{#<li><a href="{{ url('dhi_user_about') }}">About</a></li>#}
+					<li><a href="{{ url('dhi_user_faq') }}">FAQ</a></li>
+					<li><a href="{{ url('dhi_user_support') }}">Support</a></li>
+					{% if not app.user %}
+					  {% if filter is null %}
+						<li><a href="{{ url('fos_user_security_login') }}" class="{{ app.request.attributes.get('_route') == 'fos_user_security_login' ? ' active' : ''}}">Sign In </a></li>
+						{% elseif affiliate == 'bv' %}
+						<li><a href="{{ url('dhi_login') }}" class="{{ app.request.attributes.get('_route') == 'dhi_login' ? ' active' : ''}}">Sign In <i class="menuHover"></i></a></li>
+											{% elseif affiliate == 'netgate' %}
+												<li><a href="{{ url('dhi_login_netgate') }}" class="{{ app.request.attributes.get('_route') == 'dhi_login_netgate' ? ' active' : ''}}">Sign In <i class="menuHover"></i></a></li>
+					  {% endif %}
+
+											{#{% else %}
+						<li><a href="{{ url('dhi_login') }}" class="{{ app.request.attributes.get('_route') == 'dhi_login' ? ' active' : ''}}">Sign In </a></li>
+					  {% endif %}#}
+					  {% if filter is null %}
+						<li><a href="{{ url('fos_user_registration_register') }}" class="{{ app.request.attributes.get('_route') == 'fos_user_registration_register' ? ' active' : ''}}">Sign Up </a></li>
+						{% elseif affiliate == 'bv' %}
+						<li><a href="{{ url('dhi_signup') }}" class="{{ app.request.attributes.get('_route') == 'dhi_signup' ? ' active' : ''}}">Sign Up <i class="menuHover"></i></a></li>
+											{% elseif affiliate == 'netgate' %}
+												<li><a href="{{ url('dhi_signup_netgate') }}" class="{{ app.request.attributes.get('_route') == 'dhi_signup_netgate' ? ' active' : ''}}">Sign Up <i class="menuHover"></i></a></li>
+					  {% endif %}
+					{% endif %}
+					</ul>
+				  </div>
+				  <div class="col-xs-12 col-sm-8 col-md-8">
+					<ul>
+					  <li><a href="javascript:void(0)" data-toggle="modal" data-target="#refundPolicy">Refund Policy</a></li>
+					  <li><a href="javascript:void(0)" data-toggle="modal" data-target="#privacyPolicy">Privacy Policy</a></li>
+					  <li><a href="javascript:void(0)" data-toggle="modal" data-target="#shipping">Shipping & Delivery </a></li>
+					  <li><a href="javascript:void(0)" data-toggle="modal" data-target="#termCondition">Terms & Conditions</a></li>
+					  <li><a href="{{ url('dhi_user_landing_page',{'location' : 'home'}) }}">Global Home</a></li>
+					</ul>
+				  </div>
+				</div>
+			  </div>
+														</div></div></div>
+				  <div class="col-xs-12 col-sm-4 col-md-6 dhiSection">
+			  {% if app.request.attributes.get('_route') == 'dhi_login' or app.request.attributes.get('_route') == 'dhi_signup'  %}
+				<div class="footerGreyLogo"></div>
+							{% elseif app.request.attributes.get('_route') == 'dhi_login_netgate' or app.request.attributes.get('_route') == 'dhi_signup_netgate'  %}
+				<div class="footerGreyLogoNetgate"></div>
+			  {% endif %}
+
+  {#              <h4>FIND OUT MORE</h4>#}
+			  <div class="footer_menu">
+				<ul>
+				  {#<li><a href="{{ url('dhi_user_homepage') }}">Home</a></li>
+				  <li><a href="{{ url('dhi_user_about') }}">About</a></li>
+				  <li><a href="{{ url('dhi_user_faq') }}">FAQ</a></li>
+				  <li><a href="{{ url('dhi_user_support') }}">Support</a></li>
+				  <li><a href="javascript:void(0)" data-toggle="modal" data-target="#termCondition">Terms & Conditions</a></li>
+				  {% if not app.user %}
+					<li><a href="{{ url('fos_user_security_login') }}">Sign In</a></li>
+					<li><a href="{{ url('fos_user_registration_register') }}">Sign Up</a></li>
+				  {% endif %}#}
+				</ul>
+			  </div>
+			</div>
+		  </div>
+		</div>
+	  </footer>
+				{% if app.request.attributes.get('_route') == 'dhi_login' or app.request.attributes.get('_route') == 'dhi_signup' or app.request.attributes.get('_route') == 'dhi_login_netgate' or app.request.attributes.get('_route') == 'dhi_signup_netgate' %}
+		<div class="footerCopyright">
+		  <div class="container-fluid">
+			<div class="row">
+			  <div class="col-xs-12 col-sm-6 col-md-6">&copy; {{ "now"|date("Y") }} ExchangeVUE. All rights reserved.</div>
+			  <div class="col-xs-12 col-sm-6 col-md-6">&copy; {{ "now"|date("Y") }} DHI Telecom Group. All rights reserved.</div>
+			</div>
+		  </div>
+		</div>
+	   {% endif %}
+	   {% endif %}
+
+	  <!-- Modal -->
+	  <div class="modal fade" id="termCondition" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+												<h4 class="modal-title" id="myModalLabel">{{ brandName }} Terms &amp; Conditions</h4>
+											</div>
+											<div class="modal-body">
+												{% include 'DhiUserBundle:Homepage:terms.html.twig' with {'companyName': brandName, 'brandDomain': brandDomain } %}
+											</div>
+		  </div>
+		</div>
+	  </div>
+						<div class="modal fade" id="contact" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			  <h4 class="modal-title" id="myModalLabel">Contact</h4>
+			</div>
+			<div class="modal-body">
+													{% include 'DhiUserBundle:Homepage:contact.html.twig' %}
+			</div>
+		  </div>
+		</div>
+	  </div>
+						<div class="modal fade" id="refundPolicy" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			  <h4 class="modal-title" id="myModalLabel">Refund Policy</h4>
+			</div>
+			<div class="modal-body">
+													{% include 'DhiUserBundle:Homepage:refundPolicy.html.twig' with {'companyName': brandName, 'brandDomain' : brandDomain } %}
+			</div>
+		  </div>
+		</div>
+						</div>
+						<div class="modal fade" id="privacyPolicy" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			  <h4 class="modal-title" id="myModalLabel">Privacy  Policy</h4>
+			</div>
+			<div class="modal-body">
+													{% include 'DhiUserBundle:Homepage:privacyPolicy.html.twig' with {'companyName': brandName } %}
+			</div>
+		  </div>
+		</div>
+	  </div>
+						<div class="modal fade" id="shipping" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			  <h4 class="modal-title" id="myModalLabel">Shipping &amp; Delivery Policy</h4>
+			</div>
+			<div class="modal-body">
+													{% include 'DhiUserBundle:Homepage:shipping.html.twig' with {'companyName': brandName } %}
+			</div>
+		  </div>
+		</div>
+	  </div>
+	  {% endblock footer %}
+	{% endif %}
+	{% block javascripts %}
+	  {% javascripts '@jquery_and_ui' output='bundles/dhiuser/js/combine.js' %}
+	  <script src="{{ asset_url }}"></script>
+	  <script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+		ga('create', '{{google_analytic}}', 'auto');
+		ga('send', 'pageview');
+	  </script>
+	  {% endjavascripts %}
+	{% endblock %}
+  </body>
+</html>

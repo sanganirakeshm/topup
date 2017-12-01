@@ -1,0 +1,105 @@
+{% if type == 'details' %}
+	{% for detail in summary %}
+		{% set totalRedeem = 0 %}
+		{% set totalCValue = 0 %}
+		{% set totalPValue = 0 %}
+		<table class="table table-bordered table-hover">
+			<tr><th colspan="2">Service Location</th></tr>
+			<tr><td>{{ detail.serviceLocation }}</td>
+			<td>
+				<table class="table table-bordered table-hover">
+					<tr>
+						<th>Service Type</th>
+						<th>Details</th>
+					</tr>
+					{% for purchaseType in detail.purchaseTypes %}
+						<tr>
+							<td width="150">{{ purchaseType.label }}</td>
+							<td>
+								<table class="table table-bordered table-hover">
+									<tr>
+										<th>Package Name</th>
+										<th>Total Customer Value ($)</th>
+										<th>Total Partner Value ($)</th>
+										<th>{{ purchaseType.transactionTitle }}</th>
+									</tr>
+									{% set partnerTotalRedeem = 0 %}
+									{% set partnerTotalCValue = 0 %}
+									{% set partnerTotalPValue = 0 %}
+									{% for package in purchaseType.packages %}
+										<tr>
+											<td>{{ package.packageName }}</td>
+											<td>{{ package.totalCustomerValue }}</td>
+											<td>{{ package.totalPartnerValue }}</td>
+											<td>{{ package.totalRedeemed }}</td>
+										</tr>
+										{% set partnerTotalRedeem = partnerTotalRedeem + package.totalRedeemed %}
+										{% set partnerTotalCValue = partnerTotalCValue + package.totalCustomerValue %}
+										{% set partnerTotalPValue = partnerTotalPValue + package.totalPartnerValue %}
+									{% endfor %}
+									<tr>
+										<td>Total</td>
+										<th>{{ partnerTotalCValue }}</th>
+										<th>{{ partnerTotalPValue }}</th>
+										<th>{{ partnerTotalRedeem }}</th>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						{% set totalRedeem = totalRedeem + partnerTotalRedeem %}
+						{% set totalCValue = totalCValue + partnerTotalCValue %}
+						{% set totalPValue = totalPValue + partnerTotalPValue %}
+					{% endfor %}
+					<tr>
+						<th>Total</th>
+						<td>
+							<table class="table table-bordered table-hover">
+								<tr>
+									<th>Total Customer Value ($)</th>
+									<th>Total Partner Value ($)</th>
+									<th>Total No. of Purchases</th>
+								</tr>
+								<tr>
+									<td>{{ totalCValue }}</td>
+									<td>{{ totalPValue }}</td>
+									<td>{{ totalRedeem }}</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</table>
+	{% endfor %}
+{% else %}
+	<table class="table table-bordered table-hover">
+		{% set totalRedeem = 0 %}
+		{% set totalCValue = 0 %}
+		{% set totalPValue = 0 %}
+		{% for detail in summary %}
+			{% for purchaseType in detail.purchaseTypes %}
+				{% set partnerTotalRedeem = 0 %}
+				{% set partnerTotalCValue = 0 %}
+				{% set partnerTotalPValue = 0 %}
+				{% for package in purchaseType.packages %}
+					{% set partnerTotalRedeem = partnerTotalRedeem + package.totalRedeemed %}
+					{% set partnerTotalCValue = partnerTotalCValue + package.totalCustomerValue %}
+					{% set partnerTotalPValue = partnerTotalPValue + package.totalPartnerValue %}
+				{% endfor %}
+				{% set totalRedeem = totalRedeem + partnerTotalRedeem %}
+				{% set totalCValue = totalCValue + partnerTotalCValue %}
+				{% set totalPValue = totalPValue + partnerTotalPValue %}
+			{% endfor %}
+		{% endfor %}
+		<tr>
+			<th>Total Customer Value ($)</th>
+			<th>Total Partner Value ($)</th>
+			<th>Total No. of Purchases</th>
+		</tr>
+		<tr>
+			<td>{{ totalCValue }}</td>
+			<td>{{ totalPValue }}</td>
+			<td>{{ totalRedeem }}</td>
+		</tr>					
+	</table>
+{% endif %}

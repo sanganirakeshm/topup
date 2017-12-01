@@ -1,0 +1,9 @@
+{% block captcha_widget %}
+{% spaceless %}
+    <ul class="captcha"><li><div class="captcha-img"><img src="{{ captcha_code }}" alt="" title="captcha" width="{{ captcha_width }}" height="{{ captcha_height }}" /></div></li>
+<li>
+    {{ form_widget(form, {'attr': { 'autocapitalize': 'off','autocorrect': 'off', 'class': 'pull-right form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Type characters in the image' }}) }}
+</li></ul>
+
+{% endspaceless %}
+{% endblock %}

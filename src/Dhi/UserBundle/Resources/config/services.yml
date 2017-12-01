@@ -1,0 +1,97 @@
+parameters:
+#    dhi_user.example.class: Dhi\UserBundle\Example
+
+services:
+    dhi_user.registration.form.type:
+        class: Dhi\UserBundle\Form\Type\RegistrationFormType
+        arguments: [%fos_user.model.user.class%, '@service_container']
+        tags:
+            - { name: form.type, alias: dhi_user_registration }
+
+    login_listener:
+            class: Dhi\UserBundle\EventListener\LoginListener
+            arguments: ['@router', '@security.context', '@doctrine', '@session', '@service_container']
+            tags:
+                - { name: 'kernel.event_listener', event: 'security.interactive_login' }
+
+    login_user_success_handler:
+        class:  'Dhi\UserBundle\EventListener\LoginSuccessHandler'
+        arguments:  [@router, @security.context, @session, @doctrine, '@service_container']
+        tags:
+            - { name: 'monolog.logger', channel: 'security' }
+                
+    logout_listener:
+            class: Dhi\UserBundle\EventListener\LogoutListener
+            arguments: ['@router', '@security.context', '@doctrine', '@session']
+            tags:
+                - { name: 'kernel.event_listener', event: 'security.interactive_logout' }
+                
+    GeoLocation:
+        class: Dhi\UserBundle\Controller\GeoLocationController
+        arguments: 
+            container: "@service_container"
+            
+    BundleDiscount:
+        class: Dhi\UserBundle\Controller\BundleDiscountController
+        arguments: 
+            container: "@service_container"                
+    
+    DeersAuthentication:
+        class: Dhi\UserBundle\Controller\DeersAuthenticationController
+        arguments: 
+            container: "@service_container"
+    
+    UserLocationWiseService:
+        class: Dhi\UserBundle\Controller\UserLocationWiseServiceController
+        arguments: 
+            container: "@service_container"
+    
+    DashboardSummary:
+        class: Dhi\UserBundle\Controller\DashboardSummaryController
+        arguments: 
+            container: "@service_container"
+
+    PromoCodeService:
+        class: Dhi\UserBundle\Controller\PromoCodeServiceController
+        arguments:
+            container: "@service_container"
+                            
+    UserWiseService:
+        class: Dhi\UserBundle\Controller\UserWiseServiceController
+        arguments: 
+            container: "@service_container"
+
+    ActivityLog:
+        class: Dhi\UserBundle\Controller\ActivityLogServiceController
+        arguments: 
+            container: "@service_container"
+            
+    optimizeLogger:
+        class:     Symfony\Bridge\Monolog\Logger
+        arguments: [pushHandler, [@optimizeLogHandler]]
+
+    optimizeLogHandler:
+        class:     Monolog\Handler\StreamHandler
+        arguments: [%kernel.logs_dir%/%kernel.environment%.optimization.log, 200]
+        
+    SelevisionPackage:
+        class: Dhi\UserBundle\Controller\SelevisionPackageController
+        arguments: 
+            container: "@service_container"
+    
+    Solarwinds:
+        class: Dhi\UserBundle\Controller\SolarWindsController
+        arguments: 
+            container: "@service_container"
+    
+    maintenance_mode_handler:
+        class: Dhi\UserBundle\EventListener\MaintenanceModeHandler
+        arguments: [@doctrine, @router, @service_container]
+        tags:
+            - {name: kernel.event_listener, event: kernel.request, method: onCheckMaintenance} 
+
+    fos_user.listener.email_confirmation:
+        class:        Dhi\UserBundle\EventListener\EmailConfirmationListener
+        arguments:    ["@fos_user.mailer", "@fos_user.util.token_generator", "@router", "@session", "@service_container"]
+        tags:
+            - { name: kernel.event_subscriber }

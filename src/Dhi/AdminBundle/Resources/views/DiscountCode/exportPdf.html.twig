@@ -1,0 +1,47 @@
+{% block body %}
+	<h1>Discount Code</h1>
+
+	<table cellspacing="0" cellpadding="5" border="1" class="sales_report_table" style="margin-top:50px;">
+		<tr class="head">
+                    <th>Service Location</th>
+                    <th>Discount Code</th>
+                    <th>Percentage/Amount</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Created By</th>
+                    <th>Note</th>
+                    <th>Status</th>
+		</tr>
+		{% set i = 0 %}
+                {% set count = 0 %}
+	    {% if (discountData | length) %}
+            {% for record in discountData %}
+
+            	{% set trcls = 'oddrow' %}
+            	{% if i % 2 != 0 %}
+            		{% set trcls = 'evenrow' %}
+            	{% endif %}
+                <tr class="{{ trcls }}">
+                    <td>{{ serviceLocation[count] }}</td>
+                    <td>{{ record.discountCode }}</td>
+                    {% if record.amountType == 'percentage' or record.amountType == null  %}
+                        <td>{{ record.amount}}%</td>
+            		{% elseif record.amountType == 'amount' %}
+                        <td>${{ record.amount}}</td>
+                    
+                    {% endif %}
+                    
+                    <td>{{ record.startDate|date('M-d-Y') }}</td>
+                    <td>{{ record.endDate|date('M-d-Y') }}</td>
+                    <td>{{ record.createdBy }}</td>
+                    <td>{{ record.note }}</td>
+                    <td>{% if record.status == 1 %}active{% else %}Inactive{% endif %}</td>
+                </tr>
+                {% set count = count+1 %}
+                {% set i = i+1 %}
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="9" align="center">No records found.</td></tr>
+        {% endif %}
+	</table>
+{% endblock body %}

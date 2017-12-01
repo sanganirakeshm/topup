@@ -1,0 +1,743 @@
+{% block body %}
+
+    {% set isISPAvailable  = 0 %}
+    {% set isIPTVAvailable = 0 %}
+    {% set isIPTVExtendPlan = 0 %}
+    {% set isISPExtendPlan = 0 %}
+    {% set isBundleExtendPlan = 0 %}
+
+
+    {% set isAddonIPTVExtendPlan = 0 %}
+
+
+    {% if summaryData.AvailableServicesOnLocation|length > 0 %}
+
+        {% if 'ISP' in summaryData.AvailableServicesOnLocation %}
+
+            {% set isISPAvailable  = 1 %}
+        {% endif %}
+
+        {% if 'BUNDLE' in summaryData.AvailableServicesOnLocation %}
+
+            {% set isBUNDLEAvailable  = 1 %}
+        {% endif %}
+
+        {% if 'IPTV' in summaryData.AvailableServicesOnLocation %}
+
+            {% set isIPTVAvailable  = 1 %}
+        {% endif %}
+
+        {% if summaryData.IPTVExtendPlan == true %}
+
+            {% set isIPTVExtendPlan = 1 %}
+
+        {% endif %}
+
+        {% if summaryData.IPTVAddOnExtendPlan == true %}
+
+            {% set isAddonIPTVExtendPlan = 1 %}
+
+        {% endif %}
+
+	{% if summaryData.ISPExtendPlan == true and summaryData.IsBundleAvailabledInCart == 0 and summaryData.IsBundleAvailabledInPurchased == 0 %}
+
+            {% set isISPExtendPlan = 1 %}
+
+        {% endif %}
+
+        {% if summaryData.BundleExtendPlan == true %}
+
+            {% set isBundleExtendPlan = 1 %}
+
+        {% endif %}
+
+
+
+    {% endif %}
+    <div class="tab-content">
+        <div class="tab-pane fade in active" style="overflow-x: auto;">
+            <form id="frmplan" method="POST" action="{{ path('dhi_admin_user_addto_cart') }}" name="planfrm">	
+                <input type="hidden" name="userId" value="{{ userId }}">
+                <input type="hidden" name="service" value="{{ service }}">
+
+                {% if isError == false %}
+
+
+                    {% if service == 'ISP' %}
+                        {% if  promotionalpackages| length > 0 and 'ISP' in  promotionalpackages|keys%}
+                            <h4>Promotional Plan</h4>
+                            <table class="table table-bordered table-hover">
+                               <tbody> 
+                                 {% if promotionalpackages|length > 0 and 'ISP' in promotionalpackages|keys %}
+                                  <tr>
+                                    <td nowrap="nowrap"><b>Plan Name</b></td>
+                                    <td nowrap="nowrap"><b>Price ISP</b></td>
+                                    <td nowrap="nowrap">&nbsp;</td>													
+                                  </tr>
+                                {% for promotionalplanISP in promotionalpackages['ISP'] %}
+
+                                            {% set ispChecked = '' %}
+                                            {% if summaryData.IsISPAvailabledInCart == 1 %}
+
+                                                {% if promotionalplanISP['packageId'] in summaryData.CartISPPackageId %}
+
+                                                    {% set ispChecked = 'checked="checked"' %}
+                                                {% endif %}
+                                            {% endif %}
+
+                                            {% set ISPPlanHover = '' %}
+                                            {% if promotionalplanISP['validity'] < 30 and summaryData.IsIPTVAvailabledInCart == 1 %}
+
+                                                {% set ISPPlanHover = 'onclick=displayNotification("ISP")' %}
+                                            {% endif %}
+
+                                            <tr>
+                                                <td nowrap="nowrap">
+                                                    {{ promotionalplanISP['packageName'] }} ({{ promotionalplanISP['description'] }} )
+                                                </td>
+                                                <td nowrap="nowrap">${{ promotionalplanISP['packagePrice'] ? promotionalplanISP['packagePrice'] : '0' }}</td>
+                                                <td nowrap="nowrap">
+                                                    <input type="radio" id="packageId{{ promotionalplanISP['packageId']}}" name="packageId" value="{{ promotionalplanISP['packageId']}}" {{ ispChecked }} {{ ISPPlanHover }} />
+                                                    <input type="hidden" name="packageName[{{ promotionalplanISP['packageId'] }}]" id="pname" value="{{ promotionalplanISP['packageName'] }}">
+                                                    <input type="hidden" name="bandwidth[{{ promotionalplanISP['packageId'] }}]" id="pbandwidth" value="{{ promotionalplanISP['bandwidth'] }}">
+                                                    <input type="hidden" name="validity[{{ promotionalplanISP['packageId'] }}]" id="pvalidity" value="{{ promotionalplanISP['validity'] }}">
+
+                                                    <input type="hidden" name="price[{{ promotionalplanISP['packageId'] }}]" id="money" value="{{ promotionalplanISP['packagePrice'] ? promotionalplanISP['packagePrice'] : '0' }}">										
+                                                </td>									
+                                            </tr>
+                                        {% endfor %}	
+
+                                     {% else %}
+                                         <tr>
+                                            <td>Package not avilable</td>
+                                        </tr>
+                                     {% endif %}
+                               </tbody>      
+                            </table>
+                        {% endif %}
+                        <h4>Regular Plan</h4>
+                        <table class="table table-bordered table-hover">			        
+                            <tbody>
+                                {% if packages|length > 0 and 'ISP' in packages|keys %}
+                                    <tr>
+                                        <td nowrap="nowrap"><b>Plan Name</b></td>
+                                        <td nowrap="nowrap"><b>Price ISP</b></td>
+                                        <td nowrap="nowrap">&nbsp;</td>													
+                                    </tr>
+                                    {% for planISP in packages['ISP'] %}
+
+                                        {% set ispChecked = '' %}
+                                        {% if summaryData.IsISPAvailabledInCart == 1 %}
+
+                                            {% if planISP['packageId'] in summaryData.CartISPPackageId %}
+
+                                                {% set ispChecked = 'checked="checked"' %}
+                                            {% endif %}
+                                        {% endif %}
+
+                                        {% set ISPPlanHover = '' %}
+                                        {% if planISP['validity'] < 30 and summaryData.IsIPTVAvailabledInCart == 1 %}
+
+                                            {% set ISPPlanHover = 'onclick=displayNotification("ISP")' %}
+                                        {% endif %}
+
+                                        <tr>
+                                            <td nowrap="nowrap">
+                                                {{ planISP['packageName'] }} ({{ planISP['description'] }} )
+                                            </td>
+                                            <td nowrap="nowrap">${{ planISP['packagePrice'] ? planISP['packagePrice'] : '0' }}</td>
+                                            <td nowrap="nowrap">
+                                                <input type="radio" id="packageId{{ planISP['packageId']}}" name="packageId" value="{{ planISP['packageId']}}" {{ ispChecked }} {{ ISPPlanHover }} />
+                                                <input type="hidden" name="packageName[{{ planISP['packageId'] }}]" id="pname" value="{{ planISP['packageName'] }}">
+                                                <input type="hidden" name="bandwidth[{{ planISP['packageId'] }}]" id="pbandwidth" value="{{ planISP['bandwidth'] }}">
+                                                <input type="hidden" name="validity[{{ planISP['packageId'] }}]" id="pvalidity" value="{{ planISP['validity'] }}">
+
+                                                <input type="hidden" name="price[{{ planISP['packageId'] }}]" id="money" value="{{ planISP['packagePrice'] ? planISP['packagePrice'] : '0' }}">										
+                                            </td>									
+                                        </tr>
+                                    {% endfor %}							
+                                {% else %}
+                                    <tr>
+                                        <td>Package not avilable</td>
+                                    </tr>
+                                {% endif %}				
+                            </tbody>            
+                        </table>
+                        <div class="col-sm-12 row" id="divISP">
+
+					{% if app.session.has('isExtendISP') and app.session.get('isExtendISP') == false %}
+
+                                {% if isISPExtendPlan and 'ISPExtendId' in summaryData|keys %}
+                                    <a href="javascript:void(0)" class="btn btn-success pull-right" id="btnISPExtend" onclick="addExtend('{{summaryData.ISPExtendId}}', 'ISP')">Extend</a>
+                                {% endif %}	
+					{% endif %}
+
+                                {# set ispNextTab = (isIPTVAvailable == 1)?'tabIPTV':'tabCredit' #}
+                                {% set ispNextTab = (isIPTVAvailable == 1)?'tabISP' %}
+                                <a href="javascript:void(0)" class="btn btn-success pull-right" id="btnNextISP" onclick="submitPackage('{{ ispNextTab }}')">Add to Cart</a>
+                                
+
+                        </div>
+
+                    {% elseif service == 'IPTV' %}
+                        {% if  promotionalpackages| length > 0 and 'IPTV' in  promotionalpackages|keys%}
+                            <h4>Promotional Plan</h4>
+                            <table class="table table-bordered table-hover">			        
+                              <tbody>
+                                 {% if promotionalpackages|length > 0 and 'IPTV' in promotionalpackages|keys %}
+                                       <tr>
+                                        <td nowrap="nowrap" width="20%">
+                                            <div class="plan-head">Package</div>
+                                            <div class="plan-head">Price</div>
+                                            <div class="plan-head">Number Of Channels</div>											
+                                        </td>
+
+                                        {% for promotionalplanIPTV in promotionalpackages['IPTV'] %}
+
+                                            {% set promotionaliptvChecked = '' %}
+                                            {% if summaryData.IsIPTVAvailabledInCart == 1 %}
+
+                                                {% if promotionalplanIPTV['packageId'] in summaryData.CartIPTVPackageId %}
+
+                                                    {% set promotionaliptvChecked = 'checked="checked"' %}
+                                                {% endif %}
+                                            {% endif %}
+
+                                            {% set promotionalIPTVPlanHover = '' %}
+                                            {% if summaryData.ISPPackageValidity == 1 %}
+
+                                                {% set promotionalIPTVPlanHover = 'onclick=displayNotification("IPTV")' %}
+                                            {% endif %}
+                                            <td nowrap="nowrap">
+                                                <div class="plan-head">
+                                                    <div class="plan-inside">{{ promotionalplanIPTV['packageName'] }}<br/>
+                                                        <input type="radio" id="packageId{{ promotionalplanIPTV['packageId']}}" name="packageId" value="{{ promotionalplanIPTV['packageId']}}" {{ promotionaliptvChecked}} {{ promotionalIPTVPlanHover }} />
+                                                    </div>
+                                                </div>
+                                                <div class="plan-head">
+
+                                                    {% if promotionalplanIPTV['packagePrice'] %}
+
+                                                        {% if discount %}<div class="plan-inside">
+                                                                {% set discountAmount = (planIPTV['packagePrice'] * discount) / 100 %}
+
+                                                                ${{ promotionalplanIPTV['packagePrice'] - discountAmount }}<br/>
+                                                                <span style="color:#787880;font-size:12px;">
+                                                                    <strike>${{ promotionalplanIPTV['packagePrice'] }}</strike>&nbsp;({{ discount }}% Off)
+                                                                </span></div>
+                                                            {% else %}
+                                                            ${{ promotionalplanIPTV['packagePrice'] }}	
+                                                        {% endif %}
+                                                    {% else %}
+                                                        $0
+                                                    {% endif %}									
+                                                </div>
+                                                <div class="plan-head">{{ promotionalplanIPTV['packageChannelCount'] }}</div>
+                                                <input type="hidden" name="packageName[{{ promotionalplanIPTV['packageId'] }}]" id="pname" value="{{ promotionalplanIPTV['packageName'] }}">
+                                                <input type="hidden" name="validity[{{ promotionalplanIPTV['packageId'] }}]" id="pvalidity{{ promotionalplanIPTV['packageId']}}" value="{{ promotionalplanIPTV['validity'] }}">
+                                                <input type="hidden" name="price[{{ promotionalplanIPTV['packageId'] }}]" id="money" value="{{ promotionalplanIPTV['packagePrice'] ? promotionalplanIPTV['packagePrice'] : '0' }}">		
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                 {% else %}
+                                     <tr>
+                                        <td>Package not avilable</td>
+                                    </tr>
+                                 {% endif %}      
+                              </tbody>
+                            </table>
+                        {% endif %}
+                        <h4>Regular Plan</h4>
+                        <table class="table table-bordered table-hover">			        
+                            <tbody>
+                                {% if packages|length > 0 and 'IPTV' in packages|keys %}
+                                    <tr>
+                                        <td nowrap="nowrap" width="20%">
+                                            <div class="plan-head">Package</div>
+                                            <div class="plan-head">Price</div>
+                                            <div class="plan-head">Number Of Channels</div>											
+                                        </td>
+
+                                        {% for planIPTV in packages['IPTV'] %}
+
+                                            {% set iptvChecked = '' %}
+                                            {% if summaryData.IsIPTVAvailabledInCart == 1 %}
+
+                                                {% if planIPTV['packageId'] in summaryData.CartIPTVPackageId %}
+
+                                                    {% set iptvChecked = 'checked="checked"' %}
+                                                {% endif %}
+                                            {% endif %}
+
+                                            {% set IPTVPlanHover = '' %}
+                                            {% if summaryData.ISPPackageValidity == 1 %}
+
+                                                {% set IPTVPlanHover = 'onclick=displayNotification("IPTV")' %}
+                                            {% endif %}
+                                            <td nowrap="nowrap">
+                                                <div class="plan-head">
+                                                    <div class="plan-inside">{{ planIPTV['packageName'] }}<br/>
+                                                        <input type="radio" id="packageId{{ planIPTV['packageId']}}" name="packageId" value="{{ planIPTV['packageId']}}" {{ iptvChecked}} {{ IPTVPlanHover }} />
+                                                    </div>
+                                                </div>
+                                                <div class="plan-head">
+
+                                                    {% if planIPTV['packagePrice'] %}
+
+                                                        {% if discount %}<div class="plan-inside">
+                                                                {% set discountAmount = (planIPTV['packagePrice'] * discount) / 100 %}
+
+                                                                ${{ planIPTV['packagePrice'] - discountAmount }}<br/>
+                                                                <span style="color:#787880;font-size:12px;">
+                                                                    <strike>${{ planIPTV['packagePrice'] }}</strike>&nbsp;({{ discount }}% Off)
+                                                                </span></div>
+                                                            {% else %}
+                                                            ${{ planIPTV['packagePrice'] }}	
+                                                        {% endif %}
+                                                    {% else %}
+                                                        $0
+                                                    {% endif %}									
+                                                </div>
+                                                <div class="plan-head">{{ planIPTV['packageChannelCount'] }}</div>
+                                                <input type="hidden" name="packageName[{{ planIPTV['packageId'] }}]" id="pname" value="{{ planIPTV['packageName'] }}">
+                                                <input type="hidden" name="validity[{{ planIPTV['packageId'] }}]" id="pvalidity{{ planIPTV['packageId']}}" value="{{ planIPTV['validity'] }}">
+                                                <input type="hidden" name="price[{{ planIPTV['packageId'] }}]" id="money" value="{{ planIPTV['packagePrice'] ? planIPTV['packagePrice'] : '0' }}">		
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td>Package not avilable</td>
+                                    </tr>
+                                {% endif %}				
+                            </tbody>
+                        </table>
+                        <div class="col-sm-12 row" id="divIPTV">
+
+                            {% if app.session.get('isExtendIPTV') == false %}
+
+                                {% if isIPTVExtendPlan and 'IPTVExtendId' in summaryData|keys %}
+                                    <a href="javascript:void(0)" class="btn btn-success pull-right" id="btnIptvExtend" onclick="addExtend('{{summaryData.IPTVExtendId}}', 'IPTV')">Extend</a>
+                                {% endif %}	
+
+                                {% set iptvNextTab = (isIPTVAvailable == 1)?'tabPremium':'tabCredit' %}					
+                                <a href="javascript:void(0)" class="btn btn-success pull-right" id="btnNextISP" onclick="submitPackage('{{ iptvNextTab }}')">Add to Cart</a>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% elseif service == 'BUNDLE' %}
+                       {% if autobundleiptv|length > 0 and autobundlisp|length > 0 %}
+                        <h4>Auto Bundle Plan</h4>
+                        <table class="table table-bordered table-hover bundalplantable">			        
+                            <tbody>
+                                  {% if autobundleiptv|length > 0 and autobundlisp|length > 0 %}
+                                <tr>
+                                    <td nowrap="nowrap"><b>Internet plans</b></td>
+                                    {% set iptvAutoBundlePlanAr = [] %}
+                                    
+                                    {% for iptvautoParent in autobundleiptv %}
+                                        {% for iptvauto in iptvautoParent %}
+                                            {% if iptvauto.Id not in iptvAutoBundlePlanAr %}
+                                                <td nowrap="nowrap"><b>{{ iptvauto.packageName }}</b></td>
+                                                        {% set iptvAutoBundlePlanAr = iptvAutoBundlePlanAr|merge([iptvauto.Id]) %}
+                                                    {% endif %}			
+                                                {% endfor %}
+                                            {% endfor %}
+                                    </tr>
+                                    
+                                    {% for autoisp in autobundlisp %}
+                                        {% set ispIptvautoPlanAr = [] %}
+                                        <tr>
+                                            <td><h4>{{autoisp.packageName}}</h4> <div>{{autoisp.bandwidth}}k SPEED<br/> {{autoisp.validity}} Day(s)</div></td>
+                                                    {% for ispautoKey, iptvautoParent in autobundleiptv %}
+                                                        {% if ispautoKey == autoisp.Id %}
+
+                                                    {% for autoiptv in iptvautoParent %}
+                                                        {% for tmpTptvautoCol in iptvAutoBundlePlanAr %}
+                                                            {% if tmpTptvautoCol == autoiptv['Id'] %}
+                                                                {% if autoiptv.isActive == 1 %}
+                                                                    {% set isautoBundlePackageAvailableInCart = 0 %}
+                                                                    {% set autoservicePurchaseId = 0 %}
+                                                                    {% set autobundleId = autoiptv.bundle %}
+
+                                                                    {% set autobundleChecked = '' %}
+                                                                    {% set autobundlePlanHover = '' %}
+                                                                    {% if summaryData.IsBundleAvailabledInCart == 1 %}
+                                                                        {% if bundleId in summaryData.CartBundlePackageId %}
+                                                                            {% set autobundleChecked = 'checked="checked"' %}
+                                                                        {% endif %}
+                                                                    {% endif %}
+
+                                                                    {% set autobundlePlanHover = '' %}
+                                                                    {# if summaryData.ISPPackageValidity == 1 %}
+                                                                            {% set bundlePlanHover = 'onclick=displayNotification("IPTV")' %}
+                                                                    {% endif #}
+
+                                                                    {% if autoiptv['bundle'] in summaryData.CartBundlePackageId %}
+                                                                        {# set servicePurchaseId = summaryData.CartBundleServicePurchaseId[iptv['bundle']] #}
+                                                                        {% set isautoBundlePackageAvailableInCart = 1 %}
+                                                                    {% endif %}
+
+                                                                    <td nowrap="nowrap">
+                                                                        <div class="planBox">
+                                                                            {% set bundleAmount = (autobundleArr[autobundleId].totalPackagePrice - autobundleArr[autobundleId].packagePrice) %}
+                                                                            <span>${{ autobundleArr[autobundleId].packagePrice|number_format(2)  }} </span>
+                                                                            SAVE {{ autobundleArr[autobundleId].discount }}%
+
+                                                                            <div class="plan-inside">
+                                                                                <input type="radio" id="packageId{{ autobundleId }}" name="packageId" value="{{ autobundleId }}" {{ autobundleChecked}} {{ autobundlePlanHover }} />
+
+                                                                                <input type="hidden" name="packageName[{{ autobundleId }}]" id="pname" value="{{ autobundleArr[autobundleId].packageName }}">
+
+                                                                                <input type="hidden" name="price[{{ autobundleId }}]" id="money" value="0">
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                {% else %}
+                                                                    <td><div class="blankplan">&mdash;</div></td>
+                                                                {% endif %}
+                                                            {% else %}
+                                                                {# <td {{tmpTptvCol}}>ISP: {{tmpTptvCol}}</td> #}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endfor %}
+
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                 {% else %}
+                                     <tr><td>Bundle Not available</td></tr>
+                                 {% endif  %}
+                                    
+                            </tbody>
+                          </table>
+                        {% endif  %}
+                        
+                        <h4>Promotional Plan</h4>
+                        <table class="table table-bordered table-hover bundalplantable">			        
+                            <tbody>
+                                {% if packages|length > 0 and 'PROMOTIONALBUNDLE' in packages|keys and packages.PROMOTIONALBUNDLE.promomaxIptvPlan > 0%}
+                                    {% set allpromoPackages = packages['PROMOTIONALBUNDLE'] %}
+                                    {% set promomaxColumn = allpromoPackages.promomaxIptvPlan %}
+                                    {% set promoiptvArr = allpromoPackages.promoiptv %}
+                                    {% set promoispArr = allpromoPackages.promoisp %}
+                                    {% set promobundleArr = allpromoPackages.promobundle %}
+                                    <tr>
+                                        <td nowrap="nowrap"><b>Internet plans</b></td>
+                                        {% set promoiptvPlanAr = [] %}
+                                        {% for promoiptvParent in promoiptvArr %}
+                                            {% for promoiptv in promoiptvParent %}
+                                                {% if promoiptv.Id not in promoiptvPlanAr %}
+                                                    <td nowrap="nowrap"><b>{{ promoiptv.packageName }}</b></td>
+                                                    {% set promoiptvPlanAr = promoiptvPlanAr|merge([promoiptv.Id]) %}
+                                                {% endif %}			
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </tr>
+                                     {% for promoisp in promoispArr %}
+                                        {% set promoispIptvPlanAr = [] %}
+                                        <tr>
+                                            <td><h4>{{promoisp.packageName}}</h4> <div>{{promoisp.bandwidth}}k SPEED<br/> {{promoisp.validity}} Day(s)</div></td>
+                                                    {% for promoispKey, promoiptvParent in promoiptvArr %}
+                                                        {% if promoispKey == promoisp.Id %}
+
+                                                    {% for promoiptv in promoiptvParent %}
+                                                        {% for promotmpTptvCol in promoiptvPlanAr %}
+                                                            {% if promotmpTptvCol == promoiptv['Id'] %}
+                                                                {% if promoiptv.isActive == 1 %}
+                                                                    {% set isBundlePackageAvailableInCart = 0 %}
+                                                                    {% set servicePurchaseIdprommo = 0 %}
+                                                                    {% set promobundleId = promoiptv.bundle %}
+
+                                                                    {% set promobundleChecked = '' %}
+                                                                    {% set promobundlePlanHover = '' %}
+                                                                    {% if summaryData.IsBundleAvailabledInCart == 1 %}
+                                                                        {% if promobundleId in summaryData.CartBundlePackageId %}
+                                                                            {% set promobundleChecked = 'checked="checked"' %}
+                                                                        {% endif %}
+                                                                    {% endif %}
+
+                                                                    {% set promobundlePlanHover = '' %}
+                                                                    {# if summaryData.ISPPackageValidity == 1 %}
+                                                                            {% set bundlePlanHover = 'onclick=displayNotification("IPTV")' %}
+                                                                    {% endif #}
+
+                                                                    {% if promoiptv['bundle'] in summaryData.CartBundlePackageId %}
+                                                                        {# set servicePurchaseId = summaryData.CartBundleServicePurchaseId[iptv['bundle']] #}
+                                                                        {% set isBundlePackageAvailableInCart = 1 %}
+                                                                    {% endif %}
+
+                                                                    <td nowrap="nowrap">
+                                                                        <div class="planBox">
+                                                                            {% set promobundleAmount = (promobundleArr[promobundleId].totalPackagePrice - promobundleArr[promobundleId].packagePrice) %}
+                                                                            <span>${{ promobundleArr[promobundleId].packagePrice|number_format(2)  }} </span>
+                                                                            SAVE {{ promobundleArr[promobundleId].discount }}%
+
+                                                                            <div class="plan-inside">
+                                                                                <input type="radio" id="packageId{{ promobundleId }}" name="packageId" value="{{ promobundleId }}" {{ promobundleChecked}} {{ promobundlePlanHover }} />
+
+                                                                                <input type="hidden" name="packageName[{{ promobundleId }}]" id="pname" value="{{ promobundleArr[promobundleId].packageName }}">
+
+                                                                                <input type="hidden" name="price[{{ promobundleId }}]" id="money" value="0">
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                {% else %}
+                                                                    <td><div class="blankplan">&mdash;</div></td>
+                                                                {% endif %}
+                                                            {% else %}
+                                                                {# <td {{tmpTptvCol}}>ISP: {{tmpTptvCol}}</td> #}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endfor %}
+
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                 {% else %}
+                                     <tr><td>Bundle Not available</td></tr>
+                                    
+                                {% endif %}
+                               
+                            </tbody>
+                        </table>
+                        
+                        
+                        <h4>Regular Plan</h4>
+                        <table class="table table-bordered table-hover bundalplantable">			        
+                            <tbody>
+                                {% if packages|length > 0 and 'BUNDLE' in packages|keys and packages.BUNDLE.maxIptvPlan > 0%}
+                                    {% set allPackages = packages['BUNDLE'] %}
+                                    {% set maxColumn = allPackages.maxIptvPlan %}
+                                    {% set iptvArr = allPackages.iptv %}
+                                    {% set ispArr = allPackages.isp %}
+                                    {% set bundleArr = allPackages.bundle %}
+                                    
+                                    <tr>
+                                        <td nowrap="nowrap"><b>Internet plans</b></td>
+                                        {% set iptvPlanAr = [] %}
+                                        {% for iptvParent in iptvArr %}
+                                            {% for iptv in iptvParent %}
+                                                {% if iptv.Id not in iptvPlanAr %}
+                                                    <td nowrap="nowrap"><b>{{ iptv.packageName }}</b></td>
+                                                            {% set iptvPlanAr = iptvPlanAr|merge([iptv.Id]) %}
+                                                        {% endif %}			
+                                                    {% endfor %}
+                                                {% endfor %}
+                                    </tr>
+
+                                    {% for isp in ispArr %}
+                                        {% set ispIptvPlanAr = [] %}
+                                        <tr>
+                                            <td><h4>{{isp.packageName}}</h4> <div>{{isp.bandwidth}}k SPEED<br/> {{isp.validity}} Day(s)</div></td>
+                                                    {% for ispKey, iptvParent in iptvArr %}
+                                                        {% if ispKey == isp.Id %}
+
+                                                    {% for iptv in iptvParent %}
+                                                        {% for tmpTptvCol in iptvPlanAr %}
+                                                            {% if tmpTptvCol == iptv['Id'] %}
+                                                                {% if iptv.isActive == 1 %}
+                                                                    {% set isBundlePackageAvailableInCart = 0 %}
+                                                                    {% set servicePurchaseId = 0 %}
+                                                                    {% set bundleId = iptv.bundle %}
+
+                                                                    {% set bundleChecked = '' %}
+                                                                    {% set bundlePlanHover = '' %}
+                                                                    {% if summaryData.IsBundleAvailabledInCart == 1 %}
+                                                                        {% if bundleId in summaryData.CartBundlePackageId %}
+                                                                            {% set bundleChecked = 'checked="checked"' %}
+                                                                        {% endif %}
+                                                                    {% endif %}
+
+                                                                    {% set bundlePlanHover = '' %}
+                                                                    {# if summaryData.ISPPackageValidity == 1 %}
+                                                                            {% set bundlePlanHover = 'onclick=displayNotification("IPTV")' %}
+                                                                    {% endif #}
+
+                                                                    {% if iptv['bundle'] in summaryData.CartBundlePackageId %}
+                                                                        {# set servicePurchaseId = summaryData.CartBundleServicePurchaseId[iptv['bundle']] #}
+                                                                        {% set isBundlePackageAvailableInCart = 1 %}
+                                                                    {% endif %}
+
+                                                                    <td nowrap="nowrap">
+                                                                        <div class="planBox">
+                                                                            {% set bundleAmount = (bundleArr[bundleId].totalPackagePrice - bundleArr[bundleId].packagePrice) %}
+                                                                            <span>${{ bundleArr[bundleId].packagePrice|number_format(2)  }} </span>
+                                                                            SAVE {{ bundleArr[bundleId].discount }}%
+
+                                                                            <div class="plan-inside">
+                                                                                <input type="radio" id="packageId{{ bundleId }}" name="packageId" value="{{ bundleId }}" {{ bundleChecked}} {{ bundlePlanHover }} />
+
+                                                                                <input type="hidden" name="packageName[{{ bundleId }}]" id="pname" value="{{ bundleArr[bundleId].packageName }}">
+
+                                                                                <input type="hidden" name="price[{{ bundleId }}]" id="money" value="0">
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                {% else %}
+                                                                    <td><div class="blankplan">&mdash;</div></td>
+                                                                {% endif %}
+                                                            {% else %}
+                                                                {# <td {{tmpTptvCol}}>ISP: {{tmpTptvCol}}</td> #}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endfor %}
+
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td>Bundle not avilable</td>
+                                    </tr>
+                                {% endif %}				
+                            </tbody>
+                        </table>
+                        <div class="col-sm-12 row" id="divISP">
+                            {% if app.session.get('isExtendBundle') == false %}
+
+                                {% if isBundleExtendPlan and 'BundleExtendId' in summaryData|keys %}
+                                    <a href="javascript:void(0)" class="btn btn-success pull-right" id="btnBundleExtend" onclick="addExtend('{{summaryData.BundleExtendId}}', 'BUNDLE')">Extend</a>
+                                {% endif %}
+
+                                {% set ispNextTab = 'tabBUNDLE' %}
+                                <a href="javascript:void(0)" class="btn btn-success pull-right" id="btnNextISP" onclick="submitPackage('{{ ispNextTab }}')">Add to Cart</a>
+
+                            {% endif %}
+                        </div>
+
+                    {% elseif service == 'Premium' %}
+
+                        <table class="table table-bordered table-hover">			        
+                            <tbody>
+                                {% if packages|length > 0 and 'PREMIUM' in packages|keys %}
+                                    <tr>
+                                        <td nowrap="nowrap" width="20%">
+                                            <div class="plan-head">Package</div>
+                                            <div class="plan-head">Price</div>
+                                            <div class="plan-head">Number Of Channels</div>											
+                                        </td>
+                                        {% for planPremium in packages['PREMIUM'] %}
+
+                                            {% set premiumChecked = '' %}
+                                            {% if summaryData.IsAddOnAvailabledInCart == 1 %}
+
+                                                {% if planPremium['packageId'] in summaryData.CartAddOnPackageId %}
+
+                                                    {% set premiumChecked = 'checked="checked"' %}
+                                                {% endif %}
+                                            {% endif %}
+
+
+                                            <td nowrap="nowrap">
+                                                <div class="plan-head">
+                                                    <div class="plan-inside">
+                                                        {{ planPremium['packageName'] }}<br/>
+                                                        <input class="chk" type="checkbox" id="premiumPackageId" name="premiumPackageId[{{ planPremium['packageId']}}]" value="{{ planPremium['packageId']}}"  {{ premiumChecked }} />
+                                                    </div>
+                                                </div>
+                                                <div class="plan-head">${{ planPremium['packagePrice'] }}</div>
+                                                <div class="plan-head">{{ planPremium['packageChannelCount'] }}</div>		
+                                            </td>							
+
+                                    <input type="hidden" name="premiumPackageName[{{ planPremium['packageId'] }}]" id="premiumName" value="{{ planPremium['packageName'] }}">
+                                    <input type="hidden" name="premiumPackageValidity[{{ planPremium['packageId'] }}]" id="validity" value="{{ planPremium['validity'] }}">
+                                    <input type="hidden" name="premiumPrice[{{ planPremium['packageId'] }}]" id="premiumMoney" value="{{ planPremium['packagePrice'] }}">
+                                {% endfor %}											
+                                </tr>
+                            {% else %}	
+                                <tr>
+                                    <td>Package not avilable</td>
+                                </tr>
+                            {% endif %}				
+                            </tbody>
+                        </table>
+                        <div class="col-sm-12 row" id="divPREMIUM">
+
+                            {% if app.session.get('isAddonExtendIPTV') == false %}
+
+                                {% if isAddonIPTVExtendPlan and 'AddonExtendId' in summaryData|keys %}
+                                    {# <a href="javascript:void(0)" class="btn btn-success pull-right" id="btnAddonIptvExtend" onclick="addExtend('{{summaryData.AddonExtendId}}', 'PREMIUM')">Extend</a> #}
+                                {% endif %}	
+
+                                {% set premiumNextTab = 'tabCredit' %}					
+                                <a href="javascript:void(0)" class="btn btn-success pull-right" id="btnNextISP" onclick="submitPackage('{{ premiumNextTab }}')">Add to Cart</a>
+
+                            {% endif %}
+
+                        </div>
+                    {% elseif service == 'Credit' %}
+
+                        {% if credits %}
+                            <table class="table table-bordered table-hover">			        
+                                <tbody>
+                                    <tr>
+                                        <td nowrap="nowrap" width="20%">
+                                            <div class="plan-head">Price</div>
+                                            <div class="plan-head">Credit</div>																
+                                        </td>
+                                        <td nowrap="nowrap" width="20%">
+                                            <div class="plan-head">
+                                                <div class="plan-inside">
+                                                    None<br/>
+                                                    <input type="radio" id="creditId" name="creditId" value="removeCredit" checked="checked" />
+                                                </div>
+                                            </div>
+                                            <div class="plan-head">None</div>		
+                                        </td>
+
+                                        {% for credit in credits %}
+
+                                            {% set creditChecked = '' %}
+                                            {% if summaryData.IsCreditAvailabledInCart == 1 %}
+
+                                                {% if credit.id in summaryData.CartCreditId %}
+
+                                                    {% set creditChecked = 'checked="checked"' %}
+                                                {% endif %}
+                                            {% endif %}
+
+                                            <td nowrap="nowrap">
+                                                <div class="plan-head">
+                                                    <div class="plan-inside">
+                                                        ${{ credit.amount }}<br/>
+                                                        <input type="radio" id="creditId{{ credit.id }}" name="creditId" value="{{ credit.id }}" {{ creditChecked }} />
+                                                    </div>
+                                                </div>
+                                                <div class="plan-head">{{ credit.credit }}</div>		
+                                                <input type="hidden" id="creditAmT" name="creditAmt" value="{{ credit.amount }}">
+                                                <input type="hidden" id="creditPurchase" name="creditPurchase" value="{{ credit.credit }}">
+                                            </td>
+                                        {% endfor %}
+                                    </tr>				
+                                </tbody>
+                            </table>
+                            <div class="col-sm-12 row">				
+                                {% set creditNextTab = 'tabCredit' %}					
+                                <a href="javascript:void(0)" class="btn btn-success pull-right" id="btnNextISP" onclick="submitPackage('{{ creditNextTab }}')">Add to Cart</a>
+                            </div>
+                        {% else %}
+                            <table class="table table-bordered table-hover">
+                                <tr>			
+                                    <td colspan="2">Credit not found</td>
+                                </tr>
+                            </table>				
+                        {% endif %}
+                    {% else %}
+                        <div> Package not available</div>
+                    {% endif %}
+                {% else %}
+                    <div> Invalid package request</div>
+                {% endif %}
+        </div>
+    </div>
+{% endblock body %}
+
+
+

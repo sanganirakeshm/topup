@@ -1,0 +1,345 @@
+{% block body %}
+    {% if (summaryData.IsBundleAvailabledInCart == 0 and premiumPlans|length == 0 and iptvBundlePlans|length == 0 and promotionalPackages|length == 0 and allPackages|length == 0) and summaryData.IsBundleAvailabledInPurchased == 1 and summaryData.BundleExtendPlan == 0 %}
+        {% set expirationDate = summaryData.Purchased.ISP.RegularPack[0].expiryDate %}
+        <div class="newLeftHeader letterText">
+            <p>Dears <span class="redtxt">{{ app.user.firstName }}</span>,</p>
+            <p>You are currently subscribed to our best plan! There are no upgrades available at this time. To avoid a lapse in service, please return on <span class="redtxt">{{expirationDate|date('m/d/Y')}}</span> to renew or your services.</p>
+            <br/>
+            <p>Thank you!</p>
+        </div>
+
+    {% else %}
+
+    	{% if summaryData['IsBundleAvailabledInPurchased'] == 1 %}
+            {% set headerText = "Upgrade your Internet Plan or XVUE Channels!"  %}
+        {% elseif summaryData['IsISPAvailabledInPurchased'] == 1 %}
+            {% set headerText = "Upgrade your Internet Plan!"  %}
+        {% else %}
+            {% set headerText = "Select your Internet Plan!"  %}
+        {% endif %}
+        <h3 class="select-plan">{{headerText}}</h3>
+    	<div class="newRow newXVUE clsIspParent">
+    		<div class="newLeftSide">
+    	    	<div class="newRow daysDoYouNeed">
+    	            <h4>How many days <br> do you need?</h4>
+    	            <div class="daysBtns">
+                        {% for validity in packageValidity %}
+                            {% if validity != 'Hourly' %}
+                                <a href="javascript:void(0);" class="daysBtn {% if cartPlanValidity == 'DAYS-'~validity %} blueDays {% else %} redDays {% endif %} {% if validity in planValidity %} cls-open-target {% else %} btn-disabled {% endif %}" data-target="{{ validity }}">{{ validity }} {% if validity == 1 %} DAY {% else %} DAYS {% endif %}</a>
+                            {% endif %}
+                        {% endfor %}
+                        <a href="javascript:void(0)" class="daysBtn {% if cartPlanValidity == 'HOURLY-' %} blueDays {% else %} redDays {% endif %} {% if 'Hourly' in planValidity %} cls-open-target {% else %} btn-disabled {% endif %}"  data-target="Hourly">HOURLY</a>
+    	            </div>
+    	        </div>
+    			{% if summaryData.PurchasedAvailable == 1 and summaryData.IsISPAvailabledInPurchased == 1 %}
+    				{% for ispPackage in summaryData.Purchased.ISP.RegularPack %}
+    				    {% set expirationData = null %}
+    		            {% if ispPackage.expiryDate %}
+    		                 {% if ispPackage.isPlanActive == 1 %}
+    		                    {% set expirationData = ispPackage.expiryDate|date('M-d-Y H:i:s') %}
+    		                 {% else %}
+    		                    {% set expirationData = "Not Logged in" %}
+    		                 {% endif %}
+    		             {% endif %}
+    		            {% if expirationData %}
+    		                <div class="planExpries">
+    		                    <span>Current Plan Expires On: <br/>{{ expirationData }}</span>
+    		                </div>
+    		            {% endif %}
+    			    {% endfor %}
+                    <div class="newRow margintop20">
+                        <h4>How does <br> Upgrading Work?</h4>
+                        <p>If you upgrade your current plan, the remaining dollar balance on your current plan will be applied to your new plan</p>
+                        <div class="button-holder">
+                            <p>Today</p>
+                            <span><img src="{{ asset('bundles/dhiuser/images/arrow.png') }}" alt=""></span>
+                            <a href="javascript:void(0);" class="btn plan-button pull-left">Your Current Plan term</a>
+                            <div class="clearfix"></div>
+                            <a href="javascript:void(0);" class="btn plan-button pull-right">Upgraded Plan</a>
+                        </div>
+                    </div>
+    			{% endif %}
+                {% if 'IPTV' in summaryData.AvailableServicesOnLocation and summaryData.IsBundleAvailabledInPurchased == 0 and summaryData.IsISPAvailabledInCart == 0 and summaryData.IsISPAvailabledInPurchased == 0 %}
+                    <a class="btnSwitch" href="javascript:void(0);" onclick="showServicePlan('IPTV',1);">Purchase ExchangeVUE</a>
+                {% endif %}
+    		</div>
+            <form id="frmconfirm" method="POST" name="myForm">
+    			<div class="newRightSide">
+    	            <div class="newRow">
+               	  	{% if promotionalPackages|length > 0 %}
+                   	  	<div class="newPromotions">
+                    		<h4>Promotional Plans</h4>
+                                {% for pk, package in promotionalPackages %}
+    	               	  			{% set isCurrentLabel = '' %}
+    	               	  			{% set isAutoBundle = '' %}
+    							    {% if autoBundleRegularIspIds|length > 0 and package['packageId'] in autoBundleRegularIspIds %}
+                                        {% for ispAutoBundle in ispAutoBundlePlans %}
+                                            {% set IPSChecked = '' %}
+                                            {% if ispAutoBundle['bundle_id'] in summaryData.CartBundlePackageId %}
+                                                {% set IPSChecked = 'checked="checked"' %}
+                                            {% endif %}
+                                            <div class="promoPlans stylishradio">
+                                                {% set onevent = "onclick=addPackage('BUNDLE','"~ispAutoBundle['bundle_id']~"',0,0)" %}
+                                                <label>
+                                                    <input class="promoRadio" type="radio" name="ispPlan" value="{{ package['packageId'] }}" {{IPSChecked}} {{ onevent|raw }} id="ispAddToCartBtn{{ package['Id'] }}" /> <b>{{ ispAutoBundle['ispName'] }}</b>
+                                                </label>
+                                               <label>
+                                                    {% if package['bandwidth'] >= 1024 %}
+                                                        {% set mbbandwidth = package['bandwidth']/1024%}
+                                                        {% set replace_value_var = package['bandwidth']~'k' %}
+                                                        {% set replace_with_value_var =  mbbandwidth~'MB' %} 
+                                                        {{ package['description'] |replace({ (replace_value_var): replace_with_value_var }) }}
+                                                    {% else %}
+                                                         {{ package['description'] }}
+                                                    {% endif %}
+                                                </label>
+                                                <label id="price-{{ package['packageId']}}">${{ package['packagePrice'] ? package['packagePrice'] : '0' }}</label>
+                                                <label class="autoBasicXVUE"><img src="{{ asset('bundles/dhiuser/images/TvIcon.jpg') }}" alt="{{ ispAutoBundle['iptvName'] }} XVUE Included!"> &nbsp; {{ ispAutoBundle['iptvName'] }} XVUE Included!
+                                                    <div class="popupBasicXVUE">
+                                                        <div class="arrowRight"></div>
+                                                        <div class="basicXVUELeft"><img class="popupLogo" src="{{ asset('bundles/dhiuser/images/dhilogonew.jpg') }}" alt="" /></div>
+                                                        <div class="basicXVUERight">
+                                                            {% for autoIptvPlan in iptvBundlePlans %}
+                                                                {% if ispAutoBundle.bundleIptvId == autoIptvPlan.packageId  %}
+                                                                    {% set channelarray = autoIptvPlan.channelname | split(',') %}
+                                                                    {% set count = 1 %}
+                                                                    {% for channel in channelarray %}
+                                                                        {% if ChannelImages[channel] is defined and ChannelImages[channel] != ''  and count <= maxShowChannels %}
+                                                                            {% set imageSrc = asset('uploads/channels/'~ChannelImages[channel]) %}
+                                                                            <img alt="{{ channel }}" src="{{ imageSrc }}" />
+                                                                        {% else %}
+                                                                            <p class="basicXVUERightText">{{ channel }}</p>&nbsp;
+                                                                        {% endif %}
+                                                                        {% set count = count + 1 %}
+                                                                    {% else %}
+                                                                        <p>No additional content available at this time.</p>
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% else %}
+                                                                <p>No additional content available at this time.</p>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% if package['packageId'] in summaryData.CartISPPackageId %}
+                                            {% set IPSChecked = 'checked="checked"' %}
+                                        {% else %}
+                                            {% set IPSChecked = '' %}
+                                        {% endif %}
+        								<div class="promoPlans stylishradio">
+                                            {% set onevent = "onclick=addPackage('ISP','"~package['Id']~"')" %}
+        									<label>
+        									<input type="hidden" name="packageName[{{ package['packageId'] }}]" id="pname" value="{{ package['packageName'] }}">
+        									<input type="hidden" name="bandwidth[{{ package['packageId'] }}]" id="pbandwidth" value="{{ package['bandwidth'] }}">
+        									<input type="hidden" name="validity[{{ package['packageId'] }}]" id="pvalidity" value="{{ package['validity'] }}">
+
+        									<input class="promoRadio" type="radio" name="ispPlan" value="{{ package['packageId'] }}" {{IPSChecked}} {{ onevent|raw }} id="ispAddToCartBtn{{ package['Id'] }}" /> <b>{{ package['packageName'] }}</b>{{ isCurrentLabel|raw }}</label>
+        									<label>
+                                                                                    {% if package['bandwidth'] >= 1024 %}
+                                                                                        {% set mbbandwidth = package['bandwidth']/1024%}
+                                                                                        {% set replace_value_var = package['bandwidth']~'k' %}
+                                                                                        {% set replace_with_value_var =  mbbandwidth~'MB' %} 
+                                                                                        {{ package['description'] |replace({ (replace_value_var): replace_with_value_var }) }}
+                                                                                    {% else %}
+                                                                                         {{ package['description'] }}
+                                                                                    {% endif %}
+                                                                                </label>
+                                            <label id="price-{{ package['packageId']}}">${{ package['packagePrice'] ? package['packagePrice'] : '0' }}</label>
+        		                    	</div>
+                                    {% endif %}
+                                {% endfor %}
+                   	  		</div>
+                    {% endif %}
+
+               	  	{% if summaryData.PurchasedAvailable == 1 and summaryData.IsISPAvailabledInPurchased == 1 %}
+    	           	  	{% for currentIspPackage in summaryData.Purchased.ISP.RegularPack %}
+    	           	  		<div class="newDays">
+    	           	  			<h4>Current Plan</h4>
+    	           	  			<div class="promoPlans stylishradio">
+                                    <label>
+    			               	  		{% set isCurrentLabel = '' %}
+    	           	  					{% if currentIspPackage['packageId'] in summaryData.PurchasedISPPackageId %}
+    		               	  				{% set isCurrentLabel = '<span class="activated_plans"> Current Plan </span>' %}
+    									{% endif %}
+    	           	  					{% if summaryData.isServiceLocationChanged == 0 and summaryData.isEmployee == 0 and summaryData.isSiteChanged == 0 %}
+                                            {% set onevent = '' %}
+                                            {% if (summaryData.IsBundleAvailabledInPurchased == 1 or summaryData.IsBundleAvailabledInCart == 0) and summaryData.BundleExtendPlan == 1 %}
+                                                {% set onevent = "onclick=addExtend('BUNDLE','"~summaryData.BundleExtendId~"','Add')" %}
+                                            {% endif %}
+
+                                            {% if summaryData.IsBundleAvailabledInPurchased == 0 and summaryData.ISPExtendPlan == 1 %}
+                                                {% set onevent = "onclick=addExtend('ISP','"~summaryData.ISPExtendId~"','Add')" %}
+                                            {% endif %}
+
+    	           	  						{% set IPSChecked = '' %}
+    										{% if currentIspPackage['packageId'] in summaryData.CartISPPackageId %}
+    											{% set IPSChecked = 'checked="checked"' %}
+    										{% endif %}
+
+                                            {% if onevent != '' %}
+    										  <input class="promoRadio" type="radio" name="ispPlanExtend" value="{{ summaryData.ISPExtendId }}" {{IPSChecked}} {{ onevent|raw }} id="ispAddToCartBtn{{ summaryData.ISPExtendId }}" />
+                                            {% else %}
+                                                <input class="promoRadio" type="radio" name="currentPlan" value="" checked="checked" disabled="disabled" />
+                                            {% endif %}
+                                        {% else %}
+                                            <input class="promoRadio" type="radio" name="currentPlan" value="" checked="checked" disabled="disabled" />
+    	           	  					{% endif %}
+                                        <b>{{ currentIspPackage['packageName'] }}</b>{{ isCurrentLabel|raw }}
+    	           	  				</label>
+    	           	  				
+                                                        <label>
+                                                            {% if currentIspPackage['bandwidth'] >= 1024 %}
+                                                                {% set mbbandwidth = currentIspPackage['bandwidth']/1024%}
+                                                                {% set replace_value_var = currentIspPackage['bandwidth']~'k' %}
+                                                                {% set replace_with_value_var =  mbbandwidth~'MB' %} 
+                                                                {{ currentIspPackage['description'] |replace({ (replace_value_var): replace_with_value_var }) }}
+                                                            {% else %}
+                                                                 {{ currentIspPackage['description'] }}
+                                                            {% endif %}
+                                                        </label>
+                                                        
+                                                        
+    	           	  				<label id="price-{{ currentIspPackage['packageId']}}">${{ currentIspPackage['amount'] ? currentIspPackage['amount'] : '0' }}</label>
+                                    
+                                    {% if summaryData.isServiceLocationChanged == 0 and summaryData.isEmployee == 0 and summaryData.IsBundleAvailabledInPurchased == 1 and premiumPlans|length > 0 and iptvBundlePlans|length > 0 and summaryData.isSiteChanged == 0 %}
+                                        <label><a class="btnUpgradeISP" href="javascript:void(0);" onclick="bundlecheckout('{{ currentIspPackage['packageId'] }}')" title="">Upgrade Channels</a></label>
+                                    {% endif %}
+    	           	  			</div>
+    	           	  		</div>
+    	           	  	{% endfor %}
+               	  	{% endif %}
+                                 
+                   	  	{% if allPackages|length > 0 %}
+                                {% set isExpandClass = 'minusIcon' %}
+                                {% for ispPackageValidity,packages in allPackages %}
+                                    {% if ispPackageValidity matches '/^\\d+$/' %}
+                                        {% if ispPackageValidity == 1 %}
+                                            {% set titleCaption = 'Day' %}
+                                        {% else %}
+                                            {% set titleCaption = 'Days' %}
+                                        {% endif %}
+                                        {% set validityType = 'DAYS' %}
+                                    {% else %}
+                                        {% set titleCaption = 'Plans' %}
+                                        {% set validityType = 'HOURLY' %}
+                                    {% endif %}
+                                    {% if cartPlanValidity == validityType~'-'~ispPackageValidity %}
+                                        {% set isToShow = '' %}
+                                    {% else %}
+                                        {% set isToShow = 'cls-hidden' %}
+                                    {% endif %}
+
+                                    <div class="newDays margTop20 {{ isToShow }} cls-isp-containers cls-isp-container-{{ ispPackageValidity }}">
+                                        <h4>{{ ispPackageValidity~' '~titleCaption }}</h4>
+                                        {% for pk, package in packages['packages'] %}
+                                            
+                                            {% set isCurrentLabel = '' %}
+                                            
+                                            {% if autoBundleRegularIspIds|length > 0 and package['packageId'] in autoBundleRegularIspIds %}
+                                                {% for ispAutoBundle in ispAutoBundlePlans %}
+                                                    {% set IPSChecked = '' %}
+                                                    {% if ispAutoBundle['bundle_id'] in summaryData.CartBundlePackageId %}
+                                                        {% set IPSChecked = 'checked="checked"' %}
+                                                    {% endif %}
+                                                    <div class="promoPlans stylishradio">
+                                                        {% set onevent = "onclick=addPackage('BUNDLE','"~ispAutoBundle['bundle_id']~"',0,0)" %}
+                                                        <label>
+                                                        <input class="promoRadio" type="radio" name="ispPlan" value="{{ package['packageId'] }}" {{IPSChecked}} {{ onevent|raw }} id="ispAddToCartBtn{{ package['Id'] }}" /> <b>{{ ispAutoBundle['ispName'] }}</b>
+                                                        </label>
+                                                        <label>{{ package['description'] }}</label>
+                                                        <label id="price-{{ package['packageId']}}">${{ package['packagePrice'] ? package['packagePrice'] : '0' }}</label>
+                                                        <label class="autoBasicXVUE"><img src="{{ asset('bundles/dhiuser/images/TvIcon.jpg') }}" alt="{{ ispAutoBundle['iptvName'] }} XVUE Included!"> &nbsp; {{ ispAutoBundle['iptvName'] }} XVUE Included!
+                                                            <div class="popupBasicXVUE">
+                                                                <div class="arrowRight"></div>
+                                                                <div class="basicXVUELeft"><img class="popupLogo" src="{{ asset('bundles/dhiuser/images/dhilogonew.jpg') }}" alt="" /></div>
+                                                                <div class="basicXVUERight">
+                                                                    {% for autoIptvPlan in iptvBundlePlans %}
+                                                                        {% if ispAutoBundle.bundleIptvId == autoIptvPlan.packageId  %}
+                                                                            {% set channelarray = autoIptvPlan.channelname | split(',') %}
+                                                                            {% set count = 1 %}
+                                                                            {% for channel in channelarray %}
+                                                                                {% if ChannelImages[channel] is defined and ChannelImages[channel] != '' and count <= maxShowChannels %}
+                                                                                    {% set imageSrc = asset('uploads/channels/'~ChannelImages[channel]) %}
+                                                                                    <img alt="{{ channel }}" src="{{ imageSrc }}" />
+                                                                                {% else %}
+                                                                                    {# <p class="basicXVUERightText">{{ channel }}</p>&nbsp; #}
+                                                                                {% endif %}
+                                                                                {% set count = count + 1 %}
+                                                                            {% else %}
+                                                                                <p>No additional content available at this time.</p>
+                                                                            {% endfor %}
+                                                                        {% endif %}
+                                                                    {% else %}
+                                                                        <p>No additional content available at this time.</p>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                {% endfor %}
+                                            {% else %}
+                                                {% set IPSChecked = '' %}
+                                                {% if package['packageId'] in summaryData.CartISPPackageId %}
+                                                    {% set IPSChecked = 'checked="checked"' %}
+                                                {% endif %}
+                                                <div class="promoPlans stylishradio">
+                                                    {% set onevent = "onclick=addPackage('ISP','"~package['Id']~"')" %}
+                                                    <label>
+                                                    <input type="hidden" name="packageName[{{ package['packageId'] }}]" id="pname" value="{{ package['packageName'] }}">
+                                                    <input type="hidden" name="bandwidth[{{ package['packageId'] }}]" id="pbandwidth" value="{{ package['bandwidth'] }}">
+                                                    <input type="hidden" name="validity[{{ package['packageId'] }}]" id="pvalidity" value="{{ package['validity'] }}">
+                                                    <input class="promoRadio" type="radio" name="ispPlan" value="{{ package['packageId'] }}" {{IPSChecked}} {{ onevent|raw }} id="ispAddToCartBtn{{ package['Id'] }}" /> <b>{{ package['packageName'] }}</b>{{ isCurrentLabel|raw }}</label>
+                                                    <label>
+                                                        {% if package['bandwidth'] >= 1024 %}
+                                                            {% set mbbandwidth = package['bandwidth']/1024%}
+                                                            {% set replace_value_var = package['bandwidth']~'k' %}
+                                                            {% set replace_with_value_var =  mbbandwidth~'MB' %} 
+                                                            {{ package['description'] |replace({ (replace_value_var): replace_with_value_var }) }}
+                                                        {% else %}
+                                                             {{ package['description'] }}
+                                                        {% endif %}
+                                                    </label>
+                                                    <label id="price-{{ package['packageId']}}">${{ package['packagePrice'] ? package['packagePrice'] : '0' }}</label>
+                                                </div>
+                                            {% endif %}
+                                            {% set isExpandClass = '' %}
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                No Plans Found
+                            {% endif %}
+    	            </div>
+    	        </div>
+    	    </form>
+    	</div>
+    {% endif %}
+{% endblock body %}
+{% block javascripts %}
+    <script type="text/javascript">
+    	$(document).ready(function() {
+    		$(".cls-open-target").click(function(){
+    			var target = $(this).data('target');
+    			$(".cls-isp-containers").addClass('cls-hidden');
+    			$(".cls-open-target").removeClass("blueDays").addClass("redDays");
+    			$(".cls-isp-container-"+target).removeClass('cls-hidden');
+    			$(this).removeClass("redDays").addClass("blueDays");
+    		});
+
+            // autoBasicXVUE
+            $(".autoBasicXVUE").click(function(e) {
+                $(".accountLeft").toggleClass("leftOverlay");
+                $(this).find(".popupBasicXVUE").toggle('fade');
+                e.stopPropagation();
+            });
+            $("body").click(function() {
+                $(".accountLeft").removeClass("leftOverlay");
+                $(this).find(".popupBasicXVUE").fadeOut();
+            });
+
+		});
+    </script>
+{% endblock javascripts %}

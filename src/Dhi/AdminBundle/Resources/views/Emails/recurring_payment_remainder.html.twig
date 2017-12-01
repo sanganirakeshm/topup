@@ -1,0 +1,30 @@
+Hello {{ username }},<br/>
+<br />
+This is a remainder that your next recurring payment of paypal order no. {{ paypalOrderNo }} will be deduct on {{ nextBillingDate }}.
+<br /><br />
+Below is your current activation detail: 
+<br /><br />
+{% if userServices  %}
+<table border="1" cellpadding="5" cellspacing="0">
+	<tr>
+		<th>Package</th>
+		<th>Amount</th>
+		<th>Activation Date</th>
+		<th>Expire Date</th>
+	</tr>
+	{% for userService in userServices %}
+	<tr>
+		<td>{{ userService.packageName }}</td>
+		<td>${{ (userService.actualAmount)?userService.actualAmount:'0' }}</td>
+		<td>{{ userService.activationDate|date('m/d/Y') }}</td>
+		<td>{{ userService.expiryDate|date('m/d/Y') }}</td>
+	</tr>
+	{% endfor %}
+</table>
+{% endif %}
+<br/><br/>
+We hope you have enjoyed the service so far, and are looking forward to bringing you even more entertainment options.
+<br /><br />
+Best regards,
+<br />
+The {{companyname}} Team

@@ -1,0 +1,151 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <style type="text/css">
+        .ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+<section class="content-header"><h1>Return Set Top Box</h1></section>
+<section class="content">
+	<div class="box box-success">
+		<form action="{{ path('dhi_admin_set_top_box_return', {'id':return.id}) }}" method="POST" {{ form_enctype(form) }} id="return_settopbox" class="form-horizontal" novalidate>
+		<div class="box-body">
+			<div class="col-xs-8">
+				<div class="form-group col-sm-6">
+					<label class="control-label">Customer Name: </label>
+					<div>
+						<input type="text" class="form-control" placeholder="Customer Name" readonly="readonly" aria-required="true" aria-invalid="false" value={{ name }}>
+						
+					</div>
+				</div>
+				<div class="form-group col-sm-6">
+					<label class="control-label">Customer Email: </label>
+                    <div>
+                       <input type="text" class="form-control" placeholder="Customer Email" readonly="readonly"aria-required="true" aria-invalid="false" value={{ email }}>
+                    </div>
+				</div>
+			</div> 
+			<div class="col-xs-8">
+				<div class="form-group col-sm-6">
+					<label class="control-label">Mac Address: </label>
+					<div>
+						{{ form_widget(form.macAddress, { 'attr': { 'placeholder': 'Mac Address', 'class': 'form-control'}}) }}
+						<label id="editmacAddress-error" class="error custom-err"></label>
+						<div class="serverError">{{ form_errors(form.macAddress) }}</div>
+					</div>
+				</div>
+				<div class="form-group col-sm-6">
+					<label class="control-label">Given Date: </label>
+                    <div>
+                        {{ form_widget(form.givenAt, { 'attr': { 'placeholder': 'Date', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.givenAt) }}</div>
+                    </div>
+				</div>
+			</div> 
+			<div class="col-xs-8">
+				<div class="form-group col-xs-12">
+					<label class="control-label">Return Date: </label>
+                    <div>
+                        {{ form_widget(form.receivedAt, { 'attr': { 'placeholder': 'Return Date', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.receivedAt) }}</div>
+                    </div>
+				</div>
+			</div>			
+			
+		</div>     
+		<div class="box-footer">	
+		{{ form_rest(form) }}
+             
+			<div class="col-sm-12">
+			    <div class="col-sm-6">
+			        <input type="submit" class="btn btn-success" name="Return" value="Return"/>
+			        <a href="{{ path('dhi_admin_set_top_box_list') }}" class="btn btn-default">Back</a>
+			    </div>
+			</div>
+		</div>    
+		</form>
+	</div>
+</section> 
+          
+
+    
+{% endblock body %}
+    
+{% block javascripts %}
+    {{ parent() }}
+    
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+			
+		
+		$("#return_settopbox").validate({
+                rules: {                	
+                	"dhi_return_set_top_box[receivedAt]": {
+						"required": true                     
+					}                    
+                },
+                messages: {                	
+					"dhi_return_set_top_box[receivedAt]": {
+						"required": 'Please enter return date'                     
+					}                      
+                }
+            });
+			
+			var date = new Date();
+			var day = date.getDate();
+			var monthIndex = date.getMonth();
+			var year = date.getFullYear();
+			var monthIndex1 = monthIndex+1 ;
+			
+			if(day<10){
+				day='0'+day;
+			} 
+			if(monthIndex1<10){
+				monthIndex1='0'+monthIndex1;
+			} 
+			
+			var currentDate = monthIndex1 + '-' +day+ '-' + year;
+			//alert(currentDate);
+            $("#dhi_return_set_top_box_receivedAt").val(currentDate);
+            var givenDate = $("#dhi_return_set_top_box_givenAt").val();
+        	
+		jQuery(document).on("focus", "#dhi_return_set_top_box_receivedAt", function() {
+			var currentDate = new Date();  
+            $(this).datepicker({
+                showOn: "both",
+                defaultDate: currentDate,
+				minDate: givenDate,
+                buttonImage: '{{ asset("bundles/dhiadmin/images/calendar.gif") }}',
+                buttonImageOnly: true,
+                dateFormat: 'mm-dd-yy',
+                readOnly: true,
+               
+            })
+		}) ;
+           {# $('#dhi_admin_email_campaign_endDate').datepicker({
+                showOn: "both",
+                buttonImage: '{{ asset("bundles/dhiadmin/images/calendar.gif") }}',
+                buttonImageOnly: true,
+                dateFormat: 'mm-dd-yy',
+                readOnly: true,
+                onSelect: function(selected) {
+                    $("#dhi_admin_email_campaign_startDate").datepicker("option","maxDate", selected)
+                }
+            }).keyup(function(e) {
+                if(e.keyCode == 8 || e.keyCode == 46) {
+                    $.datepicker._clearDate(this);
+                }
+            });#}
+            
+            
+});
+        
+		
+    </script>
+{% endblock javascripts %}{# empty Twig template #}

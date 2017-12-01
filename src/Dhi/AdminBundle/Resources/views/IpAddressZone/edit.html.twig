@@ -1,0 +1,321 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+<section class="content-header">
+	   <h1>Update Service Location</h1>
+</section>
+<section class="content">
+    <div class="row">
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+        <div class="col-md-12">
+		  <div class="box box-success">
+            <form action="{{ path('dhi_admin_ip_zone_edit', { 'id': id }) }}" {{ form_enctype(form) }} method="POST" class="form-horizontal" id="form-servicelocation" novalidate>
+            		<input type="hidden" name="mode" id="mode" value="edit" />
+                    <div class="box-body">
+		            
+					<div class="form-group col-md-8">
+                        <label class="control-label">Country: </label>
+                           {{ form_widget(form.country, { 'attr': { 'placeholder': 'Country', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.country) }}</div>
+                       
+                    </div>
+                    <div class="form-group col-md-8">
+                        <label class="control-label">Name: </label>
+                           {{ form_widget(form.name, { 'attr': { 'placeholder': 'Name', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.name) }}</div>
+                        
+                    </div>
+                    <div class="form-group col-md-8 margin-bottom10">
+                        <label class="control-label">Description: </label>
+                            {{ form_widget(form.description, { 'attr': { 'placeholder': 'Description', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.description) }}</div>
+                        
+                    </div>
+                    {% macro tagCollectionItem(formData) %}
+                    	{% if formData is defined %}
+						    {% set name = formData.vars.name %}
+						{% else %}
+						    {% set name = formData.vars.full_name %}
+						{% endif %}
+						
+						{% set facNumDisplay = (formData.isMilstarEnabled.vars.checked)?'':'display:none;' %}
+						
+						<div data-content="{{ name }}" id="ipzonebx_{{ name }}">
+							<input type="hidden" name="numberIndex{{ name }}" value="{{ name }}" id="{{ formData.isMilstarEnabled.vars.id }}_txt"/>
+							{{form_widget(formData.collectionIndex, { 'attr': { 'value': name }}) }}
+                    		<div class="form-group col-md-8">
+							 <div class="row">
+							  <div class="col-md-6">
+								<label class="control-label">IP From: </label>
+									{{form_widget(formData.fromIpAddress, { 'attr': { 'placeholder': 'From IP', 'class': 'form-control inputFromIPAddress', 'maxlength':15}}) }}
+									<label id="dhi_service_location_ipAddressZones_{{ name }}_fromIpAddress-error" class="error" for="dhi_service_location_ipAddressZones_{{ name }}_fromIpAddress"></label>
+									<label id="fromIpAddress-error-{{ name }}" class="error custom-err"></label>
+									<div class="serverError">{{ form_errors(formData.fromIpAddress) }}</div>
+								
+							</div>	
+							<div class="col-md-6">
+								<label class="control-label">IP To: </label>
+									{{form_widget(formData.toIpAddress, { 'attr': { 'placeholder': 'To IP', 'class': 'form-control inputToIPAddress', 'maxlength':15}}) }}
+									<label id="dhi_service_location_ipAddressZones_{{ name }}_toIpAddress-error" class="error" for="dhi_service_location_ipAddressZones_{{ name }}_toIpAddress"></label>
+									<label id="toIpAddress-error-{{ name }}" class="error custom-err"></label>
+									<div class="serverError">{{ form_errors(formData.toIpAddress) }}</div>
+								
+							</div>
+							</div>
+							</div>
+							<div class="form-group col-md-8">
+								<label class="control-label">Service: </label>
+									{{form_widget(formData.services,{ 'attr': { 'placeholder': 'Service', 'class': 'form-control inputService'}}) }}
+									<label id="dhi_service_location_ipAddressZones_{{ name }}_services-error" class="error" for="dhi_service_location_ipAddressZones_{{ name }}_services"></label>
+									<label id="service-error-{{ name }}" class="error custom-err"></label>
+                                                                        <div class="serverError">{{ form_errors(formData.services) }}</div>
+                                                                        
+								
+							</div>
+							<div class="form-group col-md-8">
+							  <div class="row">
+							  <div class="col-md-4">
+								<label class="control-label">Milstar Enable?: </label>
+								{{form_widget(formData.isMilstarEnabled,{ 'attr': { 'placeholder': 'Milstar Enable chkMilstar'}}) }}
+                                    <div class="serverError">{{ form_errors(formData.isMilstarEnabled) }}</div>
+								<!--  'onclick':'displayFacNumberTxt(id)' -->
+							  </div>
+							 <div class="form-group col-md-8 margin-bottom10" id="facNumber-bx{{ name }}" style="{#{ facNumDisplay }#}display:none; ">
+								<label class="control-label">Milstar FacNumber: </label>
+								{{form_widget(formData.milstarFacNumber,{ 'attr': { 'placeholder': 'Milstar FacNumber', 'class': 'form-control chkMilstarFacNum', 'maxlength':8}}) }}
+                                    <div class="serverError">{{ form_errors(formData.milstarFacNumber) }}</div>
+								
+							</div> 
+							</div>
+							</div>
+							<div class="form-group col-md-8 rmbtn">
+									<a class="btn-remove btn-add btn btn-default margin-bottom10 pull-right" data-related="{{ name }}">Remove</a>
+							</div>														
+					</div>								    
+					{% endmacro %}                    
+                    <div id="collectionIpzone" data-prototype="{{ _self.tagCollectionItem(form.ipAddressZones.vars.prototype)|escape }}">
+                    {% for ipAddressZone in form.ipAddressZones %}
+                    	{{ _self.tagCollectionItem(ipAddressZone) }}                    	              	                   
+					{% endfor %}                                
+					</div>
+					<div class="form-group col-md-8">
+						
+							<a class="btn-add btn btn-success pull-right" data-target="collectionIpzone">Add More</a>
+						
+					</div> 
+					 	
+					</div>  
+                        <div class="box-footer">
+                             <div class="col-md-8 add-btn-bx">
+							  <input type="submit" name="edit" value="Update" class="btn btn-success"/>
+                                <a href="{{ path('dhi_admin_ip_zone_list') }}" class="btn btn-default">Back</a>
+                            </div>
+                        </div>
+                        {{ form_rest(form) }}
+                   </form>
+					</div>
+                </div>
+         </div>
+</section>
+<div id="ajax-loader-bx" style="display:none;">
+	<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+	<div id="loader-text">Please wait....</div>
+</div>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+<script type="text/javascript">
+	$('.btn-add').click(function(event) {
+	    var collectionHolder = $('#' + $(this).attr('data-target'));
+	    var prototype = collectionHolder.attr('data-prototype');
+	    var form = prototype.replace(/__name__/g, collectionHolder.children().length);
+	
+	    collectionHolder.append(form);
+	
+	    addValidationRule();
+	    return false;
+	});
+	$('.btn-remove').live('click', function(event) {
+	    var name = $(this).attr('data-related');
+	    $('*[data-content="'+name+'"]').remove();
+	
+	    addValidationRule();
+	    checkIpRange("","");
+	    return false;
+	});
+    $(document).ready(function() {
+    	var name = $('#ipzonebx_0 div.rmbtn').remove();
+    	
+    	$('#form-servicelocation').validate({
+        	rules: {
+                "dhi_service_location[country]": {
+                    "required": true
+                },
+                "dhi_service_location[name]": {
+                    "required": true
+                },
+                "dhi_service_location[description]": {
+                    "required": true
+                }
+            },
+            messages: {
+                "dhi_service_location[country]": {
+                    "required": "Please select country"
+                },
+                "dhi_service_location[name]": {
+                    "required": "Please enter location name"
+                },
+                "dhi_service_location[description]": {
+                    "required": "Please enter description"
+                }
+            },
+            submitHandler: function(form) {
+
+                checkIpRange('submitFrom',form);
+                
+                return false;
+			}
+        	
+        });
+        addValidationRule();
+    });
+    
+    $(document).ready(function() {
+    
+        jQuery.validator.addMethod('validIP', function(value) {
+			var split = value.split('.');
+       		if (split.length != 4) 
+           		return false;
+
+       		for (var i=0; i<split.length; i++) {
+           		var s = split[i];
+           		if (s.length==0 || isNaN(s) || s<0 || s>255)
+               		return false;
+       		}
+       		return true;
+   		}, ' Invalid IP Address');            
+    });
+    
+	function addValidationRule(){
+		
+    	$('.inputFromIPAddress').each(function() {
+            
+            		
+            $(this).rules('add', {
+                required: true,
+                //validIP: true,                        
+                 messages: {
+                    required:  "Please enter From IP Address"
+                }
+            });
+        });
+    	
+		$('.inputToIPAddress').each(function() {
+    		
+            $(this).rules('add', {
+                required: true,
+                //validIP: true, 
+                messages: {
+                    required:  "Please enter To IP Address"
+                }
+            });
+        });
+		
+		
+		$('.inputService').each(function() {
+    		
+            $(this).rules('add', {
+                required: true,
+                messages: {
+                    required:  "Please select service."
+                }
+            });
+        });
+		
+		$('.chkMilstarFacNum').each(function() {
+			var milstarFacNumId = this.id;
+			var chkMilstarId = milstarFacNumId.replace('milstarFacNumber', "isMilstarEnabled");
+			
+            $(this).rules('add', {
+            	required: function(element){
+            		return $("#"+chkMilstarId).val().length > 0;
+                },
+                digits: true,
+            	maxlength: 10,
+            	messages: {
+                    required:  "Please enter milstar FacNumber.",
+                    digits: "Please enter only number"
+                }
+            });
+        });
+    }
+	
+	function checkIpRange(type,frm) {
+    	
+    	var flag = false;
+    	$.ajax({
+			
+			type: "POST",
+			url: "{{ path('dhi_admin_validate_ipaddress', {'id':id}) }}",
+			data: $('#form-servicelocation').serializeArray(),	
+			beforeSend: function( xhr ) {
+				
+			    $('#ajax-loader-bx').show();
+			},
+			success:function(result){
+				
+				var obj = jQuery.parseJSON( result );
+				$('.custom-err').html('').hide();
+				
+				if(obj['status'] == 'success') {
+				
+					if(type == 'submitFrom') {
+						
+						frm.submit();
+					}					
+				}
+				
+				if(obj['status'] == 'error') {
+					
+					$.each(obj['error'], function(idx) {
+						
+				        $.each(this, function(k, val) {
+				        	
+				        	if(k == 'fromIp') {
+				        		
+				        		$('#fromIpAddress-error-'+idx).html(val).show();				        		
+				        	}
+				        	
+				        	if(k == 'toIp') {
+				        		
+				        		$('#toIpAddress-error-'+idx).html(val).show();				        		
+				        	}	
+                                                
+                                                if(k == 'validbundle') {
+				        		$('#service-error-'+idx).html(val).show();
+				        		//$('#dhi_service_location_ipAddressZones_'+idx+'_services-error').html(val).show();
+                                                       
+				        	}
+				        });
+				    });					
+				} 
+				
+				$('#ajax-loader-bx').hide();
+			}
+		})			
+    }
+    
+   /* function displayFacNumberTxt(chkid){
+    	var indexNumber = $('#'+chkid+'_txt').val();
+    	
+    	if($("#"+chkid).prop("checked")){
+    		$('#facNumber-bx'+indexNumber).show();	
+    	}else{
+    		$('#facNumber-bx'+indexNumber).hide();
+    		$('#dhi_service_location_ipAddressZones_'+indexNumber+'_milstarFacNumber').val('');
+    		
+    	}
+    } */
+</script>
+{% endblock javascripts %}

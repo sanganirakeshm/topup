@@ -1,0 +1,11 @@
+Hi {{ purchasedSummaryData.firstName }} {{ purchasedSummaryData.lastName }},<br/><br />
+
+<span style="font-family:Times New Roman;font-size:14px;">Thank you for your internet purchase. {% if purchasedSummaryData.PaymentStatus == "Completed" and tikiliveMsg != '' %}Your internet plan included a Premium ExchangeVUE package.{% endif %}</span><br /><br />
+
+<span style="font-family:Times New Roman;font-size:14px;">To start watching your favorite channels on your device, visit <a title="" href="http://www.exchangevue.com">www.ExchangeVUE.com</a> and enter the promo code below for a free 1 month premium package. Due to content security rules, our channel providers require a set top box for viewing. Visit DHI Mobile store and have our staff set you up with one.</span><br /><br />
+
+{{ tikiliveMsg|raw }}<br><br>
+
+Thank you<br>
+{{sitename}} Team
+

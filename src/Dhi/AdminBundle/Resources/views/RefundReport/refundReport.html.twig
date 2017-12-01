@@ -1,0 +1,270 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <style>
+        .row-yellow {
+            background-color: #E2D85B !important;
+        }
+    </style>
+{% endblock stylesheets %}
+{% block body %}
+
+
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>
+
+    <section class="content-header">
+        <h1>Refund Report</h1>
+    </section>
+    <section class="content">
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get" id="searchService">
+                        <div class="box-body ">
+                            <div class="form-group col-md-3" id="serviceType"></div>
+                            <div class="form-group col-md-3" id="serPaymentMethod"></div>
+                            <div class="form-group col-md-3" id="serServiceLocation"></div>
+                            <div class="form-group col-md-3" id="admin"></div>
+                            <div class="form-group col-md-3" id="user"></div>
+                            <div class="form-group col-md-3" id="refundType"></div>
+                            <div class="form-group col-md-6 ">
+                                <div class="row"><div class="col-md-12" id="date-range"></div></div>
+                            </div> 
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12 datatableSearch">
+                        <div class="totalNoRefunds pull-left">
+                            <div class="saleServices">
+                                <b>Total No of Refund(s):</b>
+                            </div>
+                            <div class="col-2 saleServices2" id="totalRefunds"></div>
+                        </div>
+                        <div class="">
+                            {% if admin_permission.checkPermission('refund_report_export_pdf') %}
+                                <a href="{{ path('dhi_admin_refund_report_pdf',app.request.query.all) }}" class="btn btn-success export-option pull-right margin-top5" id="export_pdf" >Export PDF</a>
+                            {% endif %}
+                            {% if admin_permission.checkPermission('refund_report_export_csv') %}
+                                <a href="{{ path('dhi_admin_refund_report_csv',app.request.query.all) }}" class="btn btn-success export-option pull-right margin-top5" id="export_csv" >Export CSV</a>
+                            {% endif %}
+                            {% if admin_permission.checkPermission('refund_report_export_excel') %}
+                                <a href="{{ path('dhi_admin_refund_report_excel',app.request.query.all) }}" class="btn btn-success export-option pull-right margin-top5" id="export_excel" >Export Excel</a>
+                            {% endif %}
+                            <div class="col-md-3 col-sm-12 pull-right margin-top5">
+                                <select class="pull-right cls-export-slot" id="cls-export-slot"></select>
+                                <label class="lbl-error cls-err-slot" style="display:none;">Select Range To Export</label>
+                            </div>
+                        </div>
+
+                        <table id="refundReportTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Service Type</th>
+                                    <th>Customer</th>
+                                    <th>Plan Name</th>
+                                    <th>Status</th>
+                                    <th>Payment Method</th>
+                                    <th>Date</th>
+                                    <th>Admin</th>
+                                    <th>Plan Amount</th>
+                                    <th>Refunded Amount</th>
+                                    <th>Refund Type</th>
+                                    <th>Service Location</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th><span style="display: none;">Service Type</span></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th><span style="display: none;">Payment Method</span></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Total</th>
+                                    <th></th>
+                                    <th><span style="display: none;">Refund Type</span></th>
+                                    <th>Service Location</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".export-option").click(function(event) {
+                event.preventDefault();
+                var offset = $("#cls-export-slot").val();
+                if (offset == "NA") {
+                    $(".cls-err-slot").show();
+                }else{
+                    $(".cls-err-slot").hide();
+                    var url = $(this).attr('href'); 
+                        url = url+"?offset="+(Number(offset));
+
+                    if ($(this).attr('target') == "_blank") {
+                        window.open(url, "_blank");
+                    }else{
+                        window.location = url;
+                    }
+                }
+            });
+            dTable = $('#refundReportTable').dataTable({
+                "oLanguage": {
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                bPaginate: true,
+                bInfo: false,
+                sAjaxSource: "{{ path('dhi_admin_refund_report_list_json') }}",
+                "fnServerData": function (sUrl, aoData, fnCallback, oSettings) {
+                    oSettings.jqXHR = $.ajax({
+                        "url": sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if (json.sError) {
+                                oSettings.oApi._fnLog(oSettings, 0, json.sError);
+                            }
+                            $('#cls-export-slot').empty().val(0);
+                            if (json.exportSlots) {
+                                var s = document.getElementById('cls-export-slot');
+                                s.options[0] = new Option("Select Range To Export", "NA");
+                                var i = 1;
+                                $.each(json.exportSlots, function(index, value) {
+                                    s.options[i] = new Option(value, index);
+                                    i++;
+                                });
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback(json);
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if (error == "parsererror") {
+                                window.location = "{{ path('dhi_admin_user_list') }}";
+                            }
+                        }
+                    });
+                },
+                aoColumns: [
+                    {"sName": "serviceType"},
+                    {"sName": "userName", "bSearchable": true, "bSortable": true},
+                    {"sName": "package"},
+                    {"sName": "status"},
+                    {"sName": "paymentMethod"},
+                    {"sName": "refundDate"},
+                    {"sName": "adminUser", "bSearchable": true, "bSortable": true},
+                    {"sName": "actualAmount"},
+                    {"sName": "refundAmount"},
+                    {"sName": "refundType", "bSearchable": true, "bSortable": true},
+                    {"sName": "serviceLocation"},
+                ],
+                fnDrawCallback: function () {
+                    $('#admin input').attr('placeholder', 'Admin');
+                    $('#user input').attr('placeholder', 'Customer');
+                    if (this.fnSettings().fnRecordsTotal() == 0) {
+
+                        $('div#totalRefunds').text('0');
+                        $("#export_csv").addClass('disabled');
+                        $("#export_excel").addClass('disabled');
+
+                    } else {
+                        $('div#totalRefunds').text(this.fnSettings().fnRecordsTotal());
+                        $("#export_csv").removeClass('disabled');
+                        $("#export_excel").removeClass('disabled');
+                    }
+                },
+                fnFooterCallback: function (nRow, aaData, iStart, iEnd, aiDisplay) {
+
+                    var TotalMarks = 0;
+                    var refundAmount = 0;
+                    for (var i = 0; i < aaData.length; i++)
+                    {
+
+                        var tmpTxt = aaData[i][8];
+                        refundAmount = tmpTxt.replace("$", "");
+                        TotalMarks += parseFloat(refundAmount);
+                    }
+
+                    var nCells = nRow.getElementsByTagName('th');
+                    TotalMarks = TotalMarks.toFixed(2);
+                    nCells[8].innerHTML = '$' + TotalMarks;
+                },
+                aaSorting: [[5, 'desc']]
+            });
+
+            $('#refundReportTable').dataTable().columnFilter({
+            sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+                aoColumns: [
+                    {type: "select", sSelector: "#serviceType", values: ['IPTV', 'ISP', 'BUNDLE']},
+                    {type: "text", sSelector: "#user"},
+                    null,
+                    null,
+                    {type: "select", sSelector: "#serPaymentMethod", values:{{paymentMethod|raw}}},
+                    {type: "date-range", sSelector: "#date-range"},
+                    {type: "text", sSelector: "#admin"},
+                    null,
+                    null,
+                    {type: "select", sSelector:"#refundType", values: ["Refunded", "Refunded After Expired"]},
+                    {type: "select", sSelector:"#serServiceLocation", values:{{serviceLocation|raw}}},
+                ]
+        });
+
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+
+        fnShowHide(10);
+
+        $("#date-range .date_range_filter:first").change(function(event) {
+            $("#date-range .date_range_filter:last").datepicker("option", "minDate", $(this).val());
+        }).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+        $("#date-range .date_range_filter:last").change(function(event) {
+            $("#date-range .date_range_filter:first").datepicker("option", "maxDate", $(this).val());
+        }).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+        $(".filter_date_range .date_range_filter.hasDatepicker").attr({ readonly: 'true' });  
+    });
+
+    function fnShowHide(iCol)
+    {
+        /* Get the DataTables object again - this is not a recreation, just a get of the object */
+        var oTable = $('#refundReportTable').dataTable();
+
+        var bVis = oTable.fnSettings().aoColumns[iCol].bVisible;
+        oTable.fnSetColumnVis(iCol, bVis ? false : true);
+    }
+    </script>
+{% endblock %}

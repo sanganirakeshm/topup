@@ -1,0 +1,875 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock stylesheets %}
+
+{% block body %}
+    {% block fos_user_content %}
+        {% trans_default_domain 'FOSUserBundle' %}
+        <section class="content">
+			{% if app.user %}	
+			<div class="container text-right no-border">
+                <div class="row"><div class="col-xs-12">
+			<h6 class="color-blue line-height-20">Welcome {{app.user.username}}</h6>
+				</div></div>	</div>	
+			{%endif%}
+        
+            {# **** Step 1 ***** #}
+            <div class="container" id="step-1"> 
+
+                <div class="row">
+                    <div class="heading">
+                        <div class="col-xs-12">
+                            <h2>Review And Change Your Current Plans And Service</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="msgBoxContainer">
+                    <div class="col-xs-12" id="flash">{% include "DhiUserBundle::flashMessage.html.twig" %}</div>
+                </div>
+
+                {% set userCredit = '' %} 
+                {% set creditData = 0 %}
+
+                {% if summaryData and 'Credit' in summaryData.Cart|keys and summaryData.Cart.Credit is not null %}
+                    {% set userCredit = summaryData.Cart.Credit[0].creditId %}    
+                {% endif %}
+
+                <form id="frmconfirm" method="POST" action="{{ path('dhi_package_select', {'service': app.request.get('service')}) }}" name="myForm">
+
+                    {% set termUseChecked = '' %}
+
+                    {% if 'IPTV' in summaryData.AvailableServicesOnLocation and app.request.get('service') == 'IPTV' %} 
+                        <div class="col-xs-12">
+                            {% if credits and credits|length > 0 %}
+                                {% set creditData = 1 %} 
+                            {% endif %}
+                            <ul class="nav nav-tabs nav-justified reviewtabber" id="iptvTabView">
+                                <li class="active" id="iptv-package-tab"><a href="#iptvTab" data-toggle="tab"> ExchangeVUE Packages</a></li>
+                                {% if 'IPTV' in summaryData.AvailableServicesOnLocation %}<li id="iptv-premium-tab"><a href="#premiumTab" data-toggle="tab">Additional Content</a></li>{% endif%}
+                                {% if 'IPTV' in summaryData.AvailableServicesOnLocation and creditData == 1 %}<li id="iptv-credit-tab"><a href="#creditTab" data-toggle="tab">CREDIT</a></li>{% endif%}
+                            </ul>
+
+                            <div class="tab-content clearfix">           		
+                                <div class="tab-pane active" id="iptvTab" style="overflow:auto;">
+                                    <table class="table table-bordered service-package ">
+                                        <thead> </thead>                      
+                                        <tbody>                                
+                                            {% if allPackages|length > 0 %} 
+
+                                                {% for key, packages in packageColumnArray %}
+                                                    <tr>
+                                                        <td nowrap="nowrap">
+                                                            {{packages|trim}}											
+                                                        </td>
+
+                                                        {% for pk, package in allPackages %}
+
+                                                            <th nowrap="nowrap">
+                                                                {% if packages == 'Package'%}
+
+                                                                    {% set checked = '' %}
+
+                                                                    {% if package['packageId'] in summaryData.CartIPTVPackageId %}
+                                                                        {% set checked = 'checked="checked"' %}
+                                                                        {% set termUseChecked = 'checked="checked"' %}
+                                                                    {% elseif package['packageId'] in summaryData.PurchasedIPTVPackageId %}
+
+                                                                        {% set checked = 'checked="checked"' %}
+                                                                    {% endif %}
+
+
+                                                                    <span>{{ package['packageName'] }}</span><br />
+                                                                    <input type="radio" id="packageId{{ package['packageId']}}" name="packageId" value="{{ package['packageId']}}" {{checked}} onmouseover="return checkAuth(this, '{{isDeersAuthenticated}}', {{ package['isDeers'] ? package['isDeers'] : '0' }});" />
+                                                                    <input type="hidden" name="packageName[{{ package['packageId'] }}]" id="pname" value="{{ package['packageName'] }}">
+                                                                    <input type="hidden" name="validity[{{ package['packageId'] }}]" id="pvalidity{{ package['packageId']}}" value="{{ package['validity'] }}">                                                            
+
+                                                                {% elseif packages == 'Price'%}
+
+                                                                    <span id="price-{{ package['packageId']}}">
+                                                                        {% if package['packagePrice'] %}
+
+                                                                            {% if discount %}
+                                                                                {% set discountAmount = (package['packagePrice'] * discount) / 100 %}
+
+                                                                                ${{ package['packagePrice'] - discountAmount }}<br/>
+                                                                                <span style="color:#787880;font-size:12px;">
+                                                                                    <strike>${{ package['packagePrice'] }}</strike>&nbsp;({{ discount }}% Off)
+                                                                                </span>
+                                                                            {% else %}
+                                                                                ${{ package['packagePrice'] }}	
+                                                                            {% endif %}
+                                                                        {% else %}
+                                                                            $0
+                                                                        {% endif %}
+                                                                    </span>
+                                                                    <input type="hidden" name="price[{{ package['packageId'] }}]" id="money" value="{{ package['packagePrice'] ? package['packagePrice'] : '0' }}">
+                                                                {% elseif packages == 'Number Of Channels'%}
+                                                                    <span>{{ package['packageChannelCount'] }}</span><br>
+                                                                    <a href="javascript:void(0)" onclick="showChannelList('{{ package['packageId'] }}')">Channel List</a>
+                                                                {% endif %}
+                                                            </th>
+
+                                                        {% endfor %} 
+                                                    </tr>                                        
+                                                {% endfor %} 
+                                            {% else %}
+                                                <tr><td>Package not available.</td></tr>
+                                            {% endif%}
+                                        </tbody>
+                                    </table>	
+                                    <div class="col-xs-12 margTop20 margBot20">
+                                        <div class="row">
+                                            <div class="pull-left">
+                                                <a href="{{path('dhi_user_account')}}" class="anchor-btn btn btn-danger" name="cancel">Cancel</a>				                
+                                            </div>
+                                            <div class="pull-right">
+                                                <input type="button" name="iptvNextBtn" value="Next" class="anchor-btn  btn btn-blue">
+                                            </div>
+                                        </div>	            
+                                    </div>                           								
+                                </div>
+
+                                <div class="tab-pane" id="premiumTab" style="overflow:auto;">
+                                    <table class="table table-bordered service-package ">
+                                        <thead> </thead>
+
+                                        <tbody>
+                                            {% if premiumPackage|length > 0 %} 
+
+                                                {% for key, packages in packageColumnArray %}
+                                                    <tr>
+
+                                                        <td>{{packages}}</td>
+
+                                                        {% for pk, package in premiumPackage %}
+
+
+                                                            {% set alreadyPurchasedAddOns = 0 %}
+                                                            {% set addOnChecked = '' %}
+
+                                                            {% if package['packageId'] in summaryData.CartAddOnPackageId %}
+
+                                                                {% set addOnChecked = 'checked="checked"' %}
+                                                            {% elseif package['packageId'] in summaryData.PurchasedAddOnPackageId %}
+
+                                                                {% set addOnChecked = 'checked="checked"' %}
+                                                                {% set alreadyPurchasedAddOns = 1 %}
+                                                            {% endif %}
+
+                                                            {% set premiumPackagePriceBasedOnIPTV = package['packagePrice'] %}
+
+                                                            {% if summaryData.IsIPTVAvailabledInPurchased == 1 %}
+
+                                                                {% set perDayPrice =  package['packagePrice'] / package['validity'] %}
+                                                                {% set premiumPackagePriceBasedOnIPTV = perDayPrice * summaryData.Purchased.IPTVRemainDays %} 
+                                                            {% endif %}
+
+                                                            {% if alreadyPurchasedAddOns == 0 and premiumPackagePriceBasedOnIPTV > 5 %}
+                                                                <th>
+                                                                    {% if packages == 'Package'%}
+
+                                                                        <span>{{ package['packageName'] }}</span><br />
+                                                                        <input class="chk" type="checkbox" id="premiumPackageId{{ package['packageId'] }}" name="premiumPackageId[{{ package['packageId']}}]" value="{{ package['packageId']}}" {{addOnChecked}} onmouseover="return checkAuth(this, '{{isDeersAuthenticated}}', {{ package['isDeers'] ? package['isDeers'] : '0' }});" />
+                                                                        <input type="hidden" name="premiumPackageName[{{ package['packageId'] }}]" id="premiumName" value="{{ package['packageName'] }}">
+                                                                        <input type="hidden" name="premiumPackageValidity[{{ package['packageId'] }}]" id="validity" value="{{ package['validity'] }}">	                                               	       
+
+                                                                    {% elseif packages == 'Price'%}
+
+                                                                        $<span id="price-{{ package['packageId']}}">{{ package['packagePrice'] }}</span>
+                                                                        <input type="hidden" name="premiumPrice[{{ package['packageId'] }}]" id="premiumMoney" value="{{ package['packagePrice'] }}">
+
+                                                                    {% elseif packages == 'Number Of Channels'%}
+                                                                        <span>{{ package['packageChannelCount'] }}</span><br>
+                                                                        <a href="javascript:void(0)" onclick="showChannelList('{{ package['packageId'] }}')">Channel List</a>
+
+                                                                    {% endif %}
+
+                                                                </th>
+                                                            {% endif %}
+
+
+
+                                                        {% endfor %} 
+                                                    </tr>                                        
+                                                {% endfor %}
+                                            {% else %}
+                                                <tr><td>No additional content available at this time, please click "Add to Cart" to continue</td></tr>    
+                                            {% endif %}    
+                                        </tbody>
+                                    </table>
+
+                                    {% if creditData == 1 %}
+
+                                        <div class="col-xs-12 margTop20 margBot20">
+                                            <div class="row">
+                                                <div class="pull-left">
+                                                    <input type="button" name="iptvBackBtn" value="Back" class="anchor-btn  btn btn-danger">				                
+                                                </div>
+                                                <div class="pull-right">
+                                                    <input type="button" name="creditNextBtn" value="Next" class="anchor-btn  btn btn-blue">
+                                                </div>
+                                            </div>	                                            
+                                        </div>
+
+                                    {% else %}
+
+                                        {% if allPackages|length > 0 %} 
+
+                                            <div class="col-xs-12 text-right">
+
+                                                <div class="row">
+                                                    I agree to the <a href="#" data-toggle="modal" data-target="#termCondition">terms and conditions</a> 
+                                                    <input type="checkbox" name="termsUse" id="termsUse" value="1" {{ termUseChecked }}/>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="col-xs-12 margTop20 margBot20">
+
+                                                <div class="row"> 
+                                                    <div class="pull-left">
+                                                        <input type="button" name="iptvBackBtn" value="Back" class="anchor-btn  btn btn-danger">
+                                                    </div>
+                                                    <div class="pull-right">
+                                                        <input type="button" name="iptvAddToCartBtn" value="Add to Cart" class="anchor-btn  btn btn-blue">
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        {% else %} 
+
+                                            <div class="col-xs-12 margTop20 margBot20">
+
+                                                <div class="row"> 
+                                                    <div class="pull-left">
+                                                        <input type="button" name="iptvBackBtn" value="Back" class="anchor-btn  btn btn-danger">				                
+                                                    </div>
+                                                </div>
+
+                                            </div>  
+
+                                        {% endif %}         
+
+                                    {% endif %}
+                                </div>  
+
+                                <div class="tab-pane" id="creditTab" style="overflow:auto;">
+
+                                    <table class="table table-bordered service-package ">
+                                        <thead></thead>
+                                        <tbody>
+
+                                            {% for i in 1..2 %}
+
+                                                <tr>
+                                                    <th nowrap="nowrap">
+                                                        {% if i ==  1 %}
+                                                <div class="center text-center">
+                                                    <span>None</span><br />
+                                                    <input type="radio" id="creditId" name="creditId" value="removeCredit" checked="checked"  />                                                             
+                                                </div>
+                                            {% else %}
+                                                <div class="center text-center">
+                                                    <span>No</span><br>
+                                                    <span>Credit</span>
+                                                </div>
+                                            {% endif %}
+                                            </th>									
+                                            {% for cKey, record in credits %}
+
+                                                <th nowrap="nowrap">
+
+                                                    {% if i ==  1 %}
+
+                                                    <div class="center text-center">
+                                                        <span>${{ record.amount }}</span><br />
+                                                        <input type="radio" id="creditId{{ record.id }}" name="creditId" value="{{ record.id }}" {{ userCredit == record.id ? 'checked="checked"' : ''}} onclick="checkCreditRadio();" />
+                                                        <input type="hidden" id="creditAmT" name="creditAmt" value="{{record.amount}}">
+                                                        <input type="hidden" id="creditPurchase" name="creditPurchase" value="{{record.credit}}">
+                                                    </div>
+
+                                                {% else %}
+
+                                                    <div class="center text-center">
+                                                        <span>{{ record.credit }}</span><br>
+                                                        <span>Credit</span>
+                                                    </div>
+
+                                                {% endif %}
+
+                                                </th>
+
+                                            {% endfor %} 
+
+                                            </tr>  
+
+                                        {% endfor %} 
+
+                                        </tbody>
+                                    </table>
+
+                                    <div class="col-xs-12 text-right">
+                                        <div class="row">  
+                                            I agree to the <a href="#" data-toggle="modal" data-target="#termCondition">terms and conditions</a> 
+                                            <input type="checkbox" name="termsUse" id="termsUse" value="1" {{ termUseChecked }}/>
+                                        </div></div>
+
+                                    <div class="col-xs-12 margTop20 margBot20">
+                                        <div class="row">  
+                                            <div class="pull-left">
+                                                <input type="button" name="ispBackBtn" value="Back" class="anchor-btn  btn btn-danger">
+                                            </div>
+                                            <div class="pull-right">
+                                                <input type="button" name="iptvAddToCartBtn" value="Add to Cart" class="anchor-btn  btn btn-blue ">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>  
+
+
+                            </div>                		             	
+                        </div>
+                    {% endif %}
+
+
+                    {% if 'ISP' in summaryData.AvailableServicesOnLocation and app.request.get('service') == 'ISP' %} 
+                        <div class="col-xs-12">
+                            <ul class="nav nav-tabs nav-justified reviewtabber purchase_credit_list" id="ispTabView">
+                                <li class="active" id="isp-package-tab"><a href="#ispTab" data-toggle="tab"> {{ app.request.get('service') }} PACKAGES</a></li>                	
+                            </ul>
+                            <div class="tab-content clearfix">
+                                <div class="tab-pane active" id="iptvTab" style="overflow:auto;">
+
+                                    <table class="table table-bordered service-package ">
+                                        <thead></thead>                       
+                                        <tbody>		
+
+                                            {% if allPackages|length > 0 %}			
+                                                <tr>
+                                                    <td><b>Plan Names</b></td>
+                                                    <td><b>Price</b></td>
+
+                                                    {% for pk, package in allPackages %}
+
+
+                                                        {% set currentIPSPackBandwidth = '' %}
+                                                        {% set currentIPSPackValidity = '' %}
+                                                        {% set currentIPSPackPrice = '' %}
+                                                        {% if summaryData.PurchasedAvailable == 1 and summaryData.IsISPAvailabledInPurchased == 1 %}
+
+                                                            {% set currentIPSPackBandwidth = summaryData.Purchased.ISP.CurrentISPbandwidth %}											
+                                                            {% set currentIPSPackValidity = summaryData.Purchased.ISP.CurrentISPvalidity %}
+                                                            {% set currentIPSPackPrice = summaryData.Purchased.ISP.CurrentISPprice %}
+                                                        {% endif %}
+
+                                                        {% set isISPPackageDisplay = 0 %}
+                                                        {% if currentIPSPackValidity == package['validity'] %}
+
+
+                                                            {% if package['bandwidth'] > currentIPSPackBandwidth and package['packagePrice'] > currentIPSPackPrice %}
+                                                                {% set isISPPackageDisplay = 1 %}
+                                                            {% elseif package['bandwidth'] == currentIPSPackBandwidth and package['packagePrice'] > currentIPSPackPrice %}
+                                                                {% set isISPPackageDisplay = 1 %}
+                                                            {% elseif package['bandwidth'] > currentIPSPackBandwidth and package['packagePrice'] == currentIPSPackPrice %}
+                                                                {% set isISPPackageDisplay = 1 %}
+                                                            {% endif %} 
+															
+                                                        {% endif %}
+
+                                                        {% if package['validity'] > currentIPSPackValidity %}
+                                                            {% if package['bandwidth'] >= currentIPSPackBandwidth and package['packagePrice'] >= currentIPSPackPrice %}
+                                                                {% set isISPPackageDisplay = 1 %}
+                                                            {% endif %} 
+                                                        {% endif %}
+                                                        
+                                                        {% set planDisabled = '' %}
+                                                        {% set planhover = '' %}
+                                                        {% if 'IPTV' in summaryData.AvailableServicesOnLocation %}
+                                                        
+                                                        	{% if package['validity'] < 30 %}
+                                                        	
+                                                        		{% if summaryData.IsIPTVAvailabledInCart == 1 and summaryData.IsIPTVAvailabledInPurchased == 0 %}
+                                                        	
+                                                        			{% set planDisabled = '' %}
+                                                        			{% set planhover = 'onclick=displayNotification(this.id)' %}
+                                                       			{% elseif summaryData.IsIPTVAvailabledInCart == 0 and summaryData.IsIPTVAvailabledInPurchased == 1 %}
+                                                       					
+                                                       				{% set planDisabled = '' %}
+                                                        			{% set planhover = 'onclick=displayNotification(this.id)' %}
+                                                        		{% endif %}
+                                                        	{% endif %} 
+                                                        	
+                                                        {% endif %}
+
+                                                        {% if isISPPackageDisplay == 1 %}
+                                                        <tr>   
+                                                            <td>
+                                                                {% set IPSChecked = '' %}
+
+                                                                {% if package['packageId'] in summaryData.CartISPPackageId %}
+
+                                                                    {% set IPSChecked = 'checked="checked"' %}
+                                                                    {% set termUseChecked = 'checked="checked"' %}
+                                                                {% elseif package['packageId'] in summaryData.PurchasedISPPackageId %}
+
+                                                                    {% set IPSChecked = 'checked="checked"' %}
+                                                                {% endif %}
+                                                                {% if IPSChecked != '' %}
+																<input type="hidden" id="ispSelectedId" name="ispSelectedId" value="{{ (IPSChecked)?package['packageId']:'' }}" />
+																{% endif %}
+                                                                <span class="pull-left">{{ package['packageName'] }} ({{ package['description'] }} ) {% if package['isAddons'] == 1 %}<font color="red">*</font>{% endif %}</span>
+                                                                <span class="pull-right">
+                                                                    <input type="radio" id="packageId{{ package['packageId']}}" name="packageId" value="{{ package['packageId']}}" {{IPSChecked}} {{ planDisabled }} {{ planhover }} />
+                                                                </span>
+                                                                <input type="hidden" name="packageName[{{ package['packageId'] }}]" id="pname" value="{{ package['packageName'] }}">
+                                                                <input type="hidden" name="bandwidth[{{ package['packageId'] }}]" id="pbandwidth" value="{{ package['bandwidth'] }}">
+                                                                <input type="hidden" name="validity[{{ package['packageId'] }}]" id="pvalidity" value="{{ package['validity'] }}">                                                                                                                    
+                                                            </td>
+                                                            <td>
+                                                                <span id="price-{{ package['packageId']}}">{{ package['packagePrice'] ? package['packagePrice'] : '0' }}</span>
+                                                                <input type="hidden" name="price[{{ package['packageId'] }}]" id="money" value="{{ package['packagePrice'] ? package['packagePrice'] : '0' }}">
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+
+                                                {% endfor %} 
+                                                </tr> 
+                                            {% else %}
+                                                <tr>
+                                                    <td>Package not available.</td>
+                                                </tr>
+                                            {% endif %}                                       
+                                        </tbody>
+                                    </table> 
+
+                                    {% if allPackages|length > 0 %}	
+                                        <div class="col-xs-12 text-right">
+                                            <div class="row">
+                                                I agree to the <a href="#" data-toggle="modal" data-target="#termCondition">terms and conditions</a> 
+                                                <input type="checkbox" name="termsUse" id="termsUse" value="1" {{ termUseChecked }}/>
+                                            </div></div>
+                                        <div class="col-xs-12 margTop20 margBot20">
+                                            <div class="row">
+                                                <div class="pull-left">
+                                                    <a href="{{path('dhi_user_account')}}" class="anchor-btn  btn btn-danger" name="cancel">Cancel</a>
+                                                </div>
+                                                <div class="pull-right">
+                                                    <input type="button" name="ispAddToCartBtn" value="Add to Cart" class="anchor-btn  btn btn-blue">
+                                                </div></div>
+                                        </div>						
+                                    {% else %}
+                                        <div class="col-xs-12 margTop20 margBot20">
+                                            <div class="pull-left">
+                                                <a href="{{path('dhi_user_account')}}" class="anchor-btn  btn btn-danger" name="cancel">Cancel</a>
+                                            </div>
+                                        </div>
+                                    {% endif %}	                                       							
+                                </div> 
+
+                            </div>                		             	
+                        </div>
+                    {% endif %}
+
+                </form>
+
+            </div>            
+        </section>
+
+        <div class="modal fade" id="channelModal" tabindex="-1" role="dialog" aria-labelledby="channelModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content channel">
+
+                </div>
+            </div>
+        </div>
+
+        <div id="ajax-loader-box" style="display:none;" class="ajax-loader-box">
+            <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+            <div id="loader-text">Please wait....</div>
+        </div>
+
+
+
+    {% endblock fos_user_content %}
+    {{ include('DhiServiceBundle:Service:termsUse.html.twig') }}
+{% endblock body %}
+
+{% block javascripts %}
+
+    {{ parent() }}
+    <script type="text/javascript">
+    
+    function checkAuth(x, deersAuth, isDeers) {
+        
+		if (deersAuth == '2' && isDeers == '1') {
+
+			$(x).attr('disabled', 'disabled');
+			
+			$.confirm({
+				title: 'Deers Authentication!',
+				content: '<p>This plan requires DEERS authentication. DEERS authentication requires you to have a CAC and an active shopmyexchange.com account. If you have a CAC, but do not have a shopmyexchange.com account, get it <a href="https://www.shopmyexchange.com/account/register"><b>here</b></a> now. If you already have a shopmyexchange account, perform DEERS authentication <a href="{{ path('dhi_user_deers_auth') }}"><b>here</b></a>.</p>',
+				icon: '',
+				confirmButton: 'OK',
+				cancelButton: '',
+				confirmButtonClass: 'btn-info',
+				cancelButtonClass: 'btn-danger',
+				theme: 'white',
+				animation: 'scale',
+				animationSpeed: 400,
+				animationBounce: 1.5,
+				keyboardEnabled: false,
+				container: 'body',
+				cancel: function(){
+
+				},
+				confirm: function(){
+					
+					$(x).attr('disabled', false);
+				},
+				backgroundDismiss: false,
+				autoClose: false,
+				closeIcon: true
+			});
+                    return false;
+		} else {
+
+			return true;
+		}
+	}
+
+	$(document).ready(function() {
+
+        if ({{addonPrimium}} == 1) {
+
+			$("ul#iptvTabView li").removeClass('active');
+			$("ul#iptvTabView li#iptv-premium-tab").addClass('active');
+			$("div.tab-pane").removeClass('active');
+			$("div#premiumTab").addClass('active');
+        }
+
+        {% if summaryData.IsIPTVAvailabledInCart == 0 and summaryData.IsIPTVAvailabledInPurchased == 0 %}
+
+            $('.chk').click(function() {
+
+            	var selected = $("input[type='radio'][name='packageId']:checked");
+				if (!isPackageSelected()) {
+	
+					showIPTVPackageTab();
+					$flashMsg = disErrorMsg('danger', 'Please select at least one plan.');
+					$("#flash").html($flashMsg);
+					return false;
+	            }
+            });
+		{% endif %}
+
+		$('input[type="button"][name="iptvNextBtn"]').click(function(){
+
+			$flashMsg = '';
+			if (isPackageSelected()) {
+
+				var packageId = $("input[type='radio'][name='packageId']:checked").val();
+				
+				{% if 'ISP' in summaryData.AvailableServicesOnLocation %}
+
+            		{% set ispValidity = 0 %}
+            		{% if summaryData.IsISPAvailabledInCart == 1 %}
+
+						{% set ispValidity = summaryData.Cart.ISP.CurrentISPPackvalidity %}
+            		{% elseif summaryData.IsISPAvailabledInPurchased == 1 %}
+                		{% set ispValidity = summaryData.Purchased.ISPRemainDays %}                				
+            		{% endif %}
+
+					if ({{ summaryData.IsISPAvailabledInPurchased }} == 1 && $('#pvalidity' + packageId).val() > {{ ispValidity }}){
+
+                		var msg = 'You existing internet plan cycle will be upgrade with ExchangeVUE plan. Do you want to continue?';
+						confirmBox(msg, 'ISPUpgrade', '', '');
+                	} else{
+
+                		showPremiumPackageTab();
+                	}
+
+				{% else %}
+
+					showPremiumPackageTab();
+        		{% endif %}  
+        		
+            } else{
+
+				{% if totalPackages > 0 %}
+
+					showIPTVPackageTab();
+                    $flashMsg = disErrorMsg('danger', 'Please select at least one plan.');
+                    $("#flash").html($flashMsg);
+                    return false;{% else %}
+
+                    showPremiumPackageTab();
+        		{% endif%}    
+
+
+			}
+		});
+
+		$('input[type="button"][name="creditNextBtn"]').click(function(){
+
+			$flashMsg = '';
+			if (isPackageSelected()) {
+
+				showCreditTab();
+            } else{
+
+        		{% if totalPackages > 0 %}
+
+            		showIPTVPackageTab();
+                    $flashMsg = disErrorMsg('danger', 'Please select at least one plan.');
+                    $("#flash").html($flashMsg);
+                    return false;{% else %}
+
+                    showCreditTab();
+
+        		{% endif%}  
+            }
+		});
+
+		$('input[type="button"][name="iptvBackBtn"]').click(function(){
+
+			showIPTVPackageTab();
+		});
+
+		$('input[type="button"][name="ispBackBtn"]').click(function(){
+
+			showPremiumPackageTab();
+		});
+
+		$('input[type="button"][name="iptvAddToCartBtn"]').click(function(){
+
+			$flashMsg = '';
+			if (isPackageSelected()) {
+
+				if ($('#termsUse').prop('checked')){
+
+            		document.myForm.submit();
+            	} else {
+
+            		$flashMsg = disErrorMsg('danger', 'Please accept terms of use.');
+            	}
+            } else{
+
+				{% if totalPackages > 0 and isDeersAuthenticated == 1 %}
+
+            		$flashMsg = disErrorMsg('danger', 'Please select at least one plan.');
+                    $("#flash").html($flashMsg);
+                    return false;
+				{% else %}
+
+					if (!$('#termsUse').attr('checked')){
+
+						$flashMsg = disErrorMsg('danger', 'Please accept terms of use.');
+						$("#flash").html($flashMsg);
+						return false;
+					} else {
+
+						document.myForm.submit();
+            		}
+
+				{% endif%}  
+            }
+
+            $("#flash").html($flashMsg);
+			return false;
+		});
+
+		$('input[type="button"][name="ispAddToCartBtn"]').click(function(){
+
+			$flashMsg = '';
+			if (isPackageSelected()) {
+
+				if ($('#termsUse').prop('checked')){
+
+					document.myForm.submit();
+				} else{
+
+            		$flashMsg = disErrorMsg('danger', 'Please accept terms of use.');
+            	}
+			} else {
+
+            	$flashMsg = disErrorMsg('danger', 'Please select at least one plan.');
+            }
+
+            $("#flash").html($flashMsg);
+			return false;
+		});
+
+	});
+                    
+	function showChannelList(packageId) {
+
+		var channelList = '{{ path('dhi_service_channel_list', {'packageId': 'PACKAGE_ID'}) }}';
+		var channelListUrl = channelList.replace("PACKAGE_ID", packageId);
+		$('#ajax-loader-box').show();
+		
+		$('.channel').load(channelListUrl, function (result) {
+			
+			$('#ajax-loader-box').hide();
+			$('#channelModal').modal({show: true});
+		});
+	}
+
+	function premiumShowChannelList(packageId) {
+
+		var channelList = '{{ path('dhi_service_premium_channel_list', {'packageId': 'PACKAGE_ID'}) }}';
+		var channelListUrl = channelList.replace("PACKAGE_ID", packageId);
+		$('#ajax-loader-box').show();
+		$('.channel').load(channelListUrl, function (result) {
+        
+			$('#ajax-loader-box').hide();
+			$('#channelModal').modal({show: true});
+		});
+	}
+
+
+	function isPackageSelected(){
+
+		{% if summaryData.IsIPTVAvailabledInCart == 0 and summaryData.IsIPTVAvailabledInPurchased == 0 %}
+
+			var selected = $("input[type='radio'][name='packageId']:checked");
+			if (selected.length == 0) {
+
+				return false;
+            }
+
+        {% endif %}
+
+		return true;
+	}
+
+	function showIPTVPackageTab(){
+
+		$("ul#iptvTabView li#iptv-credit-tab").removeClass('active');
+		$("ul#iptvTabView li#iptv-premium-tab").removeClass('active');
+		$("ul#iptvTabView li#iptv-package-tab").addClass('active');
+		$("div.tab-pane").removeClass('active');
+		$("div#iptvTab").addClass('active');
+	}
+
+	function showPremiumPackageTab(){
+
+		$("ul#iptvTabView li").removeClass('active');
+		$("ul#iptvTabView li#iptv-premium-tab").addClass('active');
+		$("div.tab-pane").removeClass('active');
+		$("div#premiumTab").addClass('active');
+	}
+
+	function showCreditTab(){
+
+		$("ul#iptvTabView li").removeClass('active');
+		$("ul#iptvTabView li#iptv-credit-tab").addClass('active');
+		$("div.tab-pane").removeClass('active');
+		$("div#creditTab").addClass('active');
+	}
+	
+	function displayNotification(radId){
+	
+		$('#'+radId).prop('checked', false);
+		
+		if ( $( "#ispSelectedId" ).length ) {
+			
+			$('#packageId'+$( "#ispSelectedId" ).val()).prop('checked', true);
+		}
+		
+		msg = 'You can only purchase 30days validaity plan for ExchangeVUE plan.';
+		action = '30daysOnlyPlan';
+		alertBox(msg, action);
+	}
+
+	function confirmBox(msg, action, btnYtxt, btnNtxt){
+
+		if (btnYtxt == ''){
+			
+			btnYtxt = 'Yes';
+		}
+		if (btnNtxt == ''){
+			
+			btnNtxt = 'No';
+		}
+
+		$.confirm({
+			title: 'Alert!',
+			content: msg,
+			icon: '',
+			confirmButton: btnYtxt,
+			cancelButton: btnNtxt,
+			confirmButtonClass: 'btn-info',
+			cancelButtonClass: 'btn-danger',
+			theme: 'white',
+			animation: 'scale',
+			animationSpeed: 400,
+			animationBounce: 1.5,
+			keyboardEnabled: false,
+			container: 'body',
+			cancel: function(){
+				
+				if (action == 'ISPUpgrade'){
+
+                    $("input[type='radio'][name='packageId']:checked").attr('checked', false);
+				}
+			},
+			confirm: function(){
+
+				if (action == 'ISPUpgrade'){
+
+					showPremiumPackageTab();
+				}
+			},
+			backgroundDismiss: false,
+			autoClose: false,
+			closeIcon: true
+		});
+	}
+
+	function alertBox(msg, action){
+		
+		$.alert({
+			title: 'Alert!',
+			content: msg,
+			icon: '',
+			confirmButton: 'Ok',
+			confirmButtonClass: 'btn-info',				
+			theme: 'white',
+			animation: 'scale',
+			animationSpeed: 400,
+			animationBounce: 1.5,
+			keyboardEnabled: false,
+			container: 'body',
+			confirm: function(){
+				
+				if(action == '30daysOnlyPlan') {
+									
+				}
+		    },
+		    backgroundDismiss: false,
+	        autoClose: false,
+	        closeIcon: true
+		});
+	}
+	
+
+	function checkCreditRadio(){
+
+		{% if isDeersAuthenticated == 2 %}
+
+			var countCreditRadio = $("input[type='radio'][name='creditId']:checked").length;
+			if (countCreditRadio > 0){
+
+            	$("input[type='button'][name='iptvAddToCartBtn']").removeAttr('disabled');
+            }
+        {% endif %}
+	}
+    </script>
+
+{% endblock javascripts %}
+

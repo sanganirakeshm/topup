@@ -1,0 +1,192 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+	{{ parent() }}
+	<link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+	<link rel="stylesheet" href="{{ asset('bundles/dhiadmin/FCBKcomplete/style.css') }}" type="text/css" media="screen" charset="utf-8" />
+	<style>
+		.row-yellow {
+			background-color: #E2D85B !important;
+		}
+	</style>
+{% endblock stylesheets %}
+{% block body %}
+
+
+	{% include "DhiUserBundle::flashMessage.html.twig" %}
+	<div class="delBoxCont"></div>
+
+	<section class="content-header">
+		<h1>Active Service Count Report</h1>
+	</section>
+	<section class="content">
+
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="box box-success">
+					<form method="get" id="searchService">
+							<div class="box-body">
+							<div class="row">
+								<div class="form-group col-sm-4" >
+									<select name="package" id="serviveLocation" class="salesDrop">
+										<option value="">Service Location</option>
+										{% for package in serlocation %}
+												<option value="{{package}}">{{package}} </option>
+										{% endfor %}
+									</select>
+								</div>
+								<div class="form-group col-sm-4" >
+									<select name="serviceType" id="serviceType">
+                                                                            <option value="">Select</option>
+										{% for service in services %}
+											{% if service.name|upper != 'BUNDLE' and service.name|upper != 'TVOD' %}
+												<option value="{{service.name}}">{{service.name}} </option>
+											{% endif %}
+										{% endfor %}
+									</select>
+								</div>
+								<div class="form-group col-sm-4">
+									<input type="text" name="toActiveDate" id="toActiveDate" placeholder="To Active Date">
+								</div>
+							</div>
+							</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="box box-success">
+			<div class="box-body">
+				<div class="row">
+					<div class="col-xs-12 datatableSearch">
+
+						<table id="activeUserCountReportTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover" style="padding-top:20px;">
+							<thead>
+								<tr>
+									<th>Service Location</th>
+									<th>Total</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<div id="ajax-loader-bx" style="display:none;">
+		<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+		<div id="loader-text">Please wait....</div>
+	</div>
+{% endblock %}
+{% block javascripts %}
+	{{ parent() }}
+	<script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+	<script src="{{ asset('bundles/dhiadmin/FCBKcomplete/jquery.fcbkcomplete.js') }}" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		$(document).ready(function () {
+
+			dTable = $('#activeUserCountReportTable').dataTable({
+				"oLanguage": {
+					"sZeroRecords": "<center>No Record Found!</center>",
+				},
+				bDeferRender: true,
+				bSortClasses: false,
+				responsive: true,
+				bJQueryUI: false,
+				bProcessing: true,
+				bServerSide: true,
+				bFilter: true,
+				bPaginate: false,
+				bInfo: false,
+				sAjaxSource: "{{ path('dhi_admin_active_user_service_count_report_list_json', { 'serviceType': 'ISP' }) }}",
+				"fnServerData": function (sUrl, aoData, fnCallback, oSettings) {
+					oSettings.jqXHR = $.ajax({
+						"url": sUrl,
+						"data": aoData,
+						"success": function (json) {
+							if (json.sError) {
+								oSettings.oApi._fnLog(oSettings, 0, json.sError);
+							}
+							$(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+							fnCallback(json);
+						},
+						"dataType": "json",
+						"cache": false,
+						"type": oSettings.sServerMethod,
+						"error": function (xhr, error, thrown) {
+							if ( error == "parsererror" ) {
+										window.location = "{{ path('dhi_admin_dashboard') }}";
+							}
+							}
+						});
+					},
+					fnDrawCallback: function () {
+
+					},
+					"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+						if (aData[0].search('Grand Total') != -1) {
+							nRow.className = "row-yellow";
+							var serviceSale = $('td', nRow).eq(1).attr('id', 'totalsale');
+							var totalsale = $('td', nRow).eq(1).text();
+							var html = '';
+							html += '<div class="pull-right" style="padding-right:102px;">' + totalsale + '</div>';
+							$('td', nRow).eq(1).attr('id', 'totalsale').html(html);
+						}
+						return nRow;
+					},
+					aoColumns: [
+						{"sName": "name", "bSearchable": true, "bSortable": true, "sWidth": "30%"},
+						{"sName": "totalMember", "bSearchable": true, "bSortable": false},
+					],
+                                        "fnServerParams": function ( aoData ) {
+                                            aoData.push( { "name": "serviceLocation", "value": $("#serviveLocation").val() } );
+                                            aoData.push( { "name": "serviceType", "value": $("#serviceType").val() } );
+                                            aoData.push( { "name": "toActiveDate", "value": $("#toActiveDate").val() } );
+                                        },
+				});
+				$('#activeUserCountReportTable').dataTable().columnFilter({
+					sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+					aoColumns: [
+					]
+				});
+				$("input").addClass("form-control");
+				$("select").addClass("form-control");
+
+				$('#toActiveDate').datepicker({
+					timepicker: false,
+					readOnly: true,
+					onSelect: function (selected) {
+						var dt = new Date(selected);
+						dt.setDate(dt.getDate() - 1);
+                                                
+						var stillDate = $('#toActiveDate').val() == "" || $('#toActiveDate').val() == null ? "" : $('#toActiveDate').val();
+                                                var IpUrl = '{{ path('dhi_admin_active_user_service_count_report_list_json', {'toActiveDate':'paramDate' }) }}';
+                                                IpUrl = IpUrl.replace("paramDate", stillDate);
+                                                
+						var oSettings = dTable.fnSettings();
+
+						oSettings.sAjaxSource = IpUrl;
+						dTable.fnDraw(true);
+
+					}
+				}).keyup(function (e) {
+					if (e.keyCode == 8 || e.keyCode == 46) {
+						$.datepicker._clearDate(this);
+					}
+				});
+                                        
+                            var activeUserCountReportTable = $('#activeUserCountReportTable').DataTable();
+                            $('#serviveLocation').change(function(){
+                               activeUserCountReportTable.fnDraw(true);
+                             });
+                            $('#serviceType').change(function(){
+                               activeUserCountReportTable.fnDraw(true);
+                             });
+                             $('#toActiveDate').change(function(){
+                              activeUserCountReportTable.fnDraw(true);
+                             });
+
+                             
+			});
+	</script>
+
+{% endblock %}

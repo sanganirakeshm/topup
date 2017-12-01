@@ -1,0 +1,241 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+   
+            
+			<section class="content-header">
+				<h1>Edit Admin</h1>
+			</section>
+			<section class="content">
+			<div class="box box-success">
+            <form action="{{ path('dhi_admin_edit', { 'id': user.id }) }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="edit_admin_form" novalidate>
+			<div class="box-body form-group-section">	
+			   <div class="form-group col-sm-4 error_password">
+                    <label class="control-label">Username: </label>
+                    <div>
+                        {{ form_widget(form.username, { 'attr': { 'placeholder': 'Username', 'class': 'form-control'}}) }}
+                        <div class="serverError"> {{ form_errors(form.username) }} </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Email: </label>
+                    <div>
+                        {{ form_widget(form.email, { 'attr': { 'placeholder': 'Email Address', 'class': 'form-control'}}) }}
+                        <label id="ajaxEmailMsg"></label>
+                        <div class="serverError"> {{ form_errors(form.email) }} </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Firstname: </label>
+                    <div>
+                        {{ form_widget(form.firstname, { 'attr': { 'placeholder': 'Firstname', 'class': 'form-control'}}) }}
+                        <div class="serverError"> {{ form_errors(form.firstname) }} </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Lastname: </label>
+                    <div>
+                        {{ form_widget(form.lastname, { 'attr': { 'placeholder': 'Lastname', 'class': 'form-control'}}) }}
+                        <div class="serverError"> {{ form_errors(form.lastname) }} </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Group: </label>
+                    <div>
+                        {{ form_widget(form.groups, { 'attr': { 'placeholder': 'Role', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.groups) }}</div>
+                    </div>
+                </div>
+                {% if (app.user.group == 'Super Admin') or (user.id != app.user.Id)  %}
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Active: </label>
+                    <div>
+                        {{ form_widget(form.enabled, { 'attr': { 'placeholder': 'Active', 'class': 'form-control'}}) }}
+                        <div class="serverError"> {{ form_errors(form.enabled) }} </div>
+                    </div>
+                </div>
+                {% endif %} 
+                
+			</div>	
+			<div class="box-footer">	
+                {{ form_rest(form) }}
+                <div class=" col-sm-6 add-btn-bx">
+                        <input type="submit" name="update" value="Update" class="btn btn-success"/>
+                        <a href="{{ path('dhi_admin_list') }}" class="btn btn-default">Back</a>
+                    </div>
+                
+			</div>	
+            </form>
+			</div>
+			</section>
+			
+			
+			<section class="content-header">
+				 <h1>Change Password</h1>
+			</section>
+           <section class="content">
+			<div class="box box-success">
+            <form action="{{ path('dhi_admin_edit', { 'id': user.id }) }}" method="POST" {{ form_enctype(changePasswordForm) }} class="form-horizontal" id="change_password_admin">
+			   <div class="box-body">		
+			   <div class="form-group col-sm-4 error_password">
+                    <label class="control-label">New Password: </label>
+                    <div>
+                        {{ form_widget(changePasswordForm.plainPassword.first, { 'attr': { 'placeholder': 'New Password', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(changePasswordForm.plainPassword.first) }} </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4 error_password">
+                    <label class="control-label">Confirm Password: </label>
+                    <div>
+                        {{ form_widget(changePasswordForm.plainPassword.second, { 'attr': { 'placeholder': 'Confirm Password', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(changePasswordForm.plainPassword.second) }} </div>
+                    </div>
+                </div>
+				</div>
+			   <div class="box-footer">
+                {{ form_rest(changePasswordForm) }}
+                <div class=" col-sm-6 add-btn-bx">
+                        <input type="submit" name="update" value="Update Passowrd" class="btn btn-success"/>
+                        <a href="{{ path('dhi_admin_list') }}" class="btn btn-info">Back</a>
+                    
+                </div>
+				</div>
+            </form>
+            </div>
+			</section>
+      
+
+{% endblock body %}
+{% block javascripts %}
+{{ parent() }}
+<script type="text/javascript" src="{{ asset('bundles/dhiuser/js/commonFunction.js') }}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        
+        $('#dhi_admin_registration_username').prop('readonly', true);
+        $("#dhi_admin_registration_groups").val('{{ user.getGroupId }}');
+
+        $(document).ready(function() {
+            
+            $.validator.addMethod("regex_username", function(value, element, regexpr) {
+                return regexpr.test(value);
+            }, "Your username contain characters, numbers and these special characters only - _ ! # @ . / $.");
+
+            $('#edit_admin_form').validate({
+                rules: {
+                    "dhi_admin_registration[username]": {
+                        "required": true,
+                        "regex_username": /^[A-Za-z0-9-_!@./#$]+$/,
+                        "minlength": 6,
+                        "maxlength": 32,
+                    },
+                    "dhi_admin_registration[email]": {
+                        "required": true,
+                        "email": true
+                    },
+                    "dhi_admin_registration[groups][]" : {
+                     "required" : true   
+                    },
+                    "dhi_admin_registration[firstname]" :{
+                        "required" : true
+                    },
+                    "dhi_admin_registration[lastname]" :{
+                        "required" : true
+                    },
+                    "dhi_admin_registration[enabled]" : {
+                        "required" : true
+                    },
+                },
+                messages: {
+                    "dhi_admin_registration[username]": {
+                        "required": "Please enter username.",
+                        "minlength": "Your username must have minimum 6 characters.",
+                        "maxlength": "Your username can have maximum 32 characters."
+
+                    },
+                    "dhi_admin_registration[email]": {
+                        "required": "Please enter an email.",
+                        "email": "Please enter valid email."
+                    },
+                     "dhi_admin_registration[groups][]" : {
+                     "required" : "Please select group."   
+                    },
+                    "dhi_admin_registration[firstname]" :{
+                        "required" : "Please enter first name."
+                    },
+                    "dhi_admin_registration[lastname]" :{
+                        "required" : "Please enter last name."
+                    },
+                    "dhi_admin_registration[enabled]" : {
+                        "required" : "Please select status."
+                    },
+                }
+            });
+
+            $.validator.addMethod("regex_password", function(value, element, regexpr) {
+                return regexpr.test(value);
+            }, "Password can contains characters, numbers and special chars like !@#$_");
+            
+            $('#change_password_admin').validate({
+                rules: {
+                    "dhi_admin_changepassword[plainPassword][first]": {
+                        "required": true,
+                        "regex_password": /^[A-Za-z0-9!@#$_]+$/,
+                        "minlength": 8,
+                        "maxlength": 18,
+                    },
+                    "dhi_admin_changepassword[plainPassword][second]": {
+                        "required": true,
+                        "equalTo": "#dhi_admin_changepassword_plainPassword_first"
+                    }
+                },
+                messages: {
+                    "dhi_admin_changepassword[plainPassword][first]": {
+                        "required": "Please enter password.",
+                        "minlength": "Your password must have minimum 8 characters.",
+                        "maxlength": "Your password can have maximum 18 characters."
+                    },
+                    "dhi_admin_changepassword[plainPassword][second]": {
+                        "required": "Please enter confirm password.",
+                        "equalTo": "Password does not match the confirm password."
+                    }
+                }
+            });
+
+
+        });
+        
+         $("#dhi_admin_registration_email").change(function (event) {
+            
+                currentEmail = '{{user.email}}';
+                checkEmailSource = '{{ path('dhi_admin_check_email', {id : user.id }) }}';
+                
+                if($("#dhi_admin_registration_email").val() != currentEmail )
+                {
+                    if($("#dhi_admin_registration_email").val() == "")
+                    {
+                        $("#ajaxEmailMsg").html('');
+                    }    
+                
+                    checkAdminEmail($(this).val(), 'account');
+                    
+                }  
+                else
+                {
+                    $("#ajaxEmailMsg").html('');
+                }
+        });
+
+        $("#dhi_admin_registration_email").keyup(function (event) {
+            
+                if($("#dhi_admin_registration_email").val() == "")
+                {
+                    $("#ajaxEmailMsg").html('');
+                }    
+                
+        });
+   
+    });
+</script>
+{% endblock javascripts %}
+

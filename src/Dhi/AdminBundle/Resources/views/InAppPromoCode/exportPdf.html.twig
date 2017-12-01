@@ -1,0 +1,41 @@
+{% block body %}
+	<h1>Customer Promo Code</h1>
+	
+	<table cellspacing="0" cellpadding="5" border="1" class="sales_report_table" style="margin-top:50px;">
+		<tr class="head">
+			<th>Service Location</th>
+			<th>Promo Code</th>
+			<th>Created By</th>
+                        <th>Note</th>
+			<th>Expiration Date</th>
+			
+			<th>Status</th>
+            <th>Note</th>
+			<th>Is Reedemed?</th>
+		</tr>
+		{% set i = 0 %}
+	    {% if (promoData | length) %} 
+            {% for recordArray in promoData %}
+            	{% set trcls = 'oddrow' %}
+            	{% if i % 2 != 0 %}
+            		{% set trcls = 'evenrow' %}
+            	{% endif %}
+				{% set record = recordArray %}
+                <tr class="{{ trcls }}">
+                    <td>{% if record.serviceLocations %} {{ record.serviceLocations.name }} {% endif %}</td>
+                    <td>{{ record.promoCode }} </td>
+                    <td>{{ record.amount }}</td>
+                    <td>{{ record.createdBy }} </td>
+    		    <td>{{ record.note }}</td>
+		    <td>{{ record.expiredAt|date('M-d-Y') }}</td>
+                    <td>{{ record.status }}</td>
+                    <td>{{ record.note }}</td>
+   		    <td>{{ record.isRedeemed }}</td>
+                </tr>
+                {% set i = i+1 %}
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="9" align="center">No records found.</td></tr>
+        {% endif %}	
+	</table>	
+{% endblock body %}

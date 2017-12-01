@@ -1,0 +1,63 @@
+{% block title %}
+    <title>&nbsp;</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('bundles/dhiuser/images/dhi-favicon.png') }}" />
+{% endblock title %}    
+{% block stylesheets %}
+    <link href="{{ asset('bundles/dhiuser/css/pdf.css') }}" rel="stylesheet">
+{% endblock stylesheets %}        
+{% block body %}
+        <img src="{{ img }}"/>
+	<h1>Customer Promo Code</h1>
+	{% if promoData|length > 0 %}
+	<table id="purchaseTb" class="purchase_table" style="width:100%;" cellspacing="0" cellpadding="5">
+		<tr>
+		    <th>Service Location</th>
+                    <th>Promo Code</th>
+                    <th>Maximum Value ($)</th>
+                    <th>Created By</th>
+                    <th>Note</th>
+                    <th>Expiration Date</th>
+                    <th>Status</th>
+                    <th>Is Reedemed?</th>
+		</tr>
+		{% set i = 0 %}
+	    
+            {% for recordArray in promoData %}
+            	{% set trcls = 'oddrow' %}
+            	{% if i % 2 != 0 %}
+            		{% set trcls = 'evenrow' %}
+            	{% endif %}
+				{% set record = recordArray %}
+                <tr class="{{ trcls }}">
+                    <td>{% if record.serviceLocations %} {{ record.serviceLocations.name }} {% endif %}</td>
+                    <td>{{ record.promoCode }} </td>
+                    <td>{{ record.amount }} </td>
+                    <td>{{ record.createdBy }}</td>
+                    <td>{{ record.note }}</td>
+		    <td>{{ record.expiredAt|date('M-d-Y') }}</td>
+                    <td>{{ record.status }}</td>
+ 		    <td>{{ record.isRedeemed }}</td>
+                </tr>
+                {% set i = i+1 %}
+            {% endfor %}
+       
+	</table>
+	 {% else %}
+            <tr><td colspan="9" align="center">No records found.</td></tr>
+	{% endif %}
+	
+	
+	
+{% endblock body %}
+{% block javascripts %}
+<script src="{{ asset('bundles/dhiuser/js/jquery-2.1.1.min.js') }}"></script>
+<script type="text/javascript">
+   
+var document_focus = false; // var we use to monitor document focused status.
+    // Now our event handlers.
+            //$(document).focus(function() { document_focus = true; });
+    $(document).ready(function() {window.print();document_focus = true; });
+    setInterval(function() { if (document_focus === true) { window.close(); }  }, 100);
+       
+</script>
+{% endblock javascripts %}

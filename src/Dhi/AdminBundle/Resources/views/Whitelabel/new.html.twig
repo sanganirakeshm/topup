@@ -1,0 +1,307 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <section class="content-header"><h1>Add Site</h1></section>
+    <section class="content">
+        <div class="box box-success">
+            <form action="{{ path('dhi_admin_white_label_new') }}" method="POST" {{ form_enctype(form) }} id="add_white_label" class="form-horizontal" novalidate>
+                <div class="box-body">
+                    <div class="col-xs-12">
+                        <div class="form-group col-sm-4">
+                            <label class="control-label">Site Name: </label>
+                            <div>
+                                {{ form_widget(form.companyName, { 'attr': { 'placeholder': 'Site Name', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form.companyName) }}</div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label">Site Domain: </label>
+                            <div>
+                                {{ form_widget(form.domain, { 'attr': { 'placeholder': 'Site Domain', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form.domain) }}</div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label">Facebook URL: </label>
+                            <div>
+                                {{ form_widget(form.supportpage, { 'attr': { 'placeholder': 'Facebook URL', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form.supportpage) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="form-group col-sm-4">
+                            <label class="control-label">From Email: </label>
+                            <div>
+                                {{ form_widget(form.fromEmail, { 'attr': { 'placeholder': 'From Email', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form.fromEmail) }}</div>
+                            </div>
+                        </div>
+                         <div class="form-group col-sm-4">
+                            <label class="control-label">Support Email: </label>
+                            <div>
+                                {{ form_widget(form.supportEmail, { 'attr': { 'placeholder': 'Support Email', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form.supportEmail) }}</div>
+                            </div>
+                        </div>
+                         <div class="form-group col-sm-4">
+                            <label class="control-label">Status: </label>
+                            <div>
+                                {{ form_widget(form.status, { 'attr': { 'placeholder': 'Active', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form.status) }}</div>
+                            </div>
+                        </div>
+                        
+                     </div>
+                    <div class="col-xs-12">
+                        <div class="form-group col-sm-6">
+                            <label class="control-label">Header Logo (Width: 311, Height: 114): </label>
+                            <div>
+                                {{ form_widget(form.headerLogo, { 'attr' : { 'class':'imgControl', 'data-width' : 311, 'data-height' : 114 } }) }}
+                                <div class="serverError">{{ form_errors(form.headerLogo) }}</div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label class="control-label">Footer Logo (Width: 270, Height: 98): </label>
+                            <div>
+                                {{ form_widget(form.footerLogo, { 'attr' : { 'class':'imgControl', 'data-width' : 270, 'data-height' : 98 } }) }}
+                                <div class="serverError">{{ form_errors(form.footerLogo) }}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="form-group col-sm-6">
+                            <label class="control-label">Branding Banner (Width: 1133, Height: 411): </label>
+                            <div>
+                                {{ form_widget(form.brandingBanner, { 'attr' : { 'class':'imgControl', 'data-width' : 1133, 'data-height' : 411 } }) }}
+                                <div class="serverError">{{ form_errors(form.brandingBanner) }}</div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label class="control-label">Background Image (Width: 521, Height: 760): </label>
+                            <div>
+                                {{ form_widget(form.backgroundimage, { 'attr' : { 'class':'imgControl', 'data-width' : 521, 'data-height' : 760 } }) }}
+                                <div class="serverError">{{ form_errors(form.backgroundimage) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="form-group col-sm-6">
+                            <label class="control-label">Branding Banner Inner Page (Width: 674, Height: 241): </label>
+                            <div>
+                                {{ form_widget(form.brandingBannerInnerPage, { 'attr' : { 'class':'imgControl', 'data-width' : 674, 'data-height' : 241 } }) }}
+                                <div class="serverError">{{ form_errors(form.brandingBannerInnerPage) }}</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label class="control-label">Favicon (Width: 20, Height: 20): </label>
+                            <div>
+                                {{ form_widget(form.favicon, { 'attr' : { 'class':'imgControl', 'data-width' : 20, 'data-height' : 20 } }) }}
+                                <div class="serverError">{{ form_errors(form.favicon) }}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <input type="hidden" name="validateImg" id="validateImg" value="0" />
+                {{ form_rest(form) }}
+                <div class="box-footer">	
+                    <div class="col-sm-12">
+                        <div class="col-sm-6">
+                            <input type="submit" class="btn btn-success" name="add" value="Add"/>
+                            <a href="{{ path('dhi_admin_white_label_list') }}" class="btn btn-default">Back</a>
+                        </div>
+                    </div>
+                </div>  
+            </form>
+        </div>
+    </section>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+   <script src="{{ asset('bundles/dhiadmin/js/additional-methods.min.js') }}"></script>  
+   <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+   <script type="text/javascript" src="{{ asset('bundles/dhiuser/js/commonFunction.js') }}"></script>
+<script>
+ $(document).ready(function () {
+
+        $(".imgControl").change(function(e){
+            var _URL = window.URL || window.webkitURL;
+            var file, img;
+            var width = $(this).data('width');
+            var height = $(this).data('height');
+            var myId = $(this).attr('id');
+
+            if ((file = this.files[0])) {
+                img = new Image();
+                img.onload = function () {
+
+                    if(this.width != width || this.height != height){
+                        $("#validateImg").val(1);
+                        if($("#"+ myId + "-image-error").length > 0){
+                            $("#"+ myId + "-image-error").show();
+                        }else{
+                            $('<label id="'+ myId +'-image-error" class="emsg img-error">Please select valid image.</label>').insertAfter("#"+myId);
+                        }
+                    }else{
+                        $("#validateImg").val(0);
+                        $("#"+ myId + "-image-error").hide();
+                    }
+                };
+                img.src = _URL.createObjectURL(file);
+            }
+        });
+
+        $("#add_white_label").submit(function(){
+
+            if ($("#add_white_label").valid()){
+                if ($("#validateImg").val() == 0){
+                    return true;
+                } else {
+                    return false;
+                }
+
+            } else {
+                return false;
+            }
+
+        });
+
+        $.validator.addMethod("regex_domain", function(value, element, domainRegex) {
+           var regexpr = new RegExp(domainRegex);
+            return regexpr.test(value);
+        }, "Please Enter valid domain");
+        
+        jQuery.validator.addMethod(
+            "multiemail",
+            function (value, element) {
+                var email = value.split(/[;,]+/); // split element by , and ;
+                valid = true;
+                for (var i in email) {
+                    value = email[i];
+                    valid = valid && jQuery.validator.methods.email.call(this, $.trim(value), element);
+                }
+                return valid;
+            },
+            jQuery.validator.messages.multiemail
+        );
+
+        $('#add_white_label').validate({
+            rules: {
+                "dhi_admin_white_label[companyName]": {
+                    "required": true,
+                    remote: {
+                        url: "{{ path('dhi_admin_white_label_check_site_details') }}",
+                        type: "post"
+                    }
+                },
+                "dhi_admin_white_label[domain]": {
+                   "required": true,    
+                    "regex_domain": "^[a-z0-9][a-z0-9\-]+[a-z0-9](\.[a-z]{2,5})+$",
+                    remote: {
+                        url: "{{ path('dhi_admin_white_label_check_site_details') }}",
+                        type: "post"
+                    }
+                 },
+                "dhi_admin_white_label[supportpage]": {
+                    "required": true,
+                    "url"  : true
+                },
+                "dhi_admin_white_label[fromEmail]": {
+                    "required": true,
+                    "email": true
+                },
+                "dhi_admin_white_label[supportEmail]": {
+                    "required": true,
+                    "multiemail": true
+                },
+                "dhi_admin_white_label[status]": {
+                    "required": true
+                },
+                "dhi_admin_white_label[headerLogo]": {
+                    "required": true,
+                    "extension": "jpeg|png|jpg"
+                },                   
+                "dhi_admin_white_label[footerLogo]": {
+                    "required": true,
+                    "extension": "jpeg|png|jpg"
+                },
+                "dhi_admin_white_label[brandingBanner]": {
+                    "required": true,
+                    "extension": "jpeg|png|jpg"
+                },
+                "dhi_admin_white_label[brandingBannerInnerPage]": {
+                    "required": true,
+                    "extension": "jpeg|png|jpg"
+                }
+                ,
+                "dhi_admin_white_label[favicon]": {
+                    "required": true,
+                    "extension": "png|ico|gif|jpeg|jpg"
+                },
+                "dhi_admin_white_label[backgroundimage]": {
+                    "required": true,
+                    "extension": "jpeg|png|jpg"
+                }
+
+            },
+            messages: {
+                "dhi_admin_white_label[companyName]": {
+                    "required": "Please enter site name",
+                    remote: "Site name already exists"
+                },
+                "dhi_admin_white_label[domain]": {
+                    "required": "Please enter site domain",
+                    "regex_domain": "Please enter valid domain",
+                    remote: "Site domain already exists."
+                },
+                 "dhi_admin_white_label[supportpage]": {
+                    "required": "Please enter facebook URL",
+                    "url"     : "Please enter valid facebook URL"
+                    //"regex_facebook": "Please enter valid facebook page like https://facebook.com/example"
+                },
+                "dhi_admin_white_label[fromEmail]": {
+                    "required": "Please enter from email",
+                    "email": "Please enter valid email"
+                },
+                "dhi_admin_white_label[supportEmail]": {
+                    "required": "Please enter support emails",
+                    "multiemail": "You must enter a valid email, or comma separate multiple"
+                },
+                "dhi_admin_white_label[status]": {
+                    "required": "Please select status"
+                },
+                "dhi_admin_white_label[headerLogo]": {
+                    "required": "Please upload header logo",
+                    "extension": "Please upload jpg, jpeg or png file."
+                },
+                "dhi_admin_white_label[footerLogo]": {
+                    "required": "Please upload footer logo",
+                    "extension": "Please upload jpg, jpeg or png file."
+                },
+                "dhi_admin_white_label[brandingBanner]": {
+                    "required": "Please upload branding banner",
+                    "extension": "Please upload jpg, jpeg or png file."
+                },
+                "dhi_admin_white_label[brandingBannerInnerPage]": {
+                    "required": "Please upload branding banner for inner page",
+                    "extension": "Please upload jpg, jpeg or png file."
+                },
+                "dhi_admin_white_label[favicon]": {
+                    "required": "Please upload favicon",
+                    "extension": "Please upload ico, gif or png file."
+                },
+
+                "dhi_admin_white_label[backgroundimage]": {
+                    "required": "Please upload background image.",
+                    "extension": "Please upload jpg, jpeg or png file."
+                }
+
+            }
+        });
+  });
+</script>
+{% endblock javascripts %}

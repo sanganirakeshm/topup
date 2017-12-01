@@ -1,0 +1,333 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+{{ parent() }}
+<link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+<style>
+	.row-yellow {
+		background-color: #E2D85B !important;
+	}
+</style>
+{% endblock stylesheets %}
+{% block body %}
+
+
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>		
+
+    <section class="content-header">
+        <h1>Sales Report</h1>
+    </section>
+    <section class="content">	
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get" id="searchService">
+                        <div class="box-body">
+							<div class="form-group col-md-3">
+                                <div class="row"><div class="col-sm-12" id="serviceLocation"></div></div>
+                            </div>
+							
+							<div class="form-group col-md-3">
+								<div class="row"><div class="col-sm-12" id="name"> {#<input type="text" placeholder="Service Name"  name="fromip" id="fromIp">#}
+										<select name="fromip" id="fromIp" class="salesDrop">
+											<option value="0">Select Service</option>
+											{% for service in services %}
+												<option value="{{ service.name }}">{{ service.name }}</option>
+											{% endfor %}
+										</select> 
+									</div>
+								</div>
+							</div>
+							<div class="form-group col-md-3">
+								<div class="row"><div class="col-sm-12">{# <input type="text" placeholder="Payment Method" name="toip" id="toIp">#}
+									<select name="toip" id="toIp" class="salesDrop">
+											<option value="0">Select Payment Method</option>
+											{% for payment in paymentMethod %}
+												<option value="{{ payment }}">{{ payment }}</option>
+											{% endfor %}
+										</select> 
+									</div></div>
+							</div>
+                                                                                
+                                                        <div class="form-group col-md-3">
+                                                            <div class="row">
+                                                                <div class="col-sm-12">
+                                                                    <select name="purchasedFrom" id="purchasedFrom" class="salesDrop">
+                                                                        <option value="0">Purchased From</option>
+                                                                        {% if allWhiteLabelSites %}
+                                                                            {% for whiteLabelSite in allWhiteLabelSites %}
+                                                                                <option value="{{whiteLabelSite.id}}"> {{ whiteLabelSite.companyName }} </option>
+                                                                            {% endfor %}
+                                                                        {% endif %}
+                                                                    </select>
+                                                                </div>
+                                                            </div>        
+                                                        </div>
+                                                                                
+							<div class="form-group col-md-8 ">
+                                <div class="row"><div class="col-sm-12" id="date-range"></div></div>
+                            </div> 
+							<div class="form-group col-md-4 ">
+                                <div class="row">
+									
+									<select name="package" id="packageName" class="salesDrop">
+											<option value="0">Select Service Plan</option>
+											{% for package in packages %}
+                                                {% if package.packageType is defined %}
+                                                    {% set packageType = package.packageType %}
+                                                    {% set bandWidth = ' - ' ~ package.bandwidth ~ 'k ' %}
+                                                    {% set serviceLocation = package.serviceLocation.name ~ ' - ' %}
+                                                {% else %}
+                                                    {% set packageType = "Bundle" %}
+                                                    {% set bandWidth = '' %}
+                                                    {% set serviceLocation = '' %}
+                                                {% endif %}
+												<option value="{{ package.packageId }}">{{ serviceLocation ~ package.packageName }}{{ bandWidth }} - ({{ packageType }}) - ${{package.amount}}</option>
+											{% endfor %}
+									</select> 
+								</div>
+                            </div> 
+						
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>		
+
+        <div class="box box-success">
+            <div class="box-body">
+				<div class="salesTvServices">
+					<div class="saleServices"><b>Total Sale for IPTV:</b></div> <div class="col-2 saleServices2" id="totaliptvsale" ></div>
+                    <div class="saleServices"><b>Total Sale for ISP:</b></div><div class="col-2 saleServices2" id="totalispsale"></div> 
+                    <div class="saleServices"><b>Total Sale for TVOD:</b></div><div class="col-2 saleServices2" id="totaltvodsale"></div>
+                </div>
+                <div class="salesTvServices">
+                    <div class="saleServices"><b>Total Sale:</b></div><div class="col-2 saleServices2" id="currentmnthsale"></div>
+                </div>
+                        
+                <div class="row">
+                    <div class="col-xs-12 datatableSearch">  
+						<div>
+							{% if admin_permission.checkPermission('sales_report_export_pdf') %}
+                                     <a href="{{ path('dhi_admin_changes_sales_report_export_pdf',app.request.query.all) }}" class="btn btn-success pull-right margin-top5" id="export_pdf" >Export PDF</a>
+                             {% endif %}	 
+                             {% if admin_permission.checkPermission('sales_report_export_csv') %}
+                                     <a href="{{ path('dhi_admin_changes_sales_report_csv',app.request.query.all) }}" class="btn btn-success pull-right margin-top5" id="export_csv" >Export CSV</a>
+                             {% endif %}	 
+                             {% if admin_permission.checkPermission('sales_report_export_excel') %}
+                                     <a href="{{ path('dhi_admin_changes_sales_report_excel',app.request.query.all) }}" class="btn btn-success pull-right margin-top5" id="export_excel" >Export Excel</a>
+                             {% endif %}	 
+						</div>
+                       
+                       
+                        <table id="salesReportTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>                                   
+                                    <th>Service Location</th>
+                                    <th>Type</th>                                    
+                                    
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </section>	                    
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>                
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}    
+	  <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+    var isFirstReq = true;
+                                $(document).ready(function () {
+									
+                                    dTable = $('#salesReportTable').dataTable({
+                                         "oLanguage": {
+                                            "sZeroRecords": "<center>No Record Found!</center>",
+										},
+										responsive: true,
+                                        bJQueryUI: false,
+                                        bServerSide: true,
+                                        bFilter: true,
+                                        bPaginate: false,
+                                        bProcessing: true,
+                                        "sDom": 'lfritp',
+										bInfo : false,
+                                        //multipleSelection: true,
+										iDisplayLength: {{ record_per_page }},
+                                        sAjaxSource: "{{ path('dhi_admin_changes_sales_report_list_json') }}",
+                                       "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                                                        if (isFirstReq == false) {
+                                                        oSettings.jqXHR = $.ajax( {
+                                                            "url":  sUrl,
+                                                            "data": aoData,
+                                                            "success": function (json) {
+                                                                if ( json.sError ) {
+                                                                        oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                                                                }
+                                                                $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                                                                fnCallback( json );
+                                                            },
+                                                            "dataType": "json",
+                                                            "cache": false,
+                                                            "type": oSettings.sServerMethod,
+                                                            "error": function (xhr, error, thrown) {
+                                                                if ( error == "parsererror" ) {
+                                                                            window.location = "{{ path('dhi_admin_user_list') }}";
+                                                                    }
+                                                            }
+                                                        } );
+                                                    }
+                                                    },
+									    fnDrawCallback: function () {
+										//alert(this.fnSettings().fnRecordsTotal());
+										if (this.fnSettings().fnRecordsTotal() == 0) {
+																$('div#totaliptvsale').text('$0');
+																$('div#totalispsale').text('$0');
+																$('div#totaltvodsale').text('$0');
+																$('div#currentmnthsale').text('$0')
+
+																$("#export_print").addClass('disabled');
+																$("#export_csv").addClass('disabled');
+																$("#export_pdf").addClass('disabled');
+																$("#export_excel").addClass('disabled');
+
+															} else {
+
+																$("#export_print").removeClass('disabled');
+																$("#export_csv").removeClass('disabled');
+																$("#export_pdf").removeClass('disabled');
+																$("#export_excel").removeClass('disabled');
+															}
+                                            
+                                           
+                                        },
+										 "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                                                                                                      
+                                                        if (aData[0].search('Grand Total') != -1) {
+																
+                                                                nRow.className = "row-yellow";
+																var serviceSale = $('td', nRow).eq(1).attr('id', 'totalsale');
+																var totalsale = $('td', nRow).eq(1).text();
+																
+																var actionFlag = totalsale.split('^');
+																var total = actionFlag[0];
+																var iptvSale = actionFlag[1];
+																var ispSale = actionFlag[2];
+																var tvodSale = actionFlag[3];
+
+																$('div#totaliptvsale').text(iptvSale);
+																$('div#totalispsale').text(ispSale);
+																$('div#totaltvodsale').text(tvodSale);
+																$('div#currentmnthsale').text(total)
+																
+																var html = '';
+																html += '<div class="col-sm-4 col-sm-offset-8" style="padding-left:62px;">'+total+'</div>';
+																$('td', nRow).eq(1).attr('id', 'totalsale').html(html);
+															
+																
+																
+                                                        } 
+                                                        return nRow;
+                                        },	
+                                       
+                                        aoColumns: [                                            
+                                            {"sName": "serviceLocation", "bSearchable": true, "bSortable": false,"sWidth":"30%"},
+                                            {"sName": "serviceType", "bSearchable": true, "bSortable": false},                                            
+                                           
+                                            
+                                        ],
+                                       
+                                        aaSorting: [[2, 'desc']],
+                                           
+                                    });
+							
+									  $.datepicker.regional[""].dateFormat = 'yy-mm-dd';
+                                    $.datepicker.setDefaults($.datepicker.regional['']);
+                                    $('#salesReportTable').dataTable().columnFilter({
+					sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+                                        aoColumns: [
+                                            
+                                            {#{type: "select", sSelector: "#serviceType", values: ['IPTV', 'ISP']},
+                                            {type: "text", sSelector: "#paymentMethod"},
+                                            {type: "date-range", sSelector: "#date-range"},#}
+											{#{type: "date-range", sSelector: "#date-range"},#}				
+                                            {type: "select", sSelector:"#serviceLocation",values:{{serviceLocations|raw}}},                                            
+											{type: "date-range", sSelector: "#date-range"}
+											
+                                        ]
+                                    });
+									$("input").addClass("form-control");
+                                    $("select").addClass("form-control");
+									
+									var x = new Date();
+									var year= x.getFullYear();
+									var month = x.getMonth();
+									var day = x.getDate();
+									var thisMonthFirstDay = new Date(year, month-1, 1);
+									//var thisMonthLastDay = new Date(year, month, 29);
+									var thisMonthLastDay = new Date(year, month, 0);
+									var d = new Date(); 
+									$('#date-range input:first').datepicker('setDate', thisMonthFirstDay).datepicker("option", "maxDate", thisMonthLastDay);
+									$('#date-range input:last').datepicker('setDate', thisMonthLastDay).datepicker("option", "minDate", thisMonthFirstDay);
+
+								var default1 = $('#date-range input:first').val();
+								var default2 = $('#date-range input:last').val();
+                                isFirstReq = false;
+								oTable.fnFilter(default2,3);
+                                });
+								
+								$(document).ready(function(){
+								
+								 $(".salesDrop").change(function(){
+            
+             var toIp = $('#toIp').val() == "" ? 0 : $('#toIp').val();
+             var fromIp = $('#fromIp').val() == "" ? 0 : $('#fromIp').val();
+             var packageNames = $('#packageName').val() == "" ? 0 : $('#packageName').val();
+             var whiteLabelSites = $('#purchasedFrom').val() == "" ? 0 : $('#purchasedFrom').val();
+             var IpUrl = '{{ path('dhi_admin_changes_sales_report_list_json', {'fromip' : 'from_ip', 'toip' : 'to_ip','packageName':'package_name', 'whiteLabel':'white_label' }) }}';
+                 IpUrl = IpUrl.replace("from_ip", fromIp);
+                 IpUrl = IpUrl.replace("to_ip", toIp);
+                 IpUrl = IpUrl.replace("package_name", packageNames);
+                 IpUrl = IpUrl.replace("white_label", whiteLabelSites);
+             
+             var oSettings = dTable.fnSettings();
+           
+                oSettings.sAjaxSource = IpUrl;
+                dTable.fnDraw(true);
+           // alert($(this).val());
+        }); 
+        
+        $("#date-range .date_range_filter:first").change(function(event) {
+            $("#date-range .date_range_filter:last").datepicker("option", "minDate", $(this).val());
+        }).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+        $("#date-range .date_range_filter:last").change(function(event) {
+            $("#date-range .date_range_filter:first").datepicker("option", "maxDate", $(this).val());
+        }).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+        $(".filter_date_range .date_range_filter.hasDatepicker").attr({ readonly: 'true' });  
+  
+        $('input').focus(function(){
+            $(this).data('placeholder',$(this).attr('placeholder'))
+                   .attr('placeholder','');
+         }).blur(function(){
+            $(this).attr('placeholder',$(this).data('placeholder'));
+        });
+    });
+  </script>  
+
+{% endblock %}

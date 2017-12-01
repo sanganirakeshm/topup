@@ -1,0 +1,153 @@
+Dhi\AdminBundle\Entity\IspPin:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [username]
+            message: The username is already exists.
+    properties:        
+
+Dhi\AdminBundle\Entity\ServicePartner:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [name]
+            message: The partner name is already exists.
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [username]
+            message: The username is already exists.
+    properties:
+        pocEmail:
+            - Email:
+                message: "Please enter valid email address."
+        name:
+            - NotBlank:
+                message: "Please enter partner name."
+        status:
+            - NotBlank:
+                message: "Please select status."
+
+Dhi\AdminBundle\Entity\PartnerPromoCodeBatch:       
+    properties:
+        reason:
+            - NotBlank:
+                message: "Please enter reason."
+            - Length:
+                max: 255
+                maxMessage: "Reason can have maximum {{ limit }} characters."
+        noOfCodes:
+            - NotBlank:
+                message: "Please enter number of codes you want to generate."
+
+Dhi\AdminBundle\Entity\PartnerPromoCodes:       
+    properties:
+        duration:
+            - NotBlank:
+                message: "Please enter duration."
+        partnerValue:
+            - NotBlank:
+                message: "Please enter partner value."
+        customerValue:
+            - NotBlank:
+                message: "Please enter customer value."
+
+Dhi\AdminBundle\Entity\Business:
+    properties:
+        pocEmail:
+            - Email:
+                message: "Please Enter Valid Email Address"
+        name:
+            - NotBlank:
+                message: "Please Enter Business Name."
+        status:
+            - NotBlank:
+                message: "Please Select Status."
+        reason:
+            - NotBlank:
+                message: "Please Enter Reason."
+            - Length:
+                max: 255
+                maxMessage: "Reason can have maximum {{ limit }} characters"
+
+Dhi\AdminBundle\Entity\Promotion:
+    properties:
+        serviceLocations:
+            - NotBlank:
+                message: "Please select service location"
+        startDate:
+            - NotBlank:
+                message: "Please select promotion start date"
+            - DateTime: ~
+        endDate:
+            - NotBlank:
+                message: "Please select promotion end date"
+            - DateTime: ~
+        amountType:
+            - NotBlank:
+                message: "Please select promotion off type"
+        isActive:
+            - NotBlank:
+                message: "Please select promotion status"
+        amount:
+            - NotBlank:
+                message: "Please enter promotion off"
+            - Length:
+                min: 1  
+                minMessage: "Please enter a value greater than or equal to 1"
+            - GreaterThanOrEqual: 
+                value: 1
+                message: Please enter a value greater than or equal to 1
+            - Regex:
+                pattern: /^\d{0,8}(\.\d{0,2})?$/
+                message: "Please enter valid promotion off value (Ex: xxxxxxxx.xx)."
+
+Dhi\AdminBundle\Entity\TikilivePromoCode:
+    properties:
+        serviceLocation:
+            - NotBlank:
+                message: "Please select service location"
+        packageId:
+            - NotBlank:
+                message: "Please select package"
+Dhi\AdminBundle\Entity\PackageWiseTikiLivePlan:
+    properties:
+        tikiLivePlanName:
+            - NotBlank:
+                message: "Please select tikilive plan"
+
+Dhi\AdminBundle\Entity\WhiteLabel:
+    properties:
+        companyName:
+            - NotBlank:
+                message: "Please enter company name."
+        domain:
+            - NotBlank:
+                message: "Please enter domain."
+        fromEmail:
+            - NotBlank:
+                message: "Please enter from email."
+            - Email:
+                message: "Please enter valid email address."
+        supportEmail:
+            - NotBlank:
+                message: "Please enter support email."
+        supportpage:
+            - NotBlank:
+                message: "Please enter facebook URL."
+            - Url:
+                message: "Please enter valid facebook URL."
+        status:
+            - NotBlank:
+                message: "Please select status."
+
+Dhi\AdminBundle\Entity\ChannelMaster:
+    properties:
+        name:
+            - NotBlank:
+                message: "Please Enter Channel Name"
+        image:
+            - NotBlank:
+                message: "Please Select Channel Image"
+
+Dhi\AdminBundle\Entity\FreeRechargeCard:
+    properties:
+        userId:
+            - NotBlank:
+                message: "Please enter username or email."

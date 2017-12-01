@@ -1,0 +1,329 @@
+{% block body %}
+{% set subTotalIPTV = 0 %}
+{% set subTotalISP = 0 %}
+{% set totalBundleDiscount = 0 %}
+{% set TotalUnusedCredit = 0 %}
+<div class="col-md-12">
+	<div class="row">
+		<div class="summary-box">
+		
+			{% if 'IPTV' in summaryData.AvailableServicesOnLocation or 'BUNDLE' in summaryData.AvailableServicesOnLocation %}
+			<div class="table-responsive">
+				<table class="table mb30">
+                	<tbody>                		
+						<tr class="heading">
+							<td colspan="2">ExchangeVUE Service</td>                            
+						</tr>
+						{% if summaryData.IsIPTVAvailabledInCart == 1 or summaryData.IsAddOnAvailabledInCart == 1 %}
+						
+							{% if summaryData.IsIPTVAvailabledInCart == 1 %}
+								<tr class="sub-heading">
+									<td>ExchangeVUE Package</td>
+		                            <td>Price</td>
+								</tr>
+								{% for iptvPackage in summaryData.Cart.IPTV.RegularPack %}
+									<tr>
+										<td>{{ iptvPackage.packageName }}</td>
+                                        <td>${{ iptvPackage.actualAmount }}
+                                    		{% if iptvPackage.bundleId < 1 %}
+	                                            <a href="{{ path('dhi_admin_service_plan', {'userId' : app.request.get('userId'), 'service': 'IPTV' })}}" class="pull-right" title="Remove ExchangeVUE Package"><i class="fa fa-remove"></i></a>
+	                                        {% endif %}
+                                        </td>
+									</tr>
+
+									{% set subTotalIPTV = subTotalIPTV + iptvPackage.actualAmount %}
+									
+									{% if iptvPackage.discountPercentage > 0 %}
+										<tr>
+											<td>{{ iptvPackage.discountPercentage }}% Bundle discount on TV Package</td>
+				                            <td>-${{ iptvPackage.discountAmount }}</td>
+										</tr>
+										{% set subTotalIPTV = subTotalIPTV - iptvPackage.discountAmount %}
+				                    {% endif %}
+
+				                    {% if summaryData.IsBundleAvailabledInCart == 1 and iptvPackage.bundleDiscountAmount >= 0 %}
+                                        {% set totalBundleDiscount = totalBundleDiscount + iptvPackage.bundleDiscountAmount %}
+                                    {% endif %}
+
+								{% endfor %}
+								
+								{% if summaryData.Cart.IPTV.unusedDays > 0 %}								
+									<tr>
+										{% if summaryData.IsBundleAvailabledInCart == 0 and totalBundleDiscount == 0 %}
+											<td>Existing ExchangeVUE Pack Unused credit</td>
+					                        <td>-{{ summaryData.Cart.IPTV.unusedCredit|number_format(2) }}</td>
+				                        	{% set subTotalIPTV = subTotalIPTV - summaryData.Cart.IPTV.unusedCredit %}
+					                    {% endif %}
+					                    {% set TotalUnusedCredit = TotalUnusedCredit + summaryData.Cart.IPTV.unusedCredit %}
+									</tr>
+								{% endif %}
+								
+							{% endif %}
+							
+							{% if summaryData.IsAddOnAvailabledInCart == 1 %}
+							
+								<tr class="sub-heading">
+									<td>Premium Package</td>
+									<td>Price</td>				                
+								</tr>
+				
+								{% for addOnPackage in summaryData.Cart.IPTV.AddOnPack %}
+								
+									<tr>
+										<td>{{ addOnPackage.packageName }}</td>
+										<td>${{ addOnPackage.actualAmount }}
+                                        <a href="{{ path('dhi_admin_service_plan', {'userId' : app.request.get('userId'), 'service': 'IPTV', 'id' : addOnPackage.servicePurchaseId })}}" class="pull-right" title="Remove Premium Package"><i class="fa fa-remove"></i></a>
+                                        </td>				                
+									</tr>
+									{% set subTotalIPTV = subTotalIPTV + addOnPackage.actualAmount %}
+
+								{% endfor %}
+				
+							{% endif %}
+							<tr>
+								<td><strong>ExchangeVUE Subtotal</strong></td>
+								<td><strong>${{ subTotalIPTV|number_format(2) }}</strong></td>				                
+							</tr>
+							
+						{% else %}							
+						<tr>
+							<td colspan="2">No package found</td>                            
+						</tr>
+						{% endif %}	
+					</tbody>
+				</table>
+			</div>		
+			{% endif %}
+			
+			{% if summaryData and 'Credit' in summaryData.Cart|keys and summaryData.Cart.Credit is not null %}
+			
+			<div class="table-responsive">
+				<table class="table mb30">
+                	<tbody>                		
+						<tr class="heading">
+							<td colspan="2">Credits</td>                            
+						</tr>
+						
+						<tr class="sub-heading">
+							<td>Credit</td>
+                            <td>Amount</td>
+						</tr>
+						
+						{% set creditTotal = ''%}
+            			{%  for record in summaryData.Cart.Credit %}
+            				
+            				<tr>
+								<td>{{ record.credit }}</td>
+	                            <td>
+	                            	${{record.amount}}
+	                            	<a href="{{ path('dhi_admin_service_plan', {'userId' : app.request.get('userId'), 'service': 'credit', 'id':record.servicePurchaseId })}}" class="pull-right" title="Remove Credit"><i class="fa fa-remove"></i></a>
+	                            </td>
+							</tr>
+		                    {% set creditTotal =  record.amount %}
+                    	{% endfor %}
+                    	<tr>
+							<td><strong>Credits Subtotal</strong></td>
+							<td><strong>${{ creditTotal }}</strong></td>				                
+						</tr>
+					
+					</tbody>
+				</table>
+			</div>
+			{% endif %}
+			
+			{% if 'ISP' in summaryData.AvailableServicesOnLocation or 'BUNDLE' in summaryData.AvailableServicesOnLocation %}
+			<div class="table-responsive">
+				<table class="table mb30">
+                	<tbody>
+						<tr class="heading">
+							<td colspan="2">Internet Service</td>                            
+						</tr>
+						{% if summaryData.IsISPAvailabledInCart == 1 %}
+						
+							{% if summaryData.Cart.ISP.RegularPack %}
+								<tr class="sub-heading">
+									<td>ISP Package</td>
+		                            <td>Price</td>
+								</tr>
+								
+								{% for ispPackage in summaryData.Cart.ISP.RegularPack %}
+									{% if ispPackage.validityType == "HOURS" %}
+                                        {% set validityCaps = "Hour(s)" %}
+                                    {% else %}
+                                        {% set validityCaps = "Day(s)" %}
+                                    {% endif %}
+									<tr>
+										<td>{{ ispPackage.packageName~' - '~ispPackage.bandwidth~'k - '~ispPackage.validity~' '~validityCaps }}</td>
+                                        <td>
+                                            ${{ ispPackage.actualAmount }}
+                                            {% if ispPackage.bundleId < 1 %}
+                                            	<a href="{{ path('dhi_admin_service_plan', {'userId' : app.request.get('userId'), 'service': 'ISP' })}}" class="pull-right" title="Remove ISP Package"><i class="fa fa-remove"></i></a>
+                                        	{% endif %}
+                                        </td>
+									</tr>
+												
+									{% set subTotalISP = subTotalISP + ispPackage.actualAmount %}
+									{% if summaryData.IsBundleAvailabledInCart == 1 and ispPackage.bundleDiscountAmount >= 0 %}
+                                        {% set totalBundleDiscount = totalBundleDiscount + ispPackage.bundleDiscountAmount %}
+                                    {% endif %}
+								{% endfor %}
+								
+								{% if summaryData.Cart.ISP.unusedDays > 0 %}								
+									<tr>
+										{% if summaryData.IsBundleAvailabledInCart == 0 and totalBundleDiscount == 0 %}
+											<td>Existing ISP Pack Unused credit</td>
+					                        <td>-{{ summaryData.Cart.ISP.unusedCredit|number_format(2) }}</td>
+					                        {% set subTotalISP = subTotalISP - summaryData.Cart.ISP.unusedCredit %}
+				                        {% endif %}
+				                        {% set TotalUnusedCredit = TotalUnusedCredit + summaryData.Cart.ISP.unusedCredit %}
+									</tr>
+								{% endif %}
+								
+							{% endif %}
+					
+							<tr>
+								<td><strong>Internet Subtotal</strong></td>
+								<td><strong>${{ subTotalISP|number_format(2) }}</strong></td>				                
+							</tr>
+							
+						{% else %}							
+						<tr>
+							<td colspan="2">No package found</td>                            
+						</tr>
+						{% endif %}	
+						
+					</tbody>
+				</table>
+			</div>		
+			{% endif %}
+			
+			<div class="table-responsive">
+				<table class="table mb0">
+                	<tbody>                		
+						<tr class="heading">
+							<td colspan="2">Order Summary</td>                            
+						</tr>
+						{% if summaryData.IsBundleAvailabledInCart == 1 and totalBundleDiscount >= 0 %}
+							{% if TotalUnusedCredit > 0 %}
+								<tr>
+	                                <td><i>Total Unused credit</i></td>
+	                                <td><i> - ${{ TotalUnusedCredit|number_format(2) }}</i></td>
+	                            </tr>
+	                            {# {% set grandTotal = grandTotal - TotalUnusedCredit %} #}
+							{% endif %}
+							<tr>
+								<td>{{ summaryData.Cart.Bundle.RegularPack.bundleName }}</td>
+								<td>
+									${{ totalBundleDiscount|number_format(2) }}
+									<a href="{{ path('dhi_admin_service_plan', {'userId' : app.request.get('userId'), 'service': 'BUNDLE' })}}" class="pull-right" title="Remove Bundle"><i class="fa fa-remove"></i></a>
+								</td>                            
+							</tr>
+
+						{% endif %}
+						{% if summaryData.isPromotionAvailable > 0 %}
+                            <tr>
+                                <td><strong>Promotion Off ({{ summaryData.TotalPromotionPer }}%)</strong></td>
+                                <td>
+                                    <i> - ${{ summaryData.TotalPromotionOff|number_format(2) }}</i>
+                                </td>                            
+                            </tr>
+                        {% endif %}
+						<tr>
+							<td><strong>Current Monthly total</strong></td>
+							<td><strong>${{ summaryData.TotalPurchasedAmount|number_format(2) }}</strong></td>				                
+						</tr>
+						<tr>
+							<td><strong>Updated Monthly Total**</strong></td>
+							<td><strong>${{ summaryData.TotalCartAmount|number_format(2) }}</strong></td>				                
+						</tr>
+						<tr>
+							<td align="center" colspan="2">
+								{% set displayDisabledBtn = 1 %}
+								{% set checkoutBtnType = '' %}
+								
+								{% if summaryData.IsIPTVAvailabledInCart == 1 or summaryData.IsISPAvailabledInCart == 1 or summaryData.IsAddOnAvailabledInCart == 1 or 'Credit' in summaryData.Cart|keys and summaryData.Cart.Credit is not null %}
+																													
+									<a href="javascript:void(0)" class="btn-sm btn-success" onclick="notifyAlert('{{ isShowLocationAlert }}', '{{ serviceLocationName }}')">CheckOut</a>																				
+									{% set displayDisabledBtn = 0 %}
+								{% endif %}
+								
+								{% if displayDisabledBtn == 1 %}
+									{% if summaryData.IsCreditAvailabledInCart == 1 %}
+										<a href="javascript:void(0)" class="btn-sm btn-success" onclick="notifyAlert('{{ isShowLocationAlert }}', '{{ serviceLocationName }}')">CheckOut</a>
+									{% else %}
+										<input type="button" value="CheckOut" class="btn-sm btn-success btn-disabled" id="btn-continue" />
+									{% endif %}
+								{% endif %}
+							</td>				                
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock body %}
+{% block javascripts %} 
+    <script type="text/javascript">
+            
+	function notifyAlert(isShowLocationAlert,serviceLocationName) {
+				   		
+		if(isShowLocationAlert == 1) {
+			
+			$.confirm({
+	            title: 'Alert!',
+	            content: 'You are purchasing service for <b>'+serviceLocationName+'</b> location. Do you want to continue?',
+	            icon: '',
+	            confirmButton: 'Yes',
+	            cancelButton: 'No',
+	            confirmButtonClass: 'btn-info',
+	            cancelButtonClass: 'btn-danger',
+	            theme: 'white',
+	            animation: 'scale',
+	            animationSpeed: 400,
+	            animationBounce: 1.5,
+	            keyboardEnabled: false,
+	            container: 'body',
+	            cancel: function () {
+
+	                             
+	            },
+	            confirm: function () {
+
+	            	window.location.href = '{{url('dhi_admin_user_confirm_purchase', {'userId': userId })}}';
+	            },
+	            backgroundDismiss: false,
+	            autoClose: false,
+	            closeIcon: true
+	        });
+		}else {
+			
+			window.location.href = '{{url('dhi_admin_user_confirm_purchase', {'userId': userId })}}';
+		}				
+	}
+    {% if summaryData.Cart.IPTV is defined %}
+        $('#tabISP').addClass('disabled');
+        $('#tabISP').css('pointer-events','none');
+    {% endif %}
+
+    {% if summaryData.Cart.ISP is defined %}
+        $('#tabIPTV').addClass('disabled');
+        $('#tabIPTV').css('pointer-events','none');
+    	{% if summaryData.Cart.Bundle is defined %}
+	        $('#tabPremium').removeClass('disabled');
+	    {% else %}
+	    	$('#tabPremium').addClass('disabled');
+	        $('#tabPremium').css('pointer-events','none');
+        {% endif %}
+    {% endif %}
+
+    {# if summaryData.Cart.Bundle is defined %}
+        $('#tabIPTV').addClass('disabled');
+        $('#tabIPTV').css('pointer-events','none');
+        $('#tabISP').addClass('disabled');
+        $('#tabISP').css('pointer-events','none');
+    {% endif #}
+
+	</script>    
+{% endblock javascripts %}

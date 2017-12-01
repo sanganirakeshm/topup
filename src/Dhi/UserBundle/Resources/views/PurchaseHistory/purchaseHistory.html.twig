@@ -1,0 +1,215 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+{% block body %}
+{% block fos_user_content %}
+{% trans_default_domain 'FOSUserBundle' %}
+<style>
+	.btn-disabled{
+            pointer-events: none;
+            cursor: default;
+    }
+    
+    
+    table td .btn {
+    	padding: 2px 6px;
+    	cursor: pointer;
+    	display: inline-block;
+    	font-size: 14px;
+    	font-weight: normal;
+    	line-height: 1.42857;
+	}
+</style>
+<section class="content">
+	{% if app.user %}	
+	<div class="container text-right no-border">
+    	<div class="row">
+    		<div class="col-xs-12">
+				<h6 class="color-blue line-height-20">Welcome {{app.user.username}}</h6>
+			</div>
+		</div>	
+	</div>	
+	{%endif%}
+        		
+	<div class="container">
+    	<div class="row">
+        	<div class="heading">
+	        	<div class="col-xs-12">		                	
+					<h2>Purchase Details</h2>
+					<div class="purchasedetailBtnpdf">
+					<a href="{{path('dhi_purchase_history_print')}}" class="btn-sm btn-default" id="print_pdf" target="_blank">Print</a>
+					<a href="{{path('dhi_purchase_history_exportpdf')}}" class="btn-sm btn-default" id="export_pdf">Export PDF</a>	
+					</div>					
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="message_container">
+                	<div class="col-xs-12">{% include "DhiUserBundle::flashMessage.html.twig" %}</div>
+				</div>
+                    
+				<div class="col-xs-12">			
+					<table id="purchaseHistoryTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+						<thead>
+                        	<tr>
+                            	<th></th>
+								<th>Order Number</th>
+                                <th>Transaction Id</th>
+                                <th>Purchased Service</th>
+                                <th>Payment Method</th>
+                                <th>Payment Status</th>
+                                <th>Total Amount</th>
+                                <th>Refund Amount</th>
+                                <th>Purchase Date</th>
+                                <th></th>
+                                <th>Purchase order Id</th>
+							</tr>
+						</thead>
+					</table> 
+				</div>	           		          
+            </div>
+        </div>
+    </div>
+</section>
+                        
+<div id="ajax-loader-bx" style="display:none;">
+    <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+    <div id="loader-text">Please wait....</div>
+</div>
+{% endblock fos_user_content %}
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}    
+    <script type="text/javascript">
+    $(document).ready(function(){
+        
+    	var dTable = $('#purchaseHistoryTable').dataTable({
+            "oLanguage": {
+                "sLengthMenu": "Display _MENU_ Records",
+                "sZeroRecords": "<center>No Purchase History Found!</center>",
+                "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                "sInfoFiltered": "(filtered from _MAX_ total records)"
+            },
+            responsive: false,
+            bJQueryUI: false,
+            bProcessing: true,
+            bServerSide: true,
+            bFilter: true,            
+            iDisplayLength: '10',
+            sAjaxSource: "{{ path('dhi_user_purchase_history_json') }}",
+            fnDrawCallback: function () {
+            	
+            	if(this.fnSettings().fnRecordsTotal() == 0) {
+            		
+                    $("#export_pdf").addClass('btn-disabled');                    
+                    $("#export_pdf").removeClass('btn-default');                    
+                    $("#print_pdf").addClass('btn-disabled');                    
+                    $("#print_pdf").removeClass('btn-default');                    
+                } else {
+                	
+                    $("#export_pdf").removeClass('btn-disabled');                    
+                    $("#export_pdf").addClass('btn-default');
+                    $("#print_pdf").removeClass('btn-disabled');                    
+                    $("#print_pdf").addClass('btn-default');
+                }
+            },
+            aoColumns: [
+				{"sClass":"details-control","sDefaultContent": "", "bSearchable": false, "bSortable": false},
+                {"sName": "orderNumber"},
+                {"sName": "transactionId", "bSortable": false},
+                {"sName": "purcasedService", "bSearchable": false, "bSortable": false},
+                {"sName": "paymentMethod", "bSearchable": false, "bSortable": false},
+                {"sName": "paymentStatus"},
+                {"sName": "totalAmount"},
+                {"sName": "refundAmount"},
+                {"sName": "purchaseDate"},
+                {"sName": "action", "bSearchable": false, "bSortable": false},
+                {"sName": "purchaseId","bSearchable": false, "bSortable": false, "bVisible":false}
+            ],
+            aoColumnDefs: [
+                           {
+                               "mRender": function(data, type, row) {
+
+                            	   	var returnData = "<table><tr>";
+
+                            	   	if(row[9] > 0) {
+                                	   	
+                            	   		var viewRecurringUrl = '{{ path('dhi_view_recurring_profile', {'id': 'service_id'}) }}';
+                                        var viewRecurringProfile = viewRecurringUrl.replace("service_id", row[9]);
+                                        
+                            	   		returnData +='<td><a href="'+viewRecurringProfile+'" class="btn btn-default" title="View Recurring Profile">View Recurring Profile</a></td>';
+                            	   	}	
+                            	   	returnData += "</tr></table>";
+                               	 
+                                   	return returnData;
+                               },
+                               "aTargets": [9]
+                           }
+            ],
+            aaSorting: [[9, 'desc']]
+        });
+    	
+    	// Add event listener for opening and closing details
+        jQuery('#purchaseHistoryTable tbody').on('click', 'td.details-control', function () {
+        	
+            var tr = $(this).closest('tr');
+            
+            var nTr = $(this).parents('tr')[0];
+            if ( dTable.fnIsOpen(nTr) )
+            {
+                
+                //this.src = "../examples_support/details_open.png";
+                dTable.fnClose( nTr );
+                tr.removeClass('shown');
+            }
+            else
+            {
+                
+                //this.src = "../examples_support/details_close.png";
+                tr.addClass('shown');
+                var aData = dTable.fnGetData( nTr );
+                if(aData[10]){
+                	
+                	$.ajax({
+                		type: "POST",
+                		url: "{{ path('dhi_user_expanded_purchase_history') }}",
+                		data: { poId: aData[10]},	
+                		beforeSend: function( xhr ) {
+                			
+                		    $('#ajax-loader-bx').show();
+                		},
+                		success:function(result){
+                			
+                			$('#ajax-loader-bx').hide();
+                			dTable.fnOpen( nTr, result, 'details' );
+                		}
+                	})
+                }
+                //dTable.fnOpen( nTr, fnFormatDetails(dTable, nTr), 'details' );
+                
+            }                        
+        });	    	    	
+    });
+    
+    function fnFormatDetails ( dTable, nTr )
+    {
+        var aData = dTable.fnGetData( nTr );
+        var sOut = '';
+        
+        if(aData[1]){
+        	
+        	$.ajax({
+        		type: "POST",
+        		url: "{{ path('dhi_user_expanded_purchase_history') }}",
+        		data: { orderNumber: aData[1]},		
+        		success:function(result){
+        			//row.child( detailformat(result) ).show();
+                    //tr.addClass('shown');
+        			sOut = result;
+        		}
+        	})
+        }
+        return sOut;
+    }
+    
+	</script>
+{% endblock javascripts %}

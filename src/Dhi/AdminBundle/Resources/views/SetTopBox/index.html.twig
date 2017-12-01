@@ -1,0 +1,191 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+	<div class="delBoxCont"></div>		
+        
+         <section class="content-header">
+              <h1>Set Top Box</h1>
+            </section>
+            <section class="content">	
+		
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="box box-success">
+                            <form method="get">
+                                <div class="box-body">
+                                    <div class="form-group col-md-4">
+                                                        
+                                        <div class="row"><div class="col-sm-12" id="macAddress"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <div class="row"><div class="col-sm-12" id="givenBy"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                                        
+                                        <div class="row"><div class="col-sm-12" id="receivedBy"></div></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>		
+                 
+                <div class="box box-success">
+                    <div class="box-body">
+			<div class="row">
+         		    <div class="col-xs-12">  
+                      
+						       {% if admin_permission.checkPermission('set_top_box_create') %}
+                               <div class="addNewBtnsGrp">
+                                <a href="{{ path('dhi_admin_set_top_box_new') }}" class="btn btn-success pull-right margin-top5">Add Set Top Box</a>
+                               </div>
+							   {% endif %}
+                           
+			    <table id="setTopBoxTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>MacAddress</th>
+                                        <th>Given At</th>
+                                        <th>Return At</th>
+                                        <th>Given By</th>
+                                        <th>Received By</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>        
+            </section>	                
+{% endblock body %}
+{% block javascripts %}
+    
+    {{ parent() }}
+
+   <script type="text/javascript">
+        
+        $(document).ready(function () {
+          
+            deleteAjaxSource = '{{ path('dhi_admin_set_top_box_delete') }}';
+           
+            dTable = $('#setTopBoxTable').dataTable({
+               
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_set_top_box_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "Id", "bSearchable": false, "bSortable": true, "bVisible": false},
+                    {"sName": "MacAddress","bSearchable": true,"bSortable": true},
+                    {"sName": "GivenAt", "bSearchable": false, "bSortable": true},
+                    {"sName": "ReceivedAt", "bSearchable": false, "bSortable": true},
+                    {"sName": "GivenBy", "bSearchable": true, "bSortable": true},
+                    {"sName": "ReceivedBy", "bSearchable": true, "bSortable": true},
+                    {"sName": "Status", "bSearchable": false, "bSortable": true},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false},
+                    
+                ],
+                aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+                        	
+                        	//var actionFlag = row[0];
+                        	var dataId = row[0];
+							var returned = row[6];
+							
+							//var checkReturn = 'active'; 
+                            //console.log(returned);   return false;
+							{#{% set checkReturned = '+returned+' %}#}
+							var returnData = "";
+                                returnData += "<a href='javascript:void(0);' class='selectLink'>Select <span class='fa fa-angle-down'></span></a>";
+                                returnData += "<ul class='selectDropdown' style='display: none;'>";
+                           
+						{#{% if returned is defined and returned  == 'active' %}#}	
+							if (returned == 'active') {
+                                {% if admin_permission.checkPermission('set_top_box_return') %}
+                                    var Url = '{{ path('dhi_admin_set_top_box_return', {'id': 'return_id'}) }}';
+                                    var returnUrl = Url.replace("return_id", dataId);
+                                    returnData +='<li><a href="'+returnUrl+'"  title="Return"> Return</a></li>';
+                                {% endif %}
+							}	
+						{#{% endif %} #}           
+								 
+								{% if admin_permission.checkPermission('set_top_box_update') %}
+									var editUrl = '{{ path('dhi_admin_set_top_box_edit', {'id': 'return_id'}) }}';
+                                    var editStbUrl = editUrl.replace("return_id", dataId);
+                                    returnData +='<li><a href="'+editStbUrl+'"  title="Edit"> Edit</a></li>';
+								{% endif %}
+								 
+							var headTitle = "Set-Top-Box Delete";
+                                                        var msg = 'Are you sure you want to delete this Set-Top-Box ?';
+
+
+                               {% if admin_permission.checkPermission('set_top_box_delete') %}
+                                var deleteUrl = '{{ path('dhi_admin_set_top_box_delete', {'id': 'return_id'}) }}';
+                                var finalPath = deleteUrl.replace("return_id", dataId);
+                                returnData +='<li><a href="javascript:void(0)"  title="Delete" onclick="return deleterecord(' + dataId + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" +')">Delete</a></li>';  
+                               {% endif %}
+                          
+                            
+                          
+                            return returnData;
+                        },
+                        "aTargets": [7]
+                    }
+                ],
+                aaSorting: [[8, 'asc']]
+            });
+             $('#setTopBoxTable').dataTable().columnFilter({
+            aoColumns: [
+             
+             {type: "text", sSelector: "#macAddress"},
+             null,
+			 null,
+			 {type: "text", sSelector: "#givenBy"},
+             {type: "text", sSelector: "#receivedBy"},
+             ]
+        });
+
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+        });
+    </script>
+    
+{% endblock javascripts %}

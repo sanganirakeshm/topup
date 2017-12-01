@@ -1,0 +1,286 @@
+{% extends "DhiIsppartnerBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .flot-chart {
+            display: block;
+            height: 400px;
+        }
+
+        .flot-chart-content {
+            width: 100%;
+            height: 100%;
+        }	
+    </style>	
+
+    {#<link href="{{ asset('bundles/dhiisppartner/css/plugins-new/morris.css') }}" type="text/css" rel="stylesheet" />#}
+
+{% endblock %}	
+{% block body %}
+     {% include "DhiUserBundle::flashMessage.html.twig" %}
+     <div class="MessageBoxCont msgBoxCont"></div>
+    <div class="container min_cont_hight">
+        <div class="row">
+            <center><h2>Welcome to ISP Partner Dashboard!</h2></center>
+        </div>
+    </div>
+    <section class="content-header">
+        <h1>Search Promo code </h1>
+    </section>
+    <section class="content">
+        <div class="box box-success">
+{#            <form action="{{ path('dhi_isppartner_promocode_search') }}" method="POST" class="form-horizontal" id="add_partner_form" novalidate>#}
+                <div class="box-body form-group-section form-group">	
+                    <div class="form-group col-sm-12 col-md-4 col-lg-4">
+                        
+                        <div class="input-group" style="width: 100%;">
+                            <input id="search_code" name="search_code" class="input-sm form-control " placeholder="Promo code" type="text">
+                            <div class="input-group-btn text-left">
+                                <button id="search_btn" class="btn btn-success" style="padding:9px;">Search</button>
+                            </div>
+                        </div>
+                        <div id="codeListError" class="input-group col-sm-12" style="width: 100%;">
+                            <label class="error danger" id="errorlabel"></label>
+                        </div>
+                    </div>
+                   
+                    {#<div id="codeListMainDiv" class="input-group col-sm-12 hide" style="width: 100%;">
+                        <div class="col-sm-8">
+{#                            <input id="code_list" name="search_code" class="form-control input-sm pull-right" placeholder="Search" type="label">#}
+                           {# <label id="code_list" name="search_code" class="form-control label-default" ></label>
+                        </div>
+                        <div id="editdiv">
+                        
+                        </div>
+                    </div>#}
+                  
+                    <div id="codeListMainDiv" class="input-group col-sm-12 hide" style="width: 100%;">
+                        <table id="promoCodeBatchTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Is Redeemed</th>
+                                    <th>Status</th> 
+                                    <th>Creation Date</th>
+                                    <th>Expiration Date</th> 
+                                    <th>Duration</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody role="alert" aria-live="polite" aria-relevant="all">
+                                <tr class="odd">
+                                    <td id="code_data" class="">test</td>
+                                    <td id="is_redeemed" class="">test</td>
+                                    <td id="status_data" class="">test</td>
+                                    <td id="creation_date_data" class="">test</td>
+                                    <td id="expiration_date_data" class="">test</td>
+                                    <td id="duration_data" class="">test</td>
+                                    <td id="action_data" class="">
+                                        <a href="javascript:void(0);" class="selectLink">Select <span class="fa fa-angle-down"></span></a>
+                                        <ul class="selectDropdown" style="display: none;">
+                                            <li id="editdiv">
+                                               
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            
+                        </table>
+                    </div>
+{#            </form>#}
+        </div>
+    </section>
+<div class="modal fade" id="deactiveModal" tabindex="-1" role="dialog" aria-labelledby="deactiveModal" aria-hidden="true">
+    {#<div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Deactivate Promocode</h4>
+                <div id="model_message" class="content"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" name="deleteSubmit" id="deleteSubmit">Deactivate</button>
+                <button type="button" class="btn btn-default" id="closeBtn">Close</button>
+            </div>
+        </div>
+    </div>#}
+    <div class="modal-dialog" style="">
+        <div class="modal-content" style="border-radius: 5px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight: bold;">Deactivate Promo code</h4>
+                <div class="" id="model_message" style="padding: 20px 0px 0px;">
+                </div>
+            </div>
+            <div class="modal-footer"><div class="pull-right">
+                    <input type="hidden" id="promoCodeIsRedeemed" >
+                        <button type="button" class="btn btn-info text-bold" name="deleteSubmit" id="deleteSubmit" onclick="return dialogConfirm('yes')">Yes</button>
+                        <button type="button" class="btn btn-danger text-bold" onclick="return dialogConfirm('no')">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+{% block javascripts %}
+
+    <script src="{{ asset('bundles/dhiuser/js/jquery-2.1.1.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiuser/js/jquery-migrate-1.1.1.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiuser/js/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiuser/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiuser/js/modernizr.js') }}"></script>
+    <script src="{{ asset('bundles/dhiuser/js/placeholders.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiuser/js/selectivizr-min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiisppartner/js/main.js') }}"></script>
+
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <script type="text/javascript">
+        $.widget.bridge('uibutton', $.ui.button);
+    </script>
+    <!-- AdminLTE App -->
+    <script src="{{ asset('bundles/dhiisppartner/js/app.min.js') }}"></script>
+
+    <!-- Morris.js charts -->
+    {#<script src="{{ asset('bundles/dhiisppartner/plugins/morris/raphael.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiisppartner/plugins/morris/morris.min.js') }}"></script>
+#}
+    <script src="{{ asset('bundles/dhiisppartner/plugins/flot/jquery.flot.js') }}"></script>
+    <script src="{{ asset('bundles/dhiisppartner/plugins/flot/jquery.flot.tooltip.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiisppartner/plugins/flot/jquery.flot.resize.js') }}"></script>
+    <script src="{{ asset('bundles/dhiisppartner/plugins/flot/jquery.flot.pie.js') }}"></script>
+
+
+    <script type="text/javascript">
+        var promo_code_id = null;
+        var promo_code_isredeemed = null;
+        var promo_code_isactive = null;
+        var promo_code_status = null;
+        var search_code_url = "{{path('dhi_isppartner_promocode_search')}}";
+        var deactivate_code_url = "{{path('dhi_isppartner_promocode_deactivate')}}";
+        var global_result = null;
+        $(function () {
+            $("#search_btn").on('click',function(){
+                var getvalue = $.trim($('#search_code').val());
+                if( getvalue.length === 0 ){
+                    $('#codeListMainDiv').addClass('hide');
+                    $('#errorlabel').text("Please enter Promo code.");
+                    $('#codeListError').removeClass('hide');
+                }else{
+                $.ajax({
+                    type: "POST",
+                    url: search_code_url,
+                    data: {promocode:getvalue},
+                    beforeSend: function( xhr ) {
+                    $('#ajax-loader-bx').show();
+                    },
+                    success:function(result){
+                        global_result = result;
+                        $('#ajax-loader-bx').hide();
+                        if(result.flag == true){
+                            $('#errorlabel').text('');
+                            $('#codeListMainDiv').removeClass('hide');
+                            promo_code_id = result.promo_id;
+                            promo_code_isredeemed = result.isredeemed;
+                            promo_code_status = result.status;
+                            var edit_code_url = "{{path('dhi_isppartner_promocode_edit' , {'batchId': 'batch_id' , 'codeId': 'promo_id'} )}}";
+                            var edit_code_url1 = edit_code_url.replace("promo_id", result.promo_id);
+                            var edit_code_url2 = edit_code_url1.replace("batch_id", result.batch_id);
+                            $('#code_data').text(result.name);
+                            $('#status_data').text(result.status);
+                            $('#creation_date_data').text(result.creation_date);
+                            $('#expiration_date_data').text(result.expiration_date);
+                            $('#is_redeemed').text(result.isredeemed);
+                            
+                            
+                            $('#duration_data').text(result.duration);
+                            var deactivelink = '';
+                            var editlink = '';
+                            var isredeemed =  '"'+result.isredeemed+'"';
+                            if(result.status == 'Active'){
+                                deactivelink += "<a href='javascript:void(0)'  \n\
+                                                    onclick='return deactivecode(" + result.promo_id + "," + isredeemed + ")'>Deactivate</a>";
+                                if(result.isredeemed == 'Yes'){
+                                    editlink += "<a style='cursor: not-allowed;background-color: #eee;opacity: 1;' onclick='return false' href='" + edit_code_url2 + "'>Edit</a>";
+                                }else{
+                                    editlink += "<a href='" + edit_code_url2 + "' >Edit</a>";
+                                }
+                            }else{
+                                deactivelink += "<a style='cursor: not-allowed;background-color: #eee;opacity: 1;' onclick='return false' href='" + edit_code_url2 + "'>Active</a>";
+                                editlink += "<a style='cursor: not-allowed;background-color: #eee;opacity: 1;' onclick='return false' href='" + edit_code_url2 + "'>Edit</a>";
+                            }
+                            $('#editdiv').html(deactivelink+editlink);
+                            $('#codeListMainDiv').removeClass('hide');
+                        }else{
+                            $('#codeListMainDiv').addClass('hide');
+                            $('#errorlabel').text("Promo code  not found.");
+                            $('#codeListError').removeClass('hide');
+                        }
+                    },
+                    error:function(result){
+                        $('#ajax-loader-bx').hide();
+                    }
+                });
+                }
+            });
+             $("#closeBtn").click(function(event) {
+                $("#deactiveModal").modal('hide');
+            });
+            
+        });
+        function deactivecode(id,isredeemed){
+                $("#deactiveModal").modal('show');
+                var message = '';
+                $('#promoCodeIsRedeemed').val(isredeemed);
+                if(isredeemed == 'Yes'){
+                    if(global_result.discount_code_applied){
+                        if(global_result.discount_code_applied == 2){
+                             message = '<p>The customer has used this code for a discount off of another IPTV purchase with ExchangeVUE. Please let the customer know they need to contact ExchangeVUE Support and submit a ticket to have the IPTV portion refunded.</p>';
+                             $('#deleteSubmit').text("Ok");
+                             $('#deleteSubmit').next(".btn-danger").hide();
+                             
+                        }
+                    }
+                    if(global_result.promo_code_applied){
+                        if(global_result.promo_code_applied == 2){
+                            message = '<p>This code was used to activate the special bundle plan for the customer. Do you want to remove all access to the IPTV plan for this customer? </p>';
+                        }
+                    }
+                }else{
+                    message = '<p>This code has not yet been redeemed, do you want to deactivate this code? </p>';
+                }
+                $('#model_message').html(message);
+            }
+
+            function dialogConfirm(canDeactivate){
+                var isRedeemed =$('#promoCodeIsRedeemed').val();
+                $.ajax({
+                   type: "POST",
+                   url: deactivate_code_url,
+                   data: {isRedeemedValue:isRedeemed,promocodeid:promo_code_id,candelete:canDeactivate,discodeapl:global_result.discount_code_applied,procodeapl:global_result.promo_code_applied},
+                   beforeSend: function( xhr ) {
+                   $('#ajax-loader-bx').show();
+                   },
+                   success:function(result){
+                        location.reload();
+                   },
+                   error:function(result){
+                   },
+                });
+            }
+
+            function dialogReject(){
+                var isRedeemed =$('#promoCodeIsRedeemed').val();
+                alert("reject alert: "+  promo_code_id  );
+            }
+            function jsMessage(data) {
+                var msg = '<div class="alert alert-' + data.type + '">';
+                msg += '<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>';
+                msg += data.message;
+                msg += '</div>';
+                $("div.alert-" + data.type).remove();
+                $("div.MessageBoxCont").prepend(msg);
+            }
+         
+    </script>	
+
+{% endblock javascripts %}

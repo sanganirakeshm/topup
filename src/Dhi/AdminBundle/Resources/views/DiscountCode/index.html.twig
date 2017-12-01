@@ -1,0 +1,222 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+    
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>
+    
+    <section class="content-header">
+        <h1>Global Promo Code</h1>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get">
+                        <div class="box-body">
+                            <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="serviceLocation"></div></div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="discountcode"></div></div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="createdBy"></div></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">
+
+                        <div class="addNewBtnsGrp">
+                            {% if admin_permission.checkPermission('discount_code_create') %}
+                                <a href="{{ path('dhi_admin_discount_code_new') }}" class="btn btn-success pull-right margin-top5">Add Global Promo Code</a>
+                            {% endif %}
+                            {% if admin_permission.checkPermission('discount_code_export_pdf') %}
+                                <a href="{{ path('dhi_admin_discount_code_export_pdf') }}" class="btn btn-success pull-right margin-top5" id="export_pdf" >Export PDF</a>
+                            {% endif %}
+                            {% if admin_permission.checkPermission('discount_code_export_csv') %}
+                                <a href="{{ path('dhi_admin_discount_code_export_csv') }}" class="btn btn-success pull-right margin-top5" id="export_csv" >Export CSV</a>
+                            {% endif %}
+                        </div>
+                        {# {% endif %}#}
+                        <table id="discountCodeTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Service Location</th>
+                                    <th width="120">Global Promo Code</th>
+                                    <th>Percetage/Amount</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Created By</th>
+                                    <th>Status</th>
+                                    <th>Note</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="emailPreviewModal" tabindex="-1" role="dialog" aria-labelledby="emailPreviewModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock body %}
+{% block javascripts %}
+
+    {{ parent() }}
+
+   <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            deleteAjaxSource = '{{ path('dhi_admin_discount_code_delete') }}';
+
+            dTable = $('#discountCodeTable').dataTable({
+
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_discount_code_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "Id", "bSearchable": false, "bSortable": true, "bVisible": false},
+                    {"sName": "ServiceLocation","bSearchable": true,"bSortable": false},
+                    {"sName": "DiscountCode","bSearchable": true,"bSortable": true},
+                    {"sName": "Amount", "bSearchable": false, "bSortable": true},
+                    {"sName": "StartDate","bSearchable": false,"bSortable": true},
+                    {"sName": "EndDate","bSearchable": false,"bSortable": true},
+                    {"sName": "CreatedBy","bSearchable": true,"bSortable": true},
+                    {"sName": "Status","bSearchable": false,"bSortable": true},
+                    {"sName": "Note","bSearchable": false,"bSortable": true},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false},
+                ],
+                aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+
+                                var dataId = row[0];
+                                //var redeem = row[8];
+                                var status = row[9];
+                                
+                                var headTitle = "Discount Code Delete";
+                                var msg = 'Are you sure you want to delete this discount code?';
+                                var returnData = "";
+                                returnData += "<a href='javascript:void(0);' class='selectLink'>Select <span class='fa fa-angle-down'></span></a>";
+                                returnData += "<ul class='selectDropdown' style='display: none;'>";
+
+                                // Edit button
+                                {% if admin_permission.checkPermission('discount_code_update') %}
+                                    var editUrl = '{{ path('dhi_admin_discount_code_edit', {'id': 'discount_id'}) }}';
+                                    var editDiscount = editUrl.replace("discount_id", dataId);
+                                    returnData +='<li><a href="'+editDiscount+'"  title="Edit"> Edit</a></li>';
+                                {% endif %}
+
+                                // Delete button
+                               {# {% if admin_permission.checkPermission('discount_code_delete') %}
+                                    var deleteUrl = '{{ path('dhi_admin_discount_code_delete', {'id': 'discount_id'}) }}';
+                                    var finalPath = deleteUrl.replace("discount_id", dataId);
+                                    returnData +='<td><a href="javascript:void(0)" class="btn btn-danger" title="Delete" onclick="return deleterecord(' + dataId + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" +')">Delete</a></td>';
+                               {% endif %}#}
+
+                                // Enable/Disable button
+                               {% if admin_permission.checkPermission('discount_code_enable_disable') %}
+                                    var disableUrl = '{{ path('dhi_admin_discount_code_disable', {'id': 'discount_id'}) }}';
+                                    var disable = disableUrl.replace("discount_id", dataId);
+                                    if(status == 1){
+                                            returnData +='<li><a href="'+disable+'"  title="Disable">Disable</a></li>';
+                                    } else {
+                                            returnData +='<li><a href="'+disable+'"  title="Enable">Enable</a></li>';
+                                    }
+                                {% endif %}
+                                {% if admin_permission.checkPermission('discount_code_view_customer') %}
+                                    var viewCustomer = '{{ path('dhi_admin_discount_code_customer', {'id': 'discount_id'}) }}';
+                                    var customer = viewCustomer.replace("discount_id", dataId);
+                                    returnData +='<li><a href="'+customer+'" title="View Customer">View Customer</a></li>';
+				{% endif %}
+
+                            return returnData;
+                        },
+                        "aTargets": [9]
+                    }
+                ],
+                aaSorting: [[9, 'desc']]
+            });
+             $('#discountCodeTable').dataTable().columnFilter({
+            aoColumns: [
+                
+		{type: "select", sSelector: "#serviceLocation", values:  {{serviceLocations|json_encode()|raw }} },
+		{type: "text", sSelector: "#discountcode"},
+                null,
+                null,
+                null,
+                
+                {type: "text", sSelector: "#createdBy"},
+                null,
+                null,
+                
+            ]
+        });
+
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+        });
+         function showDetail(id){
+            var postData = id
+            var notePreviewUrl = '{{ path('dhi_admin_partner_promo_code_batch_view_note', {'id' : 'note_id','type' : 'type_name'  }) }}';
+            var detailsUrl = notePreviewUrl.replace("note_id", id);
+            var detailsUrl1 = detailsUrl.replace("type_name", 'globlePromoCode');
+
+            $('#ajax-loader-box').show();
+            $('.modal-content').load(detailsUrl1,postData, function (result) {
+                $('#ajax-loader-box').hide();
+                $('#emailPreviewModal').modal({show: true});
+            });
+        }
+    </script>
+
+{% endblock javascripts %}

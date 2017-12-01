@@ -1,0 +1,16 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% trans_default_domain 'FOSUserBundle' %}
+{% block body %}
+    <div class="innerBg">
+        <div class="container min_cont_hight">
+            {% block fos_user_content %}
+                 <div class="msgBox">
+                     <div class="msgboxin">
+                     <p>{{message|raw}}</p>
+                     </div>
+                 </div>                    
+            {% endblock fos_user_content %}
+        </div>
+    </div>
+{% endblock body %}

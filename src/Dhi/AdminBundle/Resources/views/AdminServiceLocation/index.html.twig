@@ -1,0 +1,87 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>Admin Service Location</h1>
+</section>
+<section class="content">
+    <div class="box box-success">
+        
+        <form action="{{ path('dhi_admin_service_location', {'id' : id}) }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="admin-service-location" novalidate>
+            
+            <div class="box-body">
+                <div class="form-group col-md-8">
+                    <label class="control-label">Username: </label>
+                    <div>
+                        {{ form_widget(form.username, { 'attr': { 'placeholder': '', 'class' : 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.username) }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if user.serviceLocations|length > 0 %}
+            
+             <div class="box-body">
+                <div class="form-group col-md-8">
+                    <label class="control-label">Current Service Location: </label>
+                    <div>
+                           {% set serviceLocationArr = {} %}  
+                                
+                               {% for serviceLocation in user.serviceLocations %}
+                                    {% set serviceLocationArr = serviceLocationArr|merge([serviceLocation.name]) %}
+                               {% endfor %}
+                                
+                           <h4>{{ serviceLocationArr|join(', ') }}</h4>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="box-body">
+                <div class="form-group col-md-8">
+                    <label class="control-label">Service Location: </label>
+                    <div>
+                        {{ form_widget(form.serviceLocations, { 'attr': { 'placeholder': '', 'class' : 'form-control inputService'}}) }}
+                        <div class="serverError">{{ form_errors(form.serviceLocations) }}</div>
+                    </div>
+                </div>
+            </div>
+           
+            
+            <div class="box-footer">
+                {{ form_rest(form) }}
+                <div class="form-group col-md-8">
+                    <div class=" col-sm-5 add-btn-bx">
+                        <input type="submit" name="save" value="Save" class="btn btn-success"/>
+                        <a href="{{ path('dhi_admin_list') }}" class="btn btn-info">Back</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>	
+
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#admin-service-location').validate({
+            rules: {
+                "dhi_admin_service_location[serviceLocations][]": {
+                    "required": true
+                }
+            },
+            messages: {
+                "dhi_admin_service_location[serviceLocations][]": {
+                    "required": "Please select service location."
+                }
+            }
+        });
+    });
+</script>
+{% endblock javascripts %}

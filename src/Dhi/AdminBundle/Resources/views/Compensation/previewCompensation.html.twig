@@ -1,0 +1,132 @@
+{% block body %}
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title" id="channelModal-title">Preview</h4>
+</div>
+<div class="modal-body">
+	<div style="overflow-x:hidden;overflow-y:auto;max-height:450px;">
+		<div class="row">
+
+			<div class="col-sm-12">
+				{% if data %}
+					<div class="table-responsive">
+						<table class="table table-bordered mb30" style="width:550px;">
+                        	<tbody>
+								<tr>
+									<td nowrap="nowrap"><b>Title</b></td>
+                                    <td>{{ data.title }}</td>                                    
+								</tr>
+								<tr>
+                                    <td nowrap="nowrap"><b>Services</b></td>
+                                    <td>
+                                    	{% set serviceNames = {} %}
+                                    	{% set serviceStr = '' %}
+                                    	{% if data.services %}
+                                    	
+                                    		{% for service in data.services %}
+                                    		
+                            					{% set serviceStr 	= serviceStr ~ service.name ~ ', ' %}                            					
+                            					{% set serviceNames = serviceNames|merge({ (service.id) : service.name }) %}                            					
+                    						{% endfor %}                    	                    						                                    
+                                    	{% endif %}
+                        				{{ serviceStr|trim(', ') }}            	
+									</td>
+								</tr>
+								{% if 'IPTV' in serviceNames %}
+								<tr>
+                                    <td nowrap="nowrap"><b>ExchangeVUE Compensation Hours</b></td>
+                                    <td>{{ (data.iptvDays)?data.iptvDays:'' }}</td>                                    
+								</tr>
+								{% endif %}
+								
+								{% if 'ISP' in serviceNames %}
+								<tr>
+                                    <td nowrap="nowrap"><b>ISP Compensation Hours</b></td>
+                                    <td>{{ (data.ispHours)?data.ispHours:'' }}</td>                                    
+								</tr>
+								{% endif %}
+								
+								{% if data.type == 'ServiceLocation' %}
+								<tr>
+                                    <td nowrap="nowrap"><b>Service Location(s)</b></td>
+                                    <td>
+                                    	{% set serviceLocationStr = '' %}
+                                    	
+                                    	{% if data.serviceLocations %}
+						                    {% for serviceLocation in data.serviceLocations %}
+					                            {% set serviceLocationStr = serviceLocationStr ~ serviceLocation.name ~ ', ' %}
+					                    	{% endfor %}
+				                    	{% endif %}
+				                    	
+				                    	{{ serviceLocationStr|trim(', ') }}
+                                    </td>                                    
+								</tr>
+								{% endif %}
+								
+								{% if data.type == 'Customer' %}
+									<tr>
+	                                    <td nowrap="nowrap"><b>Customer(s)</b></td>
+	                                    <td>
+									{% set userStr = '' %}
+	                                    	
+										{% if data.users %}
+											{% for users in data.users %}
+												{% set userStr = userStr ~ users.name ~ ', ' %}
+											{% endfor %}
+										{% endif %}
+					                    	
+									{{ userStr|trim(', ') }}
+									</td>                                    
+								</tr>
+								{% endif %}
+								
+								<tr>
+                                    <td nowrap="nowrap"><b>Compensation Status</b></td>
+                                    <td>{{ (data.status)?data.status:'' }}</td>                                    
+								</tr>
+								<tr>
+                                    <td nowrap="nowrap"><b>Status</b></td>
+                                    <td>{{ (data.isActive)?'Active':'Inactive' }}</td>                                    
+								</tr>
+								<tr>
+                                    <td nowrap="nowrap"><b>Note</b></td>
+                                    <td>{{ data.note }}</td>
+								</tr>
+							</tbody>
+						</table>
+						<table class="table table-bordered mb30" style="width:550px;">
+                        	<tbody>
+								<tr>
+									<th nowrap="nowrap"><b>Email Preview</b></th>                                                                     
+								</tr>
+								
+								<tr>
+									<td nowrap="nowrap">										
+										<div class="form-group">
+											<label class="control-label">Subject </label>
+											<div style="border:1px solid #BEB8B8;padding:10px;">{{ data.emailSubject }}</div> 					
+										</div>
+										
+										<div class="form-group">
+											<label class="control-label">Body </label>
+											<div style="border:1px solid #BEB8B8;padding:10px;width:530px;overflow-y:auto;">{{ data.emailContent|raw }}</div> 					
+										</div>										
+									</td>                                                                     
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					
+					
+				{% else %}
+				<p>Compensation data not available for preview.</p>
+				{% endif %}
+			</div>
+		</div>     
+	</div>       	
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>                
+</div>
+	    
+{% endblock body %}

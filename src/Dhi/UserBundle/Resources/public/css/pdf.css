@@ -1,0 +1,17 @@
+.purchase_table td, .purchase_table th{	border:1px solid #e5e3e3;}
+.purchase_table tr th{background-color:#e8eaeb;color:#502d88;font-size:14px;font-weight:bold;}
+.purchase_table tr td{font-size:12px;}
+.evenrow td{ background-color: #F3DE4D; } 
+.oddrow td{ background-color: #ffffff; }
+
+.sub_table td, .sub_table th{	border:1px solid #e5e3e3;}
+.sub_table tr th{font-size:12px;font-weight:bold;}
+.sub_table tr td{font-size:12px;}
+
+.admin_purchase_table td, .admin_purchase_table th{ border:1px solid #e5e3e3;}
+.admin_purchase_table tr th{background-color:#e8eaeb;color:#502d88;font-size:12px;font-weight:bold;}
+.admin_purchase_table tr td{font-size:10px;}
+
+.admin_purchase_sub_table td, .admin_purchase_sub_table th{ border:1px solid #e5e3e3;}
+.admin_purchase_sub_table tr th{font-size:10px;font-weight:bold;}
+.admin_purchase_sub_table tr td{font-size:10px;}

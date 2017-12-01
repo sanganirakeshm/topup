@@ -1,0 +1,173 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <style>
+        .row-child {display: none;}
+    </style>
+{% endblock stylesheets %}
+{% block body %}
+    {% include "DhiUserBundle::flashMessage.html.twig" %}		
+	<div class="delBoxCont"></div>		
+        <section class="content-header">
+            <h1>Partner PromoCode Deactivated Report</h1>
+        </section>
+        <section class="content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="box box-success">
+                        <form method="get">
+                            <div class="box-body">
+                                <div class="form-group col-md-4">
+                                    <div class="row"><div class="col-sm-12" id="partnerName"></div></div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <span class="filterColumn filter_select">
+                                                <select class="serviceLocation search_init select_filter form-control">
+                                                    <option value="" class="search_init">Service Location</option>
+                                                </select>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <select class="admins search_init select_filter form-control">
+                                                <option value="" class="search_init">Created By</option>
+                                                {% for admin in admins %}
+                                                    <option value="{{ admin.id }}">{{admin.firstname}} {{admin.lastname}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-8 ">
+                                    <div class="row"><div class="col-sm-12" id="date-range"></div></div>
+                                </div> 
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="box box-success">
+                <div class="box-body">
+        			<div class="row">
+     	          	    <div class="col-xs-12">  
+                        <table id="deactivatedReport" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="200">Partner Name</th>
+                                    <th>Deactivated Details</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+             </div>        
+        </section>
+{% endblock body %}
+{% block javascripts %}
+    
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            dTable = $('#deactivatedReport').dataTable({
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_partner_promocode_deactivation_report_json') }}",
+                "fnServerParams": function ( aoData ) {
+                    aoData.push( { "name": "serviceLocation", "value": $(".serviceLocation").val() } );
+                    aoData.push( { "name": "createdBy", "value": $(".admins").val() } );
+                },
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                window.location = "{{ path('dhi_admin_dashboard') }}";
+                            }
+                        }
+                    });
+		        },
+                aoColumns: [
+                    {"sName": "partnerName","bSearchable": true,"bSortable": true},
+                    {"sName": "details", "bSearchable": true, "bSortable": false}
+                ],
+                aoColumnDefs: [],
+                aaSorting: [[7, 'asc']]
+            });
+            $.datepicker.regional[""].dateFormat = 'yy-mm-dd';
+            $.datepicker.setDefaults($.datepicker.regional['']);
+            $('#deactivatedReport').dataTable().columnFilter({
+                sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+                aoColumns: [
+                    {type: "select", sSelector: "#partnerName", values: {{partners|json_encode|raw}}}
+                    {{null}},
+                    {type: "date-range", sSelector: "#date-range"}
+                ]
+            });
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+        
+        $(".serviceLocation").change(function(event) {
+            dTable.fnDraw(true);
+        });
+        $(".admins").change(function(event) {
+            dTable.fnDraw(true);
+        });
+        $(".filter_date_range .date_range_filter.hasDatepicker").attr({ readonly: 'true' }).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+
+        $("#partnerName select").change(function(event) {
+            var id = $(this).val();
+            $.ajax({
+                type: "POST",
+                url: "{{ path('dhi_admin_partner_promocode_deactivation_report_location_json') }}",
+                data: {id:id},
+                success:function(result){
+                    $('.serviceLocation').empty();
+                    $(new Option("Service Location", "")).appendTo('.serviceLocation');
+                    $.each(result, function(index, val) {
+                        $(new Option(val, val)).appendTo('.serviceLocation');
+                    });
+                    dTable.fnDraw(true);
+                }
+            });
+        });
+        $(document).on("click", ".details-control", function(){
+            $(this).parent().toggleClass("shown").next().toggle();
+        });
+        
+    });
+    </script>
+{% endblock javascripts %}

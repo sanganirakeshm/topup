@@ -1,0 +1,47 @@
+parameters:
+#    dhi_service.example.class: Dhi\ServiceBundle\Example
+
+services:
+#    dhi_service.example:
+#        class: %dhi_service.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
+
+    selevisionService:
+        class: Dhi\ServiceBundle\Controller\SelevisionController
+        arguments: 
+            container: "@service_container"
+            
+    packageActivation:
+        class: Dhi\ServiceBundle\Controller\PackageActivationController
+        arguments: 
+            container: "@service_container"
+
+    chase:
+        class: Dhi\ServiceBundle\Controller\ChaseController
+        arguments: 
+            container: "@service_container"
+
+    milstar:
+        class: Dhi\ServiceBundle\Controller\MilstarController
+        arguments: 
+            container: "@service_container"
+
+    paymentProcess:
+        class: Dhi\ServiceBundle\Controller\PaymentProcessController
+        arguments: 
+           container: "@service_container"
+           
+    aradial:
+        class: Dhi\ServiceBundle\Controller\AradialController
+        arguments: 
+           container: "@service_container"
+           
+    recurringProcess:
+        class: Dhi\ServiceBundle\Controller\RecurringProcessController
+        arguments: 
+           container: "@service_container"            
+         
+    cartProcess:
+        class: Dhi\ServiceBundle\Controller\CartProcessController
+        arguments: 
+           container: "@service_container"

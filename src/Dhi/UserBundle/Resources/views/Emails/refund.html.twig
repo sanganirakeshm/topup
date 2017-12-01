@@ -1,0 +1,30 @@
+<p>Hello,<p>
+Username : {{user.username}} ({{user.email}})
+<br />
+<br />
+Service Name : <strong>{{service.service.name}}</strong>
+<br />
+<br />
+Package Name : <strong>{{service.packageName}}</strong>
+<br />
+<br />
+Activation Date : <strong>{{service.activationDate|date('Y-m-d')}}</strong>
+<br />
+<br />
+Expiration Date : <strong>{{service.expiryDate|date('Y-m-d')}}</strong>
+<br />
+<br />
+Refund Application Date : <strong>{{'now'|date('Y-m-d')}}</strong>
+<br />
+<br />
+
+
+Total Amount : <strong>${{service.payableAmount}}</strong>
+<br />
+<br />
+Refund Amount : <strong>${{refundAmount}}</strong>
+<br /> <br /><br />
+
+Thank you,
+<br />
+ExchangeVUE

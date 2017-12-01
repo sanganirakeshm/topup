@@ -1,0 +1,189 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block body %}
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>		
+    <section class="content-header">
+        <h1>Business Promo Code</h1>
+    </section>
+    <section class="content">	
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get">
+                        <div class="box-body">
+                            <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="code"></div></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>		
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">  
+                        <div class="addNewBtnsGrp">
+                            <a href="{{ path('dhi_admin_business_batch_list') }}" class="btn btn-success pull-right margin-top5" id="export_csv">Back</a>
+                            {% if admin_permission.checkPermission('business_batch_export_pdf') %}   
+                                <a href="{{ path('dhi_admin_business_promocode_export_pdf',{'batchId': app.request.get('batchId')}) }}" class="btn btn-success pull-right margin-top5" id="export_pdf" >Export PDF</a>
+                            {% endif %}
+                            {% if admin_permission.checkPermission('business_batch_export_csv') %} 
+                                <a href="{{ path('dhi_admin_business_promocode_export_csv',{'batchId': app.request.get('batchId')}) }}" class="btn btn-success pull-right margin-top5" id="export_csv" >Export CSV</a>
+                            {% endif %}
+                            {% if admin_permission.checkPermission('business_batch_export_excel') %} 
+                                <a href="{{ path('dhi_admin_business_promocode_export_excel',{'batchId': app.request.get('batchId')}) }}" class="btn btn-success pull-right margin-top5" id="export_excel" >Export Excel</a>
+                            {% endif %}
+                        </div>
+                        {# {% endif %}#}
+                        <table id="promoCodeTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Is Redeemed</th>
+                                    <th>Redeemed By</th>
+                                    <th>Package</th>
+                                    <th>Duration</th>
+                                    <th>Expiry Date</th>
+                                    <th width="50">Business Value</th>
+                                    <th width="60">Customer Value</th>
+                                    <th>Status</th>
+                                    <th width="60">Note</th>
+                                    <th width="60">Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="emailPreviewModal" tabindex="-1" role="dialog" aria-labelledby="emailPreviewModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                </div>
+            </div>
+        </div>
+    </section>
+                        
+{% endblock body %}
+{% block javascripts %}
+
+    {{ parent() }}
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            dTable = $('#promoCodeTable').dataTable({
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength:{{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_business_promo_code_list_json',{'batchId':app.request.get('batchId')}) }}",
+                "fnServerData": function (sUrl, aoData, fnCallback, oSettings) {
+                    oSettings.jqXHR = $.ajax({
+                        "url": sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if (json.sError) {
+                                oSettings.oApi._fnLog(oSettings, 0, json.sError);
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback(json);
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if (error == "parsererror") {
+                                window.location = "{{ path('dhi_admin_business_batch_list') }}";
+                            }
+                        }
+                    });
+                },
+                aoColumns: [
+                    {"sName": "Code", "bSearchable": true, "bSortable": true},
+                    {"sName": "IsRedeemed", "bSearchable": false, "bSortable": true},
+                    {"sName": "RedeemedBy", "bSearchable": false, "bSortable": false},
+                    {"sName": "PackageName", "bSearchable": false, "bSortable": true},
+                    {"sName": "Duration", "bSearchable": false, "bSortable": true},
+                    {"sName": "ExpiryDate", "bSearchable": false, "bSortable": true},
+                    {"sName": "BusinessValue", "bSearchable": false, "bSortable": false},
+                    {"sName": "CustomerValue", "bSearchable": false, "bSortable": false},
+                    {"sName": "Status", "bSearchable": false, "bSortable": true},
+                    {"sName": "Note", "bSearchable": false, "bSortable": true},
+                ],
+                aoColumnDefs: [
+                    {
+                        "mRender": function (data, type, row) {
+
+                            var batchId = {{ app.request.get('batchId')}}; 
+                            var codeId = row[10];
+                            var returnData = "";
+
+                            returnData += "<a href='javascript:void(0);' class='selectLink'>Select <span class='fa fa-angle-down'></span></a>";
+                            returnData += "<ul class='selectDropdown' style='display: none;'>";
+                            if(row[1] != 'Yes'){
+                                {% if admin_permission.checkPermission('business_promo_code_update') %}
+                                    var editUrl = '{{ path('dhi_admin_business_promo_code_edit', {'batchId': 'batchId', 'codeId': 'code_id'}) }}';
+                                    var editPromo = editUrl.replace("batchId", batchId);
+                                        editPromo = editPromo.replace("code_id", codeId);
+                                    returnData +='<li><a href="'+editPromo+'"  title="Edit"> Edit</a></li>';
+                                {% endif %}                                
+                            }
+                            
+                            {#var codeStatus = row[8] == 'Inactive' ? 'Activate' : 'Inactivate';
+                            var editStatusUrl = '{{ path('dhi_admin_business_promo_code_status', {'batchId': 'batchId', 'codeId': 'code_id'}) }}';
+                            var editStatus = editStatusUrl.replace("batchId", batchId);
+                            editStatus = editStatus.replace("code_id", codeId);#}
+                            {#returnData +='<li><a href="'+editStatus+'"  title= " Mark as '+codeStatus+'"> '+codeStatus+'</a></li>';#}
+
+                            return returnData;
+                        },
+                        "aTargets": [10]
+                    }
+                ],
+                //aaSorting: [[0, 'desc']]
+            });
+            $('#promoCodeTable').dataTable().columnFilter({
+                aoColumns: [
+                    {type: "text", sSelector: "#code"},
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                ]
+            });
+
+            $("input").addClass("form-control");
+            $("select").addClass("form-control");
+        });
+
+        function showDetail(id){
+            var notePreviewUrl = '{{ path('dhi_admin_partner_promo_code_batch_view_note', {'id' : 'note_id','type' : 'type_name' }) }}';
+            var detailsUrl = notePreviewUrl.replace("note_id", id);
+            var detailsUrl1 = detailsUrl.replace("type_name", 'businessPromoCode');
+            $('#ajax-loader-box').show();
+            $('.modal-content').load(detailsUrl1,id, function (result) {
+                $('#ajax-loader-box').hide();
+                $('#emailPreviewModal').modal({show: true});
+            });
+        }
+    </script>
+
+{% endblock javascripts %}

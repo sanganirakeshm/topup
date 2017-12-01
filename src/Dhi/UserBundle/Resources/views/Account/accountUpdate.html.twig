@@ -1,0 +1,606 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+<link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+<style type="text/css">
+    /*.ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }*/
+   
+</style>
+{% endblock stylesheets %}
+
+{% block body %}
+{% block fos_user_content %}
+
+{% trans_default_domain 'FOSUserBundle' %}
+
+<section class="content signup">
+	{% if app.user %}	
+			<div class="container text-right no-border">
+                <div class="row"><div class="col-xs-12">
+			<h6 class="color-blue line-height-20">Welcome {{app.user.username}}</h6>
+				</div></div>	</div>	
+		{%endif%}
+        
+	<div class="container">
+		<div class="row">
+            <div class="heading">
+                <div class="col-xs-12">
+                    <h2>Profile</h2>
+                </div>
+            </div>
+        </div>
+		<div class="row">
+		   <div class="col-xs-12 col-sm-10 col-md-7 col-md-offset-5 profile-box">
+               	{% if app.user.getUserType() == "US Military" and app.user.getIsDeersAuthenticated() != 1  %}
+                <div class="alert alert-info" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+					You must complete DEERS authentication <a href="javascript:void(0);" data-toggle="modal" data-target="#deersModal" >here</a> to complete your registration process.                    
+                    {#In order to complete your registration process, You have to do DEERS authentication. <br> Please <a href="javascript:void(0);" data-toggle="modal" data-target="#deersModal" >Click Here</a> to do DEERS authentication. #}
+                </div>
+                {% endif %}
+                <ul class="nav nav-tabs " role="tablist" id="profile-tabs">
+                    <li role="presentation" {% if tab == 1 %}class="active"{% endif %}><a href="#updateAccount" aria-controls="connectTab" role="tab" data-toggle="tab">Update Account</a></li>
+                    <li role="presentation" {% if tab == 2 %}class="active"{% endif %}><a href="#changePassword" aria-controls="changePassword" role="tab" data-toggle="tab">Change Password</a></li>
+                    <li role="presentation" {% if tab == 3 %}class="active"{% endif %}><a href="#accountSetting" aria-controls="accountSetting" role="tab" data-toggle="tab">Settings</a></li>
+                </ul>
+
+                <div class="tab-content ">
+                    <div role="tabpanel" class="tab-pane fade {{ tab == 1 ? 'in active': ''}}" id="updateAccount">
+                            <div class="clear">&nbsp;</div>
+                            {% if tab == 1 %}
+                                {% include "DhiUserBundle::flashMessage.html.twig" %}
+                            {% endif %}
+                              <form action="{{ path('dhi_user_profile') }}" {{ form_enctype(form) }} method="POST" class="fos_user_profile_edit" id="fos_user_profile_edit" novalidate>
+                                    <div class="form-group half-width">
+                                        {{ form_widget(form.username, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Username'}}) }}
+                                        {% if form_errors(form.username) %}
+                                        <div class="serverError">{{ form_errors(form.username) }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group half-width">
+                                        {{ form_widget(form.email.first, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Email'}}) }}
+                                        {% if form_errors(form.email.first) %}
+                                        <div class="serverError">{{ form_errors(form.email.first) }}</div>
+                                        {% endif %}   
+                                        <label id="ajaxEmailMsg"></label>
+                                        <img src="{{ asset('bundles/dhiuser/images/ajax-loader.gif') }}" width="30px" class="loaderImg" id="loader" style="display: none;">
+                                    </div>
+                                    <div class="form-group half-width clearfix">
+                                        {{ form_widget(form.email.second, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Confirm Email'}}) }}
+                                        {% if form_errors(form.email.second) %}
+                                        <div class="serverError">{{ form_errors(form.email.second) }}</div>
+                                        {% endif %}                                        
+                                    </div>
+
+                                    <div class="form-group half-width">
+                                        {{ form_widget(form.firstname, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Firstname'}}) }}
+                                        {% if form_errors(form.firstname) %}
+                                        <div class="serverError">{{ form_errors(form.firstname) }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group half-width clearfix">
+                                        {{ form_widget(form.lastname, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Lastname'}}) }}
+                                        {% if form_errors(form.lastname) %}
+                                        <div class="serverError">{{ form_errors(form.lastname) }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group half-width">
+                                        {{ form_widget(form.address, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Address'}}) }}
+                                        {% if form_errors(form.address) %}
+                                        <div class="serverError">{{ form_errors(form.address) }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group half-width clearfix">
+                                        {{ form_widget(form.city, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'City'}}) }}
+                                        {% if form_errors(form.city) %}
+                                        <div class="serverError">{{ form_errors(form.city) }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group half-width">
+                                        {{ form_widget(form.state, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'State'}}) }}
+                                        {% if form_errors(form.state) %}
+                                        <div class="serverError">{{ form_errors(form.state) }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group half-width clearfix">
+                                        {{ form_widget(form.zip, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Zip Code'}}) }}
+                                        {% if form_errors(form.zip) %}
+                                        <div class="serverError">{{ form_errors(form.zip) }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group half-width">
+                                        {{ form_widget(form.country, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Country'}}) }}
+                                        {% if form_errors(form.country) %}
+                                        <div class="serverError">{{ form_errors(form.country) }}</div>
+                                        {% endif %}
+                                    </div>
+                                    {{ form_rest(form) }}
+                                    <div class="form-group full-width submit_btn_box"><input name="update_email" type="submit" value="Update Account" class="submitBtn btn btn-blue full-width"></div>
+                                </form>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade {{ tab == 2 ? 'in active': ''}}" id="changePassword">
+                        <div class="accountForm">
+                            <div class="clear">&nbsp;</div>
+                            {% if tab == 2 %}
+                                {% include "DhiUserBundle::flashMessage.html.twig" %}
+                            {% endif %}
+                               <form action="{{ path('dhi_user_profile') }}" {{ form_enctype(changePasswordForm) }} method="POST" class="fos_user_profile_edit" id="fos_user_change_password">
+
+                                    <div class="form-group full-width">
+                                        
+                                        {% if form_errors(changePasswordForm.current_password) %}
+                                        <div class="serverError">
+                                            {% autoescape %}
+                                            Password does not match to current password
+                                            {% endautoescape %}
+                                        </div>
+                                        {% endif %}
+                                        {{ form_widget(changePasswordForm.current_password, { 'attr': {'class' : 'form-control','data-prompt-position': 'topRight', 'placeholder': 'Current Password', 'tabindex':1}}) }}
+                                    </div>
+                                    
+                                    <div class="form-group half-width error_password">
+                                        {% if form_errors(changePasswordForm.plainPassword.second) %}
+                                        <div class="serverError">{{ form_errors(changePasswordForm.plainPassword.second) }}</div>
+                                        {% endif %}
+                                        {{ form_widget(changePasswordForm.plainPassword.second, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Confirm Password', 'tabindex':3}}) }}
+                                    </div>
+                                    
+                                    <div class="form-group half-width error_password">
+                                        {% if form_errors(changePasswordForm.plainPassword.first) %}
+                                        <div class="serverError">{{ form_errors(changePasswordForm.plainPassword.first) }}</div>
+                                        {% endif %}
+                                        {{ form_widget(changePasswordForm.plainPassword.first, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'New Password', 'tabindex':2}}) }}
+                                    </div>
+
+                                    {{ form_rest(changePasswordForm) }}
+                                    <div class="form-group full-width"><input type="submit" name="update_password" value="Update Password" id="update_password" class="submitBtn btn btn-blue full-width"></div>
+                                </form>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade {{ tab == 3 ? 'in active': ''}}" id="accountSetting">
+                        <div class="clear">&nbsp;</div>
+                        {% if tab == 3 %}
+                          {% include "DhiUserBundle::flashMessage.html.twig" %}
+                        {% endif %}
+                        <div id="flash-message"></div>
+                        {# <div class="accountForm account_setting">
+                            <div class="form-group half-width">
+                                <span class="pull-left" id="title-mac-address"><h5>Set Top Box Mac Address</h5><span>&nbsp;(Maximum: {{app.session.get('maxMacAddress')}})</span></span>
+                            </div>
+                            <div class="form-group half-width">
+                                <span class="pull-right add_mac_address submit">
+                                        {% if app.session.get('maxMacAddress') > userMacAddress|length %}
+                                            <a href="javascript:void(0);" id="add-mac-address" class="submitBtn btn btn-blue full-width">Add Mac Address</a>
+                                        {% endif%}
+                                </span>    
+                            </div>    
+                            <div id="form-body" class="use_mac_add_list"> </div>
+
+                            <div class="tab-content col-lg-12" id="mac-address-list">
+                              
+                                {{ include('DhiUserBundle:UserMacAddress:list.html.twig', {'userMacAddress': userMacAddress}) }}
+                            </div>
+                        </div> #}
+                        <div class="accountForm setting">
+                            <div class="full-width"><h5>Other Settings</h5></div>
+                                <form action="{{ path('dhi_user_profile') }}" {{ form_enctype(accountSettingForm) }} method="POST" class="fos_user_profile_edit">
+                                    {% if form_errors(accountSettingForm) %}
+                                     <div class="form-group full-width">{{ form_errors(accountSettingForm) }}</div>
+                                    {% endif %}
+                                    <div class="form-group full-width">{{ form_widget(accountSettingForm.is_email_optout, { 'attr': {'data-prompt-position': 'topRight'}}) }}Opt Out of Marketing Emails</div>
+                                    {{ form_rest(accountSettingForm) }}
+                                    <div class="form-group half-width"><input type="submit" name="update_setting" value="Update Settings" class="submitBtn btn btn-blue full-width"></div>
+                                </form>
+                        </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock fos_user_content %}
+<!-- Modal -->
+<div class="modal fade" id="deersModal" tabindex="-1" role="dialog" aria-labelledby="deersModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Deers Authentication</h4>
+            </div>
+            <div class="modal-body">
+                <p> For US Military personal, Deers authentication is required. For Deers authenticaiton you must have www.shopmyexchange.com account.Please <a href="{{ path('dhi_user_deers_auth') }}">Click Here</a> if you have www.shopmyexchange.com account.</p>
+                <p class="text-center"> OR </p>
+                <p> Please <a href="https://www.shopmyexchange.com/account/register">Click Here</a> if you want to create new account on <a href="https://www.shopmyexchange.com/account/register">www.shopmyexchange.com.</a> </p>    
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ajax-loader-bx" style="display:none;">
+	<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+	<div id="loader-text">Please wait....</div>
+</div>
+
+
+
+{% endblock body %}
+
+{% block javascripts %}
+    
+    {{ parent() }}
+
+<script type="text/javascript">
+
+	var isEmailChanges = false;
+    $(document).ready(function() {
+        
+        $('#dhi_user_mac_address_macAddress').keyup(function() {
+            this.value = this.value.toUpperCase();
+        });
+        
+        // render form to add mac address
+        $("#add-mac-address").live("click", function() {
+
+            $.ajax({
+                type: "POST",
+                url: '{{ path('dhi_user_mac_address_add') }}',
+                beforeSend: function() {
+                    
+                    $('#ajax-loader-bx').show();
+                    
+                },
+                success: function(result)
+                {
+                    
+                    if (result) {
+                        
+                        $('#ajax-loader-bx').hide();
+                        $("#form-body").show();
+                        $("#form-body").html(result);
+                        return true;
+                    }
+
+                }
+            });
+
+        });
+
+        // delete mac address
+        $(".deleteMacAddress").live("click", function() {
+                
+                var id = $(this).attr('data');
+            
+            	$.confirm({
+			title: 'Delete Mac Address',
+			content: 'Are you sure you want to delete this mac address?',
+			icon: '',
+                        confirmButton: 'Yes',
+                        cancelButton: 'No',
+                        confirmButtonClass: 'btn-blue',
+                        cancelButtonClass: 'btn-danger',
+                        theme: 'white',
+                        animation: 'scale',
+                        animationSpeed: 400,
+                        animationBounce: 1.5,
+                        keyboardEnabled: false,
+                        container: 'body',
+                        cancel: function(){
+
+                              return true;
+                              
+                        },
+                        confirm: function(){
+                            
+                            if (id) {
+                               
+                                var deleteUrl = '{{path('dhi_user_mac_address_remove', {'id' : 'macId'})}}';
+                                deleteUrl = deleteUrl.replace('macId', id);
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: deleteUrl,
+                                    beforeSend: function() {
+                    
+                                     $('#ajax-loader-bx').show();
+                    
+                                    },
+                                    success: function(result)
+                                    {
+                                        $('#ajax-loader-bx').hide();
+                                        var flagMacAddress = jQuery.parseJSON(result);
+                                        
+                                        $("#editMacAddress").hide();
+                                        $("#addMacAddress").hide();
+                                        
+                                        if(flagMacAddress.error && flagMacAddress['status'] == 'failure') {
+                                            
+                                            flashMsg = disErrorMsg('danger', flagMacAddress.error);
+                                            $("#flash-message").html(flashMsg);
+                                            return false;
+                                        
+                                        }   
+                                        
+                                        if (flagMacAddress['status'] != 'failure') {
+
+                                            if ('{{app.session.get('maxMacAddress')}}' > flagMacAddress['totalMacAddress']) {
+
+                                                $("#add-mac-address").show();
+
+                                            }
+
+                                            flashMsg = disErrorMsg('success', 'Mac address deleted successfully.');
+                                            $("#flash-message").html(flashMsg);
+
+                                            $("#mac-address-list").html(flagMacAddress['status']);
+                                            return true;
+
+                                        }
+
+                                    }
+                                });
+
+                              }
+                        },
+		    backgroundDismiss: false,
+                    autoClose: false,
+                    closeIcon: true
+		});
+              
+        });
+
+        // edit mac address
+        $("[id^=edit-mac-address]").live("click", function() {
+
+            var id = $(this).attr('data');
+
+            if (id) {
+
+                var editUrl = '{{path('dhi_user_mac_address_edit', {'id' : 'macId'})}}';
+                editUrl = editUrl.replace('macId', id);
+
+                $.ajax({
+                    type: "POST",
+                    url: editUrl,
+                    beforeSend: function() {
+                    
+                        $('#ajax-loader-bx').show();
+                    
+                    },
+                    success: function(result)
+                    {
+                        if (result) {
+                            $('#ajax-loader-bx').hide();
+                            $("#form-body").show();
+                            $("#form-body").html(result);
+                            return true;
+                        }
+
+                    }
+                });
+
+            }
+
+        });
+
+        // add mac address 
+		/* $("#submitAddMacAddress").live("click", function() {
+
+            if ($("#addMacAddress").valid()) {
+
+            }
+            else {
+
+                $(".serverError").hide();
+                $('#dhi_user_mac_address_macAddress').rules('add', {
+                    required: true,
+                    regex: /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/,
+                    messages: {
+                        required: "Please enter mac address.",
+                        regex: "valid make address"
+                    }
+                });
+            }
+        }); */
+
+        // edit mac address 
+        /* $("#submitEditMacAddress").live("click", function() {
+
+            if ($("#editMacAddress").valid()) {
+
+            }
+            else {
+
+                $(".serverError").hide();
+                $('#dhi_user_mac_address_macAddress').rules('add', {
+                    required: true,
+                    messages: {
+                        required: "Please enter mac address.",
+                    }
+                });
+            }
+
+        }); */
+
+        $('ul[role="tablist"] li').not('.active').click(function() {
+            $('label.error').hide();
+            $('.serverError').html('');
+        });
+        
+        $.validator.addMethod("regex_valid_char", function(value, element, regexpr) {
+            if(!regexpr.test(value)) {
+                $("#ajaxEmailMsg").html('');
+                return false;
+            } else {
+                return true;
+            }
+            
+            
+        }, "Please enter valid email.");
+        
+        $.validator.addMethod("regex_name", function(value, element, regexpr) {
+            return regexpr.test(value);
+        }, "Your name contain characters, numbers and these special character only - _");
+
+        $("#fos_user_profile_edit").submit(function() {
+            if (!$(this).valid()) {
+                ($('#dhi_user_account_update_username').val());
+                return false;
+            }
+            if ( isEmailChanges == true ){
+	            if(!checkEmail($('#dhi_user_account_update_email_first').val(), 'account')) {
+	                return false;
+	            }
+            }
+                
+        }).validate({
+            rules: {
+                "dhi_user_account_update[email][first]": {
+                    "required": true,
+                    "regex_valid_char": /^([\w-\.]+)([\w-]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+                    "email": true
+                },
+                "dhi_user_account_update[email][second]": {
+                    "required": true,
+                    "regex_valid_char": /^([\w-\.]+)([\w-]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+                    "equalTo": "#dhi_user_account_update_email_first"
+                },
+                "dhi_user_account_update[firstname]": { 
+                    "required": true,
+                    "regex_name": /^[A-Za-z0-9 _-]+$/
+                },
+                "dhi_user_account_update[lastname]": {
+                    "required": true,
+                    "regex_name": /^[A-Za-z0-9 _-]+$/
+                },
+                "dhi_user_account_update[address]": "required",
+                "dhi_user_account_update[city]": "required",
+                "dhi_user_account_update[state]": "required",
+                "dhi_user_account_update[zip]": "required",
+                "dhi_user_account_update[country]": "required"
+            },
+            messages: {
+                "dhi_user_account_update[email][first]": {
+                    "required": "Please enter email.",
+                    "email": "Please enter valid email."
+                },
+                "dhi_user_account_update[email][second]": {
+                    "required": "Please enter confirm email.",
+                    "equalTo": "Email does not match confirm email."
+                },
+                "dhi_user_account_update[firstname]": {
+                    "required": "Please enter first name.",
+                    "regex_name": "Your first name contain characters, numbers and these special characters only - _",
+                },
+                "dhi_user_account_update[lastname]": {
+                    "required": "Please enter last name.",
+                    "regex_name": "Your last name contain characters, numbers and these special characters only - _",
+                },
+                "dhi_user_account_update[address]": "Please enter address.",
+                "dhi_user_account_update[city]": "Please enter city.",
+                "dhi_user_account_update[state]": "Please enter state.",
+                "dhi_user_account_update[zip]": "Please enter zip code.",
+                "dhi_user_account_update[country]": "Please enter country."
+               
+        },
+        onkeyup: function(element) {
+
+        if($("#dhi_user_account_update_email_first").val() == "")
+        {
+            $("#ajaxEmailMsg").html('');
+        }
+        },
+        });
+
+        $.validator.addMethod("regex", function(value, element, regexpr) {
+            return regexpr.test(value);
+        }, "Username can contains character, number and special chars like -_!@./$.");
+
+        
+        // check email is exists or not
+        $("#dhi_user_account_update_email_first").change(function (event) {
+               
+                currentEmail = '{{ app.user.email }}';
+                checkEmailSource = '{{ path('dhi_user_check_email') }}';
+                isEmailChanges = true;
+        
+                if($("#dhi_user_account_update_email_first").val() == "")
+                {
+                    $("#ajaxEmailMsg").html('');
+                    return false;
+                }    
+                var isEmailValid = checkEmail($(this).val(), 'account');
+                if(!isEmailValid && $("#dhi_user_account_update_email_first").val() != ""){
+                    //if($("#fos_user_profile_edit").valid()){
+                        //$("#ajaxEmailMsg").addClass("error1").removeClass("success1").removeClass("success").html("Please enter valid email.").show();
+                    //}
+                    $("#dhi_user_account_update_email_first-error").html("").hide();
+                }
+        });
+
+        $("#dhi_user_account_update_email_first").keyup(function (event) {
+            
+                if($("#dhi_user_account_update_email_first").val() == "")
+                {
+                    $("#ajaxEmailMsg").html('');
+                }    
+                
+        });
+        
+        $("#update_password").live("click", function() {
+            
+             if(!$("#fos_user_change_password").valid())
+             {
+                 $('.serverError').html('');
+             }   
+             
+        });
+        
+        $('#fos_user_change_password').validate({
+            rules: {
+                "dhi_user_changepassword[current_password]": {
+                    "required": true
+                },
+                "dhi_user_changepassword[plainPassword][first]": {
+                    "required": true,
+                    "regex": /^[A-Za-z0-9!@#$_]+$/,
+                    "minlength": 8,
+                    "maxlength": 18
+                },
+                "dhi_user_changepassword[plainPassword][second]": {
+                    "required": true,
+                    "equalTo": "#dhi_user_changepassword_plainPassword_first"
+                }
+            },
+            messages: {
+                "dhi_user_changepassword[current_password]": {
+                    "required": "Please enter current password."
+                },
+                "dhi_user_changepassword[plainPassword][first]": {
+                    "required": "Please enter new password.",
+                    "minlength": "Your password must have minimum 8 characters.",
+                    "maxlength": "Your password can have maximum 18 characters.",
+                    "regex": "Your current password contains invalid characters. Passwords can contain characters, numbers and only these special characters: ! @ # $"
+                },
+                "dhi_user_changepassword[plainPassword][second]": {
+                    "required": "Please enter confirm password.",
+                    "equalTo": "Password does not match the confirm password."
+                }
+            }
+        });
+    });
+
+
+    function disErrorMsg(msgType, msg) {
+
+        var html = '';
+        html += '<div class="alert alert-' + msgType + '">';
+        html += '<button type="button" class="close" data-dismiss="alert">&times;</button>';
+        html += msg
+        html += '</div>';
+        return html;
+    }
+
+</script>
+
+{% endblock javascripts %}

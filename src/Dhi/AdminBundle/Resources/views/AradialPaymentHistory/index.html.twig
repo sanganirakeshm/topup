@@ -1,0 +1,141 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+{% endblock stylesheets %}
+
+{% block body %}
+
+    {% include "DhiUserBundle::flashMessage.html.twig" %}		
+    <div class="delBoxCont"></div>		
+
+    <section class="content-header">
+        <h1>Aradial Purchase History</h1>
+    </section>
+    <section class="content">	
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get">
+                        <div class="box-body">
+                            <div class="form-group col-md-4">
+
+                                <div class="row"><div class="col-sm-12" id="userId"></div></div>
+                            </div>
+                            <div class="form-group col-md-6 pickup-date-control">                                                        
+                                <div class="row"><div class="col-sm-12" id="date-range"></div></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>		
+
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">  
+                        {% if admin_permission.checkPermission('aradial_purchase_history_import') %}
+                            <div class="addNewBtnsGrp">
+                                <a href="{{ path('dhi_admin_aradial_payment_history_import') }}" class="btn btn-success pull-right margin-top5">Import History</a>
+                            </div>
+                        {% endif %}
+                        <table id="aradialHistoryTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Payment Id</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>User Id</th>
+                                    <th>Payment Date</th>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </section>    
+
+{% endblock body %}
+{% block javascripts %}
+
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+           
+            dTable = $('#aradialHistoryTable').dataTable({
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength:{{ record_per_page }},
+                        sAjaxSource: "{{ path('dhi_admin_aradial_payment_history_list_json') }}",
+                "fnServerData": function (sUrl, aoData, fnCallback, oSettings) {
+                    oSettings.jqXHR = $.ajax({
+                        "url": sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if (json.sError) {
+                                oSettings.oApi._fnLog(oSettings, 0, json.sError);
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback(json);
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if (error == "parsererror") {
+                                window.location = "{{ path('dhi_admin_dashboard') }}";
+                            }
+                        }
+                    });
+                },
+                aoColumns: [
+                    {"sName": "PaymentId", "bSearchable": false, "bSortable": true},
+                    {"sName": "Firstname", "bSearchable": false, "bSortable": true},
+                    {"sName": "Lastname", "bSearchable": false, "bSortable": true},
+                    {"sName": "UserId", "bSearchable": true, "bSortable": true},
+                    {"sName": "PaymentDate", "bSearchable": true, "bSortable": true},
+                    {"sName": "Name", "bSearchable": false, "bSortable": true},
+                    {"sName": "Amount", "bSearchable": false, "bSortable": true}
+                ],
+                
+                aaSorting: [[0, 'asc']]
+            });
+            $('#aradialHistoryTable').dataTable().columnFilter({
+                aoColumns: [
+                    null,
+                    null,
+                    null,
+                    {type: "text", sSelector: "#userId"},
+                    {type: "date-range", sSelector: "#date-range"},
+                    null,
+                    null,
+                ]
+            });
+
+            $("input").addClass("form-control");
+            $("select").addClass("form-control");
+
+        });
+
+    </script>
+
+{% endblock javascripts %}

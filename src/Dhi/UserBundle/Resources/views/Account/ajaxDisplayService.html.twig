@@ -1,0 +1,613 @@
+{% block body %}
+    {% if summaryData.AvailableServicesOnLocation|length > 0 %}
+    	<div class="accountPlans">
+
+                {% set IPTVButtonText = 'Add Package' %}
+                {% set ISPButtonText = 'Add Package' %}
+                {% set BundleButtonText = 'Add Package' %}
+                {% set bundleButtonText = 'Add Bundle' %}
+                {% set isDisablePlan    = 0 %}
+                {% set isBundleAddonIPTVExtendPlan = 0 %}
+
+                {% if BUNDLE in summaryData.AvailableServicesOnLocation %}
+                        {% if summaryData.IPTVAddOnExtendPlan and summaryData.IPTVAddOnExtendPlan == true %}
+                                {% set isBundleAddonIPTVExtendPlan = 1 %}
+                        {% endif %}
+                    <div class="accountPlansList internetIPTV">
+                    <h6>INTERNET + FREE XVUE TV</h6>
+                    <article>Sign up and receive FREE XVUE TV with your internet purchase.</article>
+                    {% set isBUNDLEInOnlyPurchased = 0 %}
+                    {% set isBUNDLEButtonDisplay 	= 0 %}
+                    {% set BUNDLELabel 	   	= '' %}
+                    {% set isNewBUNDLEActivation 	= 1 %}
+                    {% set BundleLabel              = '' %}
+                    {% set BundleExtendPlan = 0 %}
+                    {% set isBundleDisplayEnabledButton = 1 %}
+                        {% if isNewBUNDLEActivation == 1 %}
+                                {% if summaryData.IsBundleAvailabledInCart == 1 or summaryData.IsBundleAvailabledInPurchased == 1  %}
+                                    {% set isDisablePlan = 1 %}
+                                    {% if summaryData.IsBundleAvailabledInCart == 1 %}
+                                        {% set BundleButtonText = 'Change Plan' %}
+                                        {% set BundleLabel 	= 'Added' %}
+                                        {% set isBundleDisplayEnabledButton = 0 %}
+                                        {% if summaryData.IsBundleAvailabledInPurchased == 1 %}
+                                            {% set BundleLabel       = 'Modified' %}
+                                        {% endif %}
+                                    {% elseif summaryData.IsBundleAvailabledInPurchased == 1 %}
+                                        {% if summaryData.BundleExtendPlan == 1 %}
+                                            {% set BundleExtendPlan = 1 %}
+                                        {% endif %}
+                                        {% set isBUNDLEInOnlyPurchased = 1 %}
+                                        {% set isBundleDisplayEnabledButton  = 1 %}
+                                        {% set BundleButtonText = 'Upgrade' %}
+                                    {% endif %}
+                                {% endif %}
+                                <figure>
+                                    <img src="{{ asset('bundles/dhiuser/images/iptv-bundles-img.png') }}" alt="uVerseBundle"/>
+                                </figure>
+
+                                {% if isBundleDisplayEnabledButton == 1 %}
+                                    {% if summaryData.IsBundleAvailabledInPurchased == 0  %}
+                                        <div class="planPriceTxt">
+                                            <div class="planPriceCenterTxt">
+                                                <span>No plan purchased</span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    {% set packageBundle = '' %}
+                                    {#{% if summaryData.IsBundleAvailabledInCart == 1 %}
+                                        {% set packageBundle = [] %}
+                                        {% set packageBundleArr = summaryData.Cart.Bundle.RegularPack %}
+                                        {% set packageBundle = packageBundle|merge({'0':packageBundleArr}) %}#}
+                                    {% if summaryData.IsBundleAvailabledInPurchased == 1 %}
+                                        {% set packageBundle = summaryData.Purchased.BUNDLE.RegularPack %}
+                                    {% endif %}
+                                    {% if packageBundle %}
+                                        {% for bundlePackage in packageBundle %}
+                                            <div class="planPriceTxt">
+                                                <div class="planPriceCenterTxt">
+                                                    <span>{{bundlePackage.displayBundleName}}</span>
+                                                    {% set expirationData = bundlePackage.expiryDate %}
+                                                    {% if expirationData %}
+                                                        <div class="planPrice_expiryDt">
+                                                            <span>Expires On: {{ expirationData|date('M-d-Y H:i:s') }}</span>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+
+                                        <p class="viewPlansBtn">
+                                            {% if (summaryData.IsBundleAvailabledInPurchased == 1 or summaryData.IsBundleAvailabledInCart == 0) and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 and summaryData.isPartnerPromocodeApplied == false %}
+                                                <a href="javascript:void(0)" onclick="showServicePlan('BUNDLE',1)">{{ BundleButtonText }}</a>
+                                                {% if BundleExtendPlan %}
+                                                    {% set bundleCurrrentId = summaryData.BundleExtendId %}
+                                                    {% set onevent = "onclick=addExtend('BUNDLE','"~bundleCurrrentId~"','Add')" %}
+                                                    <a href="javascript:void(0)" {{ onevent|raw }} id="bundleAddToCartBtn{{ bundleCurrrentId }}">Extend</a>
+                                                {% endif %}
+                                            {% else %}
+                                                {% if summaryData.isServiceLocationChanged == 1 or summaryData.isSiteChanged == 1 or summaryData.isPartnerPromocodeApplied == true %}
+                                                    <input type="button" value="View Plan" class="btn-disabled" id="btn-button-upgrade">
+
+                                                {% else %}
+                                                    <input type="button" value="Upgrade" class="btn-disabled" id="btn-button-upgrade">
+                                                {% endif %}
+                                            {% endif %}
+                                        </p>
+                                {% else %}
+                                        {% set packageBundle = '' %}
+                                        {#{% if summaryData.IsBundleAvailabledInCart == 1 %}
+                                            {% set packageBundle = [] %}
+                                            {% set packageBundleArr = summaryData.Cart.Bundle.RegularPack %}
+                                            {% set packageBundle = packageBundle|merge({'0':packageBundleArr}) %}#}
+                                        {% if summaryData.IsBundleAvailabledInPurchased == 1 %}
+                                            {% set packageBundle = summaryData.Purchased.BUNDLE.RegularPack %}
+                                        {% endif %}
+
+                                        {% if packageBundle %}
+                                            {% for bundlePackage in packageBundle %}
+                                                <div class="planPriceTxt">
+                                                    <div class="planPriceCenterTxt">
+                                                        <span>{{bundlePackage.displayBundleName}}</span>
+                                                        {% set expirationData = bundlePackage.expiryDate %}
+                                                        {% if expirationData %}
+                                                            <div class="planPrice_expiryDt">
+                                                                <span>Expires On: {{ expirationData|date('M-d-Y H:i:s') }}</span>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="planPriceTxt">
+                                                <div class="planPriceCenterTxt">
+                                                    <span>No plan purchased</span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {# <p class="viewPlansBtn"><font color="green"><i class="checkIco"></i><b>{{ BundleLabel }}</b></font></p> #}
+
+                                        {% if (summaryData.IsBundleAvailabledInPurchased == 0 or summaryData.IsBundleAvailabledInCart == 1) and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 %}
+                                            {% if summaryData.BundleExtendPlan == true %}
+                                                {% if summaryData and summaryData.Cart.ISP.RegularPack['0'].bundleId == summaryData.Purchased.ISP.RegularPack['0'].bundleId %}
+                                                    <p class="viewPlansBtn">
+                                                        <a href="javascript:void(0)" class="btn-danger" onclick="deletePackage('BUNDLE','{{ summaryData.Cart.ISP.RegularPack['0'].servicePurchaseId }}')" id="bundleAddToCartBtn{{ summaryData.Cart.ISP.RegularPack['0'].bundleId }}">Remove Extend</a>
+                                                    </p>
+                                                {% else %}
+                                                    <p class="viewPlansBtn">
+                                                        <a href="javascript:void(0)" onclick=" showServicePlan('BUNDLE',1)">{{ BundleButtonText }}</a>
+                                                    </p>
+                                                {% endif %}
+                                            {% else %}
+                                                <p class="viewPlansBtn">
+                                                    <a href="javascript:void(0)" onclick=" showServicePlan('BUNDLE',1)">{{ BundleButtonText }}</a>
+                                                </p>
+                                            {% endif %}
+                                        {% endif %}
+                                {% endif %}
+                        {% endif %}
+
+                        {% if (summaryData.IsAddOnAvailabledInCart == 1 or summaryData.IsAddOnAvailabledInPurchased == 1) and (summaryData.IsBundleAvailabledInPurchased == 1 or summaryData.IsBundleAvailabledInCart == 1) %}
+                                {% set packageAddOn = '' %}
+                                {% if summaryData.IsAddOnAvailabledInCart == 1 %}
+                                        {% set packageAddOn = summaryData.Cart.IPTV.AddOnPack %}
+                                {% endif %}
+
+                                {% if summaryData.IsAddOnAvailabledInPurchased == 1 %}
+                                        {% if packageAddOn != '' %}
+                                            {% set packageAddOnPurchased = summaryData.Purchased.IPTV.AddOnPack %}
+                                        {% else %}
+                                            {% set packageAddOn = summaryData.Purchased.IPTV.AddOnPack %}
+                                        {% endif %}
+                                {% endif %}
+
+                                {% if (packageAddOn != ''  and packageAddOnPurchased is defined) %}
+                                    {% set packageAddOn = packageAddOn|merge(packageAddOnPurchased) %}
+                                {% endif %}
+
+                                <div class="additionBox">
+                                        <h6>Additional Content
+                                            {% if emailVerifiedForNextPurchase == true and (summaryData.IsIPTVAvailabledInCart == 1 or summaryData.IsIPTVAvailabledInPurchased == 1) and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 and isPlanFound == true %}
+                                                <span class="pull-right"><a href="javascript:void(0)" onclick="showAddonPlan()" class="btn btn-default">Add</a></span>
+                                            {% endif %}
+                                        </h6>
+                                        <span class="pull-right">
+                                                {% if isBundleAddonIPTVExtendPlan and summaryData.IsAddOnAvailabledInCart == 0 and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 %}
+
+                                                        {% set addonCurrrentId = summaryData.AddonExtendId %}
+                                                        {% set onevent = "onclick=addExtend('AddOns','"~addonCurrrentId~"','Add')" %}
+                                                        {# <a href="javascript:void(0)" class="btn-default" {{ onevent|raw }} id="iptvAddToCartBtn{{ addonCurrrentId }}">Extend Addon</a> #}
+                                                {% endif %}
+                                        </span>
+                                        <ul class="addonList">
+                                                {% for addOnPackage in packageAddOn %}
+                                                        <li>{{ addOnPackage.packageName }}
+                                                                {% if summaryData.IsAddOnAvailabledInCart == 1 and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 and addOnPackage.servicePurchaseId is defined %}
+                                                                    <span class="pull-right">
+                                                                        <a href="javascript:void(0)" onclick="deletePackage('AddOns','{{ addOnPackage.servicePurchaseId }}')" >Remove</a>
+                                                                    </span>
+                                                                {% endif %}
+                                                        </li>
+                                                {% endfor %}
+                                        </ul>
+                                </div>
+
+                        {% else %}
+                                {% if (summaryData.IsBundleAvailabledInCart == 1 or summaryData.IsBundleAvailabledInPurchased == 1) %}
+                                    <div class="contblk">
+                                            <h6>Additional Content
+                                            {% if emailVerifiedForNextPurchase == true and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 and isPlanFound == true %}
+                                                    <span class="pull-right">
+                                                    <a href="javascript:void(0)" onclick="showAddonPlan()" class="btn btn-default">Add</a>
+                                                </span>
+                                            {% endif %}
+                                            </h6>
+                                    </div>
+                                {% endif %}
+                        {% endif %}
+    	</div>
+
+    	{% endif %}
+
+
+                {% set iptvButton = '' %}
+                {% set iptvButtonTitle = '' %}
+                {% set isIPTVDisplayDisabledButton = 0  %}
+                {% set isIPTVDisplayEnabledButton  = 0 %}
+
+                {% if emailVerifiedForNextPurchase == false %}
+                        {% set iptvButtonTitle = 'You need to verify your email address for upgrade plan.' %}
+                        {% set isIPTVDisplayDisabledButton = 1  %}
+        	{% else %}
+        		{% if summaryData.IsISPAvailabledInCart == 1 and summaryData.ISPPackageValidity < 30 %}
+
+            		{% set iptvButtonTitle = 'You have to purchase ISP plan with 30days validity for ExchangeVUE Plan.' %}
+            		{% set isIPTVDisplayDisabledButton	= 1 %}
+                	{% set isIPTVDisplayEnabledButton   = 0 %}
+            	{% elseif summaryData.IPTVButtonEnabled == 1 %}
+
+            		{% set isIPTVDisplayEnabledButton  = 1 %}
+        		{% else %}
+
+            		{% set iptvButtonTitle = 'Internet service is required for ExchangeVUE Package.' %}
+                	{% set isIPTVDisplayDisabledButton  = 0 %}
+                	{% set isIPTVDisplayEnabledButton  = 1 %}
+        		{% endif %}
+        	{% endif %}
+
+        	{% if IPTV in summaryData.AvailableServicesOnLocation %}
+            	<div class="accountPlansList internetOnlyPlans">
+                        <h6>IPTV ONLY PLANS</h6>
+                        <article>ExchangeVUE IPTV lets you stream great live content, straight to your device. Sign up today to start watching you favorite AFN shows, live sports and news,
+movies and more – wherever you are!</article>
+                        {% set IPTVLabel = '' %}
+                        {% set isIPTVInOnlyPurchased = 0 %}
+                        {% set isNewIPTVActivation   = 1 %}
+
+                        {% if summaryData.IsIPTVAvailabledInCart == 1 or summaryData.IsIPTVAvailabledInPurchased == 1 %}
+                    	{% set isNewIPTVActivation = 0 %}
+
+                        {% if summaryData.IsIPTVAvailabledInCart == 1 %}
+                        	{% set isIPTVDisplayDisabledButton = 0  %}
+                            {% set isIPTVDisplayEnabledButton  = 0 %}
+                            {% set IPTVLabel 	   = 'Added' %}
+                            {% if summaryData.IsIPTVAvailabledInPurchased == 1 %}
+                            	{% set IPTVLabel 	   = 'Modified' %}
+        					{% endif %}
+
+                        {% elseif summaryData.IsIPTVAvailabledInPurchased == 1 %}
+                        	{% set isIPTVInOnlyPurchased = 1 %}
+                                {% set isIPTVDisplayEnabledButton  = 1 %}
+								{% if summaryData.IsBundleAvailabledInPurchased == 0 %}
+									{% set IPTVButtonText = 'Upgrade' %}
+								{% endif %}
+                        {% endif %}
+                        {% set isIPTVExtendPlan = 0 %}
+                        {% if summaryData.IPTVExtendPlan and summaryData.IPTVExtendPlan == true %}
+                                {% set isIPTVExtendPlan = 1 %}
+                        {% endif %}
+
+                        {% set isAddonIPTVExtendPlan = 0 %}
+                        {% if summaryData.IPTVAddOnExtendPlan and summaryData.IPTVAddOnExtendPlan == true %}
+                            {% set isAddonIPTVExtendPlan = 1 %}
+                        {% endif %}
+
+                        <figure>
+                                <img src="{{ asset('bundles/dhiuser/images/iptv-plans-img.png') }}" alt="uVerseTv" />
+                        </figure>
+                        {% set packageIPTV = '' %}
+                        {% if summaryData.IsIPTVAvailabledInPurchased == 1 %}
+                            {% set packageIPTV = summaryData.Purchased.IPTV.RegularPack %}
+                        {% endif %}
+
+                        {% if packageIPTV and summaryData.IsBundleAvailabledInPurchased == 0 %}
+                        {% for iptvPackage in packageIPTV %}
+                            {% set expirationData = iptvPackage.expiryDate %}
+                                    <div class="planPriceTxt">
+                                        <div class="planPriceCenterTxt">
+                                            <span>{{iptvPackage.packageName}}</span>
+                                            {% if expirationData %}
+                                                <div class="planPrice_expiryDt">
+                                                    <span>Expires On: {{ expirationData|date('M-d-Y H:i:s') }}</span>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                            {% endfor %}
+                        {% else %}
+                                <div class="planPriceTxt">
+                                        <div class="planPriceCenterTxt">
+                                                <span>No plan purchased</span>
+                                        </div>
+                                </div>
+                        {% endif %}
+
+
+
+                        <p class="viewPlansBtn">
+                            {% if isDisablePlan == 1 or summaryData.isServiceLocationChanged == 1 or summaryData.isSiteChanged == 1 %}
+                                <input type="button" value="{{ IPTVButtonText }}" class="btn-disabled" id="btn-continue">
+
+                            {% else %}
+                                {% if isIPTVDisplayEnabledButton == 1 %}
+
+                                    <a href="javascript:void(0);" onclick="showServicePlan('IPTV',1)">{{ IPTVButtonText }}</a>
+                                    {% if isIPTVExtendPlan %}
+                                        {% set ispCurrrentId = summaryData.IPTVExtendId %}
+                                        {% set onevent = "onclick=addExtend('IPTV','"~ispCurrrentId~"','Add')" %}
+                                        <a href="javascript:void(0)" {{ onevent|raw }} id="iptvAddToCartBtn{{ ispCurrrentId }}">Extend</a>
+                                    {% endif %}
+                                {% else %}
+                                    {% if summaryData.IsIPTVAvailabledInCart == 1 %}
+                                        {% if summaryData.IPTVExtendPlan == true %}
+                                            {% if summaryData and summaryData.Cart.IPTV.RegularPack['0'].packageId == summaryData.Purchased.IPTV.RegularPack['0'].packageId %}
+                                                <a href="javascript:void(0)" class="btn-danger" onclick="deletePackage('IPTV','{{ summaryData.Cart.IPTV.RegularPack['0'].servicePurchaseId }}')" id="iptvAddToCartBtn{{ summaryData.Cart.IPTV.RegularPack['0'].packageId }}">Remove Extend</a>
+                                            {% else %}
+                                                {% if summaryData.IsBundleAvailabledInCart == 0 and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 %}
+                                                    <a href='javascript:void(0)' onclick="showServicePlan('IPTV',1)" id="currentChange">Change</a>
+
+                                                {% endif %}
+                                            {% endif %}
+                                        {% else %}
+                                            {% if summaryData.IsBundleAvailabledInCart == 0 and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 %}
+                                                <a href='javascript:void(0)' onclick="showServicePlan('IPTV',1)" id="currentChange">Change</a>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        </p>
+        	        {% endif %}
+
+                    {% if isNewIPTVActivation == 1%}
+            			<figure>
+                            <img src="{{ asset('bundles/dhiuser/images/iptv-plans-img.png') }}" alt="uVerseTv" />
+            			</figure>
+
+                        {% if (isIPTVDisplayEnabledButton == 1 or isIPTVDisplayDisabledButton == 1) or (summaryData.IsBundleAvailabledInPurchased == 0 and summaryData.IsIPTVAvailabledInPurchased == 1) %}
+                            <div class="planPriceTxt">
+                                <div class="planPriceCenterTxt">
+                                    <span>No plan purchased</span>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <p class="viewPlansBtn">
+                            {% if isIPTVDisplayEnabledButton == 1 or isIPTVDisplayDisabledButton == 1  %}
+                                {% if summaryData.IsISPAvailabledInCart == 1  or isDisablePlan == 1 or summaryData.isSiteChanged == 1 or summaryData.isServiceLocationChanged == 1 %}
+                                   <input type="button" value="{{ IPTVButtonText }}" class="btn-disabled" id="btn-continue">
+                                {% else %}
+                                    {% if summaryData.IsISPAvailabledInPurchased == 1 %}
+                                        <input type="button" value="{{ IPTVButtonText }}" class="btn-disabled" id="btn-continue">
+                                    {% else %}
+                                        <a href="javascript:void(0)" onclick="showServicePlan('IPTV',1)">{{ IPTVButtonText }}</a>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                <font color="green"><i class="checkIco"></i><b>{{ IPTVLabel }}</b></font>
+                            {% endif %}
+                        </p>
+                        {% endif %}
+
+                        {% if (summaryData.IsAddOnAvailabledInCart == 1 or summaryData.IsAddOnAvailabledInPurchased == 1) and (summaryData.IsBundleAvailabledInPurchased == 0 and summaryData.IsBundleAvailabledInCart == 0) and (summaryData.IsIPTVAvailabledInCart == 1 or summaryData.IsIPTVAvailabledInPurchased == 1 ) %}
+                                {% set packageAddOn = '' %}
+                                {% if summaryData.IsAddOnAvailabledInCart == 1 %}
+                                        {% set packageAddOn = summaryData.Cart.IPTV.AddOnPack %}
+                                {% endif %}
+
+                                {% if summaryData.IsAddOnAvailabledInPurchased == 1 %}
+                                        {% if packageAddOn != '' %}
+                                            {% set packageAddOnPurchased = summaryData.Purchased.IPTV.AddOnPack %}
+                                        {% else %}
+                                            {% set packageAddOn = summaryData.Purchased.IPTV.AddOnPack %}
+                                        {% endif %}
+                                {% endif %}
+
+                                {% if (packageAddOn != ''  and packageAddOnPurchased is defined) %}
+                                    {% set packageAddOn = packageAddOn|merge(packageAddOnPurchased) %}
+                                {% endif %}
+
+                                <div>
+                                        <h6>Additional Content
+                                            {% if emailVerifiedForNextPurchase == true and (summaryData.IsIPTVAvailabledInCart == 1 or summaryData.IsIPTVAvailabledInPurchased == 1) and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 and isPlanFound == true %}
+                                                <span class="pull-right"><a href="javascript:void(0)" onclick="showAddonPlan()" class="btn btn-default">Add</a></span>
+                                            {% endif %}
+                                        </h6>
+                                        <span class="pull-right">
+                                                {% if isAddonIPTVExtendPlan and summaryData.IsAddOnAvailabledInCart == 0 and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 %}
+
+                                                        {% set addonCurrrentId = summaryData.AddonExtendId %}
+                                                        {% set onevent = "onclick=addExtend('AddOns','"~addonCurrrentId~"','Add')" %}
+                                                        {# <a href="javascript:void(0)" class="btn-default" {{ onevent|raw }} id="iptvAddToCartBtn{{ addonCurrrentId }}">Extend Addon</a> #}
+                                                {% endif %}
+                                        </span>
+                                        <ul class="addonList">
+                                                {% for addOnPackage in packageAddOn %}
+                                                        <li>{{ addOnPackage.packageName }}
+                                                                {% if summaryData.IsAddOnAvailabledInCart == 1 and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 and addOnPackage.servicePurchaseId is defined %}
+                                                                    <span class="pull-right">
+                                                                        <a href="javascript:void(0)" onclick="deletePackage('AddOns','{{ addOnPackage.servicePurchaseId }}')">Remove</a>
+                                                                    </span>
+                                                                {% endif %}
+                                                        </li>
+                                                {% endfor %}
+                                        </ul>
+                                </div>
+
+                        {% else %}
+                                {% if (summaryData.IsISPAvailabledInCart == 0 and summaryData.IsBundleAvailabledInCart == 0 and summaryData.IsISPAvailabledInPurchased == 0 and summaryData.IsBundleAvailabledInPurchased == 0) and (summaryData.IsIPTVAvailabledInCart == 1 or summaryData.IsIPTVAvailabledInPurchased == 1 ) %}
+                                        <div class="contblk">
+                                                <h6>Additional Content
+                                                {% if (summaryData.IsIPTVAvailabledInCart == 1 or summaryData.IsIPTVAvailabledInPurchased == 1) and summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 and isPlanFound == true %}
+                                                        <span class="pull-right">
+                                                        <a href="javascript:void(0)" onclick="showAddonPlan()" class="btn btn-default">Add</a>
+                                                    </span>
+                                                {% endif %}
+                                                </h6>
+                                        </div>
+                                {% endif %}
+                        {% endif %}
+    	       </div>
+    	   {% endif %}
+
+        {% if ISP in summaryData.AvailableServicesOnLocation %}
+        	<div class="accountPlansList iptvPlans" id="ispData">
+        		<h6>INTERNET ONLY PLANS</h6>
+                <article>Premium Wi-Fi with unlimited data usage lets you connect with loved ones and browse your favorite sites</article>
+
+    			{% set isISPButtonDisplay 	= 0 %}
+                {% set ISPLabel 	  	  	= '' %}
+                {% set isISPInOnlyPurchased = 0 %}
+                {% set isNewISPActivation 	= 1 %}
+		
+
+                {% if (summaryData.IsISPAvailabledInCart == 1 or summaryData.IsISPAvailabledInPurchased == 1) %}
+                	{% set isNewISPActivation = 0 %}
+                	{% set ISPExtendPlan = 0 %}
+					{% set packageISPActive = '' %}
+					{% set activeISPPlan = '' %}
+					{% if summaryData.IsISPAvailabledInPurchased == 1 %}
+                        {% set packageISPActive = summaryData.Purchased.ISP.RegularPack %}
+                    {% endif %}
+					{% for ispActivePlan in packageISPActive %}
+						{% if ispActivePlan.isPlanActive == 1 %}
+							{% set activeISPPlan = 1 %}
+						{% endif %}
+					{% endfor %}
+    				{% if summaryData.ISPExtendPlan == 1 %}
+						{% if activeISPPlan == 1 %}
+							{% set ISPExtendPlan = 1 %}
+						{% endif %}
+    				{% endif %}
+
+                    {% if summaryData.IsISPAvailabledInCart == 1 %}
+                    	{% set ISPLabel 	   = 'Added' %}
+                    {% if summaryData.IsISPAvailabledInPurchased == 1 %}
+                    	{% set ISPLabel 	   = 'Modified' %}
+    				{% endif %}
+
+    			{% elseif summaryData.IsISPAvailabledInPurchased == 1 %}
+                	{% set isISPInOnlyPurchased = 1 %}
+                    {% set isISPButtonDisplay   = 1 %}
+                    {% if summaryData.IsBundleAvailabledInPurchased == 0 %}
+					{% if summaryData.isServiceLocationChanged == 0 and summaryData.isSiteChanged == 0 %}
+                          {% set ISPButtonText     = 'Upgrade' %}
+                        {% else %}
+                            {% set ISPButtonText       = 'Add Package' %}
+                        {% endif %}					
+					{% endif %}
+    			{% endif %}
+                <figure>
+                	<img src="{{ asset('bundles/dhiuser/images/internet-plan-img.png') }}" alt="uVerseInternet"/>
+                    {% set packageISP = '' %}
+                    {% if summaryData.IsISPAvailabledInPurchased == 1 %}
+                        {% set packageISP = summaryData.Purchased.ISP.RegularPack %}
+                    {% endif %}
+                </figure>
+                {% if packageISP and summaryData.IsBundleAvailabledInPurchased == 0 %}
+                    {% for ispPackage in packageISP %}
+                        <div class="planPriceTxt">
+                            <div class="planPriceCenterTxt">
+                                {% set expirationData = null %}
+                                {% if ispPackage.expiryDate %}
+                                     {% if ispPackage.isPlanActive == 1 %}
+                                        {% set expirationData = ispPackage.expiryDate|date('M-d-Y H:i:s') %}
+                                     {% else %}
+                                        {% set expirationData = "Not Logged in" %}
+                                     {% endif %}
+                                 {% endif %}
+                                <span>
+                                {% if ispPackage.bandwidth >= 1024%}
+                                    {% set mbbandwidth = ispPackage.bandwidth/1024%}
+                                    {{ispPackage.packageName~' - '~mbbandwidth~'MB SPEED ' }}
+                                {% else %}
+                                   {{ispPackage.packageName~' - '~ispPackage.bandwidth~'k SPEED ' }}
+                                {% endif %} 
+                                
+                                </span>
+                                {% if expirationData %}
+                                    <div class="planPrice_expiryDt">
+                                        <span>Expires On: {{ expirationData }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="planPriceTxt">
+                        <div class="planPriceCenterTxt">
+                            <span>No plan purchased</span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if emailVerifiedForNextPurchase == false or summaryData.isServiceLocationChanged == 1 or summaryData.isSiteChanged == 1 %}
+                	<p class="viewPlansBtn">
+                        <input type="button" value="{{ ISPButtonText }}" class="btn-disabled" id="btn-isp-upgrade"/>
+                    </p>
+				{% else %}
+                    {% if isDisablePlan == 1 or summaryData.IsBundleAvailabledInCart == 1 or summaryData.IsBundleAvailabledInPurchased == 1 %}
+                        <p class="viewPlansBtn">
+                            <input type="button" value="{{ IPTVButtonText }}" class="btn-disabled" id="btn-continue">
+                        </p>
+                    {% else %}
+                    	{% if isISPButtonDisplay == 1 %}
+                                        <p class="viewPlansBtn">
+                                        <a href="javascript:void(0)" onclick="showServicePlan('ISP',1)" id="{{ ISPButtonText }}">{{ ISPButtonText }}</a>
+                                                {% if ISPExtendPlan %}
+                                                        {% set ispCurrrentId = summaryData.ISPExtendId %}
+                                                        {% set onevent = "onclick=addExtend('ISP','"~ispCurrrentId~"','Add')" %}
+                                                        <a href="javascript:void(0)" {{ onevent|raw }} id="ispAddToCartBtn{{ ispCurrrentId }}">Extend</a>
+                                                {% endif %}
+                                        </p>
+                                {% else %}
+                                        <p class="viewPlansBtn">
+                                            {% if summaryData.IsISPAvailabledInCart == 1 %}
+                                                    {% if summaryData.ISPExtendPlan == true %}
+                                                        {% if summaryData and summaryData.Cart.ISP.RegularPack['0'].packageId == summaryData.Purchased.ISP.RegularPack['0'].packageId %}
+                                                            <a href="javascript:void(0)" class="btn-danger" onclick="deletePackage('ISP','{{ summaryData.Cart.ISP.RegularPack['0'].servicePurchaseId }}')" id="ispAddToCartBtn{{ summaryData.Cart.ISP.RegularPack['0'].packageId }}">Remove Extend</a>
+                                                        {% else %}
+                                                            {% if summaryData.IsBundleAvailabledInCart == 0 %}
+                                                                <a href='javascript:void(0)' onclick="showServicePlan('ISP',1)" id="currentChange">Change</a>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {% if summaryData.IsBundleAvailabledInCart == 0 %}
+                                                            <a href='javascript:void(0)' onclick="showServicePlan('ISP',1)" id="currentChange">Change</a>
+                                                        {% endif %}
+                                                    {% endif %}
+
+                                                    {% set removeBothService = 0 %}
+                                                    {% if summaryData.IsISPAvailabledInPurchased == 0 %}
+                                                        {% if summaryData.IsISPAvailabledInCart == 1 and summaryData.IsIPTVAvailabledInCart == 1 %}
+                                                            {% if summaryData.Cart.IPTV.CurrentIPTVPackvalidity == summaryData.Cart.ISP.CurrentISPPackvalidity %}
+                                                                {% set removeBothService = 1 %}
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    {% endif %}
+                                            {% endif %}
+                                        {# <font color="green"><i class="checkIco"></i><b>{{ ISPLabel }}</b></font> #}
+                                        </p>
+                                {% endif %}
+                    {% endif %}
+			    {% endif %}
+    		{% endif %}
+
+            {% if isNewISPActivation == 1 %}
+            	<figure>
+                	<img src="{{ asset('bundles/dhiuser/images/internet-plan-img.png') }}" alt="uVerseInternet"/>
+    			</figure>
+
+                <div class="planPriceTxt">
+                    <div class="planPriceCenterTxt">
+                        <span>No plan purchased</span>
+                    </div>
+                </div>
+
+                <p class="viewPlansBtn">
+                    {% if summaryData.IsIPTVAvailabledInCart == 1  or isDisablePlan == 1 or summaryData.IsBundleAvailabledInCart == 1 or summaryData.IsBundleAvailabledInPurchased == 1 or summaryData.isServiceLocationChanged == 1 or summaryData.isSiteChanged == 1 %}
+                        <input type="button" value="{{ ISPButtonText }}" class="btn-disabled" id="btn-continue">
+                    {% else %}
+                        {% if summaryData.IsIPTVAvailabledInPurchased == 1 %}
+                            <input type="button" value="{{ ISPButtonText }}" class="btn-disabled" id="btn-continue">
+                        {% else %}
+                            <a href="javascript:void(0)" onclick="showServicePlan('ISP',1)">{{ ISPButtonText }}</a>
+                        {% endif %}
+                    {% endif %}
+                </p>
+                {% endif %}
+            </div>
+    		{% endif %}
+    	       	</div>
+
+    {% else %}
+        <div class="accountPlans">
+	    	<div class="alert alert-danger">
+            	<button type="button" class="close" data-dismiss="alert">&times;</button>
+                No service found for your location.
+			</div>
+    	</div>
+    {% endif %}
+{% endblock body %}

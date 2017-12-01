@@ -1,0 +1,173 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+{% include "DhiUserBundle::flashMessage.html.twig" %}
+<div class="delBoxCont"></div>  
+   <section class="content-header">
+    <h1>Service Location Wise Site</h1>
+   </section>
+   <section class="content">
+      <div class="row">
+        <div class="col-lg-12">
+            <div class="box box-success">
+                <form method="get">
+                    <div class="box-body">
+                        <div class="form-group col-md-3">
+                            <div class="row"><div class="col-sm-12" id="serviceLocation"></div></div>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <div class="row">                                                       
+                                <div class="col-sm-12" id="companyName">
+                                    <span class="filterColumn filter_select">
+                                        <select class="select_filter form-control search_init companyName">
+                                            <option class="search_init" value="">Site Name</option>
+                                            {% if allSites %}
+                                                {% for record in allSites %}
+                                                    <option value="{{record.companyName}}"> {{ record.companyName ~ " - " ~ record.domain }} </option>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </select>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+     {# end of code #}
+     <div class="box box-success">
+        <div class="box-body">
+           <div class="row">
+               <div class="col-xs-12">  
+               <div class="addNewBtnsGrp">
+                    {% if admin_permission.checkPermission('admin_white_label_list') %}
+                        <a href="{{ path('dhi_admin_white_label_list') }}" class="btn btn-success pull-right margin-top5">Back to Manage Site</a>
+                    {% endif %}
+                    {% if admin_permission.checkPermission('assign_service_location_to_sites') %}
+                        <a href="{{ path('dhi_admin_service_location_to_sites_new') }}" class="btn btn-success pull-right margin-top5">Assign Service Location</a>
+                    {% endif %}
+               </div>
+               <table id="locationWiseSiteTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                   <thead>
+                       <tr>
+                           <th>Service Location</th>
+                           <th>Site Name</th>
+                           <th>Site Domain</th>
+                           <th>CreatedAt</th>
+                           <th>UpdatedAt</th>
+                           <th>Action</th>
+                       </tr>
+                   </thead>
+               </table>
+              </div>
+           </div>
+        </div>
+     </div>
+   </section>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+     $(document).ready(function () {
+        deleteAjaxSource = '{{ path('dhi_admin_service_location_to_sites_delete') }}';
+
+            dTable = $('#locationWiseSiteTable').dataTable({
+
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_service_location_to_sites_list_json') }}",
+                "fnServerParams": function ( aoData ) {
+                    aoData.push( { "name": "CompanyName", "value": $(".companyName").val() } );
+                },
+                 "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if (error == "parsererror") {
+                                window.location = "{{ path('dhi_admin_dashboard') }}";
+                            }
+                        }
+                });
+                },
+                aoColumns: [
+                {"sName": "ServiceLocation", "bSearchable": true, "bSortable": true},
+                {"sName": "CompanyName", "bSearchable": true, "bSortable": true},
+                {"sName": "CompanyDomainName", "bSearchable": true, "bSortable": true},
+                {"sName": "CreatedAt", "bSearchable": false, "bSortable": true},
+                {"sName": "UpdatedAt", "bSearchable": false, "bSortable": true},
+                {"sName": "Action", "bSearchable": false, "bSortable": false}
+                ],
+                aoColumnDefs: [
+                {
+                    "mRender": function(data, type, row) {
+
+                    
+                    var dataId = row[5];
+                    var headTitle = "Delete Assigned service location to site";
+                    var msg = 'Are you sure you want to delete?';
+                    var returnData = "";
+                    returnData += "<a href='javascript:void(0);' class='selectLink'>Select <span class='fa fa-angle-down'></span></a>";
+                    returnData += "<ul class='selectDropdown' style='display: none;'>";
+                   
+                    {% if admin_permission.checkPermission('service_location_to_sites_edit') %}   
+                        var editUrl = '{{ path('dhi_admin_service_location_to_sites_edit', {'id': 'loc_id'}) }}';
+                        var editFullLUrl = editUrl.replace("loc_id", dataId);
+                        returnData += '<li><a href="' + editFullLUrl + '"  title="Edit"> Edit</a></li>';
+                    {% endif %}
+                        
+                    {% if admin_permission.checkPermission('service_location_to_sites_delete') %}
+                        var deleteUrl = '{{ path('dhi_admin_service_location_to_sites_delete', {'id': 'loc_id'}) }}';
+                        var finalPath = deleteUrl.replace("loc_id", dataId);
+                        returnData += '<li><a href="javascript:void(0)"  title="Delete" onclick="return deleterecord(' + dataId + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" + ')">Delete</a></li>';
+                   {% endif %}
+                   return returnData;
+               },
+                  "aTargets": [5]
+               }
+               ],
+               aaSorting: [[5, 'asc']]
+            });
+            
+             $('#locationWiseSiteTable').dataTable().columnFilter({
+               aoColumns: [
+                 {type: "select", sSelector: "#serviceLocation", values:  {{serviceLocations|json_encode()|raw }} },
+                 null,
+                 null,
+                 null,
+                 null   
+               ]
+             });
+               
+                $("input").addClass("form-control");
+                $("select").addClass("form-control");
+                $(".companyName").change(function(event) {
+                 dTable.fnDraw(true);
+                });
+           });
+    </script>
+{% endblock javascripts %}

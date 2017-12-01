@@ -1,0 +1,72 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block body %}
+	<section class="content-header">
+		<h1>Edit Credit</h1>
+	</section>
+	<section class="content">
+		<div class="box box-success">
+			<form action="{{ path('dhi_admin_credit_edit', {'id': usercredit.id}) }}" method="POST" {{ form_enctype(form) }} id="edit_credit" class="form-horizontal" novalidate>
+			<div class="box-body">
+				<div class="col-xs-8">    
+                	<div class="form-group col-sm-6">
+                    	<label class="control-label">Credit: </label>
+						<div>
+							{{ form_widget(form.credit, { 'attr': { 'placeholder': 'Credit', 'class': 'form-control'}}) }}
+							<div class="serverError">{{ form_errors(form.credit) }}</div>
+						</div>
+					</div>
+					<div class="form-group col-sm-6">
+                    	<label class="control-label">Amount: </label>
+                        <div>
+                        	{{ form_widget(form.amount, { 'attr': { 'placeholder': 'Amount', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.amount) }}</div>
+                        </div>
+                    </div>    
+				</div>   
+			</div>
+			<div class="box-footer">	
+            	{{ form_rest(form) }}
+				<div class="col-xs-12">
+                	<div class="col-sm-6">
+                    	<input type="submit" class="btn btn-success" name="edit" value="Edit"/>
+                       	<a href="{{ path('dhi_admin_credit_list') }}" class="btn btn-default">Back</a>
+					</div>
+                </div>
+			</div>    
+			</form>
+		</div>
+</section>
+{% endblock body %}
+    
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready(function () {
+        	
+        	$('#edit_credit').validate({
+            	rules: {
+            		"dhi_credit[credit]": {
+                        "required": true,
+                        "number" : true,
+                        "maxlength" : 9
+                    },
+                    "dhi_credit[amount]": {
+                        "required": true,
+                        "number" : true,
+                        "maxlength" : 9
+                    }
+                },
+                messages: {
+                    "dhi_credit[credit]": {
+                        "required": "Please enter credit.",
+                        "maxlength": "Credit can have maximum 9 digits."
+                    },
+                    "dhi_credit[amount]": {
+                        "required": "Please enter amount.",
+                        "maxlength": "Amount can have maximum 9 digits."
+                    }
+                }
+            });        	
+        });
+	</script>
+{% endblock javascripts %}

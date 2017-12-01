@@ -1,0 +1,138 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        div.alert-success { color: #3c763d !important; }
+    </style>
+{% endblock stylesheets %}
+{% block body %}
+    <section class="content-header">
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+        <div class="delBoxCont"></div>  
+        <div id="errOrSuccMessage"></div>
+        <h1>Check Eligibility</h1>
+    </section>	
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-success">
+                    <form action="{{ path('dhi_admin_mark_user_free_recharge_card') }}" method="POST" id="markUserTable" class="form-horizontal" novalidate>
+                        <div class="box-body">
+                            <div class="form-group col-md-4">
+                                <label class="control-label">Username or Email: </label>
+                                {{ form_widget(form.userId, { 'attr': { 'placeholder': 'Enter Username or Email', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form.userId) }}</div>
+                            </div>
+                        </div>
+                        
+                        {{ form_rest(form) }}
+                        <div>
+                            <div class="box-footer">
+                                <div class="col-md-8 add-btn-bx">
+                                    <input type="button" class="btn btn-success" name="checkEligibility" id="checkEligibility" value="Check Eligibility"/>
+                                    <input type="submit" class="btn btn-success" name="markUserForFreeRecharge" id="markUserForFreeRecharge" value="Mark as Free Recharge Card"/>
+                                    <a id="backListing" name="backListing" href="{{ path('dhi_admin_free_recharge_card_list') }}" class="btn btn-default">Back To Listing</a>
+                                    <a id="backCheckEligibility" name="backCheckEligibility" href="{{ path('dhi_admin_mark_user_free_recharge_card') }}" class="btn btn-default">Back To Check Eligibility</a>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#markUserForFreeRecharge").hide();
+            $("#backCheckEligibility").hide();
+            $("#markUserTable").validate({
+                rules: {
+                    "dhi_admin_free_recharge_card[userId]": "required"
+                },
+                messages: {
+                    "dhi_admin_free_recharge_card[userId]": "Please enter username or email."
+                }
+            });
+            $("#dhi_admin_free_recharge_card_userId").change(function(event){
+                $("#markUserForFreeRecharge").hide();
+                $("#checkEligibility").show();
+            });
+            
+            $("#checkEligibility").click(function(event){
+                var username  = $("#dhi_admin_free_recharge_card_userId").val();
+                if($("#markUserTable").valid()){
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ path('dhi_admin_free_recharge_card_check_eligibility') }}",
+                        async:false,
+                        data: {
+                           usernameOrEmail: username
+                        },
+                        beforeSend: function( xhr ) {
+                            $('#ajax-loader-bx').show();
+                        },
+                        success:function(result){
+                            
+                            if(result.result == 'success'){
+                                $("#markUserForFreeRecharge").show();
+                                $("#backCheckEligibility").show();
+                                $("#checkEligibility").hide();
+                                
+                                var err = disErrorMsg(result.result, result.succMsg);
+                                $('#errOrSuccMessage').html(err);
+                            }else if(result.result == 'error'){
+                                var err = disErrorMsg('danger', result.errMsg);
+                                $('#errOrSuccMessage').html(err);
+                            }
+                            $('#ajax-loader-bx').hide();
+                        }
+                    });
+                }
+            });
+        $("#markUserForFreeRecharge").click(function (event){
+            var date = new Date();
+            var currMonth = date.getMonth();
+            var currYear = date.getFullYear();
+
+            var monthNames       = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            var currFullMonth    = monthNames[currMonth];
+            var currentMonthYear = currFullMonth+'-'+currYear;
+            event.preventDefault();
+            $.confirm({
+                title: 'Free Recharge Card',
+                content: 'Are you sure to Mark as Free Recharge Card given to "'+ $("#dhi_admin_free_recharge_card_userId").val() +'" for current month '+ currentMonthYear + ' ?',
+                icon: '',
+                confirmButton: 'Okay',
+                cancelButton: 'Cancel',
+                confirmButtonClass: 'btn-info',
+                cancelButtonClass: 'btn-danger',
+                theme: 'white',
+                animation: 'scale',
+                animationSpeed: 400,
+                animationBounce: 1.5,
+                keyboardEnabled: false,
+                container: 'body',
+                confirm: function() {
+                    $("#markUserTable").submit();
+                },
+                cancel: function() {
+                },
+                contentLoaded: function() {
+                },
+                backgroundDismiss: false,
+                autoClose: false,
+                closeIcon: true,
+            });
+        });
+    });
+</script>
+{% endblock javascripts %}

@@ -1,0 +1,275 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('bundles/dhiadmin/FCBKcomplete/style.css') }}" type="text/css" media="screen" charset="utf-8" />
+    <style>
+        .row-yellow {
+            background-color: #E2D85B !important;
+        }
+    </style>
+{% endblock stylesheets %}
+{% block body %}
+
+
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>
+
+    <section class="content-header">
+        <h1>Sales Details Report</h1>
+    </section>
+    <section class="content">
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get" id="searchService">
+                        <div class="box-body ">
+                            <div class="form-group col-md-3" id="serviceType"></div>
+                            <div class="form-group col-md-3" id="serPaymentMethod"></div>
+                            <div class="form-group col-md-3" id="serServiceLocation"></div>
+                            <div class="form-group col-md-3" id="admin"></div>
+                            <div class="form-group col-md-3" id="user"></div>
+                            <div class="form-group col-md-3" id="bandwidth"></div>
+                            <div class="form-group col-md-3" id="validity"></div>
+                            <div class="form-group col-md-3" id="whiteLabel">
+                                <span class="filterColumn filter_select">
+                                    <select class="select_filter form-control search_init purchasedFrom">
+                                        <option class="search_init" value="">Purchased From</option>
+                                        {% if allWhiteLabelSites %}
+                                            {% for whiteLabelSite in allWhiteLabelSites %}
+                                                <option value="{{whiteLabelSite.id}}"> {{ whiteLabelSite.companyName }} </option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>    
+                                </span>
+                            </div>
+                            <div class="form-group col-md-6 ">
+                                <div class="row"><div class="col-md-12" id="date-range"></div></div>
+                            </div> 
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12 datatableSearch">
+                        <div class="totalNoRefunds">
+                            <div class="saleServices">
+                                <b>Total No of Sale(s):</b>
+                            </div>
+                            <div class="col-2 saleServices2" id="totalSales"></div>
+                        </div>
+                        <div class="">
+                            {% if admin_permission.checkPermission('sales_details_report_export_csv') %}
+                                <a href="{{ path('dhi_admin_sales_details_report_csv',app.request.query.all) }}" class="btn btn-success pull-right margin-top5" id="export_csv" >Export CSV</a>
+                            {% endif %}
+                        </div>
+
+                        <table id="salesDetailsTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Service Type</th>
+                                    <th>Customer</th>
+                                    <th>Plan Name</th>
+                                    <th>Plan BW</th>
+                                    <th>Plan Life</th>
+                                    <th>Recharge Status</th>
+                                    <th>Payment Method</th>
+                                    <th width="100">Date</th>
+                                    <th>Admin</th>
+                                    <th>Plan Amount</th>
+                                    <th>Payable Amount</th>
+                                    <th>Service Location</th>
+                                    <th>Purchased From</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th><span style="display: none;">Service Type</span></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th><span style="display: none;">Payment Method</span></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Total</th>
+                                    <th></th>
+                                    <th><span style="display: none;">Service Location</span></th>
+                                    <th><span style="display: none;">Purchased From</span></th>
+                                </tr>
+                                <tr class="row-yellow">
+                                    <th colspan="10">Grand Total</th>
+                                    <th colspan="3" id="totalPayableAmount">$0.00</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            dTable = $('#salesDetailsTable').dataTable({
+                "oLanguage": {
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                bPaginate: true,
+                bInfo: true,
+                sAjaxSource: "{{ path('dhi_admin_sales_details_report_list_json') }}",
+                "fnServerParams": function ( aoData ) {
+                    aoData.push( { "name": "purchasedFrom", "value": $(".purchasedFrom").val() } );
+                },
+                "fnServerData": function (sUrl, aoData, fnCallback, oSettings) {
+                    oSettings.jqXHR = $.ajax({
+                        "url": sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if (json.iTotalRecords > 0) {
+                                if (json.totalPayableAmount != 0) {
+                                    $("#totalPayableAmount").html('$' + json.totalPayableAmount.toFixed(2));
+                                } else {
+                                    $("#totalPayableAmount").html('$' + json.totalPayableAmount.toFixed(2));
+                                }
+                            } else{
+                                $("#totalPayableAmount").html('$0.00');
+                            }
+                            
+                            if (json.sError) {
+                                oSettings.oApi._fnLog(oSettings, 0, json.sError);
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback(json);
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if (error == "parsererror") {
+                                window.location = "{{ path('dhi_admin_dashboard') }}";
+                            }
+                        }
+                    });
+                },
+                aoColumns: [
+                    {"sName": "serviceType", "bSortable": false},
+                    {"sName": "customer", "bSearchable": true, "bSortable": true},
+                    {"sName": "planName", "bSortable": false},
+                    {"sName": "bandwidth", "bSearchable": true, "bSortable": true},
+                    {"sName": "validity", "bSearchable": true, "bSortable": true},
+                    {"sName": "rechargeStatus", "bSortable": true},
+                    {"sName": "paymentMethod", "bSortable": true},
+                    {"sName": "createdDate", "bSortable": true},
+                    {"sName": "adminUser", "bSearchable": true, "bSortable": false},
+                    {"sName": "actualAmount", "bSortable": true, "mRender": function( data, type, full ) { return "$"+data; }},
+                    {"sName": "payableAmount", "bSortable": true, "mRender": function( data, type, full ) { return "$"+data; }},
+                    {"sName": "serviceLocation", "bSortable": true},
+                    {"sName": "purchasedFrom", "bSearchable": true, "bSortable": true},
+                ],
+                fnDrawCallback: function () {
+                    $('#admin input').attr('placeholder', 'Admin')
+                    $('#user input').attr('placeholder', 'Customer')
+                    $('#bandwidth input').attr('placeholder', 'Plan BW (Eg. 512)')
+                    $('#validity input').attr('placeholder', 'Plan Life')
+                    if (this.fnSettings().fnRecordsTotal() == 0) {
+
+                        $('div#totalSales').text('0');
+                        $("#export_csv").addClass('disabled');
+                    } else {
+                        $('div#totalSales').text(this.fnSettings().fnRecordsTotal());
+                        $("#export_csv").removeClass('disabled');
+                    }
+                },
+                fnFooterCallback: function (nRow, aaData, iStart, iEnd, aiDisplay) {
+                    
+                    var TotalMarks = 0;
+                    var salesAmount = 0;
+                    for (var i = 0; i < aaData.length; i++)
+                    {
+
+                        var tmpTxt = aaData[i][10];
+                        salesAmount = tmpTxt; //.replace("$", "");
+                        TotalMarks += parseFloat(salesAmount);
+                    }
+
+                    var nCells = nRow.getElementsByTagName('th');
+                    TotalMarks = TotalMarks.toFixed(2);
+                    nCells[10].innerHTML = '$' + TotalMarks;
+                },
+                aaSorting: [[7, 'desc']]
+            });
+
+            $('#salesDetailsTable').dataTable().columnFilter({
+            sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+                    aoColumns: [
+                    {type: "select", sSelector: "#serviceType", values: {{service|raw}}},
+                    {type: "text", sSelector: "#user"},
+                    null,
+                    {type: "text", sSelector: "#bandwidth"},
+                    {type: "text", sSelector: "#validity"},
+                    null,
+                    {type: "select", sSelector: "#serPaymentMethod", values:{{paymentMethod|raw}}},
+                    {type: "date-range", sSelector: "#date-range"},
+                    {type: "text", sSelector: "#admin"},
+                    null,
+                    null,
+                    {type: "select", sSelector:"#serServiceLocation", values:{{serviceLocation|raw}}},
+                    null
+                    ]
+        });
+        
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+        
+        $("#date-range .date_range_filter:first").change(function(event) {
+        $("#date-range .date_range_filter:last").datepicker("option", "minDate", $(this).val());
+        }).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+        $("#date-range .date_range_filter:last").change(function(event) {
+            $("#date-range .date_range_filter:first").datepicker("option", "maxDate", $(this).val());
+        }).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+        $(".filter_date_range .date_range_filter.hasDatepicker").attr({ readonly: 'true' });
+        
+        $(".purchasedFrom").change(function(event) {
+            dTable.fnDraw(true);
+        });
+        
+    });
+
+    function fnShowHide(iCol)
+    {
+        /* Get the DataTables object again - this is not a recreation, just a get of the object */
+        var oTable = $('#salesDetailsTable').dataTable();
+
+        var bVis = oTable.fnSettings().aoColumns[iCol].bVisible;
+        oTable.fnSetColumnVis(iCol, bVis ? false : true);
+    }
+</script>
+{% endblock %}

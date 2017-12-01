@@ -1,0 +1,33 @@
+{% block body %}
+	<h1>User Login Log</h1>  
+	{% if userLoginLog|length > 0 %}
+	<table class="purchase_table" style="width:100%;" cellspacing="0" cellpadding="5">
+		<tr>
+			<th>Id</th>
+			<th>Name</th>
+                        <th>Ip Address</th>
+			<th>Serivce Location</th>
+			<th>Active Services</th>
+			<th>Available Services</th>
+			<th>Country</th>
+			<th>LogInTime</th>
+		</tr>
+		{% for log in userLoginLog %}
+			
+			<tr class="">
+                            
+				<td>{{ log.id }}</td>
+				<td>{{ log.name }}</td>
+				<td>{{ log.ip }}</td>
+				<td>{{ log.location|raw }}</td>
+				<td>{{ log.activeService|raw }}</td>
+				<td>{{ log.availableServices|raw }}</td>
+				<td>{{ log.country }}</td>
+				<td>{{ log.loginDate }}</td>
+                       </tr>
+			
+		{% endfor %}	
+	</table>
+	{% endif %}
+	
+{% endblock body %}

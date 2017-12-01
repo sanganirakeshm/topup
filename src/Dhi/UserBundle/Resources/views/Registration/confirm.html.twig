@@ -1,0 +1,20 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% trans_default_domain 'FOSUserBundle' %}
+{% block body %}
+    <div class="innerBg">
+        <div class="container">
+            <div class="row">
+                {% block fos_user_content %}
+                    <div class="msgBox">
+                        <div class="msgboxin">
+                            <p>{{ 'Hello ' ~ user.username }}</p>
+                            <p>Your email verfication link has expired. You can resend the email verfication link to your email by clicking the link given below</p>
+                            <p><a href="{{ url('dhi_user_email_verification_failed', {'token': app.request.get('token')}) }}" class="btn btn-default">Click to resend</a></p>
+                        </div>
+                    </div>
+                {% endblock fos_user_content %}
+            </div>
+        </div>
+    </div>
+{% endblock body %}

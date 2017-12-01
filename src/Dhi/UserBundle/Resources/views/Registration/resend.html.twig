@@ -1,0 +1,22 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+{% trans_default_domain 'FOSUserBundle' %}
+{% block body %}
+    <div class="innerBg min_cont_hight">
+        <div class="container">
+            <div class="row">
+                {#{% include "DhiUserBundle::flashMessage.html.twig" %}#}
+                {#<p>An email has been sent to {{ user.email}}. It contains an activation link you must click to verify your email address.</p>#}
+                
+                {% block fos_user_content %}
+                    <div class="msgBox">
+                        <div class="msgboxin">
+                            <p>An email has been sent to "{{ user.email}}". </p>
+                            <p>It contains an activation link you must click to verify your email address.</p>
+                        </div>
+                    </div>
+                {% endblock fos_user_content %}
+                
+            </div>
+        </div>
+    </div>
+{% endblock body %}

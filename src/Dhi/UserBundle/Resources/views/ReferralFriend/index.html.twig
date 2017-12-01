@@ -1,0 +1,253 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <style type="text/css">
+        /*.ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }*/
+
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+    {% block fos_user_content %}
+
+        {% trans_default_domain 'FOSUserBundle' %}
+
+        <section class="content signup">
+            {% if app.user %}	
+                <div class="container text-right no-border">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h6 class="color-blue line-height-20">Welcome {{app.user.username}}</h6>
+                        </div>
+                    </div>	
+                </div>	
+            {%endif%}
+            
+            <div class="container">
+                <div class="row">
+                    <div class="heading">
+                        <div class="col-xs-12">
+                            <h2>Refer Friend</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-10 col-md-7 col-md-offset-5 profile-box">
+                        <div class="tab-content ">
+                            {% include "DhiUserBundle::flashMessage.html.twig" %}
+                            <div role="tabpanel" class="" id="inviteFriend">
+                                <div class="accountForm">
+                                    <div class="clear">&nbsp;</div>
+                                    {% if remainingInvitee != 0 and remainingInvitee is defined %}
+                                        <form action="{{ path('dhi_user_refer_friends') }}" method="POST" class="fos_user_profile_edit" id="form_refer_friend" name="form_refer_friend">
+                                            <div class="error">
+                                                <label id="custom-error" class="error"></label>
+                                            </div>
+                                            <div id="mainDiv">
+                                                <div id="div1" name="div1" class="form-group half-width"> 
+                                                    <input type="text" id="txtEmailid_1" name="txtEmailid_1" class="form-control" placeholder="Enter Email Id">
+                                                </div>
+                                            </div>
+                                            <div class="form-group full-width"> 
+                                                <input type="button" name="addButton" id="addButton" value="Add More" class="submitBtn btn btn-blue">
+                                                <input type="button" name="removeButton" id="removeButton" value="Remove" class="submitBtn btn btn-blue">
+                                                <input type="submit" name="btnSendReferFrnd" id="btnSendReferFrnd" value="Send Invitation" class="submitBtn btn btn-blue" onclick="return checkInvitationExist()">
+                                            </div>
+                                        </form>
+                                    {% else %}
+                                        <div>
+                                            <label>Sorry! You are not allow to invite more friend!</label>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endblock fos_user_content %}
+    
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+
+{% endblock body %}
+
+{% block javascripts %}
+
+    {{ parent() }}
+
+    <script type="text/javascript">
+        
+
+        var counter = 2;
+        var checkUrl = "{{ path("dhi_user_check_inviteer_email") }}";
+        $("#removeButton").hide();
+        jQuery.validator.addMethod("notEqualTo",
+            function(value, element, param) {
+                var notEqual = true;
+                value = $.trim(value);
+                for (i = 0; i < param.length; i++) {
+                    if (value == $.trim($(param[i]).val())) { notEqual = false; }
+                }
+                return this.optional(element) || notEqual;
+            },
+            "Please enter a different email."
+        );
+        
+        $(document).ready(function () {
+            
+            var validEmailRegex = /^([\w-\.]+)([\w-]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+            var alreadySentErrMsg = "Invitation is already sent to this email id.";
+            var notEqualToErrMsg  = "Please enter a different email.";
+            
+            $.validator.addMethod("regex_valid_char", function(value, element, regexpr) {
+                return regexpr.test(value);
+            }, "Please enter valid email.");
+            $("#form_refer_friend").validate({
+                rules: {
+                    "txtEmailid_1": {
+                        "required": true,
+                        "regex_valid_char": validEmailRegex,
+                        "notEqualTo": ['#txtEmailid_2','#txtEmailid_3','#txtEmailid_4','#txtEmailid_5'],
+                        "remote": {
+                            url: checkUrl,
+                            type: "post",
+                            data:{
+                                fieldName: 'txtEmailid_1'
+                            }
+                        }
+                    },
+                    "txtEmailid_2": {
+                        "required": true,
+                        "regex_valid_char": validEmailRegex,
+                        "notEqualTo": ['#txtEmailid_3','#txtEmailid_1','#txtEmailid_4','#txtEmailid_5'],
+                        "remote": {
+                            url: checkUrl,
+                            type: "post",
+                            data:{
+                                fieldName: 'txtEmailid_2'
+                            }
+                        }
+                    },
+                    "txtEmailid_3": {
+                        "required": true,
+                        "regex_valid_char": validEmailRegex,
+                        "notEqualTo": ['#txtEmailid_2','#txtEmailid_1','#txtEmailid_4','#txtEmailid_5'],
+                        "remote": {
+                                url: checkUrl,
+                                type: "post",
+                                data:{
+                                    fieldName: 'txtEmailid_3'
+                                }
+                            }
+                    },
+                    "txtEmailid_4": {
+                        "required": true,
+                        "regex_valid_char": validEmailRegex,
+                        "notEqualTo": ['#txtEmailid_2','#txtEmailid_3','#txtEmailid_1','#txtEmailid_5'],
+                        "remote": {
+                                url: checkUrl,
+                                type: "post",
+                                data:{
+                                    fieldName: 'txtEmailid_4'
+                                }
+                            }
+                    },
+                    "txtEmailid_5": {
+                        "required": true,
+                        "regex_valid_char": validEmailRegex,
+                        "notEqualTo": ['#txtEmailid_2','#txtEmailid_3','#txtEmailid_4','#txtEmailid_1'],
+                        "remote": {
+                                url: checkUrl,
+                                type: "post",
+                                data:{
+                                    fieldName: 'txtEmailid_5'
+                                }
+                            }
+                    },
+                },
+                messages: {
+                    "txtEmailid_1": {
+                        "required": "Enter email id.",
+                        "regex_valid_char": "Enter valid email id.",
+                        "notEqualTo" : notEqualToErrMsg,
+                        "remote" : alreadySentErrMsg
+                    },
+                    "txtEmailid_2": {
+                        "required": "Enter email id.",
+                        "regex_valid_char": "Enter valid email id.",
+                        "notEqualTo" : "Please enter a different email.",
+                        "remote" : alreadySentErrMsg
+                    },
+                    "txtEmailid_3": {
+                        "required": "Enter email id.",
+                        "regex_valid_char": "Enter valid email id.",
+                        "notEqualTo" : notEqualToErrMsg,
+                        "remote" : alreadySentErrMsg
+                    },
+                    "txtEmailid_4": {
+                        "required": "Enter email id.",
+                        "regex_valid_char": "Enter valid email id.",
+                        "notEqualTo" : notEqualToErrMsg,
+                        "remote" : alreadySentErrMsg
+                    },
+                    "txtEmailid_5": {
+                        "required": "Enter email id.",
+                        "regex_valid_char": "Enter valid email id.",
+                        "notEqualTo" : notEqualToErrMsg,
+                        "remote" : alreadySentErrMsg
+                    }
+                }
+            });
+
+            
+            $("#addButton").click(function () {
+                $("#removeButton").show();
+                if (counter > {{ remainingInvitee }}) {
+                    $("#custom-error").text('Not allow to add more invitation.');
+                    $("#custom-error").show();
+                    return false;
+                }
+                $("#custom-error").hide();
+                var newTextBoxDiv = $(document.createElement('div'))
+                        .attr({id: 'div' + counter, class: "form-group half-width", name: "div" + counter});
+
+                newTextBoxDiv.after().html('<input type="text" class="form-control" name="txtEmailid_' + counter +
+                        '" id="txtEmailid_' + counter + '" placeholder="Enter Email Id" >');
+
+                newTextBoxDiv.appendTo("#mainDiv");
+
+
+                counter++;
+            });
+
+            $("#removeButton").click(function () {
+                
+                if (counter != 2) {
+                    
+                    counter--;
+                    $("#div" + counter).remove();
+                    $("#custom-error").hide();
+                }
+                if(counter == 2){
+                    $("#removeButton").hide();
+                }
+            });
+
+        });
+        function checkInvitationExist(){
+             if (counter == 1) {
+                $("#custom-error").text('No any invitation exists.');
+                $("#custom-error").show();
+                return false;
+            }
+        }
+    </script>
+
+{% endblock javascripts %}

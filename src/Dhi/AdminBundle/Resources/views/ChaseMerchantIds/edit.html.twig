@@ -1,0 +1,88 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/dhiadmin/FCBKcomplete/style.css') }}" type="text/css" media="screen" charset="utf-8" />		
+{% endblock %}
+{% block body %}
+
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>Edit Chase Merchant Id</h1>
+    </section>
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <section class="content">
+        <div class="box box-success">
+            <div class="row">
+                <div class="col-sm-12">
+                    <form action="{{ path('dhi_admin_chase_merchant_ids_edit',{'id': id}) }}" method="POST" {{ form_enctype(form) }} id="merchant_form" class="form-horizontal" novalidate>		            
+                        <div class="box-body form-group-section">
+                            <div class="form-group col-md-4">
+                                <label class="control-label">Merchant Name: </label>
+                                {{ form_widget(form.merchantName, { 'attr': { 'placeholder': 'Merchant Name', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form.merchantName) }}</div>
+                            </div>
+                            
+                            <div class="form-group col-md-4">
+                                <label class="control-label">Merchant Id: </label>
+                                {% if merchantIdReadOnly == true %}
+                                    {{ form_widget(form.merchantId, { 'attr': { 'placeholder': 'Merchant Id', 'class': 'form-control', 'maxlength': '15', 'readonly':'readonly' }}) }}
+                                {% else %}
+                                    {{ form_widget(form.merchantId, { 'attr': { 'placeholder': 'Merchant Id', 'class': 'form-control', 'maxlength': '15' }}) }}
+                                {% endif %}
+                                <div class="serverError">{{ form_errors(form.merchantId) }}</div>	
+                            </div>
+                        </div>
+                            <div class="box-footer">		
+                                <div class="col-sm-12">
+                                    <input type="submit" name="edit" value="Edit" class="btn btn-success"/>
+                                    <a href="{{ path('dhi_admin_chase_merchant_ids_list') }}" class="btn btn-default">Back</a>
+                                </div>
+                            </div>
+                            {{ form_rest(form) }}
+                    </form>
+                
+            </div>
+        </div>
+    </section>	
+    {{ tinymce_init() }}
+
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('bundles/dhiadmin/FCBKcomplete/jquery.fcbkcomplete.js') }}" type="text/javascript" charset="utf-8"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            
+            jQuery.validator.addMethod("numeric", function(value, element) {
+                return this.optional(element) || /^[0-9]+$/.test(value);
+            }); 
+            $('#merchant_form').validate({
+                rules: {
+                    "dhi_admin_chase_merchatids[merchantId]": {
+                        "required": true,
+                        "numeric": true
+                    },
+                    "dhi_admin_chase_merchatids[merchantName]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_admin_chase_merchatids[merchantId]": {
+                        "required": "Please enter merchant id.",
+                        "numeric": "Merchant id must contain only numeric."
+                    },
+                    "dhi_admin_chase_merchatids[merchantName]": {
+                        "required": "Please enter merchant name.",
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock javascripts %}

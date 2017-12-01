@@ -1,0 +1,52 @@
+<div class="modal fade" id="AddIptvPackage" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="AddIptvPackageTitle">{{ 'Add Package to user '~user.username }}</h4>
+                <div id="ajax-loader-bx" style="display:none;">
+                    <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+                    <div id="loader-text">Please wait....</div>
+                </div>
+
+            </div>
+            <div class="modal-body">
+            	<div style="height:450px;overflow-y:auto;">
+                    <div id="PackageList">
+                    	<form action="" method="post" name="frmAddPackage" id="frmAddPackage">
+                    	<input type="hidden" name="userId" value="{{ user.id }}"/>
+                    	<table class="table table-fixed">
+							<thead>
+            					<tr>
+              						<th class="col-xs-2">#</th>
+              						<th class="col-xs-8">Package Name</th>
+              						<th class="col-xs-2">Price($)</th>
+            					</tr>	
+          					</thead>
+          					<tbody>
+          					{% if packages %}
+                            
+                            	{% if packages.data %}
+                            	
+		                            {% for package in packages.data%}
+		                            <input type="hidden" name="packageName[{{ package.offerId }}]" value="{{ package.offerName }}"/>
+						            <tr>
+										<td class="col-xs-2"><input type="radio" name="packageId" value="{{ package.offerId }}" checked="unchecked" /></td>
+										<td class="col-xs-8">{{ package.offerName }}</td>
+										<td class="col-xs-2">N/A</td>
+						            </tr>
+					            	{% endfor %}
+								{% endif %}
+							{% endif %}
+          					</tbody>
+        				</table>  
+        				</form>                                          
+                    </div>
+				</div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" onclick="submitPackage();" value="Proceed" class="btn btn-success"/>
+        	</div>
+    	</div>
+  	</div>
+</div>

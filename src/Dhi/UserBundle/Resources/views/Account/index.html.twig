@@ -1,0 +1,1151 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+	{% block stylesheets %}
+		{{ parent() }}
+		<style>
+			.btn-default:hover, .btn-default:focus { background: #8F8B8B; border: solid 1px #AAAAAA; color: #FFFFFF;}
+			.hey { top:-30px !important; }
+		</style>
+	{% endblock stylesheets %}
+
+	{% block body %}
+		{% block fos_user_content %}
+		<section class="accountPlan">
+			<div class="accountPage">
+				{% trans_default_domain 'FOSUserBundle' %}
+				{% if app.user %}
+					<div class="text-right no-border welcometext"  id="scrollShop">
+						<div class="row">
+							<div class="col-xs-12">
+								<h6 class="color-blue line-height-20">Welcome {{app.user.username}}</h6>
+							</div>
+						</div>
+					</div>
+				{% endif %}
+
+
+				<div class="modal fade" id="promocode" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+								<h4 class="modal-title" id="myModalLabel">Redeem Promo Code</h4>
+							</div>
+
+							<div class="modal-body">
+								<form class="" role="form">
+									<div class="row">
+										<div class="form-group col-lg-12">
+											<label class="lbl-promo" for="inputEmail3">Promo Code</label>
+											<input type="hidden" name="promocodeType" id="promocodeType" value="" />
+											<input type="text" class="form-control" id="promoCodeValue" placeholder="Please Enter Promo Code"/>
+										</div>
+									</div>
+								</form>
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn modal-btn-default" id="closeRedeem" data-dismiss="modal">Close</button>
+								<button type="button" class="btn modal-btn-success" onclick="redeemPromoCode($('#promoCodeValue').val())">Redeem</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal fade" id="package" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+								<h4 class="modal-title" id="myModalLabel">Do You Want To Apply ?</h4>
+							</div>
+
+							<div class="modal-body">
+								<div class="row">
+									<div class="col-md-3">Promo Code</div>
+									<div class="col-md-8 col-md-offset-1" id="promoCodeName"></div>
+								 </div>
+								<div class="row">
+									<div class="col-md-3">Package Name</div>
+									<div class="col-md-8 col-md-offset-1" id="promoPackageName"></div>
+								 </div>
+								<div class="row" id ="disableDescription">
+									<div class="col-md-3">Description</div>
+									<div class="col-md-8 col-md-offset-1" id="promoPackageDescription"></div>
+								 </div>
+								<div class="row">
+									<div class="col-md-3">Package Duration</div>
+									<div class="col-md-8 col-md-offset-1" id="promoValidity"></div>
+								 </div>
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+								<button type="button" class="btn btn-primary" onclick="applyPromoCode($('#promoCodeName').text())">Apply</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				{# Left Panel end #}
+				<div class="accountLeft">
+					{% if isDeersAuthenticated == 2 and countPurchasedService <= 0 and summaryData.AvailableServicesOnLocation|length > 0 and  'IPTV' in summaryData.AvailableServicesOnLocation  %}
+						<div class="message_container">
+							<div class="col-xs-12">
+								<div class="alert alert-info " role="alert">
+									<button type="button" class="close" data-dismiss="alert">&times;</button>
+									<p>
+										Thank you for registering. <b>ExchangeVUE</b> packages below are available at your location.
+										If you're a US service member or US Government employee with a Common Access Card (CAC),
+										click <a href="{{ path('dhi_user_deers_auth') }}"><b>here</b></a> to authenticate with DEERS now.
+										DEERS authentication requires you to have an active shopmyexchange.com account.
+										Get your shopmyexchange.com account now <a href="https://www.shopmyexchange.com/account/register"><b>here</b></a>.
+									</p>
+								</div>
+							</div>
+						</div>
+					{% endif %}
+
+					<div class="message_container">
+						<div class="col-xs-12">
+							{% include "DhiUserBundle::flashMessage.html.twig" %}
+						</div>
+					</div>
+
+					{% if isDeersAuthenticated == 2 and countPurchasedService > 0 and summaryData.AvailableServicesOnLocation|length > 0 and  "IPTV" in summaryData.AvailableServicesOnLocation  %}
+						<div class="message_container">
+							<div class="col-xs-12">
+								<div class="alert alert-info " role="alert">
+									<button type="button" class="close" data-dismiss="alert">&times;</button>
+									<p>
+										This plan requires DEERS authentication.
+										DEERS authentication requires you to have a CAC and an active shopmyexchange.com account.
+										If you have a CAC, but do not have a shopmyexchange.com account, get it <a href="https://www.shopmyexchange.com/account/register">here</a> now.
+										If you already have a shopmyexchange account, perform DEERS authentication <a href="{{ path('dhi_user_deers_auth') }}">here</a>.
+									</p>
+								</div>
+							</div>
+						</div>
+					{% endif %}
+
+					{% if (user and user.isEmailVerified != 1) %}
+						<div class="message_container">
+							<div class="col-xs-12">
+								<div class="alert alert-info">
+									<button type="button" class="close" data-dismiss="alert">&times;</button>
+									Email address verification is not required to proceed, however, you won’t receive receipts, reminders, or network/outage updates if you do not verify your address. Click <a href="{{ path('dhi_user_token_resend_email') }}">here</a> to resend verification email<br />
+								</div>
+							</div>
+						</div>
+					{% endif %}
+
+					{% if summaryData.isEmployee == 1 %}
+				        <div class="message_container">
+							<div class="col-xs-12">
+								<div class="alert alert-warning">
+									<button type="button" class="close" data-dismiss="alert">&times;</button>
+									Please contact administrator to purchase the plan.
+								</div>
+							</div>
+						</div>
+				    {% endif %}
+
+					<div class="accountRight responsiveShopingCart" id="accountShopping">
+						<div class="accountRightHead">SHOPPING CART</div>
+
+						<div class="purchasedMyacc">
+							<ul class="purchasedMyaccTab">
+								<li id="tabAccount" class="{% if summaryData.isEmployee == 1 %}width100{% endif %}" ><a href="#purchasedPlan" data-id="1">My Account</a></li>
+								{% if summaryData.isEmployee == 0 %}
+									<li id="tabOrder"><a href="#myAccount" data-id="2">My Cart</a></li>
+								{% endif %}
+							</ul>
+
+							<div id="purchasedPlan"></div>
+							{% if summaryData.isEmployee == 0 %}
+								<div id="myAccount">
+									<div class="accountAddedPkg">
+										<h6>ExchangeVUE Service</h6>
+										<div class="addedServiceTitle">Package <label>Price</label></div>
+										<div class="addedServicePkgName">{#Gold <label>$0.00</label>#}</div>
+										<div class="addedServicePkgTotal">ExchangeVUE Subtotal <label>$0.00 </label></div>
+
+										<h6>Internet Service</h6>
+										<div class="addedServiceTitle">Package <label>Price</label></div>
+										<div class="addedServicePkgName">{#Gold <label>$0.00</label>#}</div>
+										<div class="addedServicePkgTotal">Internet Subtotal <label>$0.00 </label></div>
+
+										<h5>Order Summary</h5>
+										<div class="accountTotal">Current total <label>$0.00 </label></div>
+									</div>
+								</div>
+							{% endif %}
+						</div>
+
+						<div class="clearfix"></div>
+					</div>
+
+					<div id="reddemPromocode"></div>
+					{#<h3 class="select-plan">Select Your Plan or Upgrade Your Current Plan</h3>#}
+					<div id="plan-accordian" style="display:none;"></div>
+					<div class="div-checkout-btn" style="display:none;"></div>
+
+                   {# <div class="newxuvebannerbox">
+	                	<div class="xuvboxImg"><img src="{{ asset('bundles/dhiuser/images/topupanywhere.jpg') }}" alt="Topup Anywhere"></div>
+	                	<div class="xuvboxImg"><img src="{{ asset('bundles/dhiuser/images/dhimilitry.jpg') }}" alt="Military Office Supplies Made Easy"></div>
+	                	<div class="xuvboxImg"><img src="{{ asset('bundles/dhiuser/images/dhionlineshop.jpg') }}" alt="Shop Online & Ship to Your Nearest Mobile Store"></div>
+	                	<div class="xuvboxImg"><img src="{{ asset('bundles/dhiuser/images/xuvewatchshow.jpg') }}" alt="Watch your favorite Shows, Moview & More"></div>
+	                </div>#}
+				</div>
+				{# Left Panel end #}
+
+				{# Right Panel start #}
+				<div class="accountRight desktopviewShoppingCart hide" id="accountShopping ">
+					<div class="accountRightHead">SHOPPING CART</div>
+
+					<div class="purchasedMyacc">
+						<ul class="purchasedMyaccTab">
+							<li id="tabAccount"><a href="#purchasedPlan" data-id="1">My Account</a></li>
+							<li id="tabOrder"><a href="#myAccount" data-id="2">My Cart</a></li>
+						</ul>
+
+						<div id="purchasedPlan"></div>
+
+						<div id="myAccount">
+							<div class="accountAddedPkg">
+								<h6>ExchangeVUE Service</h6>
+								<div class="addedServiceTitle">Package <label>Price</label></div>
+								<div class="addedServicePkgName">{#Gold <label>$0.00</label>#}</div>
+								<div class="addedServicePkgTotal">ExchangeVUE Subtotal <label>$0.00 </label></div>
+
+								<h6>Internet Service</h6>
+								<div class="addedServiceTitle">Package <label>Price</label></div>
+								<div class="addedServicePkgName">{#Gold <label>$0.00</label>#}</div>
+								<div class="addedServicePkgTotal">Internet Subtotal <label>$0.00 </label></div>
+
+								<h5>Order Summary</h5>
+								<div class="accountTotal">Current total <label>$0.00 </label></div>
+							</div>
+						</div>
+				</div>
+			</div>
+			{# Right Panel end #}
+		</div>
+	</section>
+
+		<input type="hidden" name="iSExtendISP" id="iSExtendISP" value="0" />
+		<input type="hidden" name="lastTriggerId" id="lastTriggerId" value="" />
+		{% endblock fos_user_content %}
+
+	<div class="modal fade" id="channelModal" tabindex="-1" role="dialog" aria-labelledby="channelModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content channel">
+			</div>
+		</div>
+ 	</div>
+
+	<div class="modal fade" id="packageModal" tabindex="-1" role="dialog" aria-labelledby="packageModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">Additional Content</h4>
+				</div>
+
+				<div class="modal-body" id="premiumPackage"></div>
+			</div>
+		</div>
+	</div>
+
+	<div id="ajax-loader-bx" style="display:none;">
+		<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+		<div id="loader-text">Please wait....</div>
+	</div>
+
+	<div class="modal fade" id="modalBundle" tabindex="-1" role="dialog" aria-labelledby="modalBundle" aria-hidden="true">
+		<div class="modal-dialog modalBundle-dailog">
+			<div class="modal-content"></div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="modalExtendConfirm" tabindex="-1" role="dialog" aria-labelledby="modalExtendConfirm" aria-hidden="true">
+		<div class="modal-dialog modalExtendConfirm-dailog">
+			<div class="modal-content"></div>
+		</div>
+	</div>
+{% endblock body %}
+
+{% block javascripts %}
+		{{ parent() }}
+		<script type="text/javascript" src="{{ asset('bundles/dhiuser/js/jquery.toaster.js') }}"></script>
+
+		<script type="text/javascript">
+			var loadUrlAddCart = "{{ path('dhi_ajax_add_to_cart_packages', {'extendPlan' : false}) }}",
+				cartUrl =   "{{ path('dhi_account_summary_tabs', {'tab' : 'tab_id'}) }}";
+
+			function checkUser() {
+				$.ajax({
+					url: "{{path('dhi_user_check_session_login')}}",
+					type: 'POST',
+					dataType: 'json',
+					success: function(result){
+						if (result.status == 0) {
+							window.location.reload();
+						}
+					}
+				});
+			}
+
+			$(function checkUserLogin() {
+				setTimeout(function() {
+					checkUser();
+					checkUserLogin();
+				}, 5000);
+			});
+
+			$(document).ready(function () {
+				var toolTipText = "Internet service is required for ExchangeVUE Package.";
+				var toolTipEmailVerify = "You need to verify your email address for upgrade plan.";
+
+				$(document).ajaxStart(checkUser);
+
+				$( document ).ajaxStop(function() {
+					$('#ajax-loader-bx').hide();
+				});
+				$('#ajax-loader-bx').show();
+
+				{% if summaryData['CartISPPackageId'] is defined and summaryData['IsBundleAvailabledInCart'] == 1 and isPlanExtended == false %}
+					showBundleIptvPlan("{{ summaryData['CartISPPackageId'] | first }}", 1);
+					$('#plan-accordian').show();
+				
+				{% elseif summaryData['IsBundleAvailabledInPurchased'] == 1 and isPlanExtended == false and summaryData['IsISPAvailabledInCart'] == 0 and summaryData['IsIPTVAvailabledInCart'] == 0 and summaryData['IsAddOnAvailabledInCart'] == 1 %}
+					showBundleIptvPlan("{{ summaryData['PurchasedISPPackageId'] | first }}", 1);
+					$('#plan-accordian').show();
+
+                {% elseif summaryData['IsISPAvailabledInCart'] == 1 and (summaryData['IsIPTVAvailabledInCart'] == 0 or (summaryData['IsIPTVAvailabledInPurchased'] == 1 and summaryData['IsBundleAvailabledInCart'] == 0)) %}
+                	showServicePlan('ISP',1);
+
+				{% elseif summaryData['IsISPAvailabledInCart'] == 0 and (summaryData['IsIPTVAvailabledInCart'] == 1 or summaryData['IsIPTVAvailabledInPurchased'] == 1) and summaryData['IsBundleAvailabledInCart'] == 0 and summaryData['IsBundleAvailabledInPurchased'] == 0 %}
+                	showServicePlan('IPTV',1);
+
+			    {% else %}
+					showServicePlan('',1);
+			    {% endif %}
+
+				showCheckoutButton();
+				getPromoCode();
+				$('#ajax-loader-bx').hide();
+
+				$(document).on('click', '.openPromocodeModal', function(event) {
+					$('#ajax-loader-bx').show();
+					var type = $(this).data('type');
+					$("#promocodeType").val(type.toLowerCase());
+					$(".lbl-promo").text('Promo Code');
+					$('#promoCodeValue').val('');
+					setTimeout(function() { $('#promoCodeValue').focus(); }, 500);
+					$("#promocode").modal('show');
+					$('#ajax-loader-bx').hide();
+				});
+
+				$('#package').on('hidden.bs.modal', function () {
+					$('#promocodeType, #promoCodeValue').val('');
+				});
+
+				$('#promocode').on('hidden.bs.modal', function () {
+					$('#promocodeType, #promoCodeValue').val('');
+				});
+
+				$('ul.purchasedMyaccTab').each(function() {
+					var $active, $content, $links = $(this).find('a');
+					$active  = $($links.filter('[href="'+location.hash+'"]')[0] || $links[0]);
+					$content = $($active[0].hash);
+					$active.addClass('active');
+
+					$links.not($active).each(function () {
+						$(this.hash).hide();
+					});
+
+					$(this).on('click', 'a', function(e) {
+						$('#ajax-loader-bx').show();
+						$tabId   = $(this).data('id');
+						url = cartUrl.replace('tab_id', $tabId);
+						$active.removeClass('active');
+						$content.hide();
+
+						$active = $(this);
+						$content = $(this.hash);
+
+						$('#'+$content.attr('id')).load(url, function (result,statusTxt,xhr) {
+							$content.show();
+							$active.addClass('active');
+							$('#ajax-loader-bx').hide();
+							//checkSticky();
+						});
+						e.preventDefault();
+					});
+				});
+
+				{% if summaryData['CartAvailable'] == 1 %}
+					$('ul.purchasedMyaccTab #tabOrder a').click();
+				{% else %}
+					$('ul.purchasedMyaccTab #tabAccount a').click();
+				{% endif %}
+
+				$("#btn-isp-upgrade").attr("title", toolTipEmailVerify);
+
+				$('#btn-iptv, #btn-iptv-deers, #btn-isp-upgrade').poshytip({
+					className: 'tip-twitter',
+					showTimeout: 1,
+					alignTo: 'target',
+					alignX: 'center',
+					offsetY: 5,
+					allowTipHover: false,
+					fade: false,
+					slide: false,
+					followCursor: true
+				});
+				$(document).on('click', '.btnDeersSignIn', function(event) {
+                                    alertBox('', 'showDeersAuthenticationMsg', '', '', '');
+                                });
+			});
+
+			function getPromoCode() {
+				$('#ajax-loader-bx').show();
+				$('#reddemPromocode').load("{{ path('dhi_ajax_get_promo_code') }}", function (result,statusTxt,xhr) {
+					$('#ajax-loader-bx').hide();
+				});
+			}
+
+			function scroll_to(div) {
+				$('html, body').animate({
+					scrollTop: $("#"+div).offset().top
+				},1000);
+			}
+
+			function showAddonPlan() {
+				$('#ajax-loader-bx').show();
+				var addonUrl = '{{ path('dhi_ajax_get_addon_plan') }}';
+                $.ajax({
+                    url: addonUrl,
+                    data: {type:'ADDONS'},
+                    beforeSend: function( xhr ) {},
+                    success:function(result){
+                        var isError = false;
+						try {
+	                        var obj = jQuery.parseJSON(result);
+	                        if (obj['msg']) {
+	                            alertBox(obj['msg'], '', '', '', '');
+	                            isError = true;
+	                        }
+						} catch (e) { }
+						if(isError == false){
+                            $('#ajax-loader-bx').hide();
+                            $(".addons").html(result);
+						}
+                    }
+                });
+			}
+
+			function showServicePlan(type, isScroll) {
+				$('#ajax-loader-bx').show();
+				$('#plan-accordian').load("{{ path('dhi_ajax_get_service_plan') }}", { type:type },
+					function (result,statusTxt,xhr) {
+						var isError = false;
+						try {
+							var obj = jQuery.parseJSON(result);
+
+							if (obj['msg']) {
+								alertBox(obj['msg'], '', '', '', '');
+								isError = true;
+							}
+
+							if ('redirect' in obj && obj['redirect'] == 'screen2') {
+								showBundleIptvPlan("{{ summaryData['CartISPPackageId'] | first }}", 1);
+     							$('#plan-accordian').show();
+							}
+
+							if ('redirect' in obj && (obj['redirect'] == 'IPTV' || obj['redirect'] == 'ISP')) {
+								showServicePlan(obj['redirect'],1);
+     							$('#plan-accordian').show();
+							}
+
+						} catch (e) {}
+
+						if (isError) {
+							$('#plan-accordian').html('');
+						} else {
+							$('#plan-accordian').show();
+                            if(type == 'IPTV'){
+	                            {% if 'IPTV' in summaryData.AvailableServicesOnLocation %}
+	                                showAddonPlan();
+	                            {% endif %}
+							}
+							if (isScroll == 1) {
+								scroll_to('plan-accordian');
+							}
+						}
+					}
+				);
+			}
+
+			function showBundleIptvPlan(IspId, screenId){
+				$('#ajax-loader-bx').show();
+				var iptvbundleUrl = '{{ path('dhi_ajax_get_bundleiptv_plan') }}';
+				$.ajax({
+                    url: iptvbundleUrl,
+                    data: {type:'IPTV',ispid:IspId},
+                    beforeSend: function( xhr ) {
+                    },
+                    success:function(result){
+                        var isError = false;
+						try {
+                            if (result['msg']) {
+                                alertBox(result['msg'], '', '', '', '');
+                                isError = true;
+                            }
+						} catch (e) { }
+						if(isError == false){
+                            $('#ajax-loader-bx').hide();
+                            $("#plan-accordian").html(result);
+                            showAddonPlan();
+                            showCheckoutButton(2);
+						}
+                    }
+                });
+            }
+
+			function showCheckoutButton(screen) {
+				if (screen === undefined) {
+			        screen = 1;
+			    }
+				$('#ajax-loader-bx').show();
+				$('.div-checkout-btn').load("{{ path('dhi_ajax_get_checkout') }}", { screen:screen }).show();
+			}
+
+			$("ul.purchasedMyaccTab #tabOrder a").click(checkSticky);
+
+			function checkSticky() {
+				$(".stickycart").sticky({ bottomSpacing: 250});
+			}
+
+			function addExtend(type, dataId, extendType) {
+				if(extendType == 'Add') {
+					verifyExtendPlan(dataId,type);
+				}
+				return false;
+			}
+
+			function verifyExtendPlan(id,type) {
+				var extendUrl = '{{ path('dhi_ajax_get_package_detail') }}';
+				$('#ajax-loader-bx').show();
+
+				$('.modalExtendConfirm-dailog .modal-content').load(extendUrl, { id:id }, function (result) {
+					try {
+						var obj = jQuery.parseJSON(result);
+						if (obj['msg']) {
+							alertBox(obj['msg'], 'ExtendPlanAlert', '',type,id);
+							$('#ajax-loader-bx').hide();
+						}
+					} catch (e) {
+						alertBox("Invalid Request", "Error", '',type,id);
+					}
+				});
+			}
+
+			function addPackage(type, dataId, isBundle, isExtend, addOnsPackageId ) {
+				if (type != '' && dataId != '') {
+					if(isExtend == 1) {
+						loadUrlAddCart = "{{ path('dhi_ajax_add_to_cart_packages', {'extendPlan' : true}) }}";
+					} else {
+						loadUrlAddCart = "{{ path('dhi_ajax_add_to_cart_packages', {'extendPlan' : false}) }}";
+					}
+
+					var isCallAjaxRequest = isCallAddonAjaxRequest = false;
+					var packageId = $('#packageId'+type+dataId).val();
+					var isAddonsPack = 0;
+					var service = '';
+					var ispValidity = $('#ispValidity').val();
+					var iSExtendISP = $('#iSExtendISP').val();
+
+					if (type == 'IPTV') {
+						isCallAjaxRequest = true;
+						service = 'IPTV';
+					}
+
+					if (type == 'BUNDLE') {
+						isCallAjaxRequest = true;
+						service = 'BUNDLE';
+						if(isExtend == 1){
+							loadUrlAddCart = "{{ path('dhi_ajax_add_to_cart_bundles', {'extendPlan' : true})}}";
+						}else{
+							loadUrlAddCart = "{{ path('dhi_ajax_add_to_cart_bundles', {'extendPlan' : false})}}";
+						}
+					}
+
+					if (type == 'ISP') {
+						isCallAjaxRequest = true;
+						service = 'ISP';
+					}
+
+					if (type == 'AddOns') {
+						isCallAddonAjaxRequest = true;
+						service = 'IPTV';
+						isAddonsPack = 1;
+					}
+
+					if (isCallAjaxRequest == true) {
+						$('#ajax-loader-bx').show();
+
+						$.ajax({
+							type: "POST",
+							url: loadUrlAddCart,
+							data: {
+								pid:dataId,
+								packageId:packageId,
+								packageType:type,
+								service:service,
+								isAddonsPack:isAddonsPack,
+								ispValidity:ispValidity,
+								iSExtendISP:iSExtendISP
+							},
+							beforeSend: function( xhr ) {
+							},
+							success:function(result){
+								$('#packageModal').modal('hide');
+								var objResponse = result; //jQuery.parseJSON( result );
+
+								$('#iSExtendISP').val(0);
+								$('#lastTriggerId').val(objResponse['lastTriggerId']);
+
+								if (objResponse['result'] == 'success') {
+
+                                    $("ul.purchasedMyaccTab #tabOrder a").click();
+
+                                    if(type == 'IPTV'){
+                                    	showServicePlan('IPTV');
+                                    }else{
+                                    	showServicePlan();
+                                    }
+                                    
+                                    showCheckoutButton();
+
+                                    scroll_to('scrollShop');
+                                    popupNotification(objResponse['succMsg'],'');
+                                    getPromoCode();
+
+								} else if (objResponse['result'] == 'error') {
+									alertBox(objResponse['errMsg'], '', '', '', '');
+								} else if (objResponse['result'] == 'deersMsg') {
+									alertBox(objResponse['errMsg'], 'showDeersAuthenticationMsg', '', '', '');
+								} else if (objResponse['result'] == 'extendISPMsg') {
+									confirmBox(objResponse['errMsg'], 'ISPExtend', '', '');
+								} else {
+									alertBox('Something went wrong in request. Please try again.', '', '', '', '');
+								}
+
+								$('#ajax-loader-bx').hide();
+							}
+						})
+					}
+
+					if(isCallAddonAjaxRequest == true){
+						if(isBundle == 1){
+							var fromData = $("#frmBundleAddon").serialize();
+						}else{
+							var fromData = $("#frmAddon").serialize();
+						}
+						$('#ajax-loader-bx').show();
+						$.ajax({
+							type: "POST",
+							url: loadUrlAddCart,
+							data: fromData + '&addOnsPackageId='+addOnsPackageId,
+								beforeSend: function( xhr ) {
+							},
+							success:function(result){
+								$('#packageModal').modal('hide');
+								var objResponse = result;
+
+								$('#iSExtendISP').val(0);
+								$('#lastTriggerId').val(objResponse['lastTriggerId']);
+
+								if (objResponse['result'] == 'success') {
+                                    $("ul.purchasedMyaccTab #tabOrder a").click();
+
+                                    if(("cartIspPackageId" in objResponse && objResponse['cartIspPackageId'] != 0) || (type == 'AddOns' &&  'redirect' in objResponse && objResponse['redirect'] == 'IPTV-BUNDLE')){
+                                    	showBundleIptvPlan(objResponse['cartIspPackageId'], 2);
+                                    }else{
+                                    	if('redirect' in objResponse && objResponse['redirect'] == 'IPTV'){
+	                                    	showServicePlan('IPTV');
+	                                    }else{
+	                                    	showServicePlan();
+	                                    }
+                                    }
+
+                                    showCheckoutButton();
+                                    scroll_to('scrollShop');
+                                    popupNotification(objResponse['succMsg'],'');
+                                    getPromoCode();
+								} else if (objResponse['result'] == 'error') {
+									alertBox(objResponse['errMsg'], '', '', '', '');
+                                                                        $('#premiumPackageId'+ addOnsPackageId).attr('checked', false);
+								} else if (objResponse['result'] == 'deersMsg') {
+									alertBox(objResponse['errMsg'], 'showDeersAuthenticationMsg', '', '', '');
+								} else if (objResponse['result'] == 'extendISPMsg') {
+									confirmBox(objResponse['errMsg'], 'ISPExtend', '', '');
+								} else {
+									alertBox('Something went wrong in request. Please try again.', '', '', '', '');
+								}
+
+								$('#ajax-loader-bx').hide();
+							}
+						})
+					}
+				}
+			}
+                        
+                        
+            function addPackagebundle(type, dataId, isBundle, isExtend, addOnsPackageId,isDeers ) {
+                                
+				if (type != '' && dataId != '') {
+					if(isExtend == 1) {
+						loadUrlAddCart = "{{ path('dhi_ajax_add_to_cart_packages', {'extendPlan' : true}) }}";
+					} else {
+						loadUrlAddCart = "{{ path('dhi_ajax_add_to_cart_packages', {'extendPlan' : false}) }}";
+					}
+
+					var isCallAjaxRequest = isCallAddonAjaxRequest = false;
+					var packageId = $('#packageId'+type+dataId).val();
+					var isAddonsPack = 0;
+					var service = '';
+					var ispValidity = $('#ispValidity').val();
+					var iSExtendISP = $('#iSExtendISP').val();
+
+					if (type == 'IPTV') {
+						isCallAjaxRequest = true;
+						service = 'IPTV';
+					}
+
+					if (type == 'BUNDLE') {
+						isCallAjaxRequest = true;
+						service = 'BUNDLE';
+						if(isExtend == 1){
+							loadUrlAddCart = "{{ path('dhi_ajax_add_to_cart_bundles', {'extendPlan' : true})}}";
+						}else{
+							loadUrlAddCart = "{{ path('dhi_ajax_add_to_cart_bundles', {'extendPlan' : false})}}";
+						}
+					}
+
+					if (type == 'ISP') {
+						isCallAjaxRequest = true;
+						service = 'ISP';
+					}
+
+					if (type == 'AddOns') {
+						isCallAddonAjaxRequest = true;
+						service = 'IPTV';
+						isAddonsPack = 1;
+					}
+
+					if (isCallAjaxRequest == true) {
+						$('#ajax-loader-bx').show();
+
+						$.ajax({
+							type: "POST",
+							url: loadUrlAddCart,
+							data: {
+								pid:dataId,
+								packageId:packageId,
+								packageType:type,
+								service:service,
+								isAddonsPack:isAddonsPack,
+								ispValidity:ispValidity,
+								iSExtendISP:iSExtendISP
+							},
+							beforeSend: function( xhr ) {
+							},
+							success:function(result){
+								$('#packageModal').modal('hide');
+								var objResponse = result; //jQuery.parseJSON( result );
+
+								$('#iSExtendISP').val(0);
+								$('#lastTriggerId').val(objResponse['lastTriggerId']);
+
+								if (objResponse['result'] == 'success') {
+                                    $("ul.purchasedMyaccTab #tabOrder a").click();
+                                    
+                                    if('cartIspPackageId' in objResponse && objResponse['cartIspPackageId'] != ''){
+                                    	showBundleIptvPlan(objResponse['cartIspPackageId'], 2);	
+                                    }
+                                	
+                                    showCheckoutButton(2);
+                                    showAddonPlan();
+            
+                                } else if (objResponse['result'] == 'error') {
+									alertBox(objResponse['errMsg'], '', '', '', '');
+			
+								} else if (objResponse['result'] == 'deersMsg') {
+	                                $('#checkcontinue').prop('onclick',null)
+	                                $('#checkcontinue').addClass('btn-disabled');
+	                                $('.deersbtn').show();
+									
+								} else if (objResponse['result'] == 'extendISPMsg') {
+									confirmBox(objResponse['errMsg'], 'ISPExtend', '', '');
+								} else {
+									alertBox('Something went wrong in request. Please try again.', '', '', '', '');
+								}
+
+								$('#ajax-loader-bx').hide();
+							}
+						})
+					}
+
+					if(isCallAddonAjaxRequest == true){
+						if(isBundle == 1){
+							var fromData = $("#frmBundleAddon").serialize();
+						}else{
+							var fromData = $("#frmAddon").serialize();
+						}
+						$('#ajax-loader-bx').show();
+						$.ajax({
+							type: "POST",
+							url: loadUrlAddCart,
+							data: fromData + '&addOnsPackageId='+addOnsPackageId,
+								beforeSend: function( xhr ) {
+							},
+							success:function(result){
+								$('#packageModal').modal('hide');
+								var objResponse = jQuery.parseJSON( result );
+
+								$('#iSExtendISP').val(0);
+								$('#lastTriggerId').val(objResponse['lastTriggerId']);
+
+								if (objResponse['result'] == 'success') {
+									$("ul.purchasedMyaccTab #tabOrder a").click();
+									showServicePlan();
+									// displayDashboardService();
+                                    showCheckoutButton(2);
+									scroll_to('scrollShop');
+									popupNotification(objResponse['succMsg'],'');
+									getPromoCode();
+                                                                        //showAddonPlan();
+								} else if (objResponse['result'] == 'error') {
+									alertBox(objResponse['errMsg'], '', '', '', '');
+								} else if (objResponse['result'] == 'deersMsg') {
+									alertBox(objResponse['errMsg'], 'showDeersAuthenticationMsg', '', '', '');
+								} else if (objResponse['result'] == 'extendISPMsg') {
+									confirmBox(objResponse['errMsg'], 'ISPExtend', '', '');
+								} else {
+									alertBox('Something went wrong in request. Please try again.', '', '', '', '');
+								}
+
+								$('#ajax-loader-bx').hide();
+							}
+						})
+					}
+				}
+			}
+
+			function deletePackage(type, servicePurchaseId, packageName) {
+				if("{{app.session.has('isExtendISP')}}") {
+					if("{{app.session.get('isExtendISP')}}" == true) {
+						var isExtendISP = "{{app.session.set('isExtendISP', false)}}";
+					}
+				}
+
+				if("{{app.session.has('isExtendIPTV')}}") {
+					if("{{app.session.get('isExtendIPTV')}}" == true) {
+						var isExtendIPTV = "{{app.session.set('isExtendIPTV', false)}}";
+					}
+				}
+
+				if (type != '' && servicePurchaseId != '') {
+					var isCallAjaxRequest = false;
+					var isAddonsPack = 0;
+					var service = '';
+
+					if (type == 'IPTV') {
+						isCallAjaxRequest = true;
+						service = 'IPTV';
+					}
+
+					if (type == 'ISP') {
+						isCallAjaxRequest = true;
+						service = 'ISP';
+					}
+
+					if (type == 'BUNDLE') {
+						isCallAjaxRequest = true;
+						service = 'BUNDLE';
+					}
+
+					if (type == 'AddOns') {
+						isCallAjaxRequest = true;
+						service = 'IPTV';
+						isAddonsPack = 1;
+					}
+
+					if (isCallAjaxRequest == true) {
+						$('#ajax-loader-bx').show();
+						$('#packageModal').modal('hide');
+						$.ajax({
+							type: "POST",
+							url: "{{ path('dhi_ajax_remove_cart_packages') }}",
+							data: {
+								servicePurchaseId:servicePurchaseId,
+								service:service,
+								isAddonsPack:isAddonsPack,
+                                packageName:packageName
+							},
+							success:function(result) {
+								var objResponse = jQuery.parseJSON( result );
+
+								if (objResponse['result'] == 'success') {
+									$("ul.purchasedMyaccTab #tabOrder a").click();
+
+	                                if("cartIspPackageId" in objResponse && objResponse['cartIspPackageId'] != 0){
+                                    	showBundleIptvPlan(objResponse['cartIspPackageId'], 2);
+                                    	showCheckoutButton(2);
+                                    }else{
+                                    	showServicePlan(service , 1);
+                                    	showCheckoutButton();
+                                    }
+									scroll_to('scrollShop');
+									popupNotification(objResponse['succMsg'],'');
+									getPromoCode();
+								} else if (objResponse['result'] == 'error') {
+									alertBox(objResponse['errMsg'], '', '', '', '');
+								} else {
+									alertBox('Something went wrong in request. Please try again.', '', '', '', '');
+								}
+
+								$('#ajax-loader-bx').hide();
+							}
+						})
+					}
+				}
+			}
+
+			function confirmBox(msg, action, btnYtxt, btnNtxt) {
+				if (btnYtxt == '') {
+						btnYtxt = 'Yes';
+				}
+
+				if (btnNtxt == '') {
+						btnNtxt = 'No';
+				}
+
+				if (action == 'btnRemoveISP') {
+					msg = 'ExchangeVUE and Additional package will be remove with ISP package. Are you sure you want to remove ISP pack?';
+				}
+
+				if (action == 'deersAuthentication') {
+					msg = 'Deers authentication require for ExchangeVUE service. Do you want to procced for deers authentication?';
+				}
+
+				if (action == 'notifyForIPTV') {
+					msg = 'You have added only ISP package for purchase. Do you want to add ExchangeVUE Package?';
+				}
+
+				$.confirm({
+					title: 'Alert!',
+					content: msg,
+					icon: '',
+					confirmButton: btnYtxt,
+					cancelButton: btnNtxt,
+					confirmButtonClass: 'btn-info',
+					cancelButtonClass: 'btn-danger',
+					theme: 'white',
+					animation: 'scale',
+					animationSpeed: 400,
+					animationBounce: 1.5,
+					keyboardEnabled: false,
+					container: 'body',
+					cancel: function () {
+						if (action == 'notifyForIPTV') {
+							window.location.href = '{{ path('dhi_service_purchaseverification') }}';
+						}
+						if (action == 'ISPExtend') {
+							$('#iSExtendISP').val(0);
+						}
+					},
+					confirm: function () {
+						if (action == 'btnRemoveISP') {
+							window.location.href = $('#btnRemoveISP').attr('rel');
+						}
+
+						if (action == 'deersAuthentication') {
+							window.location.href = '{{ path('dhi_user_deers_auth') }}';
+						}
+
+						if (action == 'ISPExtend') {
+							$('#iSExtendISP').val(1);
+							$('#'+$('#lastTriggerId').val()).trigger( "click" );
+						}
+
+							if (action == 'notifyForIPTV') {
+								showServicePlan('IPTV',1);
+							}
+						},
+						backgroundDismiss: false,
+						autoClose: false,
+						closeIcon: true
+					});
+				}
+
+				function alertBox(msg, action, msgTitle,var1 ,var2 ) {
+					if (msgTitle == '') {
+						msgTitle = 'Alert!';
+					}
+
+					var1 = var1 || null;
+					var2 = var2 || null;
+
+					if (action == 'showDeersAuthenticationMsg') {
+						msgTitle = 'Deers Authentication!';
+						var deersAuthUrl = '{{ path('dhi_user_deers_auth') }}'
+						msg = '<p>This plan requires DEERS authentication. DEERS authentication requires you to have a CAC and an active shopmyexchange.com account. If you have a CAC, but do not have a shopmyexchange.com account, get it <a href="https://www.shopmyexchange.com/account/register"><b>here</b></a> now. If you already have a shopmyexchange account, perform DEERS authentication <a href="'+deersAuthUrl+'"><b>here</b></a>.</p>';
+					}
+
+					$.alert({
+						title: msgTitle,
+						content: msg,
+						icon: '',
+						confirmButton: 'Ok',
+						confirmButtonClass: 'btn-info',
+						theme: 'white',
+						animation: 'scale',
+						animationSpeed: 400,
+						animationBounce: 1.5,
+						keyboardEnabled: false,
+						container: 'body',
+						confirm: function(){
+							if (action == 'ExtendPlanAlert') {
+									addPackage(var1, var2, 0, 1);
+							}
+						},
+						backgroundDismiss: false,
+						autoClose: false,
+						closeIcon: true
+					});
+			}
+
+			function popupNotification(msg,title) {
+				$.toaster({
+					priority : 'success',
+					title : '',
+					message : msg,
+					settings : {timeout:5000}
+				});
+			}
+
+			function popupNotificationFail(msg,title) {
+				$.toaster({
+					priority : 'danger',
+					title : '',
+					message : msg,
+					settings : {timeout:5000}
+				});
+			}
+
+			function showChannelList(packageId) {
+				$('#ajax-loader-bx').show();
+                var channelOperation = $("#showAllChannels_"+packageId).text();
+				var channelList = '{{ path('dhi_service_channel_list', {'packageId': 'PACKAGE_ID', 'operation' : 'OPERATION'}) }}';
+				var channelListUrl = channelList.replace("PACKAGE_ID", packageId);
+				var channelListUrl = channelListUrl.replace("OPERATION", channelOperation);
+
+				$('.channel').load(channelListUrl, function (result) {
+					$('#ajax-loader-box').hide();
+                    $("#planpkgImg_"+packageId).html(result);
+                    channelOperation = (channelOperation == 'Hide' ? 'Show All Channels' : 'Hide');
+                    $("#showAllChannels_"+packageId).text(channelOperation);
+				});
+			}
+
+			function premiumShowChannelList(packageId) {
+				var channelList = '{{ path('dhi_service_premium_channel_list', {'packageId': 'PACKAGE_ID'}) }}';
+				var channelListUrl = channelList.replace("PACKAGE_ID", packageId);
+				$('#ajax-loader-bx').show();
+				$('.channel').load(channelListUrl, function (result) {
+
+					$('#ajax-loader-box').hide();
+					$('#channelModal').modal({show: true});
+				});
+			}
+
+			function applyPromoCode(promoCode) {
+				if (promoCode!= '') {
+					$.ajax({
+						type: "POST",
+						url: "{{ path('dhi_ajax_apply_promo_code') }}",
+						data: {
+							promocode:promoCode
+						},
+						beforeSend: function( xhr ) {
+							$('#ajax-loader-bx').show();
+						},
+						success:function(result) {
+							var objResponse = result;
+							if (objResponse['result'] == 'success') {
+								$("ul.purchasedMyaccTab #tabOrder a").click();
+								popupNotification(objResponse['succMsg'],'');
+								$('#package').modal('hide');
+								scroll_to('scrollShop');
+								$('.redeemPromoCode').hide();
+								$('#promocode').html('');
+								$('#package').html('');
+							} else if (objResponse['result'] == 'error') {
+								popupNotificationFail(objResponse['errMsg'], '');
+							}
+							$('#plan-accordian').hide();
+							$('ul.purchasedMyaccTab #tabAccount a').click();
+							$('#ajax-loader-bx').hide();
+						}
+					});
+				}
+			}
+
+			function redeemPromoCode(promoCode) {
+				var promocodeType = $("#promocodeType").val();
+
+				if (promocodeType != '' && promoCode!= '') {
+					$.ajax({
+						type: "POST",
+						url: "{{ path('dhi_ajax_redeem_promo_code') }}",
+						data: {
+							promocode:promoCode
+						},
+						beforeSend: function( xhr ) {
+							$('#ajax-loader-bx').show();
+						},
+						success:function(result) {
+							var objResponse = result;
+							if (objResponse['result'] == 'success') {
+								$('#promocode').modal('hide');
+
+								$('#promoPackageName').text(objResponse['packageName']);
+								$('#promoCodeName').text(objResponse['promoName']);
+
+								if(objResponse['description']) {
+									$('#disableDescription').show();
+									$('#promoPackageDescription').text(objResponse['description']);
+								} else {
+									$('#disableDescription').hide();
+									$('#promoPackageDescription').text('N/A');
+								}
+
+								$('#promoValidity').text(objResponse['validity']+' Hour(s)');
+								$('#package').modal('show');
+							} else if (objResponse['result'] == 'error') {
+								popupNotificationFail(objResponse['errMsg'], '');
+							} else if (objResponse['result'] == 'deersMsg') {
+								alertBox(objResponse['errMsg'], 'showDeersAuthenticationMsg', '', '', '');
+							}
+
+							$('#ajax-loader-bx').hide();
+						}
+					});
+				}else{
+					popupNotificationFail('Please enter promo code', '');
+				}
+			}
+		</script>
+{% endblock javascripts %}

@@ -1,0 +1,79 @@
+{% block title %}
+    <title>&nbsp;</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('bundles/dhiuser/images/dhi-favicon.png') }}" />
+{% endblock title %}
+{% block stylesheets %}
+    <link href="{{ asset('bundles/dhiuser/css/pdf.css') }}" rel="stylesheet">
+{% endblock stylesheets %}
+{% block body %}
+        <img src="{{ img }}"/>
+	<h1>Aradial User History</h1>
+	{% if aradialUserHistoryData|length > 0 %}
+	<table id="purchaseTb" class="purchase_table" style="width:100%;" cellspacing="0" cellpadding="5">
+		<tr>
+			<th>Username</th>
+			<th>Email</th>
+			<th>NasName</th>
+                        <th>StartTime</th>
+			<th>StopTime</th>
+			<th>CallerId</th>
+			<th>CalledId</th>
+			<th>FramedAddress</th>
+		</tr>
+		{% for aradialUser in aradialUserHistoryData %}
+			<tr>
+				<td>{{ aradialUser.userName}}</td>
+				<td>{{ aradialUser.email}}</td>
+                                <td>{{ aradialUser.nasName}}</td>
+                                <td>{{ aradialUser.startTime}}</td>
+                                <td>{{ aradialUser.stopTime}}</td>
+                                <td>{{ aradialUser.callerId}}</td>
+                                <td>{{ aradialUser.calledId}}</td>
+                                <td>{{ aradialUser.framedAddress}}</td>
+			</tr>
+
+			
+		{% endfor %}
+	</table>
+	{% endif %}
+
+
+{% endblock body %}
+{% block javascripts %}
+<script src="{{ asset('bundles/dhiuser/js/jquery-2.1.1.min.js') }}"></script>
+<script type="text/javascript">
+   {#window.print();
+   window.location.href = "{{ path('dhi_admin_purchase_history',app.request.query.all) }}";#}
+{#   (function() {
+    var beforePrint = function() {
+        console.log('Functionality to run before printing.');
+    };
+
+    var afterPrint = function() {
+        console.log('Functionality to run after printing.');
+        window.close();
+    };
+
+    if (window.matchMedia) {
+        var mediaQueryList = window.matchMedia('print');
+        mediaQueryList.addListener(function(mql) {
+            if (mql.matches) {
+                beforePrint();
+            } else {
+                afterPrint();
+            }
+        });
+    }
+
+    window.onbeforeprint = beforePrint;
+    window.onafterprint = afterPrint;
+}());
+window.print();#}
+var document_focus = false; // var we use to monitor document focused status.
+    // Now our event handlers.
+            //$(document).focus(function() { document_focus = true; });
+    $(document).ready(function() {window.print();document_focus = true; });
+    setInterval(function() { if (document_focus === true) { window.close(); }  }, 100);
+
+</script>
+{% endblock javascripts %}{# empty Twig template #}

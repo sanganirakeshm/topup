@@ -1,0 +1,271 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% block body %}
+    {% set brand = app.session.get('brand') %}
+    {% set brandName = '' %}
+    {% set brandDomain = '' %}
+    {% if brand %}
+        {% set brandName = brand.name %}
+        {% set brandDomain = brand.domain %}
+    {% endif %}
+    <div class="clearfix"></div>
+<section class="content">
+    <div class="container">
+       <div class="row">
+           <div class="heading">
+                <div class="col-xs-12">
+                    <h2>Frequently Asked Questions</h2>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="inner_content faqPage">
+                    <div id="accordion1">
+                
+                        <h3>Why is it so expensive to get service here as opposed to back home?</h3>
+                        <div>
+                            <p>
+                               Overhead and bandwidth in remote regions is extremely costly due to underdeveloped and unregulated infrastructure, unconventional
+                               methodology, and the use and maintenance of International satellites that’s required to get bandwidth in and out of each remote site.
+                               At home none of these constraints exist. Also, bandwidth at home is nowhere near the cost it is in remote regions because of
+                               America’s unsurpassed Internet and Wi-Fi infrastructure, the surplus of fiber backbones and high speed cable lines to propagate the
+                               bandwidth. There is obviously none of that in an underdeveloped areas. If there were, speeds would skyrocket and monthly prices would
+                               plummet. To this end we are working with the prevailing host nation government agencies and other parties to bring a fiber optic-fueled
+                               backbone to all of our sites. Our number one goal is to provide the best possible internet experience each and every time you logon.
+                               Until we’re successful with our fiber initiative, we’ll never be able to match the commercial Internet experience we all enjoy back home,
+                               and even then it will never be like back home. But we can do our best to be in the ballpark even though costs may be higher than back home.
+                            </p>
+                        </div>
+
+                        <h3>Why do you generally not use wireless access points or allow us to connect wireless routers to your network?</h3>
+                        <div>
+                            <p>
+                                Wi-Fi is great in airports and Starbucks but not in most base environments. Notebooks and Macs, regardless of how new or powerful they
+                                may be, cannot send and receive packets over a long distance and certainly not through blast walls and Hesco barriers even if the hotspot
+                                access point signal radiates strongly to your machine. Normal wireless is much uncontrolled. It’s a lot like a walkie-talkie. If only a
+                                few people are trying to use it at once it works fine, but as more people get on the channel they interrupt each other more, and less
+                                information gets through. Standard built-in wireless wasn’t designed to be used by hundreds of people in a very small area.
+                            </p>
+                        </div>
+
+                        <h3>What is up with the latency? Why is it higher than in the US or most other parts of the world?</h3>
+                        <div>
+                            <p>
+                                Latency is the delay between requesting data and getting a response, or in the case of one-way communication, between the actual moment
+                                of broadcast and the time actually received at destination. Compared to ground-based communication (such as fiber or cable lines), all
+                                geostationary satellite communications experience higher latency than that of ground-based communications due to the signal having to
+                                travel 22,000 miles out into space to our satellite in geostationary orbit and back to Earth again.
+                            </p>
+                            <p>
+                                The signal delay can be as much as 900 milliseconds or more, which makes any Satellite-based service unusable for applications
+                                requiring real-time user input, such as online games or remote surgery. This delay can be very unpleasant with interactive applications,
+                                such as VoIP, videoconferencing, or other person to person communication. The functionality of live interactive access to a distant
+                                computer can also be subject to these problems caused by high latency. These problems are more than tolerable for just basic email
+                                access and web browsing and in most cases are barely noticeable.
+                            </p>
+                            <p>
+                                There is no simple way to get around this problem. The delay is due to the speed of light being 186,282.397 miles per second in a
+                                vacuum. Even if all other signaling delays could be eliminated it still takes the electromagnetic wave 233 milliseconds to travel from
+                                ground to the satellite and back to the ground, a total of 44,000 miles to travel from source to destination. That’s 88,000 miles
+                                round trip (user to ISP, and then back to user). Factoring in normal delays from other network sources gives a typical connection 
+                                latency of 500–700ms. This is worse latency than that of what the most dial-up modem user experiences which is typically only 150–200ms
+                                total latency.
+                            </p>
+                        </div>
+
+                        <h3>What do I get when I sign up for one month?</h3>
+                        <div>
+                            <p>
+                                You get credit for 30 consecutive days. For example, if you pay on October 1st, you get unlimited Internet access until October 30th.
+                                If your first login was at 12pm on October 1st, your account will expire at 12pm on October 30th.
+                            </p>
+                        </div>
+
+
+                        <h3>Why are certain sites blocked?</h3>
+                        <div>
+                            <p>
+                                As mandated under DOD contract, our service prevents access to sites violating personal conduct codes pursuant to CENTOM General Order #1.
+                                If you feel a site is being blocked in error, please contact us and will do our best to open up that site.
+                            </p>
+                        </div>
+
+                        <h3>I want to play my game online but it is not working.</h3>
+                        <div>
+                            <p>
+                                Contact us with the name of the game, and/or console and we’ll see if we can assist you.
+                            </p>
+                        </div>
+
+
+                        <h3>Why are accounts only valid for 30 days?</h3>
+                        <div>
+                            <p>
+                                To avoid locking you into a long commitment and to allow options to upgrade or downgrade your plan at any time.
+                            </p>
+                        </div>
+
+                        <h3>Are proceeds returned back to the community?</h3>
+                        <div>
+                            <p>
+                                Yes. As an official Army & Air Force Exchange Service concessionaire, a portion of proceeds from our services are returned to the
+                                customer base at every US/NATO Base through a variety of programs designed to improve quality of life, morale and welfare.
+                            </p>
+                            <p>
+                                While most of the Exchange's earnings go to US Army Installation Management Command (IMCOM), G-9, Family and Morale, Welfare and
+                                Recreation Programs and to Air Force Services ($248.7 million in 2010), the remaining funds support the construction of new and
+                                improved Exchange facilities.
+                            </p>
+                        </div>
+
+
+                        <h3>Can I use your service on my iPad, smartphone or tablet?</h3>
+                        <div>
+                            <p>
+                                There are no special settings required to login on your iPad, iPod, tablet, smartphone, PC or MAC. If you're already logged in on
+                                another device, you'll need to logout before logging in on your mobile device or any other machine.
+                            </p>
+                        </div>
+
+                        <h3>Can I get a refund if my service is down due to a blackout?</h3>
+                        <div>
+                            <p>Please refer to the Terms of Use agreed upon prior to point of purchase.</p>
+                            <p>
+                                Our internet service must comply with all Command-ordered blackouts under our DOD/AAFES contract. Blackouts, also known as
+                                "Restricted Comms" or "River City", are lifted when notified by Command. For any other questions regarding the Command-ordered blackouts, please visit your local Mayor Cell.
+                            </p>
+                        </div>
+            
+            
+            {#<h3>What is {{ brandName }}?</h3>
+            <div>
+                <p><span class="bold">{{ brandName }}</span> is the first of its kind subscription-based Internet Protocol Television (IPTV) service dedicated exclusively for the enjoyment of US service members, DoD civilians and their families. </p>
+            <ul>
+                <li><span class="bold">{{ brandName }} </span> services include free AFN for all authorized and authenticated personnel stationed OCONUS. </li>
+                <li>Instead of being delivered through traditional fixed terrestrial cable or satellite distribution methods, <span class="bold">{{ brandName }}</span> is meant for today's consumer. </li>
+                <li><span class="bold">{{ brandName }} </span> brings you hit TV shows, blockbuster movies and live TV from your favorite networks back home without the need for an antenna, satellite dish, receiver, or third party local cable provider ... all with free AFN included!</li>
+
+            </ul>
+                <h5>Happy <span class="bold">VUE</span>ing!</h5>
+            </div>
+
+
+
+
+            <h3>How Can I Sign Up?</h3>
+            <div>
+                <p>Go to <a href="http://{{ brandDomain }}/">{{ brandDomain }}</a> and register your account. Click "Sign Up". </p>
+            </div>
+
+
+
+            <h3>What do I Need to Watch {{ brandName }}?</h3>
+            <div>
+                <ul>
+                <li>Internet connection</li>
+                <li> Smartphone, tablet or laptop</li>
+                <li><span class="bold">{{ brandName }}</span> account</li>
+
+            </ul>
+            </div>
+
+
+
+            <h3>Can I Watch {{ brandName }} Without an App?</h3>
+            <div>
+                <p>Yep. After you register for your <span class="bold">{{ brandName }}</span> account, go to <a href="https://{{brandDomain}}/" target="_blank">https://{{brandDomain}}</a>.</p>
+                <h5>Happy <span class="bold">VUE</span>ing!</h5>
+            </div>
+
+            <h3>How do I Get the Free {{ brandName }} App?</h3>
+            <div>
+                <p>Download the app on your mobile device in the App store or get it on Google play. Search <span class="bold">{{ brandName }}</span> in the app store or on Google play.</p>
+                <h5>Happy <span class="bold">VUE</span>ing!</h5>
+            </div>
+
+            <h3>On What Devices Can I Watch {{ brandName }}?</h3>
+            <div>
+                <p>Watch <span class="bold">{{ brandName }}</span> on any smartphone or tablet with iOS (iPhone, iPad, iPod), Android operating system (Galaxy Note, HTC, etc.) or on any laptop.</p>
+                <h5>Happy <span class="bold">VUE</span>ing!</h5>
+            </div>
+
+             <h3>What Web Browser is Best to Watch {{ brandName }}?</h3>
+            <div>
+                <p>Watch online without an app at <a href="https://{{brandDomain}}/" target="_blank">https://{{brandDomain}}</a>. Online <span class="bold">{{ brandName }} </span> performs best with Safari, IE, Chrome. Certain versions of FireFox may not be compatible. </p>
+
+            </div>
+
+             <h3> What it the Minimum Bandwidth Needed to Watch {{ brandName }}?</h3>
+            <div>
+                <p>To watch <span class="bold">{{ brandName }}</span>, you need a minimum download speed of 1Mbps. <span class="bold">{{ brandName }}</span> is best experienced with ULTRA+.</p>
+                <h5>Happy <span class="bold">VUE</span>ing!</h5>
+            </div>
+
+
+              <h3>Do I need a TV?</h3>
+            <div>
+                <p>Nope. All you need is an Internet connection, smartphone, tablet or laptop.</p>
+
+            </div>
+
+             <h3>Do I need an antenna, satellite dish, receiver or decoder?</h3>
+            <div>
+                <p>Nope. All you need is an Internet connection, smartphone, tablet or laptop.</p>
+            </div>
+
+             <h3>What is Catchup TV?</h3>
+            <div>
+                <p>Never miss your favorite show again. <span class="bold">{{ brandName }}</span> allows you to watch your favorite show that was broadcast hours or days ago. Simply go to the channel guide and scroll back on your favorite channel to find and watch your show. Catchup TV for all live TV channels except AFN due to copyright protection regulations.</p>
+                 <h5>Happy <span class="bold">VUE</span>ing!</h5>
+            </div>
+
+              <h3>Why Do I Have to Complete DEERS Authentication?</h3>
+            <div>
+                <p><span class="bold">{{ brandName }}</span> subscribers must complete DEERS authentication to assure copyright projection for entertainment owners and providers.</p>
+
+            </div>#}
+
+
+
+
+    </div>
+
+
+           </div>
+
+
+
+	</div>
+       </div>
+    </div>
+</section>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+	<script type="text/javascript">
+    	$(document).ready(function() {
+            $.fn.togglepanels = function(){
+                return this.each(function(){
+                  $(this).addClass("ui-accordion ui-accordion-icons ui-widget ui-helper-reset")
+                .find("h3")
+                  .addClass("ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-corner-bottom")
+                  .hover(function() { $(this).toggleClass("ui-state-hover"); })
+                  .prepend('<span class="ui-icon ui-icon-triangle-1-e"></span>')
+                  .click(function() {
+                    $(this)
+                      .toggleClass("ui-accordion-header-active ui-state-active ui-state-default ui-corner-bottom")
+                      .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e ui-icon-triangle-1-s").end()
+                      .next().slideToggle();
+                    return false;
+                  })
+                  .next()
+                    .addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom")
+                    .hide();
+                });
+            };
+
+$("#accordion1").togglepanels();
+
+        });
+
+	</script>
+{% endblock javascripts %}

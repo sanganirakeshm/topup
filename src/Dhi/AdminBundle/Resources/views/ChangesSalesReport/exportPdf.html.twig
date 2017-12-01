@@ -1,0 +1,65 @@
+{% block body %}
+	<h1>Sales Report  {#{saleDate ? saleDate : ''}#}</h1>  
+	{% if salesData|length > 0 %}
+		<table class="purchase_table" style="width:100%;" cellspacing="0" cellpadding="5">
+			<tr>
+				<th>Service Location</th>
+				<th>Service Name</th>
+				<th>Payment Method</th>
+				<th>PayPal Account</th>
+				<th>Total Sales</th>			
+			</tr>
+
+			{% set total = 0 %}
+			{% set grand_total = 0 %}
+			
+
+			{% for keySales, sales in salesData %}
+				{% set total = 0 %}
+				
+				{% for sale in sales %}
+				
+
+						
+						<tr class="">
+							
+							{% set total = total + sale['totalAmount'] %}
+							{#{% if previousLocationKey == locationKey %}
+							<td></td>
+							{% else  %}#}
+								<td>{{ keySales }}</td>
+							{#{% endif %}	#}
+							{#{% if previousServiceType == serviceType %}
+								<td></td>
+							{% else %}#}
+							<td>{{ sale['serviceName'] }}</td>
+							{#{% endif %}	#}
+							<td>{{ sale['paymentMethod'] }}</td>
+							<td>{{ sale['paypalCredential'] }}</td>
+							<td>${{ sale['totalAmount'] }}</td>
+							
+							
+							{#{% set previousLocationKey = locationKey  %}
+							{% set previousServiceType = serviceType  %}#}
+						</tr>
+						
+					
+							{% endfor %}
+							{% if total > 0 %}
+								<tr><td colspan="4">Total</td><td>${{ total }} </td></tr>
+							{% endif %}
+							{% set grand_total = grand_total + total %}
+				{% endfor %}
+				<tr><td colspan="4">Grand Total </td><td>${{ grand_total }} </td></tr>
+				{#<tr class="">
+					<td></td>
+					<td></td>
+					<td><b>{{ 'Grand Total For '~locationKey~' Location' }}</b></td>
+					<td><b>{{ '$'~grandTotal }}</b></td>
+				</tr>#}
+			    
+			{#{% endfor %}	#}
+		</table>
+	{% endif %}
+
+{% endblock body %}

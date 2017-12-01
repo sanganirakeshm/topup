@@ -1,0 +1,67 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+<section class="content-header">
+	  <h1>Add Service</h1>
+	</section>	
+<section class="content">
+        <div class="row">
+           <div class="col-md-12">
+           <div class="box box-success">
+         <form action="{{ path('dhi_admin_service_new') }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="service_form">
+               <div class="box-body">
+                    <div class="form-group  col-md-4">
+                    <label class="control-label">Service Name: </label>
+                    
+                        {{ form_widget(form.name, { 'attr': { 'placeholder': 'Service Name', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.name) }}</div>
+                    </div>
+                    
+                    <div class="form-group col-md-4">
+                        <label class="control-label">Service Status: </label>
+                    
+                        {{ form_widget(form.status, { 'attr': { 'placeholder': 'Service Status', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.status) }}</div>
+                    </div>
+                    </div>
+                
+              
+                        <div class="box-footer">
+                            {{ form_rest(form) }}
+                                <div class="col-md-8 add-btn-bx">
+                        <input type="submit" name="add" value="Add" class="btn btn-success"/>
+                        <a href="{{ path('dhi_admin_service_list') }}" class="btn btn-default">Back</a>
+                    </div>
+                </div>
+            </form>
+ </div>
+        </div>
+    </div>
+	</section>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#service_form').validate({
+            rules: {
+                "dhi_service_add[name]": {
+                    "required": true
+                },
+                "dhi_service_add[status]": {
+                    "required": true
+                }
+            },
+            messages: {
+                "dhi_service_add[name]": {
+                    "required": "Please enter service name."
+                },
+                "dhi_service_add[status]": {
+                    "required": "Please select service status."
+                }
+            }
+        });
+    });
+</script>
+{% endblock javascripts %}

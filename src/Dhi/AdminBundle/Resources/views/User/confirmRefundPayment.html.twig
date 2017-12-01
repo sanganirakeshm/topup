@@ -1,0 +1,260 @@
+{% block body %}
+<div class="modal-header">
+	<!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>-->
+	<h4 class="modal-title" id="channelModal-title">Confirm Refund Summary</h4>
+</div>
+<form method="POST" action="{{ path('dhi_admin_customer_refund') }}" class="form-horizontal" id="form-refund" novalidate>
+<div class="modal-body">
+	<div id="message"></div>
+	
+	
+		<input type="hidden" name="packageType" id="packageType" value="{{ packageType }}" />	
+		<input type="hidden" name="userId" id="userId" value="{{ userId }}" />
+        <input type="hidden" name="userServiceId" id="userServiceId" value="{{ userServiceId }}" /> 
+        <input type="hidden" name="submitRefundPayment" id="submitRefundPayment" value="1" />        		
+		<table class="table table-bordered refundSummary">	
+			{% if refundSummary|length > 0 %}	
+				{% set isServiceFound = 0 %}
+				<tr>
+					<th>Service</th>
+					<th>Package Name</th>					
+					<th>Refund Amount</th>
+				</tr>
+				
+				{% if 'ISP' in refundSummary|keys %}
+				
+					{% set ispLength   = refundSummary.ISP|length %}				
+					{% if ispLength > 0 %}
+						
+						{% set i = 0 %}		
+						{% for ispService in refundSummary.ISP if ispService.purchaseType != 'BUNDLE' %}
+						    {% set isServiceFound = 1 %}
+							<tr>
+								{% if i == 0 %}
+								<td rowspan="{{ ispLength }}"><b>ISP</b></td>
+								{% endif%}
+								<td>
+									{{ ispService.packageName~' - '~ispService.bandwidth~'k - '~ispService.validity~' day(s)' }}
+									<input type="hidden" name="ISPPackageId[]" id="ISPPackageId{{ ispService.packageId }}" value="{{ ispService.packageId }}" />
+									<input type="hidden" name="ISPPackageName[{{ ispService.packageId }}]" id="ISPPackageName{{ ispService.packageName }}" value="{{ ispService.packageName }}" />
+									<input type="hidden" name="refundServiceId[]" id="refundServiceId{{ ispService.packageName }}" value="{{ ispService.userServiceId }}" />
+								</td>
+								<td>${{ ispService.refundAmount }}</td>
+							</tr>
+							{% set i = i + 1 %}
+						{% endfor %}
+						<!-- <tr class="sub-total">
+							<td colspan="4" align="right"><b>Sub Total</b></td>
+							<td>${{ refundSummary.ISPSubTotalRefundAmt }}</td>
+						</tr> -->
+					{% endif %}
+				{% endif %}
+				
+				{% if 'IPTV' in refundSummary|keys %}
+				
+					{% set iptvLength   = refundSummary.IPTV|length %}
+					{% if iptvLength > 0 %}
+						
+						{% set i = 0 %}		
+						{% for iptvService in refundSummary.IPTV if iptvService.purchaseType != 'BUNDLE' %}
+							{% set isServiceFound = 1 %}
+							<tr>
+								{% if i == 0 %}
+								<td rowspan="{{ iptvLength }}"><b>ExchangeVUE packages</b></td>
+								{% endif%}
+								<td>
+									{{ iptvService.packageName }}
+									<input type="hidden" name="IPTVPackageId[]" id="IPTVPackageId{{ iptvService.packageId }}" value="{{ iptvService.packageId }}" />
+									<input type="hidden" name="IPTVPackageName[{{ iptvService.packageId }}]" id="IPTVPackageName{{ iptvService.packageName }}" value="{{ iptvService.packageName }}" />
+									<input type="hidden" name="refundServiceId[]" id="refundServiceId{{ iptvService.packageName }}" value="{{ iptvService.userServiceId }}" />
+								</td>
+								<td>${{ iptvService.refundAmount }}</td>
+							</tr>
+							{% set i = i + 1 %}						
+						{% endfor %}
+						<!-- <tr class="sub-total">
+							<td colspan="4" align="right"><b>Sub Total</b></td>
+							<td>${{ refundSummary.IPTVSubTotalRefundAmt }}</td>
+						</tr> -->
+					{% endif %}
+				{% endif %}
+				
+				{% if 'AddOn' in refundSummary|keys %}
+				
+					{% set addOnLength   = refundSummary.AddOn|length %}
+					{% if addOnLength > 0 %}
+						
+						{% set i = 0 %}	
+						{% for addOnService in refundSummary.AddOn %}
+						
+							<tr>
+								{% if i == 0 %}
+								<td rowspan="{{ addOnLength }}"><b>Premium Package</b></td>
+								{% endif%}
+								<td>
+									{{ addOnService.packageName }}
+									<input type="hidden" name="IPTVPackageId[]" id="IPTVPackageId{{ addOnService.packageId }}" value="{{ addOnService.packageId }}" />
+									<input type="hidden" name="IPTVPackageName[{{ addOnService.packageId }}]" id="IPTVPackageName{{ addOnService.packageName }}" value="{{ addOnService.packageName }}" />
+									<input type="hidden" name="refundServiceId[]" id="refundServiceId{{ addOnService.packageName }}" value="{{ addOnService.userServiceId }}" />
+								</td>								
+								<td>${{ addOnService.refundAmount }}</td>
+							</tr>
+							
+							{% set i = i + 1 %}
+						{% endfor %}
+						<!-- <tr class="sub-total">
+							<td colspan="4" align="right"><b>Sub Total</b></td>
+							<td>${{ refundSummary.AddOnSubTotalRefundAmt }}</td>
+						</tr> -->
+					{% endif %}
+				{% endif %}
+				
+				{% if 'BUNDLE' in refundSummary|keys %}
+            
+                    {% set bundleLength   = refundSummary.BUNDLE|length %}
+                    {% if bundleLength > 0 %}
+                        
+                        {% set i = 0 %}     
+                        {% for bundleId, bundleService in refundSummary.BUNDLE %}
+                            {% set isServiceFound = 1 %}      
+                            {% if 'ISP' in bundleService|keys and 'IPTV' in bundleService|keys %}
+                                {% set bundleLength   = 3 %}
+                            {% else %}
+                                {% set bundleLength   = 2 %}
+                            {% endif %}
+                            <tr>
+                                {% if i == 0 %}
+                                    <td rowspan="{{bundleLength}}" align="center"><b>{{ bundleService.displayBundleName }}</b></td>
+                                {% endif %}
+                                {% if 'ISP' in bundleService|keys %}
+                                    {% for bundlePackage in bundleService.ISP %}
+                                        <tr>
+                                            <td nowrap="nowrap"><b>ISP</b><br/>{{ bundlePackage.packageName~' - '~bundlePackage.bandwidth~'k - '~bundlePackage.validity~' day(s)' }}
+                                            	<input type="hidden" name="ISPPackageId[]" id="ISPPackageId{{ bundlePackage.packageId }}" value="{{ bundlePackage.packageId }}" />
+												<input type="hidden" name="ISPPackageName[{{ bundlePackage.packageId }}]" id="ISPPackageName{{ bundlePackage.packageName }}" value="{{ bundlePackage.packageName }}" />
+												<input type="hidden" name="refundServiceId[]" id="refundServiceId{{ bundlePackage.packageName }}" value="{{ bundlePackage.userServiceId }}" />
+											</td>
+											<td>${{ bundlePackage.refundAmount }}</td>
+                                		</tr>
+                                    {% endfor %}
+                                {% endif %}
+                                
+                                {% if 'IPTV' in bundleService|keys %}
+                                    {% for bundlePackage in bundleService.IPTV %}
+                                        <tr>
+                                            <td nowrap="nowrap"><b>IPTV</b><br/>{{ bundlePackage.packageName }}
+                                            	<input type="hidden" name="IPTVPackageId[]" id="IPTVPackageId{{ bundlePackage.packageId }}" value="{{ bundlePackage.packageId }}" />
+												<input type="hidden" name="IPTVPackageName[{{ bundlePackage.packageId }}]" id="IPTVPackageName{{ bundlePackage.packageName }}" value="{{ bundlePackage.packageName }}" />
+												<input type="hidden" name="refundServiceId[]" id="refundServiceId{{ bundlePackage.packageName }}" value="{{ bundlePackage.userServiceId }}" />
+											</td>
+											<td>${{ bundlePackage.refundAmount }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endif %}
+                                                                                 
+                            </tr>
+                            {% set i = i + 1 %}
+                        {% endfor %}
+                        
+                    {% endif %}
+                {% endif %}
+
+				<tr class="grnad-total">
+					<td colspan="2" align="right"><b>Total Refund Amount</b></td>
+					<td>
+						${{ refundSummary.TotalRefundAmt|number_format(2) }}													
+					</td>
+				</tr>
+				
+				<tr class="grnad-total">
+					<td colspan="2" align="right"><b>Final Refund Amount</b></td>
+					<td>
+						${{ refundAmount|number_format(2) }}
+						<input type="hidden" id="processAmount" name="processAmount" placeholder="Refund Amount" class="form-control" aria-required="true" value="{{ refundAmount|number_format(2) }}">
+						<label id="processAmount-error" class="error" for="processAmount" style="color:#C70A0A"></label>							
+					</td>
+				</tr>
+				<!-- <input type="submit" class="btn btn-success pull-right" name="add" value="Proceed This Amount"> -->
+						
+			{% else %}	
+				<tr>
+				  	<th>No data found.</th>
+				</tr>
+			{% endif %}	
+		</table>	     	    	
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-default" id="closeBtn" style="display:none;" onclick="parent.closeModelPopup()">Close</button>
+	<button type="button" class="btn btn-default" data-dismiss="modal" id="backBtn" onclick="parent.showRefundPaymentBox('{{ userId }}', '{{ userServiceId }}', '{{ packageType }}', '{{ refundAmount }}')">Back</button>    
+	<button type="submit" class="btn btn-success pull-right" name="procced" id="proccedBtn">Procced</button>            
+</div>
+</form>	   
+{% endblock body %}
+{% block javascripts %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+        	
+        	$('#form-refund').validate({
+            	rules: {
+            		"processAmount": {
+                        "required": true,
+                        "number" : true
+                    }
+                },
+                messages: {
+                    "processAmount": {
+                        "required": "Please enter valid amount."
+                    },
+                },
+                submitHandler: function(form) {
+                	
+                	$.ajax({
+                		
+                		type: "POST",
+                		url: "{{ path('dhi_admin_customer_refund') }}",
+                		data: $("#form-refund").serialize(),	
+                		beforeSend: function( xhr ) {
+                			
+                		    $('#ajax-loader-bx').show();
+                		},
+                		success:function(result){
+                			
+                			var jsonData = $.parseJSON(result);
+                			
+                			if(jsonData['status'] == 'success'){
+                				
+                				$('#closeBtn').show();
+                				$('#backBtn').hide();
+                				$('#proccedBtn').hide();
+                				
+								flashMsg = disErrorMsg('success', jsonData['msg']);								
+								$("#message").html(flashMsg);
+                			}
+							if(jsonData['status'] == 'failed'){
+								
+								$('#closeBtn').hide();
+                				$('#backBtn').show();
+                				$('#proccedBtn').show();
+                				
+								flashMsg = disErrorMsg('danger', jsonData['msg']);
+								$("#message").html(flashMsg);
+                			}
+                			
+                			$('#ajax-loader-bx').hide();                			
+                		}
+                	});
+                }
+            });
+        });
+        
+        function disErrorMsg(msgType, msg) {
+
+            var html = '';
+            html += '<div class="alert alert-' + msgType + '" style="color:#000000 !important;">';
+            html += '<button type="button" class="close" data-dismiss="alert">&times;</button>';
+            html += msg
+            html += '</div>';
+            return html;
+        }
+    </script>
+{% endblock javascripts %}

@@ -1,0 +1,65 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+
+    <div class="container min_cont_hight">
+        <div class="row">
+            <table class="table table-bordered table-hover">
+                <tr>
+                    <td colspan="2" width="100%">
+                        <h4>Support Detail</h4>
+                        <span class="pull-right">
+                            <a href="{{ path('dhi_admin_support_list') }}" class="btn btn-info">Back to list</a>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th width='15%'>Id </th>
+                    <td>{{ support.id }}</td>
+                </tr>
+                <tr>
+                    <th>User </th>
+                    <td>{{ support.user.username }}</td>
+                </tr>
+                <tr>
+                    <th>Email </th>
+                    <td>{{ support.email }}</td>
+                </tr>
+                <tr>
+                    <th>Category </th>
+                    <td>{{ support.supportCategory.name }}</td>
+                </tr>
+                <tr>
+                    <th>Subject </th>
+                    <td>{{ support.subject }}</td>
+                </tr>
+                <tr>
+                    <th>Description </th>
+                    <td>{{ support.description|raw }}</td>
+                </tr>
+                <tr>
+                    <th>Status </th>
+                    <td>
+                        {{ support.status }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Email Status </th>
+                    <td>{{ support.emailStatus }}</td>
+                </tr>
+                <tr>
+                    <th>Date Time </th>
+                    <td>{{ support.createdAt|date('m-d-Y H:i:s') }}</td>
+                </tr>
+                {% if(support.status in ['New','InProgress']) %}
+                <tr>
+                    <th>Action</th>
+                    <td>
+                        <a href="{{ path('dhi_user_support_change_status', {'id': support.id, 'status': support.status}) }}" class="btn btn-info">{{ (support.status == 'New') ? 'Mark In Progress' : 'Mark Resolved' }}</a>
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+{% endblock body %}

@@ -1,0 +1,182 @@
+{% block body %}
+    {% if summaryData['IsBundleAvailabledInPurchased'] == 1 %}
+        {% set headerText = "Upgrade your Internet Plan or XVUE Channels!"  %}
+    {% elseif summaryData['IsIPTVAvailabledInPurchased'] == 1 %}
+        {% set headerText = "Upgrade your ExchangeVUE Package!"  %}
+    {% else %}
+        {% set headerText = "Select your ExchangeVUE Package!"  %}
+    {% endif %}
+    <h3 class="select-plan width100">{{headerText}}</h3>
+    {% if 'ISP' in summaryData.AvailableServicesOnLocation or 'BUNDLE' in summaryData.AvailableServicesOnLocation %}
+        {% if summaryData.IsIPTVAvailabledInPurchased == 1 and 'BUNDLE' in summaryData.AvailableServicesOnLocation %}
+            <a class="btnSwitch" href="javascript:void(0);" onclick="showServicePlan('ISP',1);">Purchase Package</a>
+        {% else %}
+            {% if summaryData.IsIPTVAvailabledInCart == 0 %}
+                <a class="btnSwitch" href="javascript:void(0);" onclick="showServicePlan('ISP',1);">< Back</a>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+    <div class="newRow newXVUE">
+        <div class="newRightSide">
+            <div class="newRow">
+                <div class="newPromotions selXchangePkg">
+                    {% if isIPTVAvailable == true %}
+                        {% if 'IPTV' in summaryData.AvailableServicesOnLocation and service == 'IPTV' %}	
+                            {% if promotionalPackages|length > 0 %}
+                                {% for promotionalPackage in promotionalPackages %}
+
+                                    {% set isIPTVPackageAvailableInCart = 0 %}
+                                    {% set servicePurchaseId = '' %} 
+                                    {% set PromotionalChecked = '' %}
+                                    {% if promotionalPackage['packageId'] in summaryData.CartIPTVPackageId %}
+                                        {% set PromotionalChecked = 'checked="checked"' %}
+                                    {% endif %}
+                                    {% if promotionalPackage['packageId'] in summaryData.CartIPTVPackageId %}
+                                        {% set servicePurchaseId = summaryData.CartIPTVServicePurchaseId[promotionalPackage['packageId']] %}
+                                        {% set isIPTVPackageAvailableInCart = 1 %}	
+                                    {% endif %}
+
+                                        <div class="newRow">
+                                            {% set onevent = "onclick=addPackage('IPTV','"~promotionalPackage['Id']~"')" %}
+                                            <h4>
+                                                <label>
+                                                    {% if activeService.IPTVIds is defined and promotionalPackage['packageId'] in activeService.IPTVIds %}
+                                                        {{ promotionalPackage['packageName'] }} <label class="iptvCurrentPlan activated_plans">Current Plan</label>
+                                                    {% else %}
+                                                        <input {{ PromotionalChecked }} name="same" type="radio" class="addtocartBtn" {{ onevent|raw }} id="iptvAddToCartBtn{{ promotionalPackage['Id'] }}"> {{ promotionalPackage['packageName'] }}
+                                                    {% endif %}
+                                                </label>
+                                            </h4> 
+                                            {{ promotionalPackage['description'] }} 
+                                            <div class="planpkgImg_price">
+                                                {% set channelCount = 1 %}
+                                                <div class="planpkgImg" id="planpkgImg_{{ promotionalPackage['packageId'] }}">
+                                                    {% for channel in promotionalPackage['channels']%}
+                                                        {% if channelCount <= maxShowChannels %}
+                                                            {% if arrChannelImage[channel] is defined and arrChannelImage[channel] != '' %}
+                                                                {% set imageSrc = asset('uploads/channels/'~arrChannelImage[channel]) %}
+                                                                <img alt="{{ channel }}" src="{{ imageSrc }}">
+                                                            {% else %}
+                                                                {{ channel }}&nbsp;
+                                                            {% endif %}
+                                                            {% set channelCount = channelCount + 1 %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    {% if maxShowChannels < promotionalPackage['packageChannelCount'] %}
+                                                        <div>
+                                                        <a href="javascript:void(0)" onclick="showChannelList('{{ promotionalPackage['packageId'] }}')" id="showAllChannels_{{ promotionalPackage['packageId'] }}">Show All Channels</a>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                {% if promotionalPackage['packagePrice'] %}
+                                                    {% if discount %}
+                                                        {% set discountAmount = (promotionalPackage['packagePrice'] * discount) / 100 %}
+                                                        <div class="planpkgPrice">${{ promotionalPackage['packagePrice'] - discountAmount }}
+                                                            <strike>${{ promotionalPackage['packagePrice'] }}</strike>&nbsp;({{ discount }}% Off)
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="planpkgPrice"> ${{ promotionalPackage['packagePrice'] }}</div>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <div class="planpkgPrice">$0</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <input type="hidden" name="packageIdIPTV{{ promotionalPackage['Id']}}" id="packageIdIPTV{{ promotionalPackage['Id']}}"  value="{{ promotionalPackage['packageId']}}" />
+
+                                        <input type="hidden" name="packageValidityIPTV{{ promotionalPackage['Id']}}" id="packageValidityIPTV{{ promotionalPackage['Id']}}" value="{{ promotionalPackage['validity'] }}" />
+
+                                    {% endfor %}
+                                {% endif %}
+                                
+                                {% if allPackages|length > 0 %}
+                                    {% for iptvPackage in allPackages %}
+
+                                        {% set isIPTVPackageAvailableInCart = 0 %}
+                                        {% set servicePurchaseId = '' %} 
+                                        {% set IPTVChecked = '' %}
+                                        {% if iptvPackage['packageId'] in summaryData.CartIPTVPackageId %}
+                                            {% set IPTVChecked = 'checked="checked"' %}
+                                        {% endif %}
+                                        {% if iptvPackage['packageId'] in summaryData.CartIPTVPackageId %}
+                                            {% set servicePurchaseId = summaryData.CartIPTVServicePurchaseId[iptvPackage['packageId']] %}
+                                            {% set isIPTVPackageAvailableInCart = 1 %}	
+                                        {% endif %}
+
+                                        <div class="newRow">
+                                            {% set onevent = "onclick=addPackage('IPTV','"~iptvPackage['Id']~"')" %}
+                                            <h4>
+                                                <label>
+                                                    {% if activeService.IPTVIds is defined  and iptvPackage['packageId'] in activeService.IPTVIds %}
+                                                        {% if summaryData.IPTVExtendPlan == 1 and summaryData.isServiceLocationChanged == 0 and iptvPackage['Id'] == summaryData.IPTVExtendId and summaryData.isSiteChanged == 0 %}
+                                                            {% set IPTVChecked = '' %}
+                                                            {% set onevent = "onclick=addExtend('IPTV','"~summaryData.IPTVExtendId~"','Add')" %}
+                                                            {% if iptvPackage['packageId'] in summaryData.CartIPTVPackageId %}
+                                                                {% set IPTVChecked = 'checked="checked"' %}
+                                                            {% endif %}
+                                                            <input type="radio" name="iptvPlanExtend" value="{{ summaryData.IPTVExtendId }}" {{ IPTVChecked }} {{ onevent|raw }} id="iptvAddToCartBtn{{ summaryData.IPTVExtendId }}" />
+                                                        {% endif %}
+                                                        {{ iptvPackage['packageName'] }}<label class="iptvCurrentPlan activated_plans">Current Plan</label>
+                                                    {% else %}
+                                                        <input {{ IPTVChecked }} name="same" type="radio" class="addtocartBtn" {{ onevent|raw }} id="iptvAddToCartBtn{{ iptvPackage['Id'] }}"> {{ iptvPackage['packageName'] }}
+                                                    {% endif %}
+                                                </label>
+                                            </h4>
+                                            {{ iptvPackage['description'] }} 
+                                            <div class="planpkgImg_price" id="channelsList_{{ iptvPackage['packageId'] }}">
+                                                {% set channelCount = 1 %}
+                                                <div class="planpkgImg" id="planpkgImg_{{ iptvPackage['packageId'] }}">
+                                                    {% for channel in iptvPackage['channels']%}
+                                                        {% if channelCount <= maxShowChannels %}
+                                                            {% set imageSrc = '' %}
+                                                            {% if arrChannelImage[channel] is defined and arrChannelImage[channel] != '' %}
+                                                                {% set imageSrc = asset('uploads/channels/'~arrChannelImage[channel]) %}
+                                                                <img alt="{{ channel }}" src="{{ imageSrc }}">
+                                                            {% else %}
+                                                                {{ channel }}&nbsp;
+                                                            {% endif %}
+                                                            {% set channelCount = channelCount + 1 %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    {% if maxShowChannels < iptvPackage['packageChannelCount'] %}
+                                                        <div>
+                                                            <a href="javascript:void(0)" onclick="showChannelList('{{ iptvPackage['packageId'] }}')" id="showAllChannels_{{ iptvPackage['packageId'] }}">Show All Channels</a>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                {% if iptvPackage['packagePrice'] %}
+                                                    {% if discount %}
+                                                        {% set discountAmount = (iptvPackage['packagePrice'] * discount) / 100 %}
+                                                        <div class="planpkgPrice">${{ iptvPackage['packagePrice'] - discountAmount }}
+                                                            <strike>${{ iptvPackage['packagePrice'] }}</strike>&nbsp;({{ discount }}% Off)
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="planpkgPrice"> ${{ iptvPackage['packagePrice'] }}</div>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <div class="planpkgPrice">$0</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                           
+                                            <input type="hidden" name="packageIdIPTV{{ iptvPackage['Id']}}" id="packageIdIPTV{{ iptvPackage['Id']}}"  value="{{ iptvPackage['packageId']}}" />
+
+                                            <input type="hidden" name="packageValidityIPTV{{ iptvPackage['Id']}}" id="packageValidityIPTV{{ iptvPackage['Id']}}" value="{{ iptvPackage['validity'] }}" />
+
+                                    {% endfor %}
+                                {% endif %}
+                                <input type="hidden" name="ispValidity" id="ispValidity" value="{{ ispValidity }}">
+                                {% if promotionalPackages|length == 0 and allPackages|length == 0 %}
+                                    <p>Package not available.</p>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                            
+                    </div>
+                </div>
+            </div>
+            <div class="newLeftSide addons">
+            </div>
+        </div>
+{% endblock body %}

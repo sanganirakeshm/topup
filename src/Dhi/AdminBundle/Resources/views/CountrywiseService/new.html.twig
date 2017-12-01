@@ -1,0 +1,152 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+    <section class="content-header">
+        <h1>Add Countrywise Service</h1>
+    </section>	
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-success">
+                    {% include "DhiUserBundle::flashMessage.html.twig" %}
+                    <form action="{{ path('dhi_countrywiseservice_new') }}" {{ form_enctype(form) }} method="POST" class="form-horizontal" id="countrywise_services_add" novalidate>
+                        <div class="box-body">
+                            <div class="col-xs-12">     
+                                <div class="form-group  col-md-4">
+                                    <label class="control-label">Country: </label>
+
+                                    {{ form_widget(form.country, { 'attr': { 'placeholder': 'Country', 'class': 'form-control'}}) }}
+                                    <div class="serverError">{{ form_errors(form.country) }}</div>
+
+                                </div>
+
+                                <div class="form-group  col-md-4">
+                                    <label class="control-label">Service: </label>
+
+                                    {{ form_widget(form.services, { 'attr': { 'placeholder': 'Services', 'class': 'form-control inputService'}}) }}
+                                    <label id="dhi_countrywise_service_add_services-error" class="error" for="dhi_countrywise_service_add_services"></label>
+                                    <label id="service-error" class="error custom-err"></label>
+                                    <div class="serverError">{{ form_errors(form.services) }}</div>
+                                    {% if error is not null %}
+                                        {% for key,val in error %}
+										     <br>
+                                            <div class="serverError">
+                                                <ul>
+                                                    <li>{{ val|trim }}</li>
+                                                </ul>
+                                            </div><br>
+                                        {% endfor %}
+										
+                                    {% endif %} 
+                                </div>
+
+
+                                <div class="form-group  col-md-4">
+                                    <label class="control-label">Status: </label>
+
+                                    {{ form_widget(form.status, { 'attr': { 'placeholder': 'Status', 'class': 'form-control'}}) }}
+                                    <div class="serverError">{{ form_errors(form.status) }}</div>
+
+                                </div>
+                            </div>
+                            <div class="col-xs-12">     
+                                <div class="form-group  col-md-4">
+                                    <label class="control-label">Show On Landing: </label>
+
+                                    {{ form_widget(form.isShowOnLanding, { 'attr': { 'placeholder': '', 'class': 'form-control'}}) }}
+                                    <div class="serverError">{{ form_errors(form.isShowOnLanding) }}</div>
+
+                                </div>   
+                            </div>
+                        </div>
+                        {{ form_rest(form) }}
+                        <div class="box-footer">
+                            <div class="col-md-8 add-btn-bx">
+                                <input type="submit" name="add" value="Add" class="btn btn-success"/>
+                                <a href="{{ path('dhi_countrywiseservice_list') }}" class="btn btn-default">Back</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#countrywise_services_add').validate({
+                rules: {
+                    "dhi_countrywise_service_add[country]": {
+                        "required": true
+                    },
+                    "dhi_countrywise_service_add[services][]": {
+                        "required": true
+                        
+                    },
+                    "dhi_countrywise_service_add[status]": {
+                        "required": true
+                    },
+                    "dhi_countrywise_service_add[isShowOnLanding]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_countrywise_service_add[country]": {
+                        "required": "Please enter country name."
+                    },
+                    "dhi_countrywise_service_add[services][]": {
+                        "required": "Please select service."
+                    },
+                    "dhi_countrywise_service_add[status]": {
+                        "required": "Please select status."
+                    },
+                    "dhi_countrywise_service_add[isShowOnLanding]": {
+                        "required": "Please select show on landing."
+                    }
+                },
+                submitHandler: function (form) {
+
+                    checkservicebundle('submitFrom', form);
+
+                    return false;
+                }
+            });
+            
+            function checkservicebundle(type, frm){
+                
+                 var flag = false;
+                $.ajax({
+                type: "POST",
+                    url: "{{ path('dhi_admin_validate_coutrywise_bundle_validate') }}",
+                    data: $('#countrywise_services_add').serializeArray(),
+                    beforeSend: function (xhr) {
+
+                        $('#ajax-loader-bx').show();
+                    },
+                    success: function (result) {
+
+                        var obj = jQuery.parseJSON(result);
+                        $('.custom-err').html('').hide();
+
+                        if (obj['status'] == 'success') {
+                            if (type == 'submitFrom') {
+                                frm.submit();
+                            }
+                        }
+                        
+                         if (obj['status'] == 'error') {
+                             $('#service-error').html(obj['error']['validbundle']).show();
+                         }
+
+                       
+                        $('#ajax-loader-bx').hide();
+                    }
+                });
+            }
+            
+        });
+    </script>
+{% endblock javascripts %}

@@ -1,0 +1,478 @@
+@media screen and (max-width: 1920px) {
+a.slider_link{height:220px;}
+a.slider_link2{height:230px;bottom:120px;}
+a.slider_link3-1{width:55%;height:280px;bottom:225px;left:60px;}
+a.slider_link3-2{width:16%;height:130px;bottom:50px;left:65px;}
+a.slider_link3-3{width:16%;height:130px;bottom:50px;left:385px;}
+a.slider_link3-4{width:15%;height:130px;bottom:50px;left:720px;}
+.slick-slide{height: 450px;overflow: hidden;}
+}
+@media screen and (min-width: 1620px) {
+.slick-slide{height: 550px}
+}
+@media screen and (max-width: 1400px) {
+a.slider_link{height:180px;}
+a.slider_link2{height:130px;bottom:90px;}
+
+a.slider_link3-1{width:55%;height:210px;bottom:140px;left:30px;}
+a.slider_link3-2{width:16%;height:100px;bottom:25px;left:35px;}
+a.slider_link3-3{width:15%;height:100px;bottom:25px;left:270px;}
+a.slider_link3-4{width:14%;height:100px;bottom:25px;left:500px;}
+.slick-slide{height:370px;}
+}
+@media screen and (min-width: 1220px) and (max-width: 1370px) {
+.internetIPTVList .basicIPTVPlans h6 span{min-height: 45px;}
+.internetIPTVList .internetPlans h6{min-height: 90px;}
+}
+@media screen and (max-width: 1250px) {
+.accountLeft{width:72%;}
+}
+@media screen and (min-width: 1220px) and (max-width: 1331px) {
+.internetIPTVList .basicIPTVPlans.premiumdeersIPTVPlans{width:22%;}
+.internetIPTVList .internetPlans{width: 15%;}
+}
+@media screen and (min-width: 1024px) and (max-width: 1250px) {
+.accountLeft{width:67%;}
+}
+
+@media screen and (min-width: 1025px) and (max-width: 1219px) {
+.internetIPTVList .internetPlans{width: 30%;}
+.internetIPTVList .basicIPTVPlans{width: 33%;margin-bottom: 20px;}
+.internetIPTVList .basicIPTVPlans.premiumIPTVPlans{clear: both;}
+}
+@media screen and (max-width: 1300px) {
+a.slider_link3-1{width:55%;height:230px;bottom:120px;left:30px;}
+a.slider_link3-2{width:17%;height:100px;bottom:20px;left:35px;}
+a.slider_link3-3{width:17%;height:100px;bottom:20px;left:250px;}
+a.slider_link3-4{width:14%;height:100px;bottom:20px;left:480px;}
+}
+
+@media screen and (max-width: 1280px) {
+.slider .banner_5_dec h3{ font-size:40px;line-height:40px;}
+.slider .banner_5_dec h4{font-size:50px;line-height:50px;}
+.slider .banner_5_dec img{width:60px;}
+.slick-slide{height:370px;}
+}
+
+@media screen and (max-width: 1200px) {
+a.slider_link{height:150px;}
+a.slider_link2{height:100px;bottom:60px;}
+.choose_amazing_variety .variety_box{background-size:100% 100%;}
+.headerMain{padding:0 20px;}
+.signup{padding:20px 20px;}
+.bottomFooter,.entertainment,.choose_amazing_variety,.favourite_channes,footer{padding-left:20px;padding-right:20px;}
+.choose_amazing_variety .variety_box figure{margin:10px;}
+.choose_amazing_variety h2{margin-bottom:0;line-height:30px;}
+footer .xuve_logo{padding-top:10px;padding-bottom:10px;}
+footer{padding-top:20px;padding-bottom:20px;}
+footer .connectIcons{margin-bottom:0;}
+a.slider_link3-1{width:55%;height:230px;bottom:120px;left:30px;}
+a.slider_link3-2{width:17%;height:100px;bottom:20px;left:35px;}
+a.slider_link3-3{width:16%;height:100px;bottom:20px;left:250px;}
+a.slider_link3-4{width:14%;height:100px;bottom:20px;left:450px;}
+.redeemPromoCode{top:0;}
+.accountLeft h3{padding-right:140px;}
+.slick-slide{height:350px;}
+}
+
+@media screen and (max-width: 1180px) {
+.headerMain .Logo{margin-top:20px;}
+.content .container{width:100%;}
+.content .message_container{width:100%;}
+.content .nav-tabs li{width:33%;}
+a.slider_link2{height:105px;bottom:65px;}
+body.signin_bg,body.signup_bg,body.body_bg{background-position:right 193px;}
+.signin_bg .headerMain .logo img,.signup_bg .headerMain .logo img,.body_bg .headerMain .logo img{height:75px;}
+.accountPlans .accountPlansList h6{min-height:50px;}
+.slick-slide{height:345px;}
+}
+
+@media only screen and (max-device-width: 1299px) and (orientation: landscape) {
+	.row.no-service-loc {min-height:500px;}
+}
+
+@media only screen and (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
+	.row.no-service-loc {min-height:350px;}
+}
+
+@media screen and (max-width: 1024px) {
+.content ul#profile-tabs li{width:33%;}
+
+a.slider_link3-1{height:158px;}
+a.slider_link3-2{width:15%;height:80px;}
+a.slider_link3-3{width:16%;height:80px;left:200px;}
+a.slider_link3-4{height:80px;left:380px;}
+.slick-dots{bottom:0;}
+.internetIPTVList .premiumIPTVPlans,.internetIPTVList .basicIPTVPlans,.internetIPTVList .internetPlans{width:100%;margin-right:0;}
+.accountPlans .accountPlansList .viewPlansBtn a{padding:8px 30px;}
+.redeemPromoCode{position:relative;right:0;}
+.accountLeft h3{padding-right:0;text-align:center;}
+.slick-slide{height:300px;}
+.internetIPTVList .basicIPTVPlans{margin-top: 20px;}
+.accountPlans .accountPlansList{padding-top: 10px;}
+.internetIPTVList .internetPlans h6{min-height: 20px;text-align: center;margin: 0;}
+.internetIPTVList .internetPlans ul li{min-height: 75px;text-align: center;}
+.internetIPTVList .internetPlans ul li label,.internetIPTVList .basicIPTVPlans ul li label{margin-bottom: 5px;}
+.accountPlans .accountPlansList h6{min-height: 20px;}
+.accountPlans .accountPlansList article{min-height: 50px;}
+.accountPlans .accountPlansList .planPriceTxt,.accountPlans .accountPlansList .planPriceCenterTxt{height: auto;}
+.accountPlans .accountPlansList .viewPlansBtn{margin: 10px auto;}
+.internetIPTVDetails{margin-top: 15px;padding-top: 15px;display: none;}
+.iptvonlyPlanDetails h4,.internetIPTVDetails h4{width:80%;}
+/*.internetIPTVDetails{display: none;}*/
+.internetIPTVDetails.hide{display:block !important;}
+}
+
+@media screen and (max-width: 1023px) {
+.headerMain .mainNav{width:100%;margin-top:15px;}
+.headerMain .mainNav nav ul li a{color:#c3c3c3;padding:2px 10px;}
+.choose_amazing_variety .variety_box{background-image:none;background-color:#58585a;}
+.entertainment{padding-top:20px;padding-bottom:20px;}
+.entertainment h2{margin-bottom:10px;}
+.upcomingEvents .upcomingEventsSlider p span{margin:0px 0px 10px 0px;display:block;}
+.upcomingEvents .upcomingEventsSlider p span i.fa{width:15px;text-align:center;}
+.footerLike .connectWithUs article{font-size:12px;line-height:20px;}
+body.signin_bg .signup .signupForm .signupFormLeft{border:none;}
+.signin_bg .signin3rdParty .signupForm h2,.signup_bg .signin3rdParty h2,.body_bg .signin3rdParty h2{font-size:80px;}
+.accountPlans .accountPlansList.internetIPTV{border-top:none;}
+.accountPlans .accountPlansList{width:100%;border-right:none;margin-top:15px; border-top:1px solid #d6d7d8;}
+.accountLeft h3{margin-bottom:10px;}
+.internetonlyPlanDetails .exchangeVUEPackages label{width:33%;}
+.internetonlyPlanDetails .exchangeVUEPackages span{width:27%;}
+.internetonlyPlanDetails .internetIPTVList,.internetIPTVDetails .internetIPTVList{padding:10px;}
+.internetonlyPlanDetails .exchangeVUEPackages label,.internetIPTVList .internetPlans ul li label{font-size:18px;}
+.internetonlyPlanDetails .exchangeVUEPackages span{font-size:20px;}
+.internetIPTVList .internetPlans h6,.internetIPTVList .basicIPTVPlans h6{line-height:30px;}
+
+}
+@media screen and (max-width: 768px) and (max-width: 990px) {
+.footer3rdparty .dhiSection .footerGreyLogo{min-width: 117px;}
+.footer3rdparty .dhiSection .footerGreyLogoNetgate{min-width: 117px;}
+}
+@media screen and (max-width: 980px) {
+body.body_bg{background-image:none !important;}
+body.body_bg,.headerMain{background-image:none;}
+.slider .banner_5_dec h3{ font-size:26px;line-height:40px;}
+.slider .banner_5_dec h4{font-size:32px;line-height:30px;}
+.slider .banner_5_dec img{width:40px;}
+
+.signin_bg .headerMain .logo img, .signup_bg .headerMain .logo img, .body_bg .headerMain .logo img{height:65px;}
+.entertainment ul li{width:50%;}
+.headerMain .mainNav ul{display:block;}
+
+.headerMain .Logo{margin-top:20px;}
+a.slider_link{bottom:10px;height:100px;}
+a.slider_link2{bottom:65px;height:85px;}
+
+#termCondition .modal-dialog{width:95%;}
+
+a.slider_link3-1{width:55%;height:150px;bottom:110px;left:30px;}
+a.slider_link3-2{width:17%;height:70px;bottom:15px;left:35px;}
+a.slider_link3-3{width:16%;height:70px;bottom:15px;left:205px;}
+.slick-slide{height:290px;}
+.mainBanner .slider .banner_5_dec h4{font-size: 22px;}
+.slider .banner_5_dec h3{font-size: 22px;}
+
+}
+@media screen and (max-width: 800px) {
+a.slider_link3-1{bottom:90px;height:130px;}
+a.slider_link3-2{width:14%;height:60px;bottom:15px;left:30px;}
+a.slider_link3-3{width:15%;height:60px;bottom:15px;left:165px;}
+a.slider_link3-4{width:15%;height:60px;bottom:15px;left:290px;}
+a.slider_link2{bottom:40px;height:100px;}
+.internetonlyPlanDetails h4{width:80%;}
+.slick-slide{height:235px;}
+}
+
+@media screen and (max-width: 736px){
+.slick-slide{height:215px;}
+}
+@media screen and (min-width: 940px) and (max-width: 1023px) {
+.accountLeft{width:60%;}
+}
+@media screen and (min-width: 768px) and (max-width: 939px) {
+.accountLeft{width:55%;}
+}
+
+@media screen and (max-width: 767px) {
+            /*.accountLeft .alert-info{position: absolute;z-index: 160;width:100%;left:0;right:0;margin:auto;}*/
+/*.accountLeft .alert-info{position: relative;z-index: 160;}*/
+body.signin_bg,body.signup_bg,body.body_bg{background-image:none !important;}
+body.signup_bg .signin3rdParty .signinForm {margin-top:0;margin-bottom:40px;}
+.slider .banner_5_dec h3{ font-size:20px;line-height:22px;}
+.slider .banner_5_dec h4{font-size:25px;line-height:26px;}
+.slider .banner_5_dec img{width:25px;}
+.headerMain .Logo{margin:10px auto 10px auto;}
+.headerMain .Logo img{height:60px;width:auto;}
+.headerMain .donateNow{margin:15px 15px 0px 0px;}
+.headerMain .mainNav{margin-top:40px;position:absolute;right:0; margin-bottom:0; text-align:right;z-index: 156;}
+.headerMain .mobileMenu{display:inline-block;padding:0;}
+.headerMain .mobileMenu .fa-navicon{background:#093c71;padding:5px 10px;}
+.headerMain .mainNav nav ul{display:none;position:absolute;width:100%;background:#093c71;}
+.headerMain .mainNav nav ul li{display:block;border-top:solid 1px #324f64;}
+.headerMain .mainNav nav ul li a{padding:8px 15px;text-align:right;}
+.mainBanner{height:auto;}
+.mainBanner .bannerText{font-size:36px;line-height:40px;margin-top:80px;}
+.favourite_channes figure img{margin:10px;}
+.footerLike .cityVoiceLike{border:none;border-bottom:solid 1px #2a2a2a;}
+footer, .copyright{text-align:left;}
+footer .connectIcons{width:100%;}
+body.signup_bg .footer3rdparty .dhiSection .footerGreyLogo,body.signin_bg .footer3rdparty .dhiSection .footerGreyLogo,body.body_bg .footer3rdparty .dhiSection .footerGreyLogo{height:auto;min-height:50px;}
+body.signup_bg .footer3rdparty .dhiSection .footerGreyLogoNetgate,body.signin_bg .footer3rdparty .dhiSection .footerGreyLogoNetgate,body.body_bg .footerGreyLogoNetgate .dhiSection .footerGreyLogoNetgate{height:auto;min-height:50px;}
+body.signup_bg .dhiSection,body.signin_bg  .dhiSection,body.body_bg  .dhiSection{padding-left:0;}
+body.signup_bg .footer3rdparty .xuveSection .footerGreyLogo,body.signin_bg .footer3rdparty .xuveSection .footerGreyLogo,body.signup_bg .footer3rdparty .dhiSection .footerGreyLogo,body.signin_bg .footer3rdparty .dhiSection .footerGreyLogo,body.body_bg .footer3rdparty .xuveSection .footerGreyLogo,body.body_bg .footer3rdparty .dhiSection .footerGreyLogo{background-size:100px auto;}
+body.signup_bg .footer3rdparty .dhiSection .footerGreyLogo,body.signin_bg .footer3rdparty .dhiSection .footerGreyLogo,body.body_bg .footer3rdparty .dhiSection .footerGreyLogo{position:relative;}
+body.signup_bg .footer3rdparty .xuveSection .footerGreyLogoNetgate,body.signin_bg .footer3rdparty .xuveSection .footerGreyLogoNetgate,body.signup_bg .footer3rdparty .dhiSection .footerGreyLogoNetgate,body.signin_bg .footer3rdparty .dhiSection .footerGreyLogo,body.body_bg .footer3rdparty .xuveSection .footerGreyLogo,body.body_bg .footer3rdparty .dhiSection .footerGreyLogo{background-size:100px auto;}
+body.signup_bg .footer3rdparty .dhiSection .footerGreyLogoNetgate,body.signin_bg .footer3rdparty .dhiSection .footerGreyLogoNetgate,body.body_bg .footer3rdparty .dhiSection .footerGreyLogoNetgate{position:relative;}
+.content{padding:10px;}
+body.signup_bg .xuveSection,body.signin_bg .xuveSection,body.body_bg .xuveSection{border:none;}
+body.signup_bg .footer3rdparty h4,body.signin_bg .footer3rdparty h4,body.body_bg .footer3rdparty h4{margin-top:5px;}
+.content .container{padding-left:10px;padding-right: 10px;}
+.content .heading h2{font-size: 22px;}
+.error-message-404{width:100%;}
+a.slider_link{bottom:10px;height:80px;}
+a.slider_link2{bottom:40px;height:40px;}
+
+a.slider_link3-1{bottom:80px;}
+a.slider_link3-2{bottom:15px;left:30px;}
+a.slider_link3-3{left:155px;}
+a.slider_link3-4{left:285px;}
+.entertainment ,.favourite_channes,footer{padding-left:20px;padding-right:20px;}
+.accountPlan{padding:15px 20px;}
+.accountRight.responsiveShopingCart{width:100%;position:relative;left:0;top:0;margin-top:20px;right:0;margin:auto;float:none;clear:both;display: block;margin-bottom: 15px;}
+.accountLeft{width:100%;padding-right:0;}
+.redeemPromoCode{right:0;width:100%;position:relative;margin: 15px auto;display:block;clear:both;}
+.accountLeft h3{margin:10px auto;font-size:24px;line-height:35px;}
+.modal .modal-dialog{position:absolute;left:0;right:0;margin:auto;transform:translate(0px, 25%);}
+.headerMain .mainNav nav ul li:nth-child(2) a{color:#ffffff;}
+.headerMain .mainNav nav ul li a:hover{color:#ac162c;}
+.accountPlans{margin:0;}
+.accountPlans .accountPlansList h6{min-height:20px;}
+.internetonlyPlanDetails .exchangeVUEPackages label{width:35%;}
+.iptvonlyPlanDetails .iptvonlyPlanPackages ul li .spPlanTitle{width:100%;display:inline-block;float:none;text-align: right;line-height: 18px;}
+.iptvonlyPlanDetails .iptvonlyPlanPackages ul li .spPlanTitle label{width:auto;min-width:15px; float:left;line-height: 20px;margin-right: 10px;}
+.iptvonlyPlanDetails h4{width:91%;}
+.internetonlyPlanDetails h4{width:91%;}
+.internetIPTVDetails h4{width:91%;font-size: 17px;}
+.internetonlyPlanDetails .exchangeVUEPackages .iptvplanTitle{width:100%;display:inline-block;}
+.internetonlyPlanDetails .exchangeVUEPackages .iptvplanTitle label{width:auto;float:left;min-width:15px;}
+.internetonlyPlanDetails .exchangeVUEPackages .iptvplanTitle a{float:right;}
+.modal .modal-body .well{margin-bottom:10px;}
+.internetIPTVList .basicIPTVPlans ul li{min-height: 50px;}
+.internetIPTVList .basicIPTVPlans h6{margin-bottom: 0;}
+.footer3rdparty .xuveSection .footerGreyLogo{position: relative;left:0;min-height: 50px;height: auto;}
+.footer3rdparty .xuveSection .footerGreyLogoNetgate{position: relative;left:0;min-height: 50px;height: auto;}
+.slider .banner_5_dec h5{font-size: 14px;}
+.slider .banner_5_dec h3{font-size:16px;}
+.mainBanner .slider .banner_5_dec h4{font-size: 19px;}
+}
+@media screen and (max-width: 667px) {
+footer .connectIcons a{width:auto;display:inline-block;vertical-align:top;}
+footer .connectIcons a i{min-width:auto;margin-left:10px;}
+.slick-slide{height:195px;}
+.internetIPTVDetails h4,.iptvonlyPlanDetails h4,.internetonlyPlanDetails h4{width:70%;}
+}
+
+@media screen and (max-width: 640px) {
+.slider .banner_5_dec h3{ font-size:20px;line-height:22px;}
+.slider .banner_5_dec h4{font-size:25px;line-height:26px;}
+.slider .banner_5_dec img{width:20px;}
+.headerMain{padding:0 10px;}
+.slick-dots li button{width:10px;height:10px;}
+.slick-dots{bottom:5px;}
+.slick-dots li{width:auto;height:auto;}
+.signup{margin-bottom:20px;}
+.signup,.entertainment{padding:0 10px;}
+.content{padding:10px;}
+
+.favourite_channes,.choose_amazing_variety{padding:15px 10px;}
+.entertainment h2{margin:10px 0;}
+h2,.choose_amazing_variety h2,.favourite_channes h2,.entertainment h2{font-size:24px;line-height:30px;}
+footer {padding:20px 10px;}
+footer .connectIcons{width:100%;float:none;margin-bottom:0;}
+footer .connectIcons a{display:inline-block;width:auto;}
+footer .xuveFindOut .footer_menu{width:100%;}
+footer .xuveFindOut .footer_menu a{width:auto;margin:2px 5px;min-width:auto;}
+footer .xuveFindOut .email_box{margin-top:10px;}
+footer .xuve_logo{padding-top:0;margin:10px auto;}
+footer .connectIcons a i{min-width:10px;}
+footer .connectIcons a span.text{margin-left:5px;margin-right:5px;}
+
+a.slider_link{bottom:10px;height:60px;}
+a.slider_link2{bottom:40px;height:70px;}
+
+a.slider_link3-1{bottom:75px;height:90px;left:25px;}
+a.slider_link3-2{width:14.5%;bottom:10px;left:25px;height:50px;}
+a.slider_link3-3{width:14.5%;left:130px;bottom:10px;height:50px;}
+a.slider_link3-4{width:14.5%;left:240px;bottom:10px;height:50px;}
+
+body.signup_bg,body.signin_bg,body.body_bg{background-size:left left !important;}
+.signin_bg .headerMain .logo, .signup_bg .headerMain .logo,.body_bg .headerMain .logo{padding-top:10px;}
+.signin_bg .headerMain .logo img, .signup_bg .headerMain .logo img,.body_bg .headerMain .logo img{height:45px;}
+.signup_bg .signin3rdParty h2,.signin_bg .signin3rdParty .signupForm h2,.body_bg .signin3rdParty #support_form h2{font-size:60px;line-height:64px;}
+.signup_bg .signin3rdParty h4,.signin_bg .signin3rdParty .signupForm h4{font-size:26px;}
+.signin_bg .signin3rdParty .signupForm h6{font-size:22px;}
+.signup_bg .signin3rdParty .signinForm,.body_bg .signin3rdParty #support_form{margin-top:40px;margin-bottom:40px;}
+.signup_bg .xuveSection{border:none;}
+.signin_bg .signup .signupForm .signupFormLeft{border:none;}
+.signin_bg .signupForm h4{font-size:32px;line-height:36px;}
+.signup_bg .xuveSection,.signup_bg  .dhiSection,.signin_bg .xuveSection,.signin_bg  .dhiSection,.body_bg .xuveSection,.body_bg  .dhiSection{padding-left:15px;border:none;}
+.signup_bg .half-width,.signin_bg .half-width,.body_bg .half-width{width:100%;}
+.signup_bg  .footer3rdparty .xuveSection .footerGreyLogo,.signup_bg .footer3rdparty .dhiSection .footerGreyLogo,.signin_bg  .footer3rdparty .xuveSection .footerGreyLogo,.signin_bg .footer3rdparty .dhiSection .footerGreyLogo,.body_bg  .footer3rdparty .xuveSection .footerGreyLogo,.body_bg  .footer3rdparty .xuveSection .footerGreyLogo{position:relative;left:0;height:35px;top:0;width:95px;}
+.footer3rdparty .dhiSection .footerGreyLogo{margin:10px 0;}
+.footer3rdparty .xuveSection .footerGreyLogo{margin-bottom:20px;}
+.signup_bg  .footer3rdparty .xuveSection .footerGreyLogoNetgate,.signup_bg .footer3rdparty .dhiSection .footerGreyLogoNetgate,.signin_bg  .footer3rdparty .xuveSection .footerGreyLogoNetgate,.signin_bg .footer3rdparty .dhiSection .footerGreyLogoNetgate,.body_bg  .footer3rdparty .xuveSection .footerGreyLogoNetgate,.body_bg  .footer3rdparty .xuveSection .footerGreyLogoNetgate{position:relative;left:0;height:35px;top:0;width:95px;}
+.footer3rdparty .dhiSection .footerGreyLogoNetgate{margin:10px 0;}
+.footer3rdparty .xuveSection .footerGreyLogoNetgate{margin-bottom:20px;}
+.footer3rdparty h4{margin-top:40px;width:100%;clear:both;}
+.signup_bg .signin3rdParty,.signup_bg .footer3rdparty,.signin_bg .signin3rdParty,.signup_in .footer3rdparty,.body_bg .footer3rdparty{padding:15px;}
+.signup_bg .footer3rdparty,.signin_bg .footer3rdparty,.body_bg .footer3rdparty{padding:10px 15px;}
+.signup_bg .footerCopyright,.signin_bg .footerCopyright,.body_bg .footerCopyright{padding:10px 15px;text-align:center;font-size:13px;}
+.headerMain .mobileMenu{display:inline-block ;}
+.headerMain .mainNav nav ul li{width:100%;}
+.headerMain .mainNav nav ul li a{border:none;color:#ffffff !important;border:none;padding:5px 10px; font-size:13px;}
+.headerMain .mainNav nav ul li a.active,.headerMain .mainNav nav ul li a:hover{color:#ac162c !important;}
+.headerMain{padding:0 15px !important;}
+.accountRight .purchasedMyaccTab li,.accountRight .purchasedMyaccTab li:first-child{width:50%;}
+.purchasePlanList li{padding:0;}
+.purchasePlanList li h6{margin:0;}
+.purchasePlanList ul{margin-bottom:0;}
+.purchasePlanList .planTotal{padding:0;}
+.purchasePlanList .checkboxStyle{padding:0 0 0 20px;}
+.purchasePlanList .checkoutBtn{margin:10px 0;}
+.accountAddedPkg h6{margin:0;}
+.accountAddedPkg h5{margin:0;}
+.purchasePlanList .planTotal span label{padding-right:15px;}
+.purchasePlanList .planTotal span a.deleteBtn{right:-12px;}
+.accountRight .accountRightHead{background-size:50px auto;background-position:top 8px;line-height:30px;font-size:20px;}
+.slick-slide{height:190px;}
+.bottomFooter{padding-left: 10px; padding-right: 10px;}
+}
+@media screen and (max-width: 600px) {
+.slick-dots li{height:auto;}
+.slick-dots li button{width:10px;height:10px;}
+.slick-dots{bottom:5px;}
+.mainBanner .bannerText{font-size:30px;line-height:40px;margin-top:90px;padding:20px 30px;}
+.entertainment{margin-top:20px;}
+.entertainment h2{margin-bottom:0;}
+.choose_amazing_variety .variety_box figure{margin:10px;}
+.entertainment ul li{width:100%;border:none;}
+.entertainment ul li article{height:auto;}
+.favourite_channes, .choose_amazing_variety{text-align:center;}
+footer, footer a{font-size:14px;}
+.footerLike .cityVoiceLike ul li{width:100%;}
+.msgBox{width:85%;margin:20px auto;}
+.content .nav-tabs li{width:100%;}
+.error-message-404{margin:20px auto;}
+.error-message-404 h6{font-size:150px;}
+.error-message-404 h1{font-size:30px;margin:15px auto; line-height: 36px;}
+.error-message-404 img.not-found-img{margin:20px auto;}
+footer .copyright{text-align:center;font-size: 12px; margin:5px auto;line-height: 20px;}
+footer .footer_logo{margin:10px auto;}
+
+#frmSummary table tr td,#frmSummary table tr th{word-wrap:break-word;}
+#frmSummary table tr th{font-size:14px;font-weight:normal;vertical-align:top;}
+#frmSummary table tr td{font-weight:normal;}
+#frmSummary table tr td b{font-weight:normal;}
+#frmSummary table tr th:first-child{width:100px;}
+#frmSummary #discountBox{width:140px;}
+#discountBox .form-control{width:100%;margin-bottom:5px;}
+.pucchasesummeryinnercontent #frmSummary .panel-body{padding:5px;}
+.content #summary-accordion .btn{padding:6px 8px;}
+.content #summary-accordion #continue,.content #summary-accordion #proceedcheck{font-size:15px;}
+.continueBtnplanDetail{position:relative;float:right;top:10px;right:5px;}
+.slick-slide{height:175px;}
+}
+@media screen and (max-width: 567px){
+.slick-slide{height:168px;}
+}
+@media screen and (max-width: 480px) {
+.signup_bg .signin3rdParty h2,.signin_bg .signin3rdParty .signupForm h2,.body_bg .signin3rdParty  h2{font-size:40px;line-height:44px;}
+.slider .banner_5_dec{width:60%;top:2%;}
+.slider .banner_5_dec h3{ font-size:14px;line-height:14px;}
+.slider .banner_5_dec h4{font-size:15px;line-height:18px;font-weight:400;}
+.headerMain{width:100%;display:inline-block;}
+.half-width{width:100%;margin-right:0;}
+.choose_amazing_variety .variety_box figure{margin:10px 4px;}
+footer .xuve_logo{padding-bottom:0;}
+.favourite_channes, .choose_amazing_variety{padding:15px 0;}
+.signup, .entertainment{padding:0;}
+footer .connectIcons a i{margin-left:0;}
+.content{width:98%;margin:auto;padding: 20px 0;}
+.content ul#profile-tabs li{width:100%;margin:0;}
+a.slider_link{bottom:10px;height:40px;}
+a.slider_link2{bottom:25px;height:60px;left:10px;}
+
+a.slider_link3-1{bottom:50px;height:80px;left:15px;}
+a.slider_link3-2{width:15%;bottom:10px;left:15px;height:35px;}
+a.slider_link3-3{width:15%;left:100px;bottom:10px;height:35px;}
+a.slider_link3-4{width:15%;left:175px;bottom:10px;height:35px;}
+.purchasedetailBtnpdf{position:relative;right:15px;float:right;}
+.documentForm{border-left:none;border-right:none;width:94%;}
+.slick-slide{height:140px;}
+}
+
+@media screen and (max-width: 479px) {
+.body_bg .signin3rdParty #support_form{margin-top:10px;margin-bottom:10px;}
+.headerMain .Logo{padding:0;text-align:left;width:auto;}
+.headerMain .donateNow{padding:0px 15px;width:100%;margin:0px;margin-bottom:10px;text-align:center;}
+.mainBanner{height:auto;}
+.mainBanner .bannerText{font-size:24px;line-height:30px;width:100%;padding:15px 10px;margin-top:50px;}
+.newsIssues h2, .upcomingEvents h2, .aboutCity h2{font-size:24px;}
+.newsIssues ul li{width:100%;}
+.newsIssues ul li article h6, .newsIssues ul li article p.newsDesc{height:auto;}
+
+a.slider_link3-1{bottom:45px;height:50px;left:15px;}
+a.slider_link3-2{width:14%;bottom:7px;left:15px;height:25px;}
+a.slider_link3-3{width:15%;left:70px;bottom:7px;height:25px;}
+a.slider_link3-4{width:15%;left:120px;bottom:7px;height:25px;}
+.slick-dots{bottom:-3px;}
+.internetonlyPlanDetails h4{font-size:16px;}
+.content .container{width:99%;padding:0;}
+.content .inner_content.pucchasesummeryinnercontent{padding:0;}
+.signup .alreadyaccount{margin-top: 0;width:100%;display: block;text-align: left;}
+.signup h2{margin: 10px 0;}
+.internetIPTVDetails h4,.iptvonlyPlanDetails h4,.internetonlyPlanDetails h4{width:91%;}
+.iptvonlyPlanDetails .iptvonlyPlanPackages h6{font-style: 24px;}
+.slider .banner_5_dec h5{font-size: 9px;line-height: 12px;}
+.slider .banner_5_dec h3{font-size:11px;line-height: 10px;}
+.mainBanner .slider .banner_5_dec h4{font-size: 13px; line-height: 14px;}
+}
+@media screen and (max-width: 414px){
+.slick-slide{height:115px;}
+}
+@media screen and (max-width: 375px){
+.slick-slide{height:110px;}
+.modal-content .modal-footer .btn{padding: 8px;margin: 0;}
+}
+@media screen and (max-width: 360px) {
+a.slider_link2{height:40px;bottom:20px;}
+.body_bg .signin3rdParty{padding-left:20px;padding-right:20px;}
+.accountRight .accountRightHead{background-size:40px auto;}
+.internetonlyPlanDetails .exchangeVUEPackages ul li{line-height:35px;}
+.internetonlyPlanDetails .exchangeVUEPackages label{line-height:35px;}
+.internetonlyPlanDetails .exchangeVUEPackages span{line-height:35px;}
+.internetonlyPlanDetails .exchangeVUEPackages a.addtocartBtn{margin-top:2px;}
+.internetIPTVList .internetPlans ul li label{line-height:20px;}
+.slick-slide{height:105px;}
+.internetIPTVList .basicIPTVPlans ul li{font-size: 13px;line-height: 28px}
+.internetIPTVList .basicIPTVPlans ul li label{font-size: 16px;line-height: 20px;font-weight: normal;margin: 0;}
+.internetIPTVList .basicIPTVPlans ul li a{margin-top: 0;}
+.internetIPTVList .basicIPTVPlans h6 a{margin-top: -2px;}
+.internetIPTVList .internetPlans ul li label{font-weight: normal;}
+.internetIPTVList .internetPlans h6, .internetIPTVList .basicIPTVPlans h6{line-height: 26px;font-size: 18px;margin-bottom: 5px;}
+.purchasePlanList li h6 a{font-size: 18px;}
+.purchasePlanList li h6{line-height: 26px;}
+.purchasePlanList li p{font-size: 16px;}
+.purchasePlanList .planTotal span{font-size: 14px;}
+.purchasePlanList .planTotal span label{font-size: 16px;}
+.purchasePlanList li{font-size: 16px;}
+.accountLeft h3.select-plan{margin-top: 15px;font-size: 20px;line-break: 28px;}
+.accountPlans .accountPlansList.internetIPTV{margin-top: 0;}
+}
+@media screen and (max-width: 320px) {
+a.slider_link3-1{height:50px;bottom:38px;}
+a.slider_link2{bottom:15px;height:40px;}
+.content .container{width:96%;}
+.slick-slide{height:95px;}
+}

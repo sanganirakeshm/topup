@@ -1,0 +1,35 @@
+<div class="row">
+<table class="table table-bordered table-hover">
+    <thead>
+    <tr>
+
+        <th>Mac Address</th>
+        <th>Action</th>
+
+    </tr>
+    </thead>
+    {% if userMacAddress|length > 0 %}
+    
+        {% for record in userMacAddress %}
+
+                <tr>
+                    <td>{{record.macAddress}}</td>
+
+                     <td>
+                          {% if admin_permission.checkPermission('mac_address_update') %}<a href="javascript:void(0);" class="btn btn-success  btn-sm  btn_list_edit editMacAddress" id="edit-mac-address-{{record.id}}" data="{{record.id}}">Edit</a>&nbsp;{% endif %}
+                          {% if admin_permission.checkPermission('mac_address_delete',{'userId' : app.request.get('id')}) %}<a href="javascript:void(0);" class="btn btn-danger btn-sm  btn_list_delete deleteMacAddress" id="delete-mac-address-{{record.id}}" data="{{record.id}}">Delete</a>{% endif %}
+						  {% if admin_permission.checkPermission('mac_address_transfer') %}<a href="{{ path('dhi_admin_mac_address_transfer' , {'id' : record.id,'userId' : app.request.get('id') }) }}" class="btn btn-success  btn-sm  btn_list_edit">Transfer Device</a>{% endif %}
+                     </td>
+                </tr>
+                
+        {% endfor %}
+        
+    {% else %}
+                  
+        <tr>
+            <td colspan="2" align="center">No Record Found!</td>
+        </tr>
+    
+{% endif %}
+  
+</table></div>

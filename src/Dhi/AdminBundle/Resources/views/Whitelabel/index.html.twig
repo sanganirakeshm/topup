@@ -1,0 +1,167 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+{% include "DhiUserBundle::flashMessage.html.twig" %}
+<div class="delBoxCont"></div>  
+   <section class="content-header">
+    <h1>Manage Site</h1>
+   </section>
+   <section class="content">
+     {# serach box section#}
+      <div class="row">
+        <div class="col-lg-12">
+            <div class="box box-success">
+                <form method="get">
+                    <div class="box-body">
+                        <div class="form-group col-md-3">
+                            <div class="row"><div class="col-sm-12" id="companyname"></div></div>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <div class="row"><div class="col-sm-12" id="comapnydomain"></div></div>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <div class="row"><div class="col-sm-12" id="companyfromemail"></div></div>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <div class="row"><div class="col-sm-12" id="status"></div></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+     {# end of code #}
+     <div class="box box-success">
+        <div class="box-body">
+           <div class="row">
+               <div class="col-xs-12">  
+               <div class="addNewBtnsGrp">
+                    {% if admin_permission.checkPermission('admin_white_label_create') %}
+                        <a href="{{ path('dhi_admin_white_label_new') }}" class="btn btn-success pull-right margin-top5">Add Site</a>
+                    {% endif %}
+                    {% if admin_permission.checkPermission('service_location_wise_sites_list') %}
+                        <a href="{{ path('dhi_admin_service_location_to_sites_list') }}" class="btn btn-success pull-right margin-top5">Assign Service Location To Site</a>
+                    {% endif %}
+               </div>
+               <table id="WhiteLabelTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                   <thead>
+                       <tr>
+                           <th>Site Name</th>
+                           <th>Site Domain</th>
+                           <th>From Email</th>
+                           <th>Status</th>
+                           <th>Action</th>
+                       </tr>
+                   </thead>
+               </table>
+              </div>
+           </div>
+        </div>
+     </div>
+   </section>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+     $(document).ready(function () {
+        deleteAjaxSource = '{{ path('dhi_admin_white_label_delete') }}';
+
+            dTable = $('#WhiteLabelTable').dataTable({
+
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_white_label_list_json') }}",
+                 "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                        if (error == "parsererror") {
+                        window.location = "{{ path('dhi_admin_white_label_list') }}";
+                        }
+                        }
+                });
+                },
+                aoColumns: [
+                {"sName": "companyName", "bSearchable": true, "bSortable": true},
+                {"sName": "domain", "bSearchable": true, "bSortable": true},
+                {"sName": "fromEmail", "bSearchable": true, "bSortable": true},
+                {"sName": "Status", "bSearchable": true, "bSortable": true},
+                {"sName": "Action", "bSearchable": false, "bSortable": false}
+                ],
+                aoColumnDefs: [
+                {
+                    "mRender": function(data, type, row) {
+
+                    var actionFlag = row[4].split('^');
+                    var dataId = actionFlag[0];
+                    var status = actionFlag[1];
+                    var headTitle = "Site Delete";
+                    var msg = 'Are you sure you want to delete this site?';
+                    var returnData = "";
+                    returnData += "<a href='javascript:void(0);' class='selectLink'>Select <span class='fa fa-angle-down'></span></a>";
+                    returnData += "<ul class='selectDropdown' style='display: none;'>";
+                   
+                  {% if admin_permission.checkPermission('admin_white_label_delete') %}
+                    var deleteUrl = '{{ path('dhi_admin_white_label_delete', {'id': 'whitelabel_id'}) }}';
+                    var finalPath = deleteUrl.replace("whitelabel_id", dataId);
+                    returnData += '<li><a href="javascript:void(0)"  title="Delete" onclick="return deleterecord(' + dataId + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" + ')">Delete</a></li>';
+                   {% endif %}
+                    {% if admin_permission.checkPermission('admin_white_label_update') %}   
+                        var editUrl = '{{ path('dhi_admin_white_label_edit', {'id': 'whitelabel_id'}) }}';
+                        var editWhiteLabel = editUrl.replace("whitelabel_id", dataId);
+                        returnData += '<li><a href="' + editWhiteLabel + '"  title="Edit"> Edit</a></li>';
+                    {% endif %}
+                    {% if admin_permission.checkPermission('admin_white_label_status_change') %}
+                       var disableUrl = '{{ path('dhi_admin_white_label_disable', {'id': 'whitelabel_id'}) }}';
+                       var disable = disableUrl.replace("whitelabel_id", dataId);
+                       if (status == 1){
+                          returnData += '<li><a href="' + disable + '"  title="InActive">InActive</a></li>';
+                       } else {
+                          returnData += '<li><a href="' + disable + '"  title="Active">Active</a></li>';
+                       }
+                   {% endif %}
+                   return returnData;
+               },
+                  "aTargets": [4]
+               }
+               ],
+               aaSorting: [[4, 'asc']]
+            });
+            
+             $('#WhiteLabelTable').dataTable().columnFilter({
+               aoColumns: [
+                 {type: "text", sSelector: "#companyname"},
+                 {type: "text", sSelector: "#comapnydomain"},
+                 {type: "text", sSelector: "#companyfromemail"},
+                 {type: "select", sSelector: "#status", values: ['Active', 'InActive'] }
+               ]
+             });
+               
+               $("input").addClass("form-control");
+               $("select").addClass("form-control");
+           });
+    </script>
+{% endblock javascripts %}

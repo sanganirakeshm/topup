@@ -1,0 +1,31 @@
+Hello,<br /><br />
+
+Title: {{ compensation.title }}
+<br />- ISP Hours: {{ compensation.ispHours }}
+<br />- IPTV Hours: {{ compensation.iptvDays }}
+
+{% set services = '' %}
+
+{% for service in compensation.services %}
+	{% set services = services~', '~ service.name %} 
+{% endfor %}
+<br />- Services: {{ services|trim(',') }}
+
+{% set serviceLocations = '' %}
+{% for serviceLocation in compensation.serviceLocations %}
+	{% set serviceLocations = serviceLocations~', '~serviceLocation.name %} 
+{% endfor %}
+
+<br />- Service Locations: {{ serviceLocations|trim(',') }}
+<br />- Note: {{ compensation.note }}
+{% if admin.username is defined %}
+	{% set createdBy = admin.username %}
+{% else %}
+	{% set createdBy = "N/A" %}
+{% endif %}
+<br />- Created By: {{ createdBy }}
+<br />- Start Date Time: {% if compensation.executedAt is not null %} {{ compensation.executedAt|date("m/d/Y H:i:s") }} {% else %}N/A{% endif %}
+{% if isCompleted == true %}
+<br />- Completed Date Time: {{ 'now'|date("m/d/Y H:i:s") }}
+<br />- No of Users affected: {{ numPlansComped }}
+{% endif %}

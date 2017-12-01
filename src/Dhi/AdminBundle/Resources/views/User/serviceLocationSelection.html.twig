@@ -1,0 +1,93 @@
+{% extends "DhiAdminBundle::layout.html.twig" %} 
+{% block body %}
+
+    <section class="content-header">
+        <h1>Service Purchase ({{ (user)?user.username:'' }})</h1>
+    </section>
+    <section class="content">	
+        <div class="row">
+            {% include "DhiUserBundle::flashMessage.html.twig" %}
+            <div class="col-md-12">
+                <div class="box box-success">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h4 class="mainTitle">Choose Service Location</h4>
+                                <span class="mainTitle"><b>Current Service Location</b>
+                                    {% if user.userServiceLocation is defined and user.userServiceLocation !=NULL %}
+                                        ({{user.userServiceLocation.name}})
+                                    {% else %}
+                                        (Not Assigned)
+                                    {% endif %}    
+                                
+                                </span>
+                                <div class="tab-content">
+                                        <form name="serviceLocationFrm" action="{{path('dhi_admin_user_service_location_list', {'id': app.request.get('id') })}}" method="POST" id="serviceLocationFrm">	
+                                            <table class="table table-bordered table-hover">			        
+                                                <tbody>
+                                                    {% for key,value in serviceLocations %}
+                                                        {% set isChecked = "" %}
+                                                        {% if user.userServiceLocation is defined and user.userServiceLocation !=NULL %}
+                                                            {% if user.userServiceLocation.id == key %}
+                                                                {% set isChecked = "checked" %}
+                                                            {% endif %}
+                                                        {% else %}
+                                                            {% set isChecked = "" %}
+                                                        {% endif %}    
+                                                        <tr>
+                                                            <td nowrap="nowrap">
+                                                                <input type="radio" name="serviceLocationSelection" id="serviceLocationSelection_{{key}}" value="{{key}}" {{ isChecked }}/>
+                                                                {{value}}
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>            
+                                            </table>
+                                            <div id="serviceLocationSelectionErr" class="serverError" style="color:red;"></div>
+                                            <div class="col-sm-12 row">
+                                            	<a href="{{ path('dhi_admin_user_list') }}" class="btn btn-success pull-left">Back to User List</a>
+                                                <input type="submit" class="btn btn-success pull-right" value="Next">
+                                            </div>
+                                        </form>
+                                </div>
+                            </div>                        
+                        </div>                    
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>
+
+
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+
+        $(function () {
+            $('#serviceLocationFrm').validate({
+                rules: {
+                    "serviceLocationSelection": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "serviceLocationSelection": {
+                        "required": "Please choose service location for service purchase."
+                    }
+                },
+                errorPlacement: function (error, element) {
+                    if (element.attr("name") == "serviceLocationSelection") {
+                        $("#serviceLocationSelectionErr").html(error.text());
+                    }
+                    
+                }
+            });
+        });
+
+
+    </script>
+
+{% endblock javascripts %}

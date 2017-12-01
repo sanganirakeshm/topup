@@ -1,0 +1,27 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% trans_default_domain 'FOSUserBundle' %}
+{% block body %}
+<section class="content">
+    
+        <div class="min_cont_hight">
+            <div class="row">
+                {% block fos_user_content %}
+                    <div class="msgBox verif_succ_box">
+                        <div class="msgboxin">
+                            <p>Congratulations, your email address has been verified.</p>
+                            <p>
+	                            {% if app.user %}
+	                            	Click <a href="{{ path('dhi_user_account') }}">here</a><link> to continue the signup process.
+	                            {% else %}
+	                            	Now you can <a href="{{ url('fos_user_security_login') }}">signin</a> here!
+	                            {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                {% endblock fos_user_content %}
+            </div>
+        </div>
+   
+</section>    
+{% endblock body %}

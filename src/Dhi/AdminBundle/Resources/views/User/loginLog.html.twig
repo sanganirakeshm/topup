@@ -1,0 +1,289 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+{{ parent() }}
+<link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+<style type="text/css">
+    .margin-right10{margin-right:10px;}
+    .bld {font-weight: bold;vertical-align: middle;}
+    @media print
+    {
+    header, footer, .noprint, .dhiLogo {display:none !important;}
+    tr#headerlink th{text-align: left;}
+    }
+</style>
+{% endblock stylesheets %}
+{% block body %}
+
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+	<div class="delBoxCont"></div>
+
+         <section class="content-header">
+              <h1>SEARCH USER LOG</h1>
+            </section>
+            <section class="content">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="box box-success">
+                            <form method="get">
+                                <div class="box-body">
+                                    <div class="form-group col-md-4">                                        <div id="name"></div>
+                                    </div>
+                                    <div class="form-group col-md-4">                                        <div id="ip"></div>
+                                    </div>
+                                    <div class="form-group col-md-4">                                       <div id="country"></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                       <div id="ActiveServices"></div>
+                                    </div>
+                                    <div class="form-group col-md-8 pickup-date-control">
+                                        <div id="date-range"></div>
+                                    </div>
+
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box box-success">
+                    <div class="box-body">
+			<div class="row">
+         		    <div class="col-xs-12">
+                        <div class="addNewBtnsGrp col_filter">
+                            {% if admin_permission.checkPermission('user_login_log_export') %}
+
+                                <a href="{{path('dhi_admin_user_log_export',app.request.query.all)}}" class="btn btn-success export-option noprint pull-right margin-top5" id="export_pdf">Export PDF</a>
+
+                            {% endif %}
+
+                            {% if admin_permission.checkPermission('user_login_log_print') %}
+                                <a href="{{path('dhi_admin_user_log_export_print',app.request.query.all)}}" target="_blank" class="btn btn-success export-option pull-right margin-top5" id="export_print" >Print</a>
+                             {% endif %}
+                             <div class="col-md-3 margin-top5 pull-right">
+                                <select class="pull-right cls-export-slot" id="cls-export-slot"></select>
+                                <label class="lbl-error cls-err-slot" style="display:none;">Select Range To Export</label>
+                            </div>
+                        </div>
+
+			             <table id="loginLogTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                       {# <th>Id</th>#}
+                                        <th>Name</th>
+                                        <th>Ip Address</th>
+                                        <th>Service Location</th>
+                                        <th>Active Services</th>
+                                        <th>Available Services</th>
+                                        <th>Country</th>
+                                        <th>LogInTime</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+
+    $(document).ready(function(){
+
+            $(".export-option").click(function(event) {
+                event.preventDefault();
+                var offset = $("#cls-export-slot").val();
+                if (offset == "NA") {
+                    $(".cls-err-slot").show();
+                }else{
+                    $(".cls-err-slot").hide();
+                    var url = $(this).attr('href'); 
+                        url = url+"?offset="+(Number(offset));
+
+                    if ($(this).attr('target') == "_blank") {
+                        window.open(url, "_blank");
+                    }else{
+                        window.location = url;
+                    }
+                    
+                }    
+            });
+
+            dTable = $('#loginLogTable').dataTable({
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                bDeferRender: true,
+                bSortClasses: false,
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_user_log_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+
+                            $('#cls-export-slot').empty().val(0);
+                            if (json.exportSlots) {
+                                var s = document.getElementById('cls-export-slot');
+                                s.options[0] = new Option("Select Range To Export", "NA");
+                                var i = 1;
+                                $.each(json.exportSlots, function(index, value) {
+                                    s.options[i] = new Option(value, index);
+                                    i++;
+                                });
+                            }
+
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+                fnDrawCallback: function () {
+
+                if(this.fnSettings().fnRecordsTotal()==0) {
+                    $("#export_pdf").addClass('disabled');
+                    $("#export_print").addClass('disabled');
+                } else {
+                    $("#export_pdf").removeClass('disabled');
+                    $("#export_print").removeClass('disabled');
+                }
+            },
+                aoColumns: [
+                  {#  {"sName": "Id", "bSearchable": false, "bSortable": true, "bVisible": false},#}
+                    {"sName": "Name", "bSearchable": true, "bSortable": true},
+                    {"sName": "IpAddress", "bSearchable": true, "bSortable": true},
+                    {"sName": "ServiceLocation", "bSearchable": false, "bSortable": true},
+                    {"sName": "ActiveServices", "bSearchable": true, "bSortable": false},
+                    {"sName": "AvailableServices", "bSearchable": false, "bSortable": false},
+                    {"sName": "Country", "bSearchable": true, "bSortable": true},
+                    {"sName": "Logintime", "bSearchable": true, "bSortable": true},
+                ],
+                aaSorting: [[7, 'asc']]
+            });
+            $.datepicker.regional[""].dateFormat = 'yy-mm-dd';
+            $.datepicker.setDefaults($.datepicker.regional['']);
+             $('#loginLogTable').dataTable().columnFilter({
+                 sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+            aoColumns: [
+           {#   null,#}
+             {type: "text", sSelector: "#name"},
+             {type: "text", sSelector: "#ip"},
+             null,
+             {type: "select", sSelector: "#ActiveServices", values:{{services|json_encode()|raw}}},
+             null,
+             {type: "select", sSelector: "#country", values:{{countries|json_encode()|raw}}},
+             {type: "date-range", sSelector: "#date-range"},
+            ]
+        });
+
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+
+
+
+
+    });
+
+
+
+     $(function() {
+
+          jQuery(document).on("focus", "div.pickup-date-control #date-range input:first", function() {
+
+                $(this).datepicker({
+                    showOn: "both",
+                    buttonImage: '{{ asset("bundles/dhiadmin/images/calendar.gif") }}',
+                    buttonImageOnly: true,
+                    dateFormat: 'dd-mm-yy',
+                    readOnly: true,
+                    onSelect: function(selected) {
+
+                        $("#date-range input:last").datepicker("option","minDate", selected);
+                    }
+                }).keyup(function(e) {
+
+                    if(e.keyCode == 8 || e.keyCode == 46) {
+
+                        $.datepicker._clearDate(this);
+                    }
+                })//.css({'width': $('#loginLogTable_range_from_7').parent().width()-(16+5)+'px', 'display':'inline-block', 'margin-right':'5px'});
+            }).keyup(function(e) {
+                if(e.keyCode == 8 || e.keyCode == 46) {
+                    $.datepicker._clearDate(this);
+                }
+            });
+
+            $(".filter_date_range .date_range_filter.hasDatepicker").attr({ readonly: 'true' });
+            jQuery(document).on("focus", "div.pickup-date-control #date-range input:last", function() {
+            $(this).datepicker({
+                showOn: "both",
+                buttonImage: '{{ asset("bundles/dhiadmin/images/calendar.gif") }}',
+                buttonImageOnly: true,
+                dateFormat: 'yy-mm-dd',
+                readOnly: true,
+                onSelect: function(selected) {
+                    $("#date-range input:first").datepicker("option","maxDate", selected)
+                }
+            }).keyup(function(e) {
+                if(e.keyCode == 8 || e.keyCode == 46) {
+                    $.datepicker._clearDate(this);
+                }
+            })//.css({'width': $('#loginLogTable_range_to_7').parent().width()-(16+5)+'px', 'display':'inline-block', 'margin-right':'5px'});
+        }).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+
+    });
+
+
+    function print_list() {
+        $.each($('tr#headerlink a'), function(){
+            $(this).attr('rel', $(this).attr('href'));
+            $(this).removeAttr('href');
+        });
+
+        window.print();
+
+        $.each($('tr#headerlink a'), function(){
+            $(this).attr('href', $(this).attr('rel'));
+            $(this).removeAttr('rel');
+        });
+
+        {% set url = path('dhi_admin_user_log_print') %}
+        {% if id %}
+            {% set url = path('dhi_admin_user_log_print',{'id': id}) %}
+        {% endif%}
+        $.ajax({
+            url: '{{url}}',
+            async: false,
+        });
+    }
+    </script>
+{% endblock javascripts %}

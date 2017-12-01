@@ -1,0 +1,57 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+<section class="content-header">
+    <h1>Add Support Service</h1>
+</section>		  
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+           <div class="box box-success">
+                <form action="{{ path('dhi_admin_support_service_new') }}" method="POST" id="addSupportService" class="form-horizontal" novalidate>
+                    <div class="box-body">
+                        
+                        <div class="form-group col-md-4">
+                             <label class="control-label">Service Name: </label>
+                             {{ form_widget(form.serviceName, { 'attr': { 'placeholder': 'Enter Service Name', 'class': 'form-control'}}) }}
+                             <div class="serverError">{{ form_errors(form.serviceName) }}</div>
+                        </div>
+                        
+                        <div class="form-group col-md-4">
+                            <label class="control-label">Status: </label>
+                            {{ form_widget(form.isActive, { 'attr': { 'placeholder': 'Select Status', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.isActive) }}</div>
+                        </div>
+                    </div>
+
+                    {{ form_rest(form) }}
+
+                    <div class="box-footer">
+                        <div class="col-md-8 add-btn-bx">
+                            <input type="submit" class="btn btn-success" name="add" value="Add"/>
+                            <a href="{{ path('dhi_admin_support_service_list') }}" class="btn btn-default">Back</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#addSupportService").validate({
+                rules: {
+                    "dhi_user_support_service[serviceName]": "required",
+                    "dhi_user_support_service[isActive]": "required"
+                },
+                messages: {
+                    "dhi_user_support_service[serviceName]": "Please enter service name.",
+                    "dhi_user_support_service[isActive]": "Please select status."
+                }
+            });
+        });
+    </script>
+{% endblock javascripts %}

@@ -1,0 +1,82 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+{% block body %}
+
+<div class="loginBg">
+    <div class="register">
+        <div class="registerForm">
+            <h1>Support</h1>
+             {% include "DhiUserBundle::flashMessage.html.twig" %}
+            <ul class="col2error">
+                <form action="{{ path('dhi_user_support') }}" {{ form_enctype(form) }} method="POST" class="fos_user_registration_register" id="support_form" novalidate>
+                    <li>
+                        {{ form_widget(form.user, { 'attr': { 'placeholder': ''}}) }}
+                        {{ form_widget(form.email, { 'attr': {'class': 'pull-left', 'data-prompt-position': 'topRight', 'placeholder': 'Email Address'}}) }}
+                        <div class="serverError">{% if form_errors(form.email) %}{{ form_errors(form.email) }}{% endif %}</div>
+                    </li>
+                    <li>
+                        {{ form_widget(form.supportCategory, { 'attr': {'class': 'pull-right', 'data-prompt-position': 'topRight', 'placeholder': ''}}) }}
+                        <div class="serverError">{% if form_errors(form.supportCategory) %}{{ form_errors(form.supportCategory) }}{% endif %}</div>
+                    </li>
+                    <li class="subject">
+                        {{ form_widget(form.subject, { 'attr': {'class': 'pull-left', 'data-prompt-position': 'topRight', 'placeholder': 'Subject'}}) }}
+                        <div class="serverError">{% if form_errors(form.subject) %}{{ form_errors(form.subject) }}{% endif %}</div>
+                    </li>
+                    <li class="txtarea">
+                            {{ form_widget(form.description, { 'attr': { 'placeholder': 'Message', 'class' : 'pull-right', 'data-prompt-position': 'topRight'}}) }}
+                            <div class="serverError txtarea">{% if form_errors(form.description) %}{{ form_errors(form.description) }}{% endif %}</div>
+                    </li>
+                    {{ form_rest(form) }}
+                    <li class="submit">
+                        <input type="submit" name="add_support" value="Submit" class="submitBtn"/>
+                    </li>
+                </form>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        $('#support_form').validate({
+            rules: {
+                "dhi_user_support[email]": {
+                    "required": true,
+                    "email": true
+                },
+                "dhi_user_support[supportCategory]": {
+                    "required": true
+                },
+                "dhi_user_support[subject]": {
+                    "required": true
+                },
+                "dhi_user_support[description]": {
+                    "required": true
+                }
+            },
+            messages: {
+                "dhi_user_support[email]": {
+                    "required": "PLease enter email.",
+                    "email": "Please enter valid email address."
+                },
+                "dhi_user_support[supportCategory]": {
+                    "required": "Please select support category."
+                },
+                "dhi_user_support[subject]": {
+                    "required": "Please enter subject."
+                },
+                "dhi_user_support[description]": {
+                    "required": "Please enter message."
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock javascripts %}    
+

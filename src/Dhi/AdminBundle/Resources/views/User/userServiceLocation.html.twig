@@ -1,0 +1,20 @@
+<td>
+	{{ location }}
+</td>
+<td>
+	{% set activeServiceStr = '' %}
+    
+	{% for service in activeServices %}
+    	{% set activeServiceStr = activeServiceStr ~ service~', ' %}
+	{% endfor %}
+	
+	{{ activeServiceStr|trim(', ') }}
+</td>
+<td>
+	{% set serviceStr = '' %}
+	{% for service in services %}
+        {% set serviceStr = serviceStr ~ service~', ' %}
+	{% endfor %}
+	
+	{{ serviceStr|trim(', ') }}
+</td>

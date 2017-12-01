@@ -1,0 +1,282 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+{% form_theme form 'DhiUserBundle::captcha.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .body_bg .signup form label.error {
+            position: relative !important;
+            top: auto !important;
+        }
+    </style>
+{% endblock stylesheets %}
+{% block body %}
+    {% block fos_user_content %}
+        {% trans_default_domain 'FOSUserBundle' %}
+        {% set brand = app.session.get('brand') %}
+	    {% set brandName = '' %}
+	    {% set brandDomain = '' %}
+	    {% if brand %}
+	        {% set brandName = brand.name %}
+	        {% set brandDomain = brand.domain %}
+	    {% endif %}
+
+        <section class="signup ">
+        	<div class="container-fluid">
+        		<div class="row">
+        			<div class="col-xs-12 col-sm-10 col-md-5">
+        				<h2>Support</h2>
+                        {% include "DhiUserBundle::flashMessage.html.twig" %}
+        				<form action="{{ path('dhi_user_support') }}" {{ form_enctype(form) }} method="POST" class="fos_user_registration_register" id="support_form" novalidate>
+                            <div class="form-group half-width">
+                                {{ form_widget(form.country, { 'attr': {'class': 'form-control', 'placeholder': 'Country'}}) }}
+                                <div class="serverError">{% if form_errors(form.country) %}{{ form_errors(form.country) }}{% endif %}</div>
+                            </div>
+                            <div class="form-group half-width">
+                                {{ form_widget(form.location, { 'attr': {'class': 'form-control', 'placeholder': 'Location'}}) }}
+                                <div class="serverError">{% if form_errors(form.location) %}{{ form_errors(form.location) }}{% endif %}</div>
+                            </div>
+                            <div class="clearfix"></div>
+                            {# <div class="form-group half-width">
+                                <select id="dhi_user_support_location" name="location" required="required" class="form-control valid" placeholder="location" aria-required="true" aria-invalid="false">
+                                    <option value="">Select Service Location</option>
+                                </select>
+                                <div class="serverError"></div>
+                            </div> #}
+
+                            <div class=" cls-service-container"></div>
+
+                            <div class="form-group half-width">
+        						{{ form_widget(form.firstname, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'First name'}}) }}
+                                <div class="serverError">{% if form_errors(form.firstname) %}{{ form_errors(form.firstname) }}{% endif %}</div>
+        					</div>
+
+        					<div class="form-group half-width">
+        						{{ form_widget(form.lastname, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Last name'}}) }}
+                                <div class="serverError">{% if form_errors(form.lastname) %}{{ form_errors(form.lastname) }}{% endif %}</div>
+        					</div>
+                            <div class="clearfix"></div>
+
+        					<div class="form-group half-width">
+                                {{ form_widget(form.email.first, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Email'}}) }}
+                                <div class="serverError">{% if form_errors(form.email.first) %}{{ form_errors(form.email.first) }}{% endif %}</div>
+        					</div>
+
+        				  	<div class="form-group half-width">
+        				  		{{ form_widget(form.email.second, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Confirm email'}}) }}
+                                <div class="serverError">{% if form_errors(form.email.second) %}{{ form_errors(form.email.second) }}{% endif %}</div>
+        				  	</div>
+                            <div class="clearfix"></div>
+
+        					<div class="form-group half-width">
+        						{{ form_widget(form.number, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Number (+93) 973456789'}}) }}
+                                <div class="serverError">{% if form_errors(form.number) %}{{ form_errors(form.number) }}{% endif %}</div>
+        					</div>
+
+                            <div class="form-group half-width">
+                                {{ form_widget(form.category, { 'attr': {'class': 'form-control', 'placeholder': 'Category'}}) }}
+                                <div class="serverError">{% if form_errors(form.category) %}{{ form_errors(form.category) }}{% endif %}</div>
+                            </div>
+                            <div class="clearfix"></div>
+
+                            <div class="form-group half-width">
+                                {{ form_widget(form.supportService, { 'attr': {'class': 'form-control', 'placeholder': 'Service'}}) }}
+                                <div class="serverError">{% if form_errors(form.supportService) %}{{ form_errors(form.supportService) }}{% endif %}</div>
+                            </div>
+
+                            <div class="cls-isp-option form-group half-width">
+                                {{ form_widget(form.building, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Building / LSA'}}) }}
+                                <div class="serverError support_txtarea">{% if form_errors(form.building) %}{{ form_errors(form.building) }}{% endif %}</div>
+                            </div>
+                            <div class="clearfix"></div>
+
+                            <div class="cls-isp-option form-group half-width">
+                                {{ form_widget(form.roomNumber, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Room Number'}}) }}
+                                <div class="serverError support_txtarea">{% if form_errors(form.roomNumber) %}{{ form_errors(form.roomNumber) }}{% endif %}</div>
+                            </div>
+
+                            <div class="form-group half-width">
+        						{{ form_widget(form.time, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Best time to be contacted'}}) }}
+                                <div class="serverError">{% if form_errors(form.time) %}{{ form_errors(form.time) }}{% endif %}</div>
+        					</div>
+                            <div class="clearfix"></div>
+
+        					<div class="form-group full-width textareanew">
+        						{{ form_widget(form.message, { 'attr': {'class': 'form-control', 'data-prompt-position': 'topRight', 'placeholder': 'Message - Maximum of 300 characters'}}) }}
+                                <div class="serverError support_txtarea">{% if form_errors(form.message) %}{{ form_errors(form.message) }}{% endif %}</div>
+        					</div>
+
+                            {% if (app.environment != 'test') %}
+                                <div class="form-group half-width">
+                                    <div class="full-width-in no-margin">
+                                        <ul class="captcha">
+                                            <li>
+                                                <div class="captcha-img">
+                                                    <img src="{{ form.captcha.vars.captcha_code }}" title="captcha" />     
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="form-group half-width captcha-val">
+                                    <input type="text" placeholder="Type characters in the image" data-prompt-position="topRight" autocorrect="off" autocapitalize="off" class="form-control" required="required" name="dhi_user_support[captcha]" id="form_captcha" aria-required="true">            
+                                    <label id="form_captcha-error" class="error clearfix" for="form_captcha"></label>
+                                    <div class="serverError">{% if form_errors(form.captcha) %}{{ form_errors(form.captcha) }}{% endif %}</div>
+                                </div>
+                            {% endif %}
+
+                            <div class="form-group full-width-in">
+                                <input type="submit" name="add_support" value="Submit" class="submitBtn btn btn-success full-width" id="submitSupport"/>
+                            </div>
+                         {{ form_row(form._token) }}
+        				</form>	  
+        			</div>				
+        			<div class="col-xs-12 col-sm-2 col-md-6"></div>				 
+        		</div>			
+        	</div>	
+        </section>
+        <div id="ajax-loader-bx" style="display:none;">
+            <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+            <div id="loader-text">Please wait....</div>
+        </div>
+    {% endblock fos_user_content %}
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        {% if (app.environment != 'test') %}
+            function reloadCaptcha(){
+            	src = '{{ form.captcha.vars.captcha_code }}?n=' + (new Date()).getTime();
+            	$("img[title=captcha]").attr('src',src);	
+            }
+        {% endif %}
+
+        $(document).ready(function () {
+			
+            $('#support_form').validate({
+
+                rules: {
+                    "dhi_user_support[firstname]": {
+                        "required": true,
+                        "nameRegex": /^[A-Za-z]+$/,
+                    },
+                    "dhi_user_support[lastname]": {
+                        "required": true,
+                        "nameRegex": /^[A-Za-z]+$/,
+                    },
+                    "dhi_user_support[email][first]": {
+                        "required": true,
+                        "email": true
+                    },
+                    "dhi_user_support[email][second]": {
+                        "required": true,
+                        "email": true,
+                        "equalTo": "#dhi_user_support_email_first"
+                    },
+                    "dhi_user_support[email]": {
+                        "required": true,
+                        "email": true
+                    },
+                    "dhi_user_support[category]": {
+                        "required": true,
+                    },
+                    "dhi_user_support[number]": {
+                        "required": true,
+                        "phoneRegex": /^[0-9 -()+]+$/,
+                        "minlength":9,
+                        "maxlength":15,
+                        "number": false
+                    },
+                    "service": {
+                        "required": true
+                    },
+                    "dhi_user_support[location]": {
+                        "required": true
+                    },
+                    "dhi_user_support[time]": {
+                        "required": true
+                    },
+                    "dhi_user_support[message]": {
+                        "required": true,
+                        "maxlength":300,	
+                    },
+                    "dhi_user_support[captcha]": {
+                        "required": true
+                    },
+                    "dhi_user_support[country]": {
+                        "required": true
+                    },
+                    "dhi_user_support[supportService]": {
+                        "required": true
+                    },
+                    "dhi_user_support[roomNumber]": {
+                        "required": true
+                    },
+                    "dhi_user_support[building]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                	"dhi_user_support[country]": {
+                        "required": "Please enter country.",
+                    },
+                    "dhi_user_support[firstname]": {
+                        "required": "Please enter first name.",
+                    },
+                    "dhi_user_support[lastname]": {
+                    	"required": "Please enter last name.",
+                    },
+                    "dhi_user_support[email][first]": {
+                        "required": "Please enter email address.",
+                        "email": "Please enter valid email address."
+                    },
+                    "dhi_user_support[category]": {
+                        "required": "Please select support category.",
+                    },
+                    "dhi_user_support[email][second]": {
+                        "required": "Please enter confirm email.",
+                        "email": "Please enter valid confirm email.",
+                        "equalTo": "Email does not match the confirm email."
+                    },
+                    "dhi_user_support[number]": {
+                    	"required": "Please enter telephone or mobile number.",
+                    },
+                    "service": {
+                    	"required": "Please select services.",
+                    },
+                    "dhi_user_support[location]": {
+                    	"required": "Please select location.",
+                    },
+                     "dhi_user_support[supportService]": {
+                        "required": "Please select support service.",
+                    },
+                    "dhi_user_support[time]": {
+                    	"required": "Please enter prefer time.",
+                    },
+                    "dhi_user_support[message]": {
+                    	"required": "Please enter message.",
+                        "maxlength": "Maximum of 300 characters.",
+                    },
+                    "dhi_user_support[captcha]": {
+                    	"required": "Please type characters in the image.",
+                    },
+                    "dhi_user_support[roomNumber]": {
+                        "required": "Please enter room number."
+                    },
+                    "dhi_user_support[building]": {
+                        "required": "Please enter Building/LSA"
+                    }            
+                },
+            });
+
+            $.validator.addMethod("phoneRegex", function(value, element, regexpr) {
+                return regexpr.test(value);
+            }, "Only number and ()+- are allowed");
+
+        	$.validator.addMethod("nameRegex", function(value, element, regexpr) {
+                return regexpr.test(value);
+            }, "Only alphabetic characters are allowed."); 
+       });
+    </script>
+{% endblock javascripts %}

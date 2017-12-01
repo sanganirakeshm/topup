@@ -1,0 +1,123 @@
+# This file is auto-generated during the composer install
+parameters:
+    database_driver: pdo_mysql
+    database_host: localhost
+    database_port: null
+    database_name: dhitopup
+    database_user: root
+    database_password:
+
+    db_driver: pdo_mysql
+    db_host: localhost
+    db_port: null
+    db_name: dhitopup_test
+    db_user: dhitopup
+    db_password:
+
+    twilio_account_sid: ~
+    twilio_auth_token: ~
+    twilio_from_number: ~
+
+    terminal_id: ~
+    terminal_password: ~
+    terminal_prodcode: ~
+    topup_api_url: ~
+
+    paypal_username: ~
+    paypal_password: ~
+    paypal_signature: ~
+    paypal_mode: Sandbox
+    paypal_confirm_url: /paypal/paymentconfirm
+    paypal_cancel_url: /paypal/paymentcancel
+
+    friend_paypal_confirm_url: /friend-topup/paypal/paymentconfirm/
+    friend_paypal_cancel_url: /friend-topup/paypal/paymentcancel/
+
+    topup_from_email_admin:
+        dhiannouncements@dhitelecom.com: DHI Telecom
+    mailer_transport: gmail
+    mailer_host: smtp.gmail.com
+    mailer_user: ~
+    mailer_password: ~
+    mailer_port: 465
+
+    campaign_mailer_transport: smtp
+    campaign_mailer_host: smtpcorp.com
+    campaign_mailer_user: ~
+    campaign_mailer_password: ~
+    campaign_mailer_port: 2525
+
+    locale: en
+    secret: ThisTokenIsNotSoSecretChangeIt
+
+    test_http_host: topup.ketan.bvdev31.com
+    test_email: jigar.pancholi@brainvire.in
+    test_username: ketan123
+    test_password: ketan123
+    test_current_password: jigar123
+    test_new_password: jigar123
+    test_repeat_password: jigar123
+    test_phonenumber: '+919722705715'
+    test_admin_username: admin
+    test_admin_password: admin
+    test_admin_email: jigar.pancholi@brainvire.in
+    test_role: ROLE_MANAGER
+    test_active: 1
+    test_setting_name: record_per_page
+    test_setting_value: 15
+    test_campaign_subject: unit_test
+    test_campaign_message: unit_test
+    test_campaign_start_date: 04-01-2015
+    test_campaign_end_date: 05-01-2015
+    test_campaign_providers: 1
+    test_campaign_email_type: M
+
+    # Milstar credential
+    processingFacnbr: 37921596
+    milstar_region: T
+    milstar_wsdl: http://simulator.mpg-aafes.com:9080/MPGSimulator/1/creditmessage
+    milstar_uuid: c47e4366-fe72-473b-b114-523e8de5641f
+
+    # Deers Authentication api and site url
+    deers_api_url:  https://dhivue.dev.dhi.local/dhi-web-services
+    deers_current_site_url: https://dhitopup.dev.dhitelecom.com/deers-auth
+    deers_exchange_topup_current_site_url: https://dev.exchangetopup.com/deers-auth
+
+    # Etisalat api credentials
+    etisalat_ip: 196.195.250.194
+    etisalat_port: 9202
+    etisalat_username: super
+    etisalat_password: 1
+
+    # TransferTo credentials
+    transferto_url: ~
+    transferto_login: ~
+    transferto_key: ~
+
+    # exchageTopup setting
+    topup_dhi_host: dhitopup.dev.dhitelecom.com
+    topup_exchange_host: dev.exchangetopup.com
+
+    # family recharge settings
+    family_paypal_confirm_url: /family-topup/paypal/paymentconfirm/
+    family_paypal_cancel_url: /family-topup/paypal/paymentcancel/
+
+    # viva details
+    viva_transcation_wsdl: https://epayment.viva.com.kw/mp_test/webservices/ETransactionsService?Wsdl
+    viva_subscriber_wsdl: https://epayment.viva.com.kw/mp_test/webservices/AccountManagementService?Wsdl
+    viva_agentIdentifier: ~
+    viva_agentPassword: ~
+    viva_api_system_password: ~
+    viva_country_isd_code: +965
+    viva_sample_number: ~
+    viva_topup_amount: 1
+
+    # Chase credentials
+    chase_dhi_topup_hosted_secure_id: ~
+    chase_exchange_topup_hosted_secure_id: ~
+    chase_iframe_url: ~
+    chase_dhi_callback_url: ~
+    chase_exchange_callback_url: ~
+
+    topup_from_email_exchange_user:
+        announcements@exchangetopup.com: Exchange Top Up

@@ -1,0 +1,570 @@
+{% set c_path = app.request.attributes.get('_route') %}
+
+<ul class="sidebar-menu">
+	{% if app.user %}
+		<li class="header">
+			<h4 class="box-title mainTitle text-white">Main Menu</h4>
+		</li>
+		<li class="{% if c_path in ['dhi_admin_dashboard'] %}active{% endif %}"><a class="{% if c_path in ['dhi_admin_dashboard'] %}active{% endif %}" href="{{ path('dhi_admin_dashboard')}}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+		{# % if (app.user.group == 'Super Admin') or (app.user.group == 'Manager') or (app.user.group == 'Cashier') or (app.user.group == 'Helpdesk') or (app.user.group == 'Read Only')  % #}
+		{% if
+			admin_permission.checkPermission('user_list') or
+			admin_permission.checkPermission('user_create') or
+			admin_permission.checkPermission('user_delete') or
+			admin_permission.checkPermission('user_update') or
+			admin_permission.checkPermission('view_user') or
+			admin_permission.checkPermission('user_credit_add') or
+			admin_permission.checkPermission('user_log_detail') or
+			admin_permission.checkPermission('user_purchase_history') or
+			admin_permission.checkPermission('user_purchase_history_export') or
+			admin_permission.checkPermission('user_login_log') or
+			admin_permission.checkPermission('user_login_log_export') or
+			admin_permission.checkPermission('user_login_log_print') or
+			admin_permission.checkPermission('milstar_transaction') or
+			admin_permission.checkPermission('milstar_transaction_failure') or
+			admin_permission.checkPermission('employee_list') or
+			admin_permission.checkPermission('employee_create') or
+			admin_permission.checkPermission('employee_delete') or
+			admin_permission.checkPermission('employee_update') or
+			admin_permission.checkPermission('view_user') or
+			admin_permission.checkPermission('employee_log_detail') or 
+			admin_permission.checkPermission('selevision_login_history_list') or
+			admin_permission.checkPermission('compensation_report_list') or
+			admin_permission.checkPermission('sales_details_report_view') or
+			admin_permission.checkPermission('active_user_report_view') or
+			admin_permission.checkPermission('active_user_report_export_csv') or 
+			admin_permission.checkPermission('active_user_report_export_excel') or
+			admin_permission.checkPermission('refund_expired_plans_list') or
+			admin_permission.checkPermission('refund_expired_plans_refund')
+		%}
+			<li class="{% if c_path in [
+					'dhi_admin_changes_sales_report',
+					'dhi_admin_aradial_user_online_list',
+					'dhi_admin_aradial_user_list',
+					'dhi_admin_refund_report',
+					'dhi_admin_user_list',
+					'dhi_admin_active_user_report',
+					'dhi_user_new',
+					'dhi_admin_edit_customer',
+					'dhi_admin_view_customer',
+					'dhi_admin_user_service_details',
+					'dhi_admin_user_service_status',
+					'dhi_admin_purchase_history',
+					'dhi_admin_user_log',
+					'dhi_milstar_transaction_lookup',
+					'dhi_milstar_failure_lookup',
+					'dhi_admin_aradial_user_purchase_history',
+					'dhi_admin_view_employee',
+					'dhi_admin_employee_service_details',
+					'dhi_admin_employee_service_status',
+					'dhi_admin_employee_list',
+					'dhi_employee_new',
+					'dhi_admin_edit_employee',
+					'dhi_admin_selevision_login_history',
+					'dhi_admin_compensation_report_list',
+					'dhi_admin_sales_details_report',
+					'dhi_admin_view_expired_plans_list'
+				] %}active{% endif %}" >
+				<a class="{% if c_path in [
+						'dhi_admin_user_list',
+						'dhi_user_new',
+						'dhi_admin_edit_customer',
+						'dhi_admin_view_customer',
+						'dhi_admin_user_service_details',
+						'dhi_admin_user_service_status',
+						'dhi_admin_purchase_history',
+						'dhi_admin_user_log',
+						'dhi_milstar_transaction_lookup',
+						'dhi_milstar_failure_lookup',
+						'dhi_admin_aradial_user_purchase_history',
+						'dhi_admin_active_user_report',
+						'dhi_admin_aradial_user_list',
+						'dhi_admin_aradial_user_online_list',
+						'dhi_admin_employee_list',
+						'dhi_employee_new',
+						'dhi_admin_edit_employee',
+						'dhi_admin_view_employee',
+						'dhi_admin_employee_service_details',
+						'dhi_admin_employee_service_status',
+						'dhi_admin_selevision_login_history',
+						'dhi_admin_compensation_report_list',
+						'dhi_admin_sales_details_report',
+						'dhi_admin_view_expired_plans_list'
+					] %}active{% endif %}" href="#">
+					<i class="fa fa-user"></i><span>Users</span><i class="fa fa-angle-left pull-right"></i>
+				</a>
+
+				<ul class="treeview-menu">
+					{% if admin_permission.checkPermission('user_list') or admin_permission.checkPermission('user_create') or admin_permission.checkPermission('user_delete') or admin_permission.checkPermission('user_update') or admin_permission.checkPermission('view_user') or admin_permission.checkPermission('user_credit_add') or admin_permission.checkPermission('user_log_detail') %}
+						<li class="{% if c_path in ['dhi_admin_user_list','dhi_user_new','dhi_admin_edit_customer','dhi_admin_view_customer','dhi_admin_user_service_details','dhi_admin_user_service_status', 'dhi_admin_view_expired_plans_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_user_list') }}"><i class="fa fa-user"></i><span>Users</span></a>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('employee_list') or admin_permission.checkPermission('employee_create') or admin_permission.checkPermission('employee_delete') or admin_permission.checkPermission('employee_update') or admin_permission.checkPermission('view_employee') or admin_permission.checkPermission('employee_credit_add') or admin_permission.checkPermission('employee_log_detail') %}
+						<li class="{% if c_path in ['dhi_admin_employee_list','dhi_employee_new','dhi_admin_edit_employee','dhi_admin_view_employee','dhi_admin_employee_service_details','dhi_admin_employee_service_status'] %}active{% endif %}"><a href="{{ path('dhi_admin_employee_list') }}"><i class="fa fa-user"></i><span>Employees</span></a>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('user_purchase_history') or admin_permission.checkPermission('user_purchase_history_export_print') or admin_permission.checkPermission('user_purchase_history_export_pdf') or admin_permission.checkPermission('user_purchase_history_export_csv') %}
+						<li class="{% if c_path in ['dhi_admin_purchase_history'] %}active{% endif %}"><a href="{{ path('dhi_admin_purchase_history') }}"><i class="fa fa-dollar"></i><span>Purchase History</span></a> </li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('active_user_report_view') or admin_permission.checkPermission('active_user_report_export_excel') or admin_permission.checkPermission('active_user_report_export_csv') %}
+						<li class="{% if c_path in ['dhi_admin_active_user_report'] %}active{% endif %}"><a href="{{ path('dhi_admin_active_user_report') }}"><i class="fa fa-money"></i><span>Active User Report</span></a> </li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('active_service_count_report_view') %}
+						<li class="{% if c_path in ['dhi_admin_active_user_service_count_report_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_active_user_service_count_report_list') }}"><i class="fa fa-bolt"></i><span>Active Service Count Report</span></a> </li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('aradial_user_purchase_history') or admin_permission.checkPermission('aradial_user_purchase_history_export_print') or admin_permission.checkPermission('aradial_user_purchase_history_export_pdf') or admin_permission.checkPermission('aradial_user_purchase_history_export_csv') %}
+						<li class="{% if c_path in ['dhi_admin_aradial_user_purchase_history'] %}active{% endif %}"><a href="{{ path('dhi_admin_aradial_user_purchase_history') }}"><i class="fa fa-dollar"></i><span>Aradial User Purchase History</span></a> </li>
+					{% endif %}
+
+          {% if admin_permission.checkPermission('aradial_purchase_history_list') or admin_permission.checkPermission('aradial_purchase_history_import') %}
+            <li class="{% if c_path in ['dhi_admin_aradial_payment_history_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_aradial_payment_history_list') }}"><i class="fa fa-money"></i><span>Aradial Purchase History</span></a> </li>
+          {% endif %}
+
+					{% if admin_permission.checkPermission('user_login_log') or admin_permission.checkPermission('user_login_log_export') or admin_permission.checkPermission('user_login_log_print') %}
+						<li class="{% if c_path in ['dhi_admin_user_log'] %}active{% endif %}"><a href="{{ path('dhi_admin_user_log') }}"><i class="fa fa-sign-in"></i><span>Users Login Log</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('milstar_transaction') or admin_permission.checkPermission('milstar_transaction_failure') %}
+						<li class="{% if c_path in ['dhi_milstar_transaction_lookup'] %}active{% endif %}"><a href="{{ path('dhi_milstar_transaction_lookup') }}"><i class="fa fa-th"></i><span>Milstar Transaction Report</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('sales_report_view') %}
+						<li class="{% if c_path in ['dhi_admin_changes_sales_report'] %}active{% endif %}"><a href="{{ path('dhi_admin_changes_sales_report') }}"><i class="fa fa-file-text-o"></i><span>Sales Report</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('aradial_user_list') %}
+						<li class="{% if c_path in ['dhi_admin_aradial_user_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_aradial_user_list') }}"><i class="fa fa-file-o"></i><span>Aradial Session History</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('aradial_online_user_list') %}<li class="{% if c_path in ['dhi_admin_aradial_user_online_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_aradial_user_online_list') }}"><i class="fa fa-user"></i><span>Aradial Online User</span></a></li>{% endif %}
+
+					{% if admin_permission.checkPermission('refund_report_view') %}
+						<li class="{% if c_path in ['dhi_admin_refund_report'] %}active{% endif %}"><a href="{{ path('dhi_admin_refund_report') }}"><i class="fa fa-indent"></i><span>Refund Report</span></a></li>
+					{% endif %}
+                                        
+					{% if admin_permission.checkPermission('sales_details_report_view') %}
+						<li class="{% if c_path in ['dhi_admin_sales_details_report'] %}active{% endif %}"><a href="{{ path('dhi_admin_sales_details_report') }}"><i class="fa fa-newspaper-o"></i><span>Sales Details Report</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('selevision_login_history_list') %}
+						<li class="{% if c_path in ['dhi_admin_selevision_login_history'] %}active{% endif %}"><a href="{{ path('dhi_admin_selevision_login_history') }}"><i class="fa fa-signal"></i><span>Selevision Login History</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('compensation_report_list') %}
+						<li class="{% if c_path in ['dhi_admin_compensation_report_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_compensation_report_list') }}"><i class="fa fa-server"></i><span>Compensation Report</span></a></li>
+					{% endif %}
+                                        
+				</ul>
+			</li>
+		{% endif %}
+
+		{% if
+			admin_permission.checkPermission('admin_list') or
+			admin_permission.checkPermission('admin_create') or
+			admin_permission.checkPermission('admin_update') or
+			admin_permission.checkPermission('admin_delete') or
+			admin_permission.checkPermission('admin_group_list') or
+			admin_permission.checkPermission('admin_group_create') or
+			admin_permission.checkPermission('admin_group_permission') or
+			admin_permission.checkPermission('admin_permission_list') or
+			admin_permission.checkPermission('admin_permission_update') or
+			admin_permission.checkPermission('audit_log_list') or
+			admin_permission.checkPermission('compensation_list') or
+			admin_permission.checkPermission('compensation_create') or
+			admin_permission.checkPermission('compensation_update') or
+			admin_permission.checkPermission('compensation_delete') or
+			admin_permission.checkPermission('credit_list') or
+			admin_permission.checkPermission('credit_create') or
+			admin_permission.checkPermission('credit_update') or
+			admin_permission.checkPermission('credit_delete') or
+			admin_permission.checkPermission('isp_pin_list') or
+			admin_permission.checkPermission('isp_pin_create_single') or
+			admin_permission.checkPermission('isp_pin_create_multiple') or
+			admin_permission.checkPermission('isp_pin_delete') or
+			admin_permission.checkPermission('package_list') or
+			admin_permission.checkPermission('promotion_view') or
+			admin_permission.checkPermission('promotion_new') or
+			admin_permission.checkPermission('promotion_update') or
+                        admin_permission.checkPermission('promotion_status') or
+      admin_permission.checkPermission('chase_merchant_ids_list') or
+      admin_permission.checkPermission('chase_merchant_ids_create') or
+      admin_permission.checkPermission('chase_merchant_ids_update') or
+      admin_permission.checkPermission('service_location_wise_chase_merchant_id_list') or
+      admin_permission.checkPermission('service_location_wise_chase_merchant_id_create') or
+      admin_permission.checkPermission('service_location_wise_chase_merchant_id_update')
+		%}
+			<li class="{% if c_path in [
+				'dhi_admin_list',
+				'dhi_admin_credit_list',
+				'dhi_admin_credit_new',
+				'dhi_admin_credit_edit',
+				'dhi_admin_new','dhi_admin_edit',
+				'dhi_admin_service_location',
+				'dhi_admin_group_list',
+				'dhi_admin_group_permission',
+				'dhi_admin_group_new',
+				'dhi_admin_permission_list',
+				'dhi_admin_permission_edit',
+				'dhi_admin_audit_logs',
+				'dhi_admin_compensation_list',
+				'dhi_admin_compensation_new',
+				'dhi_admin_compensation_edit',
+				'dhi_admin_credit_list',
+				'dhi_admin_credit_new',
+				'dhi_admin_credit_edit',
+				'dhi_admin_isp_pin_list',
+				'dhi_admin_isp_pin_create_single',
+				'dhi_admin_isp_pin_create_multiple',
+				'dhi_admin_isp_pin_edit',
+				'dhi_admin_service_partner_list',
+				'dhi_admin_service_partner_new',
+				'dhi_admin_service_partner_edit',
+				'dhi_admin_credential_list',
+				'dhi_admin_credential_new',
+				'dhi_admin_credential_edit',
+				'dhi_admin_business_list',
+				'dhi_admin_business_new',
+				'dhi_admin_business_edit',
+				'dhi_admin_package_list',
+				'dhi_admin_promotion_list',
+				'dhi_admin_promotion_new',
+				'dhi_admin_promotion_edit',
+				'dhi_admin_chase_merchant_ids_list',
+				'dhi_admin_chase_merchant_ids_new',
+				'dhi_admin_chase_merchant_ids_edit',
+				'dhi_admin_service_location_wise_chase_merchant_id_list',
+				'dhi_admin_service_location_wise_chase_merchant_id_new',
+				'dhi_admin_service_location_wise_chase_merchant_id_edit'
+			] %}active{% endif %}"><a href="#"><i class="fa fa-group"></i><span>Admins</span><i class="fa fa-angle-left pull-right"></i></a>
+				<ul class="treeview-menu">
+					{% if admin_permission.checkPermission('admin_list') or admin_permission.checkPermission('admin_create') or admin_permission.checkPermission('admin_update') or admin_permission.checkPermission('admin_delete') %}
+						<li class="{% if c_path in ['dhi_admin_list','dhi_admin_new','dhi_admin_edit','dhi_admin_service_location'] %}active{% endif %}"><a href="{{ path('dhi_admin_list') }}"><i class="fa fa-user-secret"></i><span>Admins</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('admin_group_list') or admin_permission.checkPermission('admin_group_create') or admin_permission.checkPermission('admin_group_permission') %}
+						<li class="{% if c_path in ['dhi_admin_group_list','dhi_admin_group_permission','dhi_admin_group_new'] %}active{% endif %}"><a href="{{ path('dhi_admin_group_list') }}"><i class="fa fa-group"></i><span>Groups</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('package_list')%}
+						<li class="{% if c_path in ['dhi_admin_package_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_package_list') }}"><i class="fa fa-copy"></i><span>Package</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('admin_permission_list') or admin_permission.checkPermission('admin_permission_update') %}
+						<li class="{% if c_path in ['dhi_admin_permission_list','dhi_admin_permission_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_permission_list') }}"><i class="fa fa-list-alt"></i><span>Permissions</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('audit_log_list') %}
+						<li class="{% if c_path in ['dhi_admin_audit_logs'] %}active{% endif %}"><a href="{{ path('dhi_admin_audit_logs') }}"><i class="fa fa-pie-chart"></i><span>Audit Logs</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('compensation_list') or admin_permission.checkPermission('compensation_create') or admin_permission.checkPermission('compensation_update') or admin_permission.checkPermission('compensation_delete') %}
+						<li class="{% if c_path in ['dhi_admin_compensation_list','dhi_admin_compensation_new','dhi_admin_compensation_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_compensation_list') }}"><i class="fa fa-copy"></i><span>Compensations</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('credit_list') or admin_permission.checkPermission('credit_create') or admin_permission.checkPermission('credit_update') or admin_permission.checkPermission('credit_delete') %}
+						<li class="{% if c_path in ['dhi_admin_credit_list','dhi_admin_credit_new','dhi_admin_credit_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_credit_list') }}"><i class="fa fa-pencil-square-o"></i><span>Credit</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('isp_pin_list') or admin_permission.checkPermission('isp_pin_create_single') or admin_permission.checkPermission('isp_pin_create_multiple') or admin_permission.checkPermission('isp_pin_delete') %}
+						<li class="{% if c_path in ['dhi_admin_isp_pin_list','dhi_admin_isp_pin_create_single', 'dhi_admin_isp_pin_create_multiple','dhi_admin_isp_pin_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_isp_pin_list') }}"><i class="fa fa-pencil-square-o"></i><span>ISP Pin Creation</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('credential_list') or admin_permission.checkPermission('credential_create') or admin_permission.checkPermission('credential_update') or admin_permission.checkPermission('credential_delete') %}
+						<li class="{% if c_path in ['dhi_admin_credential_list','dhi_admin_credential_new','dhi_admin_credential_edit'] %}active{% endif %}">
+							<a href="{{ path('dhi_admin_credential_list') }}"><i class="fa fa-user-times"></i><span>Paypal Credentials</span></a>
+						</li>
+					{% endif %}
+                                        
+					{% if admin_permission.checkPermission('chase_merchant_ids_list') or admin_permission.checkPermission('chase_merchant_ids_create') or admin_permission.checkPermission('chase_merchant_ids_update') %}
+						<li class="{% if c_path in ['dhi_admin_chase_merchant_ids_list','dhi_admin_chase_merchant_ids_new','dhi_admin_chase_merchant_ids_edit','dhi_admin_service_location_wise_chase_merchant_id_list','dhi_admin_service_location_wise_chase_merchant_id_new','dhi_admin_service_location_wise_chase_merchant_id_edit'] %}active{% endif %}">
+							<a href="{{ path('dhi_admin_chase_merchant_ids_list') }}"><i class="fa fa-user-times"></i><span>Chase Merchant Ids</span></a>
+						</li>
+					{% endif %}
+                                        
+                                        {#{% if admin_permission.checkPermission('service_location_wise_chase_merchant_id_list') or admin_permission.checkPermission('service_location_wise_chase_merchant_id_create') or admin_permission.checkPermission('service_location_wise_chase_merchant_id_update') or admin_permission.checkPermission('service_location_wise_chase_merchant_id_delete') %}
+						<li class="{% if c_path in ['dhi_admin_service_location_wise_chase_merchant_id_list','dhi_admin_service_location_wise_chase_merchant_id_new','dhi_admin_service_location_wise_chase_merchant_id_edit'] %}active{% endif %}">
+							<a href="{{ path('dhi_admin_service_location_wise_chase_merchant_id_list') }}"><i class="fa fa-user-times"></i><span>Assign Chase Merchant Id</span></a>
+						</li>
+					{% endif %}#}
+                                        
+					{% if admin_permission.checkPermission('service_partner_view') or admin_permission.checkPermission('service_partner_new') or admin_permission.checkPermission('service_partner_update') or admin_permission.checkPermission('service_partner_delete') %}
+						<li class="{% if c_path in ['dhi_admin_service_partner_list','dhi_admin_service_partner_new','dhi_admin_service_partner_edit'] %}active{% endif %}">
+							<a href="{{ path('dhi_admin_service_partner_list') }}"><i class="fa fa-user-secret"></i><span>ISP Service Partners</span></a>
+						</li>
+					{% endif %}
+
+
+					{% if admin_permission.checkPermission('business_view') or admin_permission.checkPermission('business_new') or admin_permission.checkPermission('business_update') or admin_permission.checkPermission('business_delete') %}
+						<li class="{% if c_path in ['dhi_admin_business_list','dhi_admin_business_new', 'dhi_admin_business_update'] %}active{% endif %}"><a href="{{ path('dhi_admin_business_list') }}"><i class="fa fa-building"></i><span>Business</span></a></li>
+					{% endif %}
+
+				</ul>
+			</li>
+		{% endif %}
+
+
+		{% if 
+			admin_permission.checkPermission('business_batch_list') or 
+			admin_permission.checkPermission('business_batch_create') or 
+			admin_permission.checkPermission('business_batch_update') or 
+			admin_permission.checkPermission('business_batch_delete') or
+			admin_permission.checkPermission('partner_promo_code_list') or 
+			admin_permission.checkPermission('partner_promo_code_create') or 
+			admin_permission.checkPermission('partner_promo_code_update') or 
+			admin_permission.checkPermission('partner_promo_code_delete') or
+			admin_permission.checkPermission('employee_promo_code_report') or
+			admin_permission.checkPermission('employee_promo_code_list') or
+			admin_permission.checkPermission('employee_promo_code_create') or
+			admin_permission.checkPermission('employee_promo_code_update') or
+			admin_permission.checkPermission('employee_promo_code_delete') or 
+			admin_permission.checkPermission('promo_code_list') or 
+			admin_permission.checkPermission('promo_code_create') or 
+			admin_permission.checkPermission('promo_code_update') or 
+			admin_permission.checkPermission('promo_code_delete') or 
+			admin_permission.checkPermission('promo_code_export_csv') or 
+			admin_permission.checkPermission('promo_code_export_pdf') or
+			admin_permission.checkPermission('discount_code_list') or 
+			admin_permission.checkPermission('discount_code_create') or 
+			admin_permission.checkPermission('discount_code_update') or 
+			admin_permission.checkPermission('discount_code_delete') or 
+			admin_permission.checkPermission('discount_code_export_csv') or 
+			admin_permission.checkPermission('discount_code_print') or 
+			admin_permission.checkPermission('discount_code_export_pdf') or 
+			admin_permission.checkPermission('discount_code_view_customer') or 
+			admin_permission.checkPermission('discount_code_enable_disable') or
+			admin_permission.checkPermission('promocode_redemption_report_view') or
+			admin_permission.checkPermission('partner_promo_code_deactivation_report') or
+			admin_permission.checkPermission('partner_promocode_sales_report_view') or
+			admin_permission.checkPermission('tikilive_promo_code_list') or 
+			admin_permission.checkPermission('tikilive_promo_code_import') or 
+            admin_permission.checkPermission('free_recharge_card_list') or
+			admin_permission.checkPermission('free_recharge_card_mark_user') or
+			admin_permission.checkPermission('free_recharge_card_export_csv')
+		%}
+			<li class="{% if c_path in [
+				'dhi_admin_partner_promo_code_list',
+				'dhi_admin_partner_promo_code_new',
+				'dhi_admin_partner_promo_code_edit',
+				'dhi_admin_partner_promo_code_batch_list',
+				'dhi_admin_business_batch_list',
+				'dhi_admin_business_batch_new',
+				'dhi_admin_business_batch_update',
+				'dhi_admin_employee_promo_code_report_list',
+				'dhi_admin_employee_promo_code_list',
+				'dhi_admin_promo_code_list',
+        		'dhi_admin_in_app_promo_code_list',
+        		'dhi_admin_in_app_promo_code_new',
+        		'dhi_admin_in_app_promo_code_edit',
+        		'dhi_admin_tikilive_promo_code_list',
+        		'dhi_admin_tikilive_promo_code_import',
+				'dhi_admin_discount_code_list',
+				'dhi_admin_promocode_redemption_report_list',
+				'dhi_admin_promocode_sales_report_list',
+				'dhi_admin_partner_promocode_deactivation_report',
+				'dhi_admin_business_promo_code_list',
+				'dhi_admin_promo_code_new',
+				'dhi_admin_promo_code_edit',
+				'dhi_admin_unassigned_promo_codes_view',
+				'dhi_admin_unassigned_promo_codes_reassign',
+				'dhi_admin_unassigned_bulk_promo_codes_reassign',
+        		'dhi_admin_tikilive_active_uset_list',
+                'dhi_admin_free_recharge_card_list',
+                'dhi_admin_mark_user_free_recharge_card'
+				] %}active{% endif %}"><a href="#"><i class="fa fa-bookmark"></i><span>Promo Codes</span><i class="fa fa-angle-left pull-right"></i></a>
+					<ul class="treeview-menu">
+					{% if admin_permission.checkPermission('partner_promo_code_list') or admin_permission.checkPermission('partner_promo_code_create') or admin_permission.checkPermission('partner_promo_code_update') or admin_permission.checkPermission('partner_promo_code_delete') %}
+						<li class="{% if c_path in ['dhi_admin_partner_promo_code_list', 'dhi_admin_partner_promo_code_batch_list','dhi_admin_partner_promo_code_create','dhi_admin_partner_promo_code_new', 'dhi_admin_partner_promo_code_edit'] %}active{% endif %}">
+							<a href="{{ path('dhi_admin_partner_promo_code_batch_list') }}"><i class="fa fa-code"></i><span>Partner</span></a>
+						</li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('business_batch_list') or admin_permission.checkPermission('business_batch_create') or admin_permission.checkPermission('business_batch_update') or admin_permission.checkPermission('business_batch_delete') %}
+						<li class="{% if c_path in ['dhi_admin_business_promo_code_list', 'dhi_admin_business_batch_list','dhi_admin_business_batch_new', 'dhi_admin_business_batch_update'] %}active{% endif %}"><a href="{{ path('dhi_admin_business_batch_list') }}"><i class="fa fa-code"></i><span>Business</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('employee_promo_code_list') or
+		             admin_permission.checkPermission('employee_promo_code_create') or
+		             admin_permission.checkPermission('employee_promo_code_update') or
+		             admin_permission.checkPermission('employee_promo_code_delete') %}
+						<li class="{% if c_path in ['dhi_admin_employee_promo_code_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_employee_promo_code_list') }}"><i class="fa fa-code"></i><span>Employee</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('promo_code_list') or 
+						admin_permission.checkPermission('promo_code_create') or 
+						admin_permission.checkPermission('promo_code_update') or 
+						admin_permission.checkPermission('promo_code_delete') or 
+						admin_permission.checkPermission('promo_code_export_csv') or 
+						admin_permission.checkPermission('promo_code_export_pdf') %}
+							<li class="{% if c_path in ['dhi_admin_promo_code_list', 'dhi_admin_promo_code_new', 'dhi_admin_promo_code_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_promo_code_list') }}"><i class="fa fa-code"></i><span>Customer</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('unassigned_promo_codes_view') %}
+						<li class="{% if c_path in ['dhi_admin_unassigned_promo_codes_reassign', 'dhi_admin_unassigned_bulk_promo_codes_reassign', 'dhi_admin_unassigned_promo_codes_view'] %}active{% endif %}"><a href="{{ path('dhi_admin_unassigned_promo_codes_view') }}"><i class="fa fa-code"></i><span>UnAssigned</span></a></li>
+					{% endif %}
+
+                    {% if admin_permission.checkPermission('In_App_promo_code_list') or 
+						admin_permission.checkPermission('In_App_promo_code_create') or 
+						admin_permission.checkPermission('In_App_promo_code_update') or 
+						admin_permission.checkPermission('In_App_promo_code_delete') or 
+						admin_permission.checkPermission('In_App_promo_code_export_csv') or 
+						admin_permission.checkPermission('In_App_promo_code_export_pdf') %}
+							<li class="{% if c_path in ['dhi_admin_in_app_promo_code_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_in_app_promo_code_list') }}"><i class="fa fa-code"></i><span>In App Promo</span></a></li>
+					{% endif %}
+
+                    {% if admin_permission.checkPermission('tikilive_promo_code_list') or 
+						admin_permission.checkPermission('tikilive_promo_code_import') or
+                        admin_permission.checkPermission('tikilive_promo_code_status') or 
+                        admin_permission.checkPermission('tikilive_promo_code_search_filter') %}
+                            <li class="{% if c_path in ['dhi_admin_tikilive_promo_code_list', 'dhi_admin_tikilive_promo_code_import', 'dhi_admin_tikilive_active_uset_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_tikilive_promo_code_list') }}"><i class="fa fa-code"></i><span>Tikilive</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('discount_code_list') or 
+						admin_permission.checkPermission('discount_code_create') or 
+						admin_permission.checkPermission('discount_code_update') or 
+						admin_permission.checkPermission('discount_code_delete') or 
+						admin_permission.checkPermission('discount_code_export_csv') or 
+						admin_permission.checkPermission('discount_code_print') or 
+						admin_permission.checkPermission('discount_code_export_pdf') or 
+						admin_permission.checkPermission('discount_code_view_customer') or 
+						admin_permission.checkPermission('discount_code_enable_disable') %}
+							<li class="{% if c_path in ['dhi_admin_discount_code_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_discount_code_list') }}"><i class="fa fa-code"></i><span>Global Promo Code</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('employee_promo_code_report') %}
+						<li class="{% if c_path in ['dhi_admin_employee_promo_code_report_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_employee_promo_code_report_list') }}"><i class="fa fa-area-chart"></i><span>Employee Report</span></a></li>
+					{% endif %}
+
+
+					{% if admin_permission.checkPermission('promocode_redemption_report_view') %}
+						<li class="{% if c_path in ['dhi_admin_promocode_redemption_report_list'] %}active{% endif %}"><a title="Partner Promo code Redeption Report
+" href="{{ path('dhi_admin_promocode_redemption_report_list') }}"><i class="fa fa-bar-chart"></i><span>Redemption Report</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('partner_promo_code_deactivation_report') %}
+						<li class="{% if c_path in ['dhi_admin_partner_promocode_deactivation_report'] %}active{% endif %}"><a title="Partner Promo code Deactivation Report
+" href="{{ path('dhi_admin_partner_promocode_deactivation_report') }}"><i class="fa fa-bar-chart"></i><span>Deactivation Report</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('partner_promocode_sales_report_view') %}
+						<li class="{% if c_path in ['dhi_admin_promocode_sales_report_list'] %}active{% endif %}"><a title="Partner Promo code Sales Report" href="{{ path('dhi_admin_promocode_sales_report_list') }}"><i class="fa fa-clipboard"></i><span>Promo Code Sales Report</span></a></li>
+					{% endif %}
+
+					{% if 
+						admin_permission.checkPermission('promotion_view') or 
+						admin_permission.checkPermission('promotion_new') or 
+						admin_permission.checkPermission('promotion_update') or
+						admin_permission.checkPermission('promotion_status')
+					%}
+						<li class="{% if c_path in [
+							'dhi_admin_promotion_list',
+							'dhi_admin_promotion_new',
+							'dhi_admin_promotion_edit'
+						] %}active{% endif %}">
+							<a href="{{ path('dhi_admin_promotion_list') }}"><i class="fa fa-database"></i><span>Promotion</span></a>
+						</li>
+					{% endif %}
+
+                    {% if admin_permission.checkPermission('free_recharge_card_list') or admin_permission.checkPermission('free_recharge_card_mark_user') or admin_permission.checkPermission('free_recharge_card_export_csv') %}
+						<li class="{% if c_path in ['dhi_admin_free_recharge_card_list', 'dhi_admin_mark_user_free_recharge_card'] %}active{% endif %}"><a href="{{ path('dhi_admin_free_recharge_card_list') }}"><i class="fa fa-server"></i><span>Free Recharge Card</span></a></li>
+					{% endif %}
+				</ul>
+			</li>
+
+		{% endif %}
+
+		{% if admin_permission.checkPermission('email_campaign_list') or admin_permission.checkPermission('email_campaign_create') or admin_permission.checkPermission('email_campaign_update') or admin_permission.checkPermission('email_campaign_delete') %}<li class="{% if c_path in ['dhi_admin_email_campaign_list','dhi_admin_email_campaign_new','dhi_admin_email_campaign_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_email_campaign_list') }}"><i class="fa fa-envelope"></i><span>Email Campaigns</span></a></li>{% endif %}
+                {% if admin_permission.checkPermission('survey_monkey_mail_list') or admin_permission.checkPermission('survey_monkey_mail_update') %}<li class="{% if c_path in ['dhi_admin_survey_monkey_mail_list'] %}active{% endif %}"><a href="{{ path('dhi_admin_survey_monkey_mail_list') }}"><i class="fa fa-envelope"></i><span>Survey Monkey Email</span></a></li>{% endif %}
+		{% if admin_permission.checkPermission('front_home_list') or admin_permission.checkPermission('front_home_update') or admin_permission.checkPermission('front_home_create') or admin_permission.checkPermission('front_home_delete')%}<li class="{% if c_path in ['dhi_admin_front_home_list','dhi_admin_front_home_new','dhi_admin_front_home_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_front_home_list') }}"><i class="fa fa-file-zip-o"></i><span>Home Page</span></a></li>{% endif %}
+		{% if admin_permission.checkPermission('banner_list') or admin_permission.checkPermission('banner_create') or admin_permission.checkPermission('banner_update') or admin_permission.checkPermission('banner_delete')%}<li class="{% if c_path in ['dhi_admin_banner_list','dhi_admin_banner_new','dhi_admin_banner_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_banner_list') }}"><i class="fa fa-picture-o"></i><span>Banners</span></a></li>{% endif %}
+
+                {% if admin_permission.checkPermission('set_top_box_list') or admin_permission.checkPermission('set_top_box_create') or admin_permission.checkPermission('set_top_box_update') or admin_permission.checkPermission('set_top_box_delete') or admin_permission.checkPermission('set_top_box_return')%}
+		       <li class="{% if c_path in ['dhi_admin_set_top_box_list','dhi_admin_set_top_box_list_json','dhi_admin_set_top_box_new'] %}active{% endif %}"><a href="{{ path('dhi_admin_set_top_box_list') }}"><i class="fa fa-tachometer"></i><span>Set Top Box</span></a></li>
+                {% endif %}
+               
+                {% if admin_permission.checkPermission('admin_white_label_list') or admin_permission.checkPermission('admin_white_label_create') or admin_permission.checkPermission('admin_white_label_update') or admin_permission.checkPermission('admin_white_label_delete') or admin_permission.checkPermission('admin_white_label_status_change') or 
+                    admin_permission.checkPermission('service_location_wise_sites_list') or admin_permission.checkPermission('assign_service_location_to_sites') or admin_permission.checkPermission('service_location_to_sites_edit') or admin_permission.checkPermission('service_location_to_sites_delete')
+                %}
+		       <li class="{% if c_path in ['dhi_admin_white_label_list','dhi_admin_white_label_list_json','dhi_admin_white_label_new','admin_white_label_create','dhi_admin_service_location_to_sites_list','dhi_admin_service_location_to_sites_new','dhi_admin_service_location_to_sites_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_white_label_list') }}"><i class="fa fa-folder-o"></i><span>Manage Site</span></a></li>
+                {% endif %}
+
+		{% if admin_permission.checkPermission('service_list') or admin_permission.checkPermission('service_create') or admin_permission.checkPermission('service_update') or admin_permission.checkPermission('service_delete')  or admin_permission.checkPermission('service_location_list') or admin_permission.checkPermission('service_location_create') or admin_permission.checkPermission('service_location_discount_create') or admin_permission.checkPermission('service_location_update') or admin_permission.checkPermission('service_location_discount_update') or admin_permission.checkPermission('service_location_delete') or admin_permission.checkPermission('country_service_list') or admin_permission.checkPermission('country_service_create') or admin_permission.checkPermission('country_service_update') or admin_permission.checkPermission('country_service_delete')  %}
+			<li class="{% if c_path in ['dhi_admin_service_list','dhi_admin_service_edit','dhi_admin_ip_zone_list','dhi_admin_ip_zone_edit','dhi_admin_service_location_discount_edit','dhi_admin_service_location_discount_new','dhi_admin_ip_zone_new','dhi_countrywiseservice_list','dhi_countrywiseservice_edit','dhi_countrywiseservice_new'] %}active{% endif %}"><a href="#"><i class="fa fa-cogs"></i><span>Service</span><i class="fa fa-angle-left pull-right"></i></a>
+				<ul class="treeview-menu">
+					{% if admin_permission.checkPermission('service_list') or admin_permission.checkPermission('service_create') or admin_permission.checkPermission('service_update') or admin_permission.checkPermission('service_delete') %}
+						<li class="{% if c_path in ['dhi_admin_service_list','dhi_admin_service_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_service_list') }}"><i class="fa fa-cogs"></i><span>Services</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('service_location_list') or admin_permission.checkPermission('service_location_create') or admin_permission.checkPermission('service_location_discount_create') or admin_permission.checkPermission('service_location_update') or admin_permission.checkPermission('service_location_discount_update') or admin_permission.checkPermission('service_location_delete') %}
+						<li class="{% if c_path in ['dhi_admin_ip_zone_list','dhi_admin_ip_zone_edit','dhi_admin_service_location_discount_edit','dhi_admin_service_location_discount_new','dhi_admin_ip_zone_new'] %}active{% endif %}"><a href="{{ path('dhi_admin_ip_zone_list') }}"><i class="fa fa-cogs"></i><span>Service Location</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('country_service_list') or admin_permission.checkPermission('country_service_create') or admin_permission.checkPermission('country_service_update') or admin_permission.checkPermission('country_service_delete') %}
+						<li class="{% if c_path in ['dhi_countrywiseservice_list','dhi_countrywiseservice_edit','dhi_countrywiseservice_new'] %}active{% endif %}"><a href="{{ path('dhi_countrywiseservice_list') }}"><i class="fa fa-cogs"></i><span>Service Country</span></a></li>
+					{% endif %}
+				</ul>
+			</li>
+		{% endif %}
+
+                {% if admin_permission.checkPermission('support_category_list') or admin_permission.checkPermission('support_category_create') or admin_permission.checkPermission('support_category_update') or admin_permission.checkPermission('support_category_delete') or admin_permission.checkPermission('support_location_list') or admin_permission.checkPermission('support_location_create') or admin_permission.checkPermission('support_location_update') or admin_permission.checkPermission('support_location_delete') or admin_permission.checkPermission('solar_wind_location_list') or admin_permission.checkPermission('solar_wind_location_add') or admin_permission.checkPermission('solar_wind_location_edit') or admin_permission.checkPermission('solar_wind_location_delete') or
+                    admin_permission.checkPermission('support_service_list') or
+                    admin_permission.checkPermission('support_service_new') or
+                    admin_permission.checkPermission('support_service_edit') or
+                    admin_permission.checkPermission('support_service_delete')
+                %}
+			<li class="{% if c_path in ['dhi_admin_support_category_list','dhi_admin_support_category_new','dhi_admin_support_category_edit','dhi_admin_support_location_list','dhi_admin_support_location_new','dhi_admin_support_location_edit','dhi_admin_solar_winds_location_list','dhi_admin_solar_winds_location_add','dhi_admin_solar_winds_location_edit', 'dhi_admin_support_service_list', 'dhi_admin_support_service_new', 'dhi_admin_support_service_edit'] %}active{% endif %}"><a href="#"><i class="fa fa-life-ring"></i><span>Support</span><i class="fa fa-angle-left pull-right"></i></a>
+				<ul class="treeview-menu">
+					{% if admin_permission.checkPermission('support_category_list') or admin_permission.checkPermission('support_category_create') or admin_permission.checkPermission('support_category_update') or admin_permission.checkPermission('support_category_delete') %}<li class="{% if c_path in ['dhi_admin_support_category_list','dhi_admin_support_category_new','dhi_admin_support_category_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_support_category_list') }}"><i class="fa fa-cogs"></i><span>Support Category</span></a></li>{% endif %}
+					{% if admin_permission.checkPermission('support_location_list') or admin_permission.checkPermission('support_location_create') or admin_permission.checkPermission('support_location_update') or admin_permission.checkPermission('support_location_delete') %}<li class="{% if c_path in ['dhi_admin_support_location_list','dhi_admin_support_location_new','dhi_admin_support_location_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_support_location_list') }}"><i class="fa fa-cogs"></i><span>Support Location</span></a></li>{% endif %}
+                                        {% if admin_permission.checkPermission('support_service_list') or admin_permission.checkPermission('support_service_new') or admin_permission.checkPermission('support_service_edit') or admin_permission.checkPermission('support_service_delete') %}<li class="{% if c_path in ['dhi_admin_support_service_list', 'dhi_admin_support_service_new', 'dhi_admin_support_service_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_support_service_list') }}"><i class="fa fa-cogs"></i><span>Support Service</span></a></li>{% endif %}
+                                         {% if admin_permission.checkPermission('solar_wind_location_list') or admin_permission.checkPermission('solar_wind_location_add') or admin_permission.checkPermission('solar_wind_location_edit') or admin_permission.checkPermission('solar_wind_location_delete') %}
+		       <li class="{% if c_path in ['dhi_admin_solar_winds_location_list','dhi_admin_solar_winds_location_list_json','dhi_admin_solar_winds_location_add','dhi_admin_solar_winds_location_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_solar_winds_location_list') }}"><i class="fa fa-folder-o"></i><span>Solar Winds Request Type</span></a></li>
+                {% endif %}
+				</ul>
+			</li>
+		{% endif %}
+
+		{% if admin_permission.checkPermission('settings_list') or admin_permission.checkPermission('settings_create') or admin_permission.checkPermission('settings_update') or admin_permission.checkPermission('settings_delete') or admin_permission.checkPermission('global_discount_list') or admin_permission.checkPermission('global_discount_create') or admin_permission.checkPermission('global_discount_update') or admin_permission.checkPermission('global_discount_delete') or admin_permission.checkPermission('topup_link_list') or admin_permission.checkPermission('topup_link_edit')%}
+			<li class="{% if c_path in ['dhi_admin_api_failure_email_list', 'dhi_admin_setting_list','dhi_admin_setting_new','dhi_admin_setting_edit','dhi_admin_global_discount_list','dhi_admin_global_discount_new','dhi_admin_global_discount_edit'] %}active{% endif %}"><a href="#"><i class="fa fa-cog"></i><span>Settings</span><i class="fa fa-angle-left pull-right"></i></a>
+				<ul class="treeview-menu">
+					{% if admin_permission.checkPermission('settings_list') or admin_permission.checkPermission('settings_create') or admin_permission.checkPermission('settings_update') or admin_permission.checkPermission('settings_delete') %}
+						<li class="{% if c_path in ['dhi_admin_setting_list','dhi_admin_setting_new','dhi_admin_setting_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_setting_list') }}"><i class="fa fa-cogs"></i><span>Settings</span></a></li>
+					{% endif %}
+
+					{% if admin_permission.checkPermission('global_discount_list') or admin_permission.checkPermission('global_discount_create') or admin_permission.checkPermission('global_discount_update') or admin_permission.checkPermission('global_discount_delete') %}
+						<li class="{% if c_path in ['dhi_admin_global_discount_list','dhi_admin_global_discount_new','dhi_admin_global_discount_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_global_discount_list') }}"><i class="fa fa-cogs"></i><span>Global Bundle Discount</span></a></li>
+					{% endif %}
+					<li class="{% if c_path in ['dhi_admin_api_failure_email_list','dhi_admin_api_failure_email_new','dhi_admin_api_failure_email_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_api_failure_email_list') }}"><i class="fa fa-cogs"></i><span>API Failure Email List</span></a></li>
+                                        {% if admin_permission.checkPermission('topup_link_list') or admin_permission.checkPermission('topup_link_edit') %}
+						<li class="{% if c_path in ['dhi_admin_topup_link_list','dhi_admin_topup_link_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_topup_link_list') }}"><i class="fa fa-cogs"></i><span>Topup Link</span></a></li>
+					{% endif %}
+				</ul>
+			</li>
+		{% endif %}
+	{% endif %}
+
+	{# elseif (app.user.group == 'Manager') %}
+		<li class="{% if c_path in ['dhi_admin_user_list','dhi_user_new','dhi_admin_edit_customer','dhi_admin_view_customer','dhi_admin_user_service_details','dhi_admin_user_service_status'] %}active{% endif %}"><a href="{{ path('dhi_admin_user_list') }}"><i class="fa fa-user"></i><span>Users</span></a></li>
+		<li class="{% if c_path in ['dhi_admin_purchase_history','dhi_admin_purchase_history_export'] %}active{% endif %}"><a href="{{ path('dhi_admin_purchase_history') }}"><i class="fa fa-money"></i><span>Purchase History</span></a></li>
+		<li class="{% if c_path in ['dhi_admin_list','dhi_admin_new','dhi_admin_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_list') }}"><i class="fa fa-user-secret"></i><span>Admins</span></a></li>
+
+	{% elseif (app.user.group == 'Cashier') %}
+		<li class="{% if c_path in ['dhi_admin_user_list','dhi_user_new','dhi_admin_edit_customer','dhi_admin_view_customer','dhi_admin_user_service_details','dhi_admin_user_service_status'] %}active{% endif %}"><a href="{{ path('dhi_admin_user_list') }}"><i class="fa fa-user"></i><span>Users</span></a></li>
+		<li class="{% if c_path in ['dhi_admin_purchase_history','dhi_admin_purchase_history_export'] %}active{% endif %}"><a href="{{ path('dhi_admin_purchase_history') }}"><i class="fa fa-money"></i><span>Purchase History</span></a></li>
+		<li class="{% if c_path in ['dhi_admin_list','dhi_admin_new','dhi_admin_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_list') }}"><i class="fa fa-user-secret"></i><span>Admins</span></a></li>
+
+	{% elseif (app.user.group == 'Helpdesk') %}
+		<li class="{% if c_path in ['dhi_admin_user_list','dhi_user_new','dhi_admin_edit_customer','dhi_admin_view_customer','dhi_admin_user_service_details','dhi_admin_user_service_status'] %}active{% endif %}"><a href="{{ path('dhi_admin_user_list') }}"><i class="fa fa-user"></i><span>Users</span></a></li>
+		<li class="{% if c_path in ['dhi_admin_purchase_history','dhi_admin_purchase_history_export'] %}active{% endif %}"><a href="{{ path('dhi_admin_purchase_history') }}"><i class="fa fa-money"></i><span>Purchase History</span></a></li>
+		<li class="{% if c_path in ['dhi_admin_list','dhi_admin_new','dhi_admin_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_list') }}"><i class="fa fa-user-secret"></i><span>Admins</span></a></li>
+
+	{% elseif (app.user.group == 'Read Only') %}
+		<li class="{% if c_path in ['dhi_admin_user_list','dhi_user_new','dhi_admin_edit_customer','dhi_admin_view_customer','dhi_admin_user_service_details','dhi_admin_user_service_status'] %}active{% endif %}"><a href="{{ path('dhi_admin_user_list') }}"><i class="fa fa-user"></i><span>Users</span></a></li>
+		<li class="{% if c_path in ['dhi_admin_purchase_history','dhi_admin_purchase_history_export'] %}active{% endif %}"><a href="{{ path('dhi_admin_purchase_history') }}"><i class="fa fa-money"></i><span>Purchase History</span></a></li>
+		<li class="{% if c_path in ['dhi_admin_list','dhi_admin_new','dhi_admin_edit'] %}active{% endif %}"><a href="{{ path('dhi_admin_list') }}"><i class="fa fa-user-secret"></i><span>Admins</span></a></li>
+	{% endif #}
+	{# <li><a href="{{ path('admin_logout') }}"><i class="fa fa-sign-out"></i><span>Logout</span></a></li> #}
+	{# % endif % #}
+</ul>

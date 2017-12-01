@@ -1,0 +1,177 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+{{ parent() }}
+<link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+<style>
+	.row-yellow {
+		background-color: #E2D85B !important;
+	}
+</style>
+{% endblock stylesheets %}
+{% block body %}
+<div id="flash-message" class="msgBoxCont"></div>
+{% include "DhiUserBundle::flashMessage.html.twig" %}
+<div class="delBoxCont"></div>
+
+<section class="content-header"><h1>Aradial Online User</h1></section>
+<section class="content">
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="box box-success">
+				<form method="get">
+					<div class="box-body">
+						<div class="form-group col-md-4">
+							<div class="row"><div class="col-sm-12" id="username"></div></div>
+						</div>
+						<div class="form-group col-md-4">
+							<div class="row"><div class="col-sm-12" id="nasname"></div></div>
+						</div>
+
+						{#<div class="form-group col-md-8 pickup-date-control">
+                                <div class="row"><div class="col-sm-12" id="date-range"></div></div>
+						</div> #}
+
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div class="box box-success">
+        <div class="box-body">
+			<div class="row">
+				<div class="col-xs-12">
+
+	                <table id="userTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+	                    <thead>
+	                        <tr>
+	                            <th>Username</th>
+	                            <th>NasName</th>
+	                            <th>Online Since</th>
+	                            <th>Time Online</th>
+	                            <th>User Ip</th>
+	                            <th>Action</th>
+	                        </tr>
+	                    </thead>
+	                </table>
+                </div>
+            </div>
+    	</div>
+	</div>
+</section>
+
+<div id="ajax-loader-bx" style="display:none;">
+	<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+	<div id="loader-text">Please wait....</div>
+</div>
+
+{% endblock body %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+ <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+<script type="text/javascript">
+
+     $(document).ready(function () {
+
+            deleteAjaxSource = '{{ path('dhi_admin_aradial_disconnect_user') }}';
+            dTable = $('#userTable').dataTable({
+
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                bPaginate:true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_aradial_user_online_list_json') }}",
+                 "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "UserName", "bSearchable": true, "bSortable": true},
+                    {"sName": "NasName", "bSearchable": true, "bSortable": true},
+                    {"sName": "OnlineSince", "bSearchable": false, "bSortable": true},
+                    {"sName": "TimeOnline", "bSearchable": false, "bSortable": true},
+                    {"sName": "UserIP", "bSearchable": false, "bSortable": true},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false},
+                ],
+				 aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+
+                        	var actionFlag = row[5].split('^');
+                        	var nasId = actionFlag[1];
+                        	var nasPort = actionFlag[2];
+                        	var accountSessionId = actionFlag[3];
+                                var headTitle = "Disconnect Arardial User";
+                                var msg = 'Are you sure you want to disconnect?';
+                                
+                        	var dataId = actionFlag[0];
+                                var returnData = "<table><tr>";
+                                
+                                {% if admin_permission.checkPermission('aradial_disconnect_online_user') %}
+                                    var disconnUrl = '{{ path('dhi_admin_aradial_disconnect_user',{'id': 'userId' }) }}';
+                                    disconnUrl = disconnUrl.replace("userId", dataId);
+                                    returnData +='<td><a href="javascript:void(0)" class="btn btn-danger" onclick="return deleterecord(' + "'" + dataId + "'" + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" +')">Disconnect</a></td>';  
+                                {% endif %}
+
+
+                            return returnData;
+                        },
+                        "aTargets": [5]
+                    }
+                ],
+
+                aaSorting: [[5, 'DESC']]
+            });
+			//$.datepicker.regional[""].dateFormat = 'yy-mm-dd';
+		//	$.datepicker.setDefaults($.datepicker.regional['']);
+
+			$('#userTable').dataTable().columnFilter({
+
+				//	sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+            aoColumns: [
+             {type: "text", sSelector: "#username"},
+             {type: "text", sSelector: "#nasname"},
+
+		{#	{type: "date-range", sSelector: "#date-range"}#}
+             ]
+        });
+
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+
+        });
+
+
+</script>
+
+{% endblock javascripts %}

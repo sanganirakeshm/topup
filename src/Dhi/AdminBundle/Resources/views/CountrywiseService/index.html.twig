@@ -1,0 +1,226 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+    
+            {% include "DhiUserBundle::flashMessage.html.twig" %}
+            <div class="delBoxCont"></div>
+            <section class="content-header">
+              <h1>Countrywise Services</h1>
+            </section>
+            <section class="content">	
+		
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="box box-success">
+                            <form method="get">
+                                <div class="box-body">
+                                    <div class="form-group col-md-4">
+                                                        
+                                        <div class="row"><div class="col-sm-12" id="country"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <div class="row"><div class="col-sm-12" id="serivce"></div></div>
+                                    </div>
+                                    
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>		
+                 
+                <div class="box box-success">
+                    <div class="box-body">
+			<div class="row">
+         		    <div class="col-xs-12">
+                            
+                            {% if admin_permission.checkPermission('country_service_create') %}
+                                <div class="addNewBtnsGrp">
+                                    <a href="{{ path('dhi_countrywiseservice_new') }}" class="btn btn-success margin-bottom10">Add Countrywise Service</a>&nbsp;&nbsp;
+                                </div>
+                            {% endif %}
+                        
+			    <table id="countryWiseSerivcesTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Country</th>
+                                        <th width="150">Show On Landing</th>
+                                        <th>Services</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>        
+            </section>
+            
+{% endblock body %}
+{% block javascripts %}
+    
+    {{ parent() }}
+
+   <script type="text/javascript">
+        
+        $(document).ready(function () {
+          
+            deleteAjaxSource = '{{ path('dhi_countrywiseservice_delete') }}';
+           
+            dTable = $('#countryWiseSerivcesTable').dataTable({
+               
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: false,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_countrywiseservise_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "Id", "bSearchable": false, "bSortable": true, "bVisible": false},
+                    {"sName": "Country","bSearchable": true,"bSortable": true,},
+                    {"sName": "showOnLanding","bSearchable": false,"bSortable": false},
+                    {"sName": "Services", "bSearchable": true, "bSortable": false},
+                    
+                ],
+                
+                aaSorting: [[3, 'asc']]
+            });
+            $('#countryWiseSerivcesTable').dataTable().columnFilter({
+            aoColumns: [
+            {#  null,#}
+             {type: "select", sSelector: "#country", values: {{countries|json_encode()|raw}}},
+             null,
+             {type: "text", sSelector: "#serivce"},
+                
+            ]
+        });
+
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+        });
+    </script>
+    
+{% endblock javascripts %}
+
+
+
+{#{% block body %}
+<section class="content-header">
+			  <h1>Countrywise Services</h1>
+</section>
+		<section class="content">	
+		<div class="row">
+<section class="content">	
+		<div class="row">
+
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+        
+            <div class="col-lg-12">
+          <div class="box box-success">
+                    <form method="get" id="searchService" action="{{ path('dhi_countrywiseservice_list') }}">
+                    <div class="box-body">
+                
+					<div class="form-group col-md-4">
+                    <input type="text" name="searchTxt" placeholder="Country / Service" value="{{ (app.request.get('searchTxt')) ? app.request.get('searchTxt') : ''}}" class="form-control">
+					</div>
+					</div>
+					<div class="box-footer">
+				<div class="col-md-8 add-btn-bx">
+                    <input type="submit" name='search'value="Search" class="btn btn-success"/>&nbsp;&nbsp;<a href="{{ path(app.request.attributes.get('_route')) }}" class="btn btn-default">Clear</a>
+					</div>
+					</div>
+                    </form>
+				</div>
+				</div>
+				</div>
+				
+				<div class="box box-success">
+			<div class="box-body">
+			<div class="row">
+         		<div class="col-xs-12">
+                
+            {% if admin_permission.checkPermission('country_service_create') %}
+			  <div class="pull-right">
+               		<a href="{{ path('dhi_countrywiseservice_new') }}" class="btn btn-success margin-bottom10">Add Countrywise Service</a>&nbsp;&nbsp;
+			</div>
+            {% endif %}
+            <table class="table table-bordered table-hover">
+			<thead>
+			<tr>
+                <th width='5%'>Id</th>
+                <th{% if pagination.isSorted('Name') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Contry', 'c.name') }}</th>
+                <th width='50%'>Services</th>                
+            </tr>
+			</thead>
+			<tbody>
+        	{% if (pagination|length > 0) %}
+        		{% for record in pagination %}
+            	<tr {% if loop.index is odd %} class="color" {% endif %}>
+                	<td>{{ record.id }}</td>
+                	<td>{{ record.name }}</td>
+                	<td>
+                    	<table class="table table-bordered table-hover" style="margin-bottom: 0 !important;">
+                    		<tr>
+                    			<td>Name</td>
+                    			<td>Status</td>
+                    			<td>Action</td>
+							</tr>
+                    		{% for item in record.countrywiseService %}
+                     			<tr>
+                     				<td>{{ item.services.name }}</td>
+                     				<td>{{ (item.status) ? 'Active' : 'Inactive' }}</td>
+                     				<td>
+                    					{% if admin_permission.checkPermission('country_service_update') %}
+                    						<a href="{{ path('dhi_countrywiseservice_edit', {'id': item.id})}}">Edit</a>&nbsp;|&nbsp;                    						
+                    					{% endif %}
+                    					{% if admin_permission.checkPermission('country_service_delete') %}
+                    						<a href="{{ path('dhi_countrywiseservice_delete', {'id': item.id})}}" onclick="return confirm('Are you sure want to delete?')">Delete</a>
+                    					{% endif %}                    
+                    				</td>                    				
+                     			</tr>
+                 			{% endfor %}
+                 		</table>
+                	</td>              
+				</tr>
+        		{% endfor %}
+         {% else %}
+			<tr><td colspan="9" align="center">No records found.</td></tr>
+		{% endif %}
+		  </tbody>
+        </table>
+		</div></div></div></div></div>
+		<div class="row">
+		<div class="col-xs-12">
+        <div class="navigation">{{ knp_pagination_render(pagination) }}</div>
+    </div>
+</div>
+{% endblock body %}#}

@@ -1,0 +1,71 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+
+          
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				  <h1>Add New Permission</h1>
+			</section>
+			<section class="content">
+			<div class="row">
+			<div class="col-lg-12">
+			<div class="box box-success">	
+            <form action="{{ path('dhi_admin_permission_new') }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="permission_form">
+                <div class="box-body">
+				<div class="form-group col-sm-4">
+                    <label class="control-label">Name: </label>
+                    <div>
+                        {{ form_widget(form.name, { 'attr': { 'placeholder': 'Name', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.name) }}</div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">code: </label>
+                    <div>
+                        {{ form_widget(form.code, { 'attr': { 'placeholder': 'Code', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.code) }}</div>
+                    </div>
+                </div>
+				</div>
+				<div class="box-footer">
+                {{ form_rest(form) }}
+                <div class="col-sm-6 add-btn-bx">	
+                        <input type="submit" name="add" value="Add" class="btn btn-success"/>
+                        <a href="{{ path('dhi_admin_permission_list') }}" class="btn btn-default">Back</a>
+                    
+                </div>
+				</div>
+            </form>
+			</div>
+			</div>
+			</div>
+		</section>	
+      
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+	<script type="text/javascript">
+        $(document).ready(function() {
+            $('#permission_form').validate({
+                rules: {
+                    "dhi_admin_setting[name]": {
+                        "required": true
+                    },
+                    "dhi_admin_setting[value]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_admin_setting[name]": {
+                        "required": "Please enter setting name."
+                    },
+                    "dhi_admin_setting[value]": {
+                        "required": "Please enter setting value."
+                    }
+                }
+            });
+        });
+</script>
+{% endblock javascripts %}

@@ -1,0 +1,82 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Edit Package</h1>
+                
+                <form action="{{ path('dhi_admin_package_edit', {'id': package.id}) }}" method="POST" id="edit_package" class="form-horizontal" novalidate>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Package Id: </label>
+                        <div class="col-sm-6">
+                            {{ form_widget(form.packageId, { 'attr': { 'placeholder': 'Package Id', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.packageId) }}</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Name: </label>
+                        <div class="col-sm-6">
+                            {{ form_widget(form.name, { 'attr': { 'placeholder': 'Package Name', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.name) }}</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Price: </label>
+                        <div class="col-sm-6">
+                            {{ form_widget(form.price, { 'attr': { 'placeholder': 'Price', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.price) }}</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+	                    <label class="col-sm-2 control-label">Active: </label>
+	                    <div class="col-sm-6">
+	                        {{ form_widget(form.status, { 'attr': { 'placeholder': 'Active', 'class': ''}}) }}
+	                        <div class="serverError"> {{ form_errors(form.status) }} </div>
+	                    </div>
+	                </div>
+                    {{ form_rest(form) }}
+
+                    <div>
+                        <div class="col-sm-offset-2 col-sm-0">
+                            <input type="submit" class="btn btn-default" name="update" value="Update"/>
+                            <a href="{{ path('dhi_admin_package_list') }}" class="btn btn-info">Back</a>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+   
+{% endblock body %}
+    
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            
+            $("#edit_package").validate({
+                rules: {
+                    "dhi_user_package[packageId]": "required",
+                    "dhi_user_package[name]": "required",
+                    "dhi_user_package[price]": {
+                        "required": true,
+                        "regex": /^\d{0,4}(\.\d{0,2})?$/,
+                    }
+                },
+                messages: {
+                	"dhi_user_package[packageId]": "Please enter package id.",
+                    "dhi_user_package[name]": "Please enter package name.",
+                    "dhi_user_package[price]": {
+                        "required": "Please enter package price.",
+                        "regex": "Please enter valid value."
+                    },
+                }
+            });
+        });
+    </script>
+{% endblock javascripts %}

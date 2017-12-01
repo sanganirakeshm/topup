@@ -1,0 +1,51 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% block body %}
+    <section class="content">
+            {% set brand = app.session.get('brand') %}
+            {% set brandName = '' %}
+            {% set brandDomain = '' %}
+            {% if brand %}
+                {% set brandName = brand.name %}
+                {% set brandDomain = brand.domain %}
+            {% endif %}
+            <div class="container">
+                <div class="row">
+
+                    <div class="heading">
+	                    <div class="col-xs-12">
+
+	                        <h2>ABOUT {{ brandName }}</h2>
+
+                            </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="inner_content aboutus">
+                            <h4><span>Welcome to {{ brandName }}!</span></h4>
+                            <p>Say goodbye to the old cable box and hello to your favorite shows, movies and live sports the way it should be. <span class="bold">{{ brandName }}</span> brings you hit TV shows, blockbuster movies and live TV from your favorite networks back home without the need for an antenna, satellite dish, receiver, or third party local cable provider ... all with free AFN included!</p>
+
+
+
+                        <h4><span>What You Need</span></h4>
+
+                          <ul class="list1">
+                            <li>Internet connection</li>
+                            <li>Smartphone, tablet or laptop</li>
+                            <li><span class="bold">{{ brandName }}</span> account</li>
+                        </ul>
+
+
+                        <p>Sign up at <a href="http://{{ brandDomain }}/" target="_blank">{{ brandDomain }}</a>, watch online without and  app at <a href="https://{{brandDomain}}/" target="_blank">https://{{brandDomain}} </a> or get the free <span class="bold">{{ brandName }}</span> app on your mobile device!</p><p> Download now in the App Store or get it on Google play. Search <span class="bold">{{ brandName }}</span>.</p>
+
+
+
+                    </div>
+                    </div>
+                    <div>
+                 </div>
+                </div>
+            </div>
+    </section>
+
+{% endblock body %}

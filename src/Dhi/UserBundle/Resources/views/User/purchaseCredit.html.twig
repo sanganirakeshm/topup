@@ -1,0 +1,67 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <style type="text/css">
+        .ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }
+        .error{margin-left: 15px;}
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+{% block fos_user_content %}
+    
+{% trans_default_domain 'FOSUserBundle' %}
+<div class="loginBg">
+    <div class="accountSetting">
+        <div class="col-sm-12 col-lg-12 accountsTab">
+            <div class="row">
+				<div class="col-lg-12">
+					<div class="panel panel-success-alt noborder">
+                    	<div class="panel-heading noborder">
+							<div class="media-body text-center">
+								<h1 class="mt5">
+									{% set totalCredit = 0 %}
+									{% if user.userCredit %}
+										{% set totalCredit = user.userCredit.totalCredits %}
+									{% endif %}
+									${{ totalCredit }}
+								</h1>
+								<h3 class="nomargin">Credit Balance</h3>                            	
+							</div><!-- media-body -->
+						</div><!-- panel-body -->
+					</div>
+				</div>         
+				<hr/>                                  
+                <div class="col-lg-12">
+                	<h3>Add Credit</h3>
+                	<form action="{{ path('dhi_user_purchase_credit') }}" {{ form_enctype(form) }} method="POST" novalidate>
+					<div class="form-group">
+						<label class="control-label col-sm-2">Credit List: </label>
+		                <div class="col-sm-7">
+		                	{{ form_widget(form.credit, { 'attr': { 'placeholder': 'Credit', 'class': 'form-control'}}) }}		                		                
+		                </div>
+		                <div class="col-sm-3" style="padding-top:8px;">
+		                	<input type="submit" value="Pay Now" class="btn-sm btn-default" />
+						</div>
+		            </div> 
+		            {{ form_rest(form) }}
+		            </form>                       
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock fos_user_content %}
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+       
+
+    </script>
+
+{% endblock javascripts %}

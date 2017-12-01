@@ -1,0 +1,1258 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock stylesheets %}
+
+{% block body %}
+{% block fos_user_content %}
+{% trans_default_domain 'FOSUserBundle' %}
+<div class="innerBg">	
+	<div class="signup content min_cont_hight">
+		{% if app.user %}	
+			<div class="container text-right no-border">
+                <div class="row"><div class="col-xs-12">
+			
+				</div></div>	</div>	
+		{% endif %}
+
+        {% set noOfItems = 0 %}        
+        <div id="cartmsg" class="pay_ment_success_msg"></div>
+        <div class="container">
+           <div class="row">
+        	    <div class="heading">
+                        <div class="col-xs-12">
+                   <h2>Order Summary</h2>
+                </div>
+                </div>
+                <div class="col-lg-12">{% include "DhiUserBundle::flashMessage.html.twig" %}</div>   
+                <div class="inner_content">
+                {% if status == 'success'  %}
+                <div class="panel-group col-lg-12" id="summary-accordion">
+			        <div class="panel panel-default">
+			            <div class="panel-heading">
+			                <h4 class="panel-title">
+			                    <a data-toggle="collapse" data-parent="#summary-accordion" href="#collapseSummary" id="collapseSummaryPannelTitle">Summary</a>
+			                </h4>
+			            </div>
+			            <div id="collapseSummary" class="panel-collapse collapse in">
+			                <div class="panel-body">
+			                	{{ form_start(form, {'method': 'POST', 'action': '', 'attr': {'id': 'frmSummary', 'onsubmit':'return proccedActivation()'}  }) }}
+			                	<input type="hidden" name="isStepOneCompleted" id="isStepOneCompleted" value="0" />
+			                	{% set freeService = 1 %}
+			                	{% set paybleAmount = 0 %}
+			                	<table class="table table-bordered">
+			                    
+			                    	{% if summaryData.CartAvailable == 1 %}
+			                    		
+			                    		{% set totalTVODAmount = 0 %}
+			                    		{% set totalAddOnAmount = 0 %}
+			                    		{% set totalISPAmount = 0 %}
+			                    		{% set totalCreditAmount = 0 %}
+			                    		
+			                    		{% set cartData = summaryData.Cart %}
+			                    		
+			                    		{% if summaryData.IsTVODAvailabledInCart == 1 %}
+			                    			{% set tvodPackages = cartData.TVOD.RegularPack %}
+  				                    			<tr>
+							                        <th colspan="2">T-Vod Title</th>
+							                        <th width="200">Price</th>
+							                    </tr>
+							                    
+			                    			{% for tvodPackage in tvodPackages %}
+			                    			
+			                    				{% set discountedAmount = 0 %}
+			                    				
+				                    			<tr id="row_{{ tvodPackage.servicePurchaseId }}">
+									            	<td colspan="2" style="color:#093C71">{{ tvodPackage.packageName }}</td>
+									                <td>${{ tvodPackage.amount }}</td>
+									                {% set totalTVODAmount = totalTVODAmount + tvodPackage.amount %}
+												</tr>
+												
+												{% if tvodPackage.discountPercentage > 0 %}
+													{% set discountedAmount = (tvodPackage.amount * tvodPackage.discountPercentage) / 100 %}
+													<tr>
+				                    					<td align="right" colspan="2"><i>{{ tvodPackage.discountPercentage }}% Bundle discount on TV Package</i></td>
+				                    					<td>-${{ discountedAmount|number_format(2) }}</td>
+				                    				</tr>									
+			                    					{% set totalTVODAmount = totalTVODAmount - discountedAmount %}
+			                    				{% endif %}			                    							        	
+			                    			{% endfor %}
+			                    		{% endif %}
+			                    		</tbody>
+
+			                    		{% set grandTotal = totalTVODAmount + totalAddOnAmount + totalISPAmount + totalCreditAmount %}
+			                    		{% if summaryData.isDiscountCodeApplied == 7 %}
+				                    		<tr>
+					                    		<td align="right" colspan="2">
+					                    			<i>Discount applied {{summaryData.discountCodeRate}}%</i>
+					                    		</td>
+					                    		<td>
+					                    			<i>- ${{ summaryData.inAppCodeDiscount|number_format(2) }}</i>
+					                    			<a class="btn btn-sm btn-danger" href="javascript:void(0);" onclick="deleteCouponCode();" >x</a>
+					                    		</td>
+					                    	</tr>
+				                    		{% set grandTotal = grandTotal - summaryData.inAppCodeDiscount %}
+				                    	{% else %}
+				                    		{% if grandTotal > 0 and summaryData.isEmployee == 0 %}
+				                    			<tr>
+				                    				<td align="right" colspan="2">
+							                            <div id="discountLink" >
+							                                <a href="javascript:void(0);" onclick="showDiscount();"> Have a Discount Code?</a>
+	                                                    </div>
+	                                                    <div id="discountBox" class="hide">
+	                                                    	<div class="row">
+								                                <div class="col-md-6 col-md-offset-6 col-sm-12 col-xs-12">
+									                                <input type="text" class="form-control" id="discountCode"  name="discountCode" value=""/>
+									                                <a class="btn btn-sm btn-default" href="javascript:void(0);" onclick="ApplyPromoCode({{ grandTotal }});"> Apply</a>
+									                                <a class="btn btn-sm btn-danger" href="javascript:void(0);" onclick="hideDiscount();"> X</a>
+								                                </div>
+							                                </div>
+							                            </div>
+							                            <i><div class="pull-right" id="discountLabel"></div></i>
+							                        </td>
+							                        <td>
+							                        	<div class="discountAmo hide">
+							                        		<i><span id="disocuntAmount"></span></i> <a class="btn btn-sm btn-danger" href="javascript:void(0);" onclick="deleteCouponCode();" >x</a>
+							                        	</div>
+							                        </td>
+				                    			</tr>
+				                    		{% endif %}
+										{% endif %}
+										{% set paybleAmount = grandTotal %}
+			                    		<tr>
+											<td align="right" colspan="2"><b>Total</b></td>
+											<td><b><div id="grandTotal">${{ grandTotal|number_format(2) }}</div></b></td>
+			                    		</tr>
+			                    		
+			                    		<tr>
+											<td colspan="3">
+												<a href="{{ app.session.get('cancel_url') }}" class="btn btn-lg btn-default margBot20 margTop20 pull-left">Cancel</a>
+												<div style="font-size: 18px" class="pull-right">
+													{% if paybleAmount > 0 %}
+														<input type="button" name="submit" value="Next" class="btn btn-lg btn-default margBot20 margTop20" onclick="confirmOrderSummary('frmSummary','{{ isISPAddedForTVOD }}');" id='proceedcheck'/>
+													{% else %}
+														<input type="submit" name="submit" value="Proceed" class="btn btn-lg btn-default margBot20 margTop20"/>
+													{% endif %}
+												</div>
+											</td>			                    			
+			                    		</tr>
+			                    		
+			                    		<input type="hidden" name="paybleAmount" value="{{ paybleAmount }}" />
+			                    		<input type="hidden" name="userId" value="{{ userId }}" />
+
+			                    	{% else %}
+			                    		<tr>
+											<td colspan="2" align="center">Your cart is empty</td>							
+										</tr>	
+										<tr>
+											<td colspan="2">
+												<div style="font-size: 18px" class="pull-left">
+													<a href="{{url('dhi_user_account')}}" class="btn btn-lg btn-default margBot20 margTop20" id="continue">Continue Shopping</a>																		
+												</div>								
+											</td>
+										</tr>            		
+			                    	{% endif %}			                    			                    	
+					            </table>
+					            {{ form_end(form) }}
+			                </div>
+			            </div>
+			        </div>
+			        
+			        {% if paybleAmount > 0 and (summaryData.IsTVODAvailabledInCart == 1 or summaryData.IsISPAvailabledInCart == 1 or summaryData.IsAddOnAvailabledInCart == 1 or summaryData.IsCreditAvailabledInCart == 1) %}
+			        <div class="panel panel-default">
+			            <div class="panel-heading">
+			                <h4 class="panel-title">
+			                    <a data-toggle="collapse" data-parent="#summary-accordion" href="#collapsePaymentOptions" id="collapsePaymentOptionsPannelTitle">Payment Options</a>
+			                </h4>
+			            </div>
+			            <div id="collapsePaymentOptions" class="panel-collapse collapse">
+			                <div class="panel-body">
+			                			                
+			                	{{ form_start(form, {'method': 'POST', 'action': '', 'attr': {'id': 'frmPaymentOptions'}  }) }}
+			                	<input type="hidden" name="processStep" id="paymentOptions" class="form-control" value="paymentOptions">
+			                	<input type="hidden" name="isStepThreeCompleted" id="isStepThreeCompleted" value="0" />
+			                	<div class="col-xs-12">
+			                		<div class="row">
+				                		<div class="col-md-3">				                		
+				                			<div class="col-md-12">
+						                		<label>
+						                		<input type="radio" id="cc" name="paymentBy" value="cc" onclick="$('#submitId').show();showCardinfoBox(this.value)"/>
+						                		Credit Card</label>
+						                		<br/>
+						                		<img src="{{ asset('bundles/dhiuser/images/cc-logo.jpg') }}" style="height:50px;"/>
+					                		</div>
+					                		
+					                		<div class="col-xs-12">
+						                		<label>
+						                		<input type="radio" id="paypal" name="paymentBy" value="paypal" onclick="$('#submitId').show();showCardinfoBox(this.value)"/>
+						                		Paypal</label>
+						                		<br/>
+						                		<img src="{{ asset('bundles/dhiuser/images/paypal-logo.jpg') }}" style="height:50px;"/>
+						                	</div>
+
+						                	{# <div class="col-xs-12">
+												<label>
+													<input type="radio" id="chase" name="paymentBy" value="chase" onclick="$('#submitId').hide();showCardinfoBox(this.value);"/>
+													Chase
+												</label>
+												<br/>
+											</div> #}
+                                            
+											{% if userServiceLocation|length > 0 and userServiceLocation['IsMilstarEnabled'] == '1' %}
+						                	<div class="col-xs-12">
+						                		<input type="radio" id="milstar" name="paymentBy" value="milstar" onclick="showCardinfoBox(this.value)"/>
+						                		<label>Milstar</label>						                		
+						                	</div>
+                                            {% endif %} 
+                                            
+				                		</div>
+				                		
+				                		<div class="col-md-9" id="cardinfo" style="display:none;">
+					                		
+			                                <div class="panel panel-primary">
+			                                    <div class="panel-heading">
+                                                                <b>Credit Card Detail</b>
+			                                    </div>
+			                                    <div class="panel-body row">
+			                                    	<div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">First Name</label>
+		                                                <div class="col-sm-8">
+		                                                	<input type="text" name="Billing[Firstname]" id="Firstname" class="form-control" placeholder="First Name" value="">
+															<label id="Firstname-error" class="error" for="Firstname"></label>		                                                	                                                   
+		                                                </div>
+		                                            </div>
+		                                            
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Last Name</label>
+		                                                <div class="col-sm-8">
+	                                                		<input type="text" name="Billing[Lastname]" id="Lastname" class="form-control" placeholder="Last Name" value="">
+															<label id="Lastname-error" class="error" for="Lastname"></label>		                                                    
+		                                                </div>
+		                                            </div>
+			                                    
+			                                        <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Card Type</label>
+		                                                <div class="col-sm-8">
+		                                                	<select name="cc[CardType]" data-placeholder="Choose One" class="form-control" id="CardType">
+					                                            <option value="">Choose One</option>
+					                                            <option value="Visa">Visa</option>
+					                                            <option value="MasterCard">MasterCard</option>
+					                                            <option value="Discover">Discover</option>
+					                                            <option value="Amex">Amex</option>
+					                                        </select>	 
+					                                        <label id="CardType-error" class="error" for="CardType"></label>                                                   
+		                                                </div>
+		                                            </div>
+		                                            
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Card Number</label>
+		                                                <div class="col-sm-8">
+		                                                    <input type="text" name="cc[CardNumber]" id="CardNumber" class="form-control" placeholder="Card Number" maxlength="16" value="">
+		                                                    <label id="CardNumber-error" class="error" for="CardNumber"></label>
+		                                                </div>
+		                                            </div>
+		                                            
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 col-xs-12 control-label">Expiry Date</label>
+		                                                <div class="col-sm-4 col-xs-6">
+		                                                	<select name="cc[ExpMonth]" data-placeholder="Choose One" class="form-control" id="ExpMonth">
+					                                            <option value="">Month</option>
+					                                            {% for month in expiresMonth %}
+					                                            <option value="{{ month }}">{{ month }}</option>
+					                                            {% endfor %}					                                            				                                            
+					                                        </select>	   
+					                                        <label id="ExpMonth-error" class="error" for="ExpMonth"></label>                                                 
+		                                                </div>
+		                                                <div class="col-sm-4 col-xs-6">
+		                                                	<select name="cc[ExpYear]" data-placeholder="Choose One" class="form-control" id="ExpYear">
+					                                            <option value="">Year</option>
+					                                            {% for year in expiresYear %}
+					                                            <option value="{{ year }}">{{ year }}</option>
+					                                            {% endfor %}					                                            				                                            
+					                                        </select>	    
+					                                        <label id="ExpYear-error" class="error" for="ExpYear"></label>                                                
+		                                                </div>		                                                
+		                                            </div>
+		                                            
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">CVV</label>
+		                                                <div class="col-sm-8">
+		                                                    <input type="password" name="cc[Cvv]" id="Cvv" class="form-control" placeholder="CVV" value="">
+		                                                    <label id="Cvv-error" class="error" for="Cvv"></label>
+		                                                </div>
+		                                            </div>
+			                                    </div><!-- panel-body -->
+			                                </div>	
+			                                
+			                                <div class="panel panel-primary">
+			                                    <div class="panel-heading">
+			                                        <b>Billing Address</b>
+			                                    </div>
+			                                    <div class="panel-body row">
+			                                        
+		                                            
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Address</label>
+		                                                <div class="col-sm-8">
+	                                                		<input type="text" name="Billing[Address]" id="Address" class="form-control" placeholder="Address" value="">
+															<label id="Address-error" class="error" for="Address"></label>		                                                	                                                 
+		                                                </div>		                                                		                                                
+		                                            </div>
+		                                            
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">City</label>
+		                                                <div class="col-sm-8">
+		                                                	<input type="text" name="Billing[City]" id="City" class="form-control" placeholder="City" value="">
+															<label id="City-error" class="error" for="City"></label>		                                                    
+		                                                </div>
+		                                            </div>
+		                                            
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">State</label>
+		                                                <div class="col-sm-8">
+		                                                	<input type="text" name="Billing[State]" id="State" class="form-control" placeholder="State" value="">
+															<label id="State-error" class="error" for="State"></label>		                                                    
+		                                                </div>
+		                                            </div>
+		                                            
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Zip Code</label>
+		                                                <div class="col-sm-8">
+		                                                	<input type="text" name="Billing[Zipcode]" id="Zipcode" class="form-control" placeholder="Zip Code" value="">
+															<label id="Zipcode-error" class="error" for="Zipcode"></label>		                                                    
+		                                                </div>
+		                                            </div>
+		                                            
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Country</label>
+		                                                <div class="col-sm-8">
+		                                                	<select name="Billing[Country]" data-placeholder="Choose One" class="form-control" id="Country">
+																<option value="">Choose One</option>
+																{% if country %}
+																	{% for key,val in country %}
+							                                    	<option value="{{ key }}">{{ val }}</option>
+							                                    	{% endfor %}
+							                                    {% endif %}																
+															</select>
+															<label id="Country" class="error" for="Country"></label>		                                                    
+		                                                </div>
+		                                            </div>
+		                                            
+			                                    </div><!-- panel-body -->
+			                                </div>
+			                                		                                			                                           
+										</div>
+										
+										<div class="col-md-9" id="milstarinfo" style="display:none;">
+					                		
+			                                <div class="panel panel-primary">
+			                                    <div class="panel-heading">
+			                                        <b>Milstar Detail</b>
+			                                    </div>
+			                                    <div class="panel-body row">
+			                                        <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Card Number</label>
+		                                                <div class="col-sm-8">
+		                                                    <input type="text" name="milstar[MCardNumber]" id="MCardNumber" class="form-control" placeholder="Card Number" maxlength="16" value="">
+		                                                    <label id="MCardNumber-error" class="error" for="MCardNumber"></label>
+		                                                </div>
+		                                            </div>
+		                                            <div class="form-group col-sm-6 col-md-6 cc-bx">
+		                                                <label class="col-sm-4 control-label">Zipcode</label>
+		                                                <div class="col-sm-8">
+		                                                    <input type="text" name="milstar[MZipcode]" id="MZipcode" class="form-control" placeholder="Zip Code" value="">
+		                                                    <label id="MZipcode-error" class="error" for="MZipcode"></label>
+		                                                </div>
+		                                            </div>
+			                                    </div><!-- panel-body -->
+			                                </div>			                                			                                           
+										</div>
+
+										{# <div class="col-md-9" id="chaseinfo" style="display:none;">
+                                            <div class="panel panel-primary">
+	                                            <div class="panel-heading">
+	                                                <b>Chase Payment</b>
+	                                            </div>
+	                                            <div class="panel-body row">
+	                                                <div>
+	                                                	<div class="col-md-4">
+	                                                		<label><input type="radio" name="chasePaymentType" class="cls-chase-option" onclick="$('#submitId').hide();" value="new-profile"/> Payment With New Profile</label>
+	                                                	</div>
+	                                                	<div class="col-md-4">
+	                                                		<label><input type="radio" name="chasePaymentType" onclick="$('#submitId').show();" class="cls-chase-option" value="with-profile"/> Payment With Existing Profile</label>
+	                                                	</div>
+	                                                	<div class="col-md-4">
+	                                                		<label><input type="radio" name="chasePaymentType" class="cls-chase-option" onclick="$('#submitId').hide();" value="without-profile"/> Payment Without Profile</label>
+	                                                	</div>
+	                                                </div>
+	                                            	<div class="cls-hidden cls-chase-frame cls-chase-new-profile">
+	                                            	   <div class="panel-body row">
+	                                                		<iframe id="chaseiframe" style="border:none" width="100%" height="760"
+	                                                        src="{{ chaseParams.src|raw }}&max_user_retries=3&hosted_tokenize=store_authorize&session_name={{ username }}_session&sessionId={{app.session.id}}&payment_type=Credit_Card&allowed_types=Visa|MasterCard|AmericanExpress|Discover|JCB|DinersClub&collectAddress=2&required=all&cardIndicators=N&amount={{ grandTotal }}&order_desc=ExchangeVue%20Purchase&order_id={{ orderNumber }}&submit=Createpaymentform&account_verification=yes"></iframe>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="cls-hidden cls-chase-frame cls-chase-with-profile"></div>
+	                                                <div class="cls-hidden cls-chase-frame cls-chase-without-profile">
+	                                                	<iframe id="chaseoiframe" style="border:none" width="100%" height="760"
+	                                                        src="{{ chaseParams.src|raw }}&max_user_retries=3&session_name={{ username }}_session&sessionId={{app.session.id}}&trans_type=auth_capture&payment_type=Credit_Card&allowed_types=Visa|MasterCard|AmericanExpress|Discover|JCB|DinersClub&collectAddress=2&required=all&cardIndicators=N&amount={{ grandTotal }}&order_desc=ExchangeVue%20Purchase&order_id={{ orderNumber }}&submit=Createpaymentform"></iframe>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+                                        </div> #}
+										
+									</div>
+			                	</div>
+			                	
+			                	<div class="col-sm-12 text-right margTop20 clearfix">
+									<input type="button" id="submitId" name="submit" value="Payment" class="btn btn-lg btn-default" onclick="confirmOrderSummary('frmPaymentOptions','');">	                                                
+								</div>
+								
+								 
+								{{ form_end(form) }}
+			                </div>
+			            </div>
+			        </div>
+			        
+			        {% endif %}
+			    </div>
+			    {% else %}
+			    	<div class="panel-group col-lg-12" id="summary-accordion">
+			    		<div class="msgBoxCont">
+				            <div class="alert alert-warning">
+				                <button type="button" class="close" data-dismiss="alert">×</button>
+				                Invalid request found
+				            </div>
+						</div>
+			    	</div>
+				{% endif %}
+
+			    </div>
+                   
+        </div>  </div>
+        </div>      
+    </div>    
+</div>
+<div class="chasResDiv" style="display:none;"></div>
+<script type="text/javascript">
+        noOfItems = '{{noOfItems}}';
+</script>
+<div id="ajax-loader-bx" style="display:none;">
+	<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+	<div id="loader-text">Please wait....</div>
+</div>
+{% endblock fos_user_content %}
+{% endblock body %}
+{% block javascripts %}
+{{ parent() }}
+
+<script type="text/javascript">
+	var user_id = '{{userId}}';
+
+	function scroll_to(div){
+		$('html, body').animate({
+			scrollTop: $("#"+div).offset().top
+		},1000);
+	}
+
+	function showDiscount(){
+		$('#discountCode').val('');
+		$('#discountBox').removeClass('hide');
+		$('#discountLink').addClass('hide');
+		$("#discountCode").focus();
+	}
+
+	function hideDiscount(){
+		$('#discountBox').addClass('hide');
+		$('#discountLink').removeClass('hide');
+		$('#discountCode').val('');
+	}
+
+	function deleteCouponCode(){
+		var url = '{{ path('dhi_tvod_ajax_remove_discount', {'userId': 'userIdValue'}) }}'
+        var finalUrl = url.replace('userIdValue', user_id);
+
+		$.ajax({
+			type: "POST",
+			url: finalUrl,
+			data: {
+				action: 'remove'
+			},
+			beforeSend: function( xhr ) {
+			    $('#ajax-loader-bx').show();
+			},
+			success:function(result){
+		        if(result.status == 'success'){
+		            location.reload();
+		        } else {
+		            var err = disErrorMsg('warning',result.msg);
+		            $('#cartmsg').html(err);
+		        }
+		        $('#ajax-loader-bx').hide();
+			},
+		   	error : function(result){
+		        var err = disErrorMsg('warning','Something is wrong please try after sometime.');
+		        $('#cartmsg').html(err);
+		        return false;
+		    }
+		});
+	}
+
+	function ApplyPromoCode(amount){
+	    $('.msgBoxCont').html('');
+        var discountCode = $('#discountCode').val();
+        var url = '{{ path('dhi_tvod_apply_promo_code', {'userId': 'userIdValue'}) }}'
+        var finalUrl = url.replace('userIdValue', user_id);
+
+        if(discountCode){
+        	var postData = 'code='+discountCode+'&amount='+amount;
+                $.ajax({
+					type: "POST",
+					url: finalUrl,
+					data: postData,
+					beforeSend: function( xhr ) {
+					    $('#ajax-loader-bx').show();
+					},
+					success:function(result){
+                        if(result.status == 'success'){
+                        	var data = result.result;
+                        	if(data.percentage == 100){
+                        		window.location.reload();
+                        	}
+                        	$("#discountBox").hide();
+                        	$("#discountLabel").text("Discount applied "+data.percentage+"% " );
+                        	$("#disocuntAmount").text("- "+"$" + data.discountAmount);
+                        	$(".discountAmo").removeClass("hide");
+                        	$("#grandTotal").text("$" + data.discountedAmount);
+                        	
+                        	var chaseIFrameUrl = "{{ chaseParams.src|raw }}&max_user_retries=3&hosted_tokenize=store_authorize&session_name={{ username }}_session&sessionId={{app.session.id}}&payment_type=Credit_Card&allowed_types=Visa|MasterCard|AmericanExpress|Discover|JCB|DinersClub&collectAddress=2&required=all&cardIndicators=N&amount=" + data.discountedAmount + "&order_desc=ExchangeVue%20Purchase&order_id={{ orderNumber }}&submit=Createpaymentform&account_verification=yes";
+                            $('#chaseiframe').attr('src', chaseIFrameUrl);
+
+
+                            var chaseOIFrameUrl = "{{ chaseParams.src|raw }}&max_user_retries=3&session_name={{ username }}_session&sessionId={{app.session.id}}&trans_type=auth_capture&payment_type=Credit_Card&allowed_types=Visa|MasterCard|AmericanExpress|Discover|JCB|DinersClub&collectAddress=2&required=all&cardIndicators=N&amount=" + data.discountedAmount + "&order_desc=ExchangeVue%20Purchase&order_id={{ orderNumber }}&submit=Createpaymentform";
+                            $('#chaseoiframe').attr('src', chaseOIFrameUrl);
+
+                            $("#paybleAmount").val(data.discountedAmount);
+                            var msg = disErrorMsg('success',"$" + data.discountAmount + " Discount applied successfully");
+                            $('#cartmsg').html(msg);
+                            scroll_to('cartmsg');
+                        }else{
+                        	var errorMsg = disErrorMsg('warning',result.msg);
+                        	$('#discountCode').val('');
+                        	$('#cartmsg').html(errorMsg);
+                        	scroll_to('cartmsg');
+                        }
+                        $('#ajax-loader-bx').hide();
+					},
+                   	error : function(result){
+                       	var err = disErrorMsg('warning','Something is wrong please try after sometime.');
+						$('#cartmsg').html(err);
+						scroll_to('cartmsg');
+						return false;
+                    }
+			});
+        }else{
+	    	var err = disErrorMsg('warning',"Please enter promo code. ");
+	        $('#cartmsg').html(err);
+	        scroll_to('cartmsg');
+	    }
+	}
+	function whatCVV2() {
+		$.confirm({
+			title: 'What is CVC ?',
+			content: 'The CVC number is a 3 or 4 digit security code printed on the front or back of your card.',
+			icon: '',
+		    confirmButton: '',
+		    cancelButton: 'Ok',
+		    confirmButtonClass: 'btn-info',
+		    cancelButtonClass: 'btn-danger',
+		    theme: 'white',
+		    animation: 'scale',
+		    animationSpeed: 400,
+		    animationBounce: 1.5,
+		    keyboardEnabled: false,
+		    container: 'body',
+		    cancel: function(){
+
+		    },
+		    confirm: function(){
+
+		    },
+		    backgroundDismiss: false,
+		    autoClose: false,
+		    closeIcon: true
+		});
+		return;
+	}
+
+	function cancelCREPayment() { 
+		var cur_loc = window.location.href;
+		window.location = cur_loc;
+	}
+
+	function creHandleErrors(errorCode) {
+	}
+
+	function formValidationError(error_code) {
+		if(error_code == 200)
+		{
+			return "Name is required.";
+		}
+		else if(error_code == 310)
+		{
+			return "Credit card number left blank or did not pass.";
+		}
+		else if(error_code == 315)
+		{
+			return "Credit card number did not pass.";
+		}
+		else if(error_code == 350)
+		{
+			return "CVV2 field submitted but does not match the card.";
+		}
+		else if(error_code == 355)
+		{
+			return "CVV2 required";
+		}
+		else if(error_code == 357)
+		{
+			return "An invalid character was entered, such as a letter in a numeric field.";
+		}
+		else if(error_code == 360)
+		{
+			return "Payment declined by financial institution, or some other error has occurred.";
+		}
+		else if(error_code == 370)
+		{
+			return "Expiration date invalid.";
+		}
+		else if(error_code == 400)
+		{
+			return "Transaction tracer value does not match.";
+		}
+		else if(error_code == 500)
+		{
+			return "Address one field required but left blank.";
+		}
+		else if(error_code == 510)
+		{
+			return "City field required but left blank.";
+		}
+		else if(error_code == 520)
+		{
+			return "State field required but left blank.";
+		}
+		else if(error_code == 530)
+		{
+			return "ZIP/postal code field required but left blank.";
+		}
+		else if(error_code == 531)
+		{
+			return "Invalid ZIP/postal code format received.";
+		}
+	}
+
+	function creHandleDetailErrors(errorCode, gatewayCode, gatewayMessage) {
+		var errorMsg = "";
+	    if(errorCode.substr(errorCode.length - 1) === '|'){
+	        errorCode = errorCode.slice(0,-1);
+	    }
+	    var temp = errorCode.split("|");
+	    for(var i=0 ; i < temp.length ; i++) {
+	      errorMsg+=" * "+formValidationError(temp[i])+"<br>";
+	    }
+	    $.confirm({
+			title: 'Please correct following errors:',
+			content: errorMsg,
+			icon: '',
+		    confirmButton: '',
+		    cancelButton: 'Ok',
+		    confirmButtonClass: 'btn-info',
+		    cancelButtonClass: 'btn-danger',
+		    theme: 'white',
+		    animation: 'scale',
+		    animationSpeed: 400,
+		    animationBounce: 1.5,
+		    keyboardEnabled: false,
+		    container: 'body',
+		    cancel: function(){
+
+		    },
+		    confirm: function(){
+
+		    },
+		    backgroundDismiss: false,
+		    autoClose: false,
+		    closeIcon: true
+		});
+		return;
+	}
+
+	function startCREPayment() {}
+
+	function completeCREPayment(responseObject){
+		var jsonData = responseObject;
+		var payUrl = '{{ path('dhi_tvod_do_payment_process', {'userId':'user_id'})}}';
+		payUrl = payUrl.replace('user_id', '{{userId}}');
+
+		if(jsonData != null || jsonData != ''){
+	        $.ajax({
+				type: "POST",
+				url: payUrl,
+				data: {
+					'userId' : '{{userId}}',
+					'paymentBy' : 'chase',
+					'chaseReq' : jsonData
+				},
+				beforeSend: function( xhr ) {
+				    $('#ajax-loader-bx').show();
+				},
+				success:function(returnData){
+					$('#ajax-loader-bx').hide();
+					$(".chasResDiv").html(returnData);
+				}
+			});
+		}
+	}
+
+
+$(document).ready(function() {
+	
+	$(".cls-chase-option").click(function(event) {
+		$('#ajax-loader-bx').show();
+		var thisVal = $(this).val();
+		$(".cls-chase-frame").fadeOut('slow');
+		$('.cls-chase-'+thisVal).fadeIn('slow');
+		$('#ajax-loader-bx').hide();
+	});
+	
+    var paymentType = $('input[name=paymentBy]:checked', '#frmPaymentOptions').val();
+    $("#"+paymentType).prop('checked',false);
+            
+	$('#frmBillingAddress').validate({
+        rules: {
+            "Billing[Firstname]": {
+                "required": true                    
+            },
+            "Billing[Lastname]": {
+                "required": true
+            },
+            "Billing[Address]": {
+                "required": true,
+            },
+            "Billing[City]": {
+                "required": true,
+            },
+            "Billing[State]": {
+                "required": true
+            },
+            "Billing[Zipcode]": {
+                "required": true
+            },
+            "Billing[Country]": {
+                "required": true
+            }       
+        },
+        messages: {
+        	"Billing[Firstname]": {
+            	"required": "Please enter first name.",                    
+            },
+            "Billing[Lastname]": {
+            	"required": "Please enter last name.",
+            },
+            "Billing[Address]": {
+            	"required": "Please enter address.",
+            },
+            "Billing[City]": {
+            	"required": "Please enter city.",
+            },
+            "Billing[State]": {
+            	"required": "Please enter state.",
+            },
+            "Billing[Zipcode]": {
+            	"required": "Please enter zip code.",
+            },
+            "Billing[Country]": {
+            	"required": "Please select country.",
+            }
+        }
+    });
+
+	
+	$('#frmPaymentOptions').validate({
+        rules: {
+            "paymentBy": {
+                "required": true
+            }        
+        },
+        messages: {
+        	"paymentBy": {
+            	"required": "Please select any one payment option.",
+            }
+        }        
+    });
+        
+});
+
+function confirmOrderSummary(formName,isISPAddedForTVOD) {
+	
+    var checkDetailUrl = '{{ path('dhi_tvod_payment_process_confirm_detail', {'step' : 'stepNumber'}) }}';
+		
+    if(formName == 'frmSummary'){
+		if(isISPAddedForTVOD == false){
+			$.confirm({
+				title: 'Alert!',
+				content: 'You have only added ISP service. Do you want to add ExchangeVUE service for discount bundle rate?',
+				icon: '',
+			    confirmButton: 'Yes',
+		        cancelButton: 'No',
+		        confirmButtonClass: 'btn-info',
+		        cancelButtonClass: 'btn-danger',
+			    theme: 'white',
+		        animation: 'scale',
+		        animationSpeed: 400,
+		        animationBounce: 1.5,
+		        keyboardEnabled: false,
+		        container: 'body',
+			    cancel: function(){
+			    	
+			    	processCheckoutDetail(formName,checkDetailUrl);
+			    },
+			    confirm: function(){
+					// redirectUrl = '{{ path('dhi_tvod_service_plan', {'service': 'TVOD', 'userId':'userId' }) }}';
+					// redirectUrl.replace('userId', '{{userId}}');
+			     	// window.location.href = redirectUrl;
+			    },
+			    backgroundDismiss: false,
+		        autoClose: false,
+		        closeIcon: true
+			});
+            
+		}else{
+			
+			processCheckoutDetail(formName,checkDetailUrl);
+		}		
+	}
+	
+	if(formName == 'frmBillingAddress'){
+		
+		if($('#'+formName).valid()){
+			
+            processCheckoutDetail(formName,checkDetailUrl);
+			
+		}
+	}
+	
+	if(formName == 'frmPaymentOptions'){
+		
+		isValidate = validatePaymentMethodForm(formName);
+        
+        if(isValidate){
+			
+			if($('#'+formName).valid()){
+                
+                processCheckoutDetail(formName,checkDetailUrl);                
+			}			
+		}
+	}			
+}
+
+
+function processCheckoutDetail(name,ajaxUrl){
+	
+    if(name == 'frmSummary') {
+        
+     	ajaxUrl = ajaxUrl.replace('stepNumber', 1);     
+     	var postData = $('#'+name).serializeArray();       
+    }
+    
+    if(name == 'frmBillingAddress') {
+        
+        ajaxUrl = ajaxUrl.replace('stepNumber', 2);
+        var postData = $('#'+name+',#frmSummary').serializeArray();       
+    }
+    
+    if(name == 'frmPaymentOptions') {
+        
+        ajaxUrl = ajaxUrl.replace('stepNumber', 3);
+        var postData = $('#'+name+',#frmSummary').serializeArray();        
+    }
+        
+	$.ajax({
+		
+		type: "POST",
+		url: ajaxUrl,
+		data: postData,	
+		beforeSend: function( xhr ) {
+			
+		    $('#ajax-loader-bx').show();
+		},
+		success:function(result){
+			
+			var obj = jQuery.parseJSON( result );
+			
+			var isGlobalError = false;
+			
+			if(obj['requestStep'] == 1 && obj['stepOneResponse'] != ''){
+				
+				processStepOne(obj['stepOneResponse']);
+				$('#ajax-loader-bx').hide();
+			}else if(obj['requestStep'] == 2 && obj['stepTwoResponse'] != ''){
+				
+				processStepTwo(obj['stepTwoResponse']);
+				$('#ajax-loader-bx').hide();
+			}else if(obj['requestStep'] == 3 && obj['stepThreeResponse'] != ''){
+				
+				processStepThree(obj['stepThreeResponse']);		
+				
+			}else{
+				
+				if(obj['status'] == 'failed'){
+					
+					var errorMsg = obj['message'];
+				}else{
+					var errorMsg = 'Something went wrong in ajax request.';
+				}
+				
+				$('#cartmsg').html(disErrorMsg('warning',errorMsg));
+				$('#ajax-loader-bx').hide();
+			}		
+			
+			
+		}
+	});		        	
+}
+
+function processStepOne(obj){
+	var isStepOneSuccess = false; 
+	
+	if(obj['status'] == 'success'){
+				
+		isStepOneSuccess = true;							
+	}else if(obj['status'] == 'error'){
+				
+		displayServerErrorMsg(obj['errorMessages']); //Show error message
+	}else if(obj['status'] == 'failed'){
+		
+		$('#cartmsg').html(disErrorMsg('warning',obj['message']));		
+	}else{
+				
+		$('#cartmsg').html(disErrorMsg('warning','Something went wrong in ajax request.'));		
+	}			
+	
+	if(isStepOneSuccess == false){
+		
+		collapseOpenTab('collapseSummary');
+	}else{
+		collapseOpenTab('collapsePaymentOptions');
+	}		
+}
+
+function processStepTwo(obj){
+	var isStepTwoSuccess = false; 
+	
+	if(obj['status'] == 'success'){
+				
+		isStepTwoSuccess = true;							
+	}else if(obj['status'] == 'error'){
+				
+		displayServerErrorMsg(obj['errorMessages']); //Show error message
+	}else if(obj['status'] == 'failed'){
+		
+		$('#cartmsg').html(disErrorMsg('warning',obj['message']));		
+	}else{
+				
+		$('#cartmsg').html(disErrorMsg('warning','Something went wrong in ajax request.'));		
+	}			
+	
+	if(isStepTwoSuccess == false){
+		
+		collapseOpenTab('collapsebillingAddress');
+	}else{
+		collapseOpenTab('collapsePaymentOptions');
+	}		
+}
+
+function processStepThree(obj){
+	
+	var isStepThreeSuccess = false; 
+	var deersForMilstar = '{{ isDearsAuthenticatedForMilstar }}' ;
+	
+	if(obj['status'] == 'success'){			
+		
+		isStepThreeSuccess = true;							
+	}else if(obj['status'] == 'error'){
+				
+		displayServerErrorMsg(obj['errorMessages']); //Show error message
+	}else if(obj['status'] == 'failed'){
+		
+		$('#cartmsg').html(disErrorMsg('warning',obj['message']));		
+	}else{
+				
+		$('#cartmsg').html(disErrorMsg('warning','Something went wrong in ajax request.'));		
+	}			
+	
+	if(isStepThreeSuccess == false){
+		
+		collapseOpenTab('collapsePaymentOptions');
+		$('#ajax-loader-bx').hide();
+	}else{
+		
+		if(obj['status'] == 'success' && obj['paymentBy'] != ''){
+			
+			if(obj['paymentBy'] == 'milstar' && deersForMilstar == 2){
+				$('#ajax-loader-bx').hide();
+				deersNotificationForMlistar();
+			}else{
+				
+				$('#ajax-loader-bx').show();
+				payUrl = '{{ path('dhi_tvod_do_payment_process', {'userId':'user_id'})}}';
+				payUrl = payUrl.replace('user_id', '{{userId}}');
+				window.location.href = payUrl;
+			}
+
+		}else{
+			
+			$('#ajax-loader-bx').hide();
+		} 		
+		collapseOpenTab('collapsePaymentOptions');
+	}
+	
+}
+
+
+function collapseOpenTab(tabId){
+	
+	//$('.panel-collapse.in').collapse('hide');
+	if(!$( "#"+tabId ).hasClass( "in" )){
+		
+		$( "#"+tabId+"PannelTitle" ).trigger( "click" );
+	}
+	
+	//$('.panel-collapse.in').collapse('hide');
+	//$("#"+tabId).addClass('in');
+	//$("#"+tabId).collapse('show');
+}
+
+function displayServerErrorMsg(errorMessages){
+	
+	if(errorMessages != ''){
+		
+		for (var key in errorMessages) {
+			
+			$("#"+key+"-error").html(errorMessages[key]).show();			
+		}
+	}
+}
+
+function validatePaymentMethodForm(formName){
+	
+	var paymentType = $('input[name=paymentBy]:checked', '#frmPaymentOptions').val();
+	
+	if(paymentType == 'cc'){
+					
+        $('#CardType').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please select card type.",                    
+            }
+        });
+        
+        $('#CardNumber').rules('add', {
+            required: true,
+            maxlength: 16,
+            minlength: 14,
+            digits: true,
+            messages: {
+                required:  "Please enter card number.",
+                maxlength: "Maximum 16 digits allowed.",
+                minlength: "Minimum 14 digits required.",
+                digits: "Only digits allowed.",
+            }
+        });
+        
+        $('#ExpMonth').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please select month.",                    
+            }
+        });
+        
+        $('#ExpYear').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please select year.",                    
+            }
+        });
+        
+        $('#Cvv').rules('add', {
+            required: true,
+            maxlength: 5,
+            digits: true,
+            messages: {
+                required:  "Please enter cvv.",
+                maxlength: "Maximum 5 digits allowed.",
+                digits: "Only digits allowed.",
+               
+            }
+        });
+        
+        $('#Firstname').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter first name.",                    
+            }
+        });
+        $('#Lastname').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter last name.",                    
+            }
+        });
+        $('#Address').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter address.",                    
+            }
+        });
+        $('#City').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter city.",                    
+            }
+        });
+        $('#State').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter state.",                    
+            }
+        });
+        $('#Zipcode').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter zip code.",                    
+            }
+        });
+        $('#Country').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please select country.",                    
+            }
+        });
+        
+        return true;
+	}else if(paymentType == 'paypal'){
+		
+		return true;				
+	}else if(paymentType == 'chase'){
+
+		var chasePaymentType = $('input[name=chasePaymentType]:checked', '#frmPaymentOptions').val();
+		if (chasePaymentType == 'with-profile') {
+			return true;
+		}else{
+			return false;
+		}
+
+	}else if(paymentType == 'milstar'){
+		
+		$('#MCardNumber').rules('add', {
+            required: true,
+            maxlength: 16,
+            minlength: 14,
+            digits: true,
+            messages: {
+                required:  "Please enter milstar credit card number.",
+                maxlength: "Maximum 16 digits allowed.",
+                minlength: "Minimum 14 digits required.",
+                digits: "Only digits allowed.",
+            }
+        });
+		
+		$('#MZipcode').rules('add', {
+            required: true,
+            messages: {
+                required:  "Please enter zipcode.",                    
+            }
+        });
+		
+		return true;
+        
+	}else{
+		
+		var err = disErrorMsg('warning','Please select valid payment options for payment.');
+		$('#cartmsg').html(err);
+		return false;
+	}
+}
+
+/* ensure any open panels are closed before showing selected */
+$('#summary-accordion').on('show.bs.collapse', function () {
+    $('#summary-accordion .in').collapse('hide');
+});
+
+
+function showCardinfoBox(val){
+	$('#ajax-loader-bx').show();
+	if(val == 'cc'){
+		$('#milstarinfo').hide();
+		$('#cardinfo').show();
+		$('#chaseinfo').hide();
+		$("#submitId").show();
+	}else if(val == 'milstar'){
+		$('#milstarinfo').show();
+		$('#cardinfo').hide();
+		$('#chaseinfo').hide();
+		$("#submitId").hide();
+	}else if(val == 'chase'){
+		$('#milstarinfo').hide();
+		$('#cardinfo').hide();
+		$('#chaseinfo').show();
+		$("#submitId").hide();
+	}else{
+		$('#milstarinfo').hide();
+		$('#cardinfo').hide();
+		$('#chaseinfo').hide();
+	}
+	$('#recurringPayment').prop('checked', false); // Checks it
+	$('#ajax-loader-bx').hide();
+}
+
+function proccedActivation(){
+	
+	$('#frmSummary').attr('action', '{{ path('dhi_tvod_active_by_credit') }}');
+	
+	return true;
+}
+
+function deersNotificationForMlistar(){
+	 //var grandtotal = $('#grandtotalid').text() == "" ? 0 : $('#grandtotalid').text();
+			//console.log(grandtotal);
+	$.confirm({
+		title: 'Alert!',
+		content: 'DEERS authentication is required for Milstar payment. Do you want to proceed?',
+		icon: '',
+	    confirmButton: 'Yes',
+        cancelButton: 'No',
+        confirmButtonClass: 'btn-info',
+        cancelButtonClass: 'btn-danger',
+	    theme: 'white',
+        animation: 'scale',
+        animationSpeed: 400,
+        animationBounce: 1.5,
+        keyboardEnabled: false,
+        container: 'body',
+	    cancel: function(){
+	    		    	
+	    },
+	    confirm: function(){
+			//window.location.href = '{{ path('dhi_user_deers_auth', {'type' : 'milstarpayment'}) }}';
+	    },
+	    backgroundDismiss: false,
+        autoClose: false,
+        closeIcon: true
+	});
+}
+
+</script>
+
+{% endblock javascripts %}

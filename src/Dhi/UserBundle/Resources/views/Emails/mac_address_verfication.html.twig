@@ -1,0 +1,9 @@
+Hello {{ receiverName }},<br />
+<br />
+{{ senderName }} want to register your macAddress,if you want to allow register the mac-address  please click the link below:
+<br /><br />
+<a href="{{ url('dhi_user_mac_address_confirm', {'token': token,'senderId': senderId }) }}">{{ url('dhi_user_mac_address_confirm') }}</a>
+<br /><br />
+Thank you,
+<br /><br />
+{{companyname}}

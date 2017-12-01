@@ -1,0 +1,139 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+
+	{% include "DhiUserBundle::flashMessage.html.twig" %}
+        <div class="delBoxCont"></div>
+        <!-- Content Header (Page header) -->
+            <section class="content-header">
+              <h1>Topup Link</h1>
+            </section>
+            <section class="content">	
+                <div class="box box-success">
+                    <div class="box-body">
+			<div class="row">
+         		    <div class="col-xs-12">  
+                                <div class="addNewBtnsGrp">
+                                    {% if admin_permission.checkPermission('topup_link_new') %}   
+                                        <a href="{{ path('dhi_admin_topup_link_new') }}" class="btn btn-success pull-right margin-top5">Add Topup Link</a>
+                                    {% endif %}
+                                </div>
+                                
+			    <table id="topupLinkTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="50">Id</th>
+                                        <th width="100">Service Location</th>
+                                        <th>Link Name</th>
+                                        <th>Url</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>        
+                        
+		
+            </section>		
+{% endblock body %}
+{% block javascripts %}
+    
+    {{ parent() }}
+
+   <script type="text/javascript">
+        
+        $(document).ready(function () {
+          
+          deleteAjaxSource = '{{ path('dhi_admin_topup_link_delete') }}';
+          
+            dTable = $('#topupLinkTable').dataTable({
+               
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                iDisplayLength: "{{ record_per_page }}",
+                sAjaxSource: "{{ path('dhi_admin_topup_link_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                window.location = "{{ path('dhi_admin_topup_link_list') }}";
+                            }
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "Id", "bSearchable": false, "bSortable": true},
+                    {"sName": "ServiceLocation", "bSearchable": false, "bSortable": false},
+                    {"sName": "LinkName", "bSearchable": false, "bSortable": false},
+                    {"sName": "Url", "bSearchable": false, "bSortable": false},
+                    {"sName": "Status", "bSearchable": false, "bSortable": false},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false},
+                ],
+                aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+                        	
+                        	
+                            var returnData = "";
+                            var headTitle = "Topup Link Delete";
+                            var msg = 'Are you sure you want to delete this topup link?';
+                            
+                            {% if admin_permission.checkPermission('topup_link_edit') %}
+                                    var editUrl = '{{ path('dhi_admin_topup_link_edit', {'id': 'link_id'}) }}';
+                                    var editSetting = editUrl.replace("link_id", row[5]);
+                                    returnData +='<td><a href="'+editSetting+'" class="btn btn-success" title="Edit"> Edit</a></td>';
+                            {% endif %}         
+                                
+                            {% if admin_permission.checkPermission('topup_link_delete') %}
+                                var deleteUrl = '{{ path('dhi_admin_topup_link_delete', {'id': 'link_id'}) }}';
+                                var finalPath = deleteUrl.replace("link_id", row[5]);
+                                returnData +='<td><a href="javascript:void(0)" class="btn btn-danger" title="Delete" onclick="return deleterecord(' + row[5] + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" +')">Delete</a></td>';
+                            {% endif %}
+                            return returnData;
+                        },
+                        "aTargets": [5]
+                    }
+                ],
+                aaSorting: [[0, 'desc']]
+            });
+             $('#topupLinkTable').dataTable().columnFilter({
+            aoColumns: [
+             null,   
+             null,   
+             null,   
+             null,   
+             null
+            ]
+        });
+
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+        });
+    </script>
+    
+{% endblock javascripts %}    

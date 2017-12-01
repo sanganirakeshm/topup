@@ -1,0 +1,559 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('bundles/dhiadmin/FCBKcomplete/style.css') }}" type="text/css" media="screen" charset="utf-8" />		
+{% endblock %}
+{% block body %}
+
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		 <h1>Add New Compensation</h1>
+	</section>
+	<section class="content">
+		<div class="box-success">
+			<div class="row">
+				<div class="col-sm-12">
+					<form action="{{ path('dhi_admin_compensation_new') }}" method="POST" {{ form_enctype(form) }} id="compensation_form" class="form-horizontal" novalidate>		            
+		            
+			            <div class="panel-group" id="compensation-accordion">
+			            
+					        <div class="panel panel-default">
+					            <div class="panel-heading">
+					            	<h4 class="panel-title">
+					                    <a data-toggle="collapse" data-parent="#compensation-accordion" href="#tabCompensationDetail" id="tabCompensationDetailHead">Compensation Detail</a>
+					                </h4>			                
+					            </div>
+					            <div id="tabCompensationDetail" class="panel-collapse collapse in">
+					                <div class="panel-body">
+					                	<div class="box-body col-sm-6">
+					                	
+						                	<div class="form-group">
+						                        <label class="control-label">Title: </label>
+						                        {{ form_widget(form.title, { 'attr': { 'placeholder': 'Title', 'class': 'form-control'}}) }}
+						                        <div class="serverError">{{ form_errors(form.title) }}</div>	
+						                        <label id="dhi_admin_compensation_title-error" class="error" for="dhi_admin_compensation_title"></label>		                        
+						                    </div>
+						                    
+						                    <div class="form-group">
+						                        <label class="control-label">Service: </label>
+						                        {{ form_widget(form.services, { 'attr': { 'placeholder': 'Service', 'class': 'form-control'}}) }}
+						                        <div class="serverError">{{ form_errors(form.services) }}</div>		
+						                        <label id="dhi_admin_compensation_services-error" class="error" for="dhi_admin_compensation_services"></label>		                        
+						                    </div>
+						                    
+						                    <div class="form-group" id="iptvCompBx" style="display:none;">
+						                        <label class="control-label">ExchangeVUE Compensation Hours: </label>
+						                        {{ form_widget(form.iptvDays, { 'attr': { 'placeholder': 'Hours', 'class': 'form-control'}}) }}
+						                        <div class="serverError">{{ form_errors(form.iptvDays) }}</div>	
+						                        <label id="dhi_admin_compensation_iptvDays-error" class="error" for="dhi_admin_compensation_iptvDays"></label>
+						                    </div>
+						                    
+						                    <div class="form-group" id="ispCompBx" style="display:none;">
+						                        <label class="control-label">ISP Compensation Hours: </label>
+						                        {{ form_widget(form.ispHours, { 'attr': { 'placeholder': 'Hours', 'class': 'form-control'}}) }}
+						                        <div class="serverError">{{ form_errors(form.ispHours) }}</div>	
+						                        <label id="dhi_admin_compensation_ispHours-error" class="error" for="dhi_admin_compensation_ispHours"></label>			                        
+						                    </div>
+						                    						                    
+					                    </div>
+					                    
+					                    <div class="box-body col-sm-6"></div>
+					                    <div class="col-sm-12">
+					                    	<div class="pull-right">
+					                    		<a href="javascript:void(0)" class="btn btn-info" onclick="ajaxFormValidation('tabCompensationDetail','tabCompensationType')">Next</a>
+					                    	</div>
+					                    </div>
+					                </div>
+					            </div>
+					        </div>
+					        
+		                    <div class="panel panel-default">
+					            <div class="panel-heading">
+					                <h4 class="panel-title">
+					                    <a data-toggle="collapse" data-parent="#compensation-accordion" href="#tabCompensationType" id="tabCompensationTypeHead"></a>
+                                            <a href="javascript:void(0)" onclick="return ajaxFormValidation('tabCompensationDetail','tabCompensationType')">Compensation (Service Location)</a>
+					                </h4>
+					            </div>
+					            <div id="tabCompensationType" class="panel-collapse collapse">
+					                <div class="panel-body">
+					                    <div class="box-body col-sm-6">
+						                	
+						                	{{ form_widget(form.type, { 'attr': { 'placeholder': 'Compensation Type', 'class': 'form-control', 'onchange':'changeCompensationType()'}}) }}
+						                	
+											<div class="form-group" id="comp_serLoc" >
+						                		<label class="control-label">Service Location: </label>
+						                        {{ form_widget(form.serviceLocations, { 'attr': { 'placeholder': 'Service Location', 'class': 'form-control'}}) }}
+		                            			<div class="serverError">{{ form_errors(form.serviceLocations) }}</div>	
+		                            			<label id="dhi_admin_compensation_serviceLocations-error" class="error" for="dhi_admin_compensation_serviceLocations"></label>
+						                    </div>
+						                    
+					                    </div>
+					                    <div class="box-body col-sm-6"></div>
+					                    <div class="col-sm-12">
+					                    	<div class="pull-left">
+					                    		<a href="javascript:void(0)" class="btn btn-info" onclick="collapseOpenTab('tabCompensationDetail')">Back</a>
+					                    	</div>
+					                    	<div class="pull-right">
+					                    		<a href="javascript:void(0)" class="btn btn-info" onclick="ajaxFormValidation('tabCompensationType','tabCompensationEmail')">Next</a>
+					                    	</div>
+					                    </div>
+					                </div>
+					            </div>
+					        </div>
+					        
+					        <div class="panel panel-default">
+					            <div class="panel-heading">
+					                <h4 class="panel-title">
+					                    <a data-toggle="collapse" data-parent="#compensation-accordion" href="#tabCompensationEmail" id="tabCompensationEmailHead"></a>
+                                                            <a href="javascript:void(0)" onclick="return ajaxFormValidation('tabCompensationType','tabCompensationEmail')">Email</a>
+					                </h4>
+					            </div>
+					            <div id="tabCompensationEmail" class="panel-collapse collapse">
+					                <div class="panel-body">
+					                    <div class="box-body col-sm-6">
+						                	
+						                	<div class="form-group">
+						                		<label class="control-label">Want to send email?: </label>
+						                        {{ form_widget(form.isEmailActive, { 'attr': { 'onclick':'showEmailSection(this.id)' }}) }}
+						                        <div class="serverError">{{ form_errors(form.isEmailActive) }}</div>
+						                        <label id="dhi_admin_compensation_isEmailActive-error" class="error" for="dhi_admin_compensation_isEmailActive"></label>				                        				                        
+						                    </div>
+						                    
+						                    <div id="comp_email" style="display:none;">
+							                    <div class="form-group">
+							                		<label class="control-label">Subject: </label>
+							                        {{ form_widget(form.emailSubject, { 'attr': { 'placeholder': 'Subject', 'class': 'form-control'}}) }}
+							                        <div class="serverError">{{ form_errors(form.emailSubject) }}</div>	
+							                        <label id="dhi_admin_compensation_emailSubject-error" class="error" for="dhi_admin_compensation_emailSubject"></label>		                        				                        
+							                    </div>
+							                    
+							                    <div class="form-group">
+							                		<label class="control-label">Body: </label>
+							                        {{ form_widget(form.emailContent, { 'attr': { 'placeholder': 'Message', 'class': 'tinymce'}}) }}
+							                        <div class="serverError">{{ form_errors(form.emailContent) }}</div>
+							                        <label id="dhi_admin_compensation_emailContent-error" class="error" for="dhi_admin_compensation_emailContent"></label>			                        				                        
+							                    </div>
+						                    </div>
+						                    				                    
+					                    </div>
+					                    <div class="box-body col-sm-6"></div>
+					                    <div class="col-sm-12">
+					                    	<div class="pull-left">
+					                    		<a href="javascript:void(0)" class="btn btn-info" onclick="collapseOpenTab('tabCompensationType')">Back</a>					                    		
+					                    	</div>
+					                    	<div class="pull-right">
+					                    		<a href="javascript:void(0)" class="btn btn-info" onclick="ajaxFormValidation('tabCompensationEmail','tabCompensationStatus')">Next</a>
+					                    	</div>
+					                    </div>
+					                </div>
+					            </div>
+					        </div>
+					        
+					        <div class="panel panel-default">
+					            <div class="panel-heading">
+					                <h4 class="panel-title">
+					                    <a data-toggle="collapse" data-parent="#compensation-accordion" href="#tabCompensationStatus" id="tabCompensationStatusHead"></a>
+					                    <a href="javascript:void(0)" onclick="return ajaxFormValidation('tabCompensationEmail','tabCompensationStatus')">Status</a>
+                                                        </h4>
+					            </div>
+					            <div id="tabCompensationStatus" class="panel-collapse collapse">
+					                <div class="panel-body">
+					                    <div class="box-body col-sm-6">
+						                	
+						                	<div class="form-group">
+						                		<label class="control-label">Note: </label>
+						                        {{ form_widget(form.note, { 'attr': { 'placeholder': 'Note', 'class': 'form-control reason_textarea'}}) }}
+						                        <div class="serverError">{{ form_errors(form.note) }}</div>
+						                        <label id="dhi_admin_compensation_note-error" class="error" for="dhi_admin_compensation_note"></label>
+						                    </div>
+						                	
+						                    <div class="form-group">
+						                		<label class="control-label">Status: </label>
+						                        {{ form_widget(form.isActive, { 'attr': { 'placeholder': 'Status', 'class': 'form-control'}}) }}
+						                        <div class="serverError">{{ form_errors(form.isActive) }}</div> 
+						                        <label id="dhi_admin_compensation_isActive-error" class="error" for="dhi_admin_compensation_isActive"></label>          				                        
+						                    </div>
+						                    				                    
+					                    </div>
+					                    <div class="box-body col-sm-6"></div>
+					                    <div class="col-sm-12">
+					                    	<div class="pull-left">
+					                    		<a href="javascript:void(0)" class="btn btn-info" onclick="collapseOpenTab('tabCompensationEmail')">Back</a>					                    		
+					                    	</div>
+					                    	<div class="pull-right">
+					                    		<a href="javascript:void(0)" class="btn btn-info" onclick="previewCompensation()">Preview</a>
+					                    		<a href="javascript:void(0)" class="btn btn-success" onclick="ajaxFormValidation('tabCompensationStatus','tabCompensationStatus')">Add</a>
+					                    		<a href="{{ path('dhi_admin_compensation_list') }}" class="btn btn-info">Cancel</a>
+					                    	</div>
+					                    </div>
+					                </div>
+					            </div>
+					        </div>
+					        
+					    </div>
+					    <input type="hidden" value="" id="selectedService" />
+					    {{ form_rest(form) }}
+		            </form>
+            	</div>
+            </div>
+		</div>
+	</section>	
+   {{ tinymce_init() }}
+   
+<div class="modal fade" id="emailPreviewModal" tabindex="-1" role="dialog" aria-labelledby="emailPreviewModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+   
+<div id="ajax-loader-bx" style="display:none;">
+	<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+	<div id="loader-text">Please wait....</div>
+</div>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+    
+    <script src="{{ asset('bundles/dhiadmin/FCBKcomplete/jquery.fcbkcomplete.js') }}" type="text/javascript" charset="utf-8"></script>
+				
+	<script type="text/javascript">
+        $(document).ready(function() {
+            
+            $('#dhi_admin_compensation_services').on('change', function() {
+            	
+            	hideShowCompensationHoursDays();
+            	$('#selectedService').val($('#dhi_admin_compensation_services').val());
+        	
+        		if($('#dhi_admin_compensation_services').val()){
+        		
+        			var selectedService 		= $('#selectedService').val();
+        			var selectedServiceLocation = $('#dhi_admin_compensation_serviceLocations').val();
+        			var selectedUser 			= $('#dhi_admin_compensation_users').val();
+        			var compensation_type		= $('#dhi_admin_compensation_type').val();
+        			var removeElementDropdownId = '';
+        					
+        			$.ajax({
+                		
+                		type: "POST",
+                		url: "{{ path('dhi_admin_compensation_remove_autocomplete_data') }}",
+                		data: { selectedService:selectedService, selectedServiceLocation:selectedServiceLocation, selectedUser:selectedUser, compensation_type:compensation_type },	
+                		beforeSend: function( xhr ) {
+                			
+                			$('#ajax-loader-bx').show();
+                		},
+                		success:function(result){
+                			
+                			if(compensation_type == 'ServiceLocation'){
+                				
+                				loadLocationAutocomplete();
+                				removeElementDropdownId = 'dhi_admin_compensation_serviceLocations';
+                			}
+                			if(compensation_type == 'Customer'){
+                				
+                				loadCustomerAutocomplete();
+                				removeElementDropdownId = 'dhi_admin_compensation_users';
+                			}
+                			
+                			var obj = jQuery.parseJSON( result );
+                			
+                			if(obj['status'] == 'success'){
+                				
+                				if(obj['removedIds'] != ''){
+                					
+                					for (var key in obj['removedIds']) {
+                						
+                						$("#"+removeElementDropdownId).trigger("removeItem",[{"value": obj['removedIds'][key]}]);                						
+                					}
+                				}	
+                			}
+                			
+                			$('#ajax-loader-bx').hide();
+                		}
+        			});	
+        			
+        			
+        		}
+        	});
+        	
+        	$('#compensation_form1').validate({
+                rules: {
+                    "dhi_admin_compensation[title]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_admin_compensation[title]": {
+                        "required": "Please enter title."
+                    }
+                }
+            });
+        	
+        	
+        });
+        
+        /* ensure any open panels are closed before showing selected */
+        $('#compensation-accordion').on('show.bs.collapse', function () {
+            $('#compensation-accordion .in').collapse('hide');
+        });
+        
+        function collapseOpenTab(tabId){
+        	
+        	if(!$( "#"+tabId ).hasClass( "in" )){
+        		
+        		$( "#"+tabId+"Head" ).trigger( "click" );
+        	}        	
+        }
+        
+        function showEmailSection(chkId){
+        	
+        	if($('#'+chkId).prop('checked')){
+        	
+        		$('#comp_email').show();        		
+        	}else{
+        		$('#comp_email').hide();
+        		$('#dhi_admin_compensation_emailSubject').val('');
+        		$('#dhi_admin_compensation_emailContent').val('');
+        	}        	
+        }
+        
+        function ajaxFormValidation(currTab,nextTab){
+        	
+        	var postData = $('#compensation_form').serializeArray();
+        	
+        	var isErrorTabCompensationDetail = false;
+        	var isErrorTabCompensationType	 = false;
+        	var isErrorTabCompensationEmail	 = false;
+        	var isErrorTabCompensationStatus = false;
+        	var isError = false;
+        	
+        	$.ajax({
+        		
+        		type: "POST",
+        		url: "{{ path('dhi_admin_compensation_validation') }}",
+        		data: postData,	
+        		beforeSend: function( xhr ) {
+        			
+        		    $('#ajax-loader-bx').show();
+        		},
+        		success:function(result){
+        			
+        			var obj = jQuery.parseJSON( result );
+        			var isError = false;
+        			if(obj['error'] != ''){
+        				
+        				if(currTab == 'tabCompensationDetail'){
+        					
+        					if(showErrorMessage(obj,currTab)){
+        						
+        						isError = true;
+        					}
+        				}
+						if(currTab == 'tabCompensationType'){
+							
+							if(showErrorMessage(obj,'tabCompensationDetail')){
+								
+								isError = true;
+							}else if(showErrorMessage(obj,currTab)){
+								
+								isError = true;
+							}							
+						}
+						if(currTab == 'tabCompensationEmail'){
+							
+							if(showErrorMessage(obj,currTab)){
+								
+								isError = true;
+							}else if(showErrorMessage(obj,'tabCompensationDetail')){
+								
+								isError = true;
+							}else if(showErrorMessage(obj,'tabCompensationType')){
+								
+								isError = true;
+							}							
+						}
+						if(currTab == 'tabCompensationStatus'){
+							
+							if(showErrorMessage(obj,currTab)){
+								
+								isError = true;
+							}else if(showErrorMessage(obj,'tabCompensationDetail')){
+								
+								isError = true;
+							}else if(showErrorMessage(obj,'tabCompensationType')){
+								
+								isError = true;
+							}else if(showErrorMessage(obj,'tabCompensationEmail')){
+								
+								isError = true;
+							}							
+						}
+        			}
+        			
+        			if(!isError || obj['status'] == 'success'){
+        				
+						if(currTab == 'tabCompensationStatus'){
+        					
+        					$('#compensation_form').submit();
+        				}else{
+        					collapseOpenTab(nextTab);
+        				}
+        			}
+        			
+        			if(obj['status'] == 'failed'){
+        				
+        			}        			
+        			$('#ajax-loader-bx').hide();
+        		}
+        	});		   
+        }
+        
+        function showErrorMessage(obj,tabid){
+        	
+        	var inputArray = []; // note this
+			var i = 0;
+        	var isError = false;
+        	
+        	if(tabid != ''){
+        		
+        		$('#'+tabid+' input, #'+tabid+' select, #'+tabid+' .reason_textarea').each(function() {
+					
+					$('#'+this.id+'-error').html('');
+					if(this.id != ''){
+						
+						inputArray[i] = this.id;            					
+						i++;
+					}        					
+				})
+				
+				
+				for (var key in obj['error']) {
+					
+					var inputid = 'dhi_admin_compensation_'+key;
+					
+					if(jQuery.inArray(inputid, inputArray) !== -1){
+						$('#'+inputid+'-error').html(obj['error'][key]);
+						isError = true;
+					}								
+				}
+        	}else{
+        		
+        		isError = true;
+        	}
+        	
+        	if(isError == true){
+        		
+        		collapseOpenTab(tabid);
+        	}        	        	
+        	return isError;
+        }
+        
+        function loadCustomerAutocomplete(){
+        	
+        	$('#comp_serLoc').hide();
+			$('#comp_cust').show();
+			
+			$("#dhi_admin_compensation_users").trigger("destroy");
+			$("#dhi_admin_compensation_serviceLocations").trigger("destroy");
+			
+			$("#dhi_admin_compensation_users").fcbkcomplete({
+        		
+                json_url: "{{ path('dhi_admin_compensation_search_user') }}?service="+$('#selectedService').val(),
+                addontab: true,      
+                filter_selected: true,
+                maxitems: 10,
+                input_min_size: 0,
+                height: 10,
+                cache: true,
+                newel: false,
+                //select_all_text: "select",
+            });
+        }
+        
+		function loadLocationAutocomplete(){
+        	
+        	$('#comp_serLoc').show();
+    		$('#comp_cust').hide();
+			
+    		$("#dhi_admin_compensation_serviceLocations").trigger("destroy");
+			$("#dhi_admin_compensation_users").trigger("destroy");
+			
+			$("#dhi_admin_compensation_serviceLocations").fcbkcomplete({
+				
+				json_url: "{{ path('dhi_admin_compensation_search_service_location') }}?service="+$('#selectedService').val(),
+				addontab: true,                   
+                input_min_size: 0,
+                height: 15,
+                cache: true,
+                newel: false,
+                //select_all_text: "select",
+                filter_selected: true,
+                oncreate: function() {
+                	//alert('fdsf');
+                },
+				onselect: function() {
+                	
+                }
+            });
+        }
+		
+		function previewCompensation() {
+			
+			tinyMCE.triggerSave();
+			
+			var postData   = $('#compensation_form').serializeArray();;
+			var emailPreviewUrl = '{{ path('dhi_admin_compensation_preview') }}';
+			
+			//var emailBody = tinymce.get('dhi_admin_compensation_emailContent').getContent();
+            
+	        $('#ajax-loader-box').show();
+			$('.modal-content').load(emailPreviewUrl,postData, function (result) {
+				
+	           	$('#ajax-loader-box').hide();
+		        $('#emailPreviewModal').modal({show: true});
+			});			
+        }
+		
+		function hideShowCompensationHoursDays(){
+			var isBundle = false;
+			$("#dhi_admin_compensation_services option").each(function(){
+        		
+        		if($(this).text().toUpperCase() == 'IPTV' && isBundle == false){
+            		
+            		if($(this).attr('selected') == 'selected'){
+            			
+            			$('#iptvCompBx').show();	
+            		}else{
+            			
+            			$('#dhi_admin_compensation_iptvDays').val('');
+            			$('#iptvCompBx').hide();
+            		}                		
+            	}
+            	
+				if($(this).text().toUpperCase() == 'ISP' && isBundle == false){
+            		
+					if($(this).attr('selected') == 'selected'){
+						
+						$('#ispCompBx').show();	
+					}else{
+						$('#dhi_admin_compensation_ispHours').val('');
+						$('#ispCompBx').hide();
+					}						
+            	}
+
+            	if($(this).text().toUpperCase() == 'BUNDLE'){
+            		
+            		if($(this).attr('selected') == 'selected'){
+            			isBundle = true;
+            			$('#ispCompBx').show();
+            			$('#iptvCompBx').show();
+            		}else{
+            			isBundle = false;
+            		}
+            	}
+    		})
+		}
+    </script>
+{% endblock javascripts %}

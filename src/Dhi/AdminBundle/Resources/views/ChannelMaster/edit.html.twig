@@ -1,0 +1,89 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block body %}
+<section class="content-header"><h1>Edit Channel</h1></section>
+<section class="content">
+	<div class="box box-success">
+		<form action="{{ path('dhi_admin_channel_list_edit', {'id': channel.id}) }}" method="POST" {{ form_enctype(form) }} id="edit_channel" class="form-horizontal" novalidate>
+			<div class="box-body">
+				<div class="col-xs-8">
+					<div class="form-group col-sm-8">
+						<label class="control-label">Channel Name: </label>
+						<div>
+							<input type="text" readonly="readonly" name="name" class="form-control" value="{{channel.name}}" />
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-8">
+					<div class="form-group col-sm-8">
+						<label class="control-label">{{ form_label(form.image) }}</label>
+						<div>
+							{{ form_widget(form.image) }}
+							<div class="serverError" style="width:500px;">{{ form_errors(form.image) }}</div>
+							{% if oldImage != null %}
+								<div class="margintop15">
+									<img style="max-width:100%;" src="{{app.request.getUriForPath("/uploads/channels/#{oldImage}")|replace({"/app_dev.php": ''})}}" />
+									<div class="margintop15">
+										<a href="javascript:void(0);" class="btn btn-danger btn-sm bnt-remove-image">Remove Image</a>
+									</div>
+								</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+				{{ form_rest(form) }}
+			<div class="box-footer">
+				<div class="col-sm-12 row margintop15">
+				    <div class="col-sm-6">
+				        <input type="submit" class="btn btn-success" name="Update" value="Update"/>
+				        <a href="{{ path('dhi_admin_channel_list') }}" class="btn btn-default">Back</a>
+				    </div>
+				</div>
+			</div>
+		</form>
+	</div>
+</section>
+<div id="ajax-loader-bx" style="display:none;">
+	<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+	<div id="loader-text">Please wait....</div>
+</div>
+
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiadmin/js/additional-methods.min.js') }}"></script>
+    <script type="text/javascript">
+			$(document).ready(function () {
+				$("#edit_channel").validate({
+					rules: {
+						"dhi_admin_channel[image]": {
+							"required" : true,
+							"extension": "jpeg|png|jpg|gif"
+						}
+					},
+					messages: {
+						"dhi_admin_channel[image]": {
+							"required" : "Please Select Channel Image",
+							"extension": "Please Select Valid Channel Image"
+						}
+					}
+				});
+
+				// Remove Image
+				$(".bnt-remove-image").click(function (e){
+					$('#ajax-loader-bx').show();
+					e.preventDefault();
+					$.ajax({
+						type: "POST",
+						url: "{{ path('dhi_admin_channel_list_image_remove',{'id': channel.id}) }}",
+						async:false,
+						data: {},
+						success:function(result){
+							window.location = result.url;
+						},
+						error:function(result){},
+					});
+				});
+			});
+       </script>
+{% endblock javascripts %}

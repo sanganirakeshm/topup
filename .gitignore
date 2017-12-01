@@ -1,0 +1,16 @@
+/web/bundles/
+/web/uploads/
+/app/SymfonyRequirements.php
+/app/bootstrap.php.cache
+/app/cache/*
+/app/config/config.yml
+/app/config/params.yml
+/app/config/parameters.yml
+/app/config/paypal_credentials.yml
+/app/logs/*
+!app/cache/.gitkeep
+!app/logs/.gitkeep
+/build/
+/vendor/
+/bin/
+/composer.phar

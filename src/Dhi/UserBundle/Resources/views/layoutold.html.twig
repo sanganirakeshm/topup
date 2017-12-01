@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <title>{% block title %}Welcome ExchangeVUE{% endblock %}</title>
+        {% block stylesheets %}
+            <link href="{{ asset('bundles/dhiuser/css/bootstrap.css') }}" rel="stylesheet" />
+            <link href="{{ asset('bundles/dhiuser/css/bootstrap-theme.min.css') }}" rel="stylesheet" />
+            <link href="{{ asset('bundles/dhiuser/css/font-awesome.css') }}" rel="stylesheet" />
+            <!--link href="{{ asset('bundles/dhiuser/css/slick.css') }}" rel="stylesheet" /-->
+            <link href="{{ asset('bundles/dhiuser/css/main.css') }}" rel="stylesheet" />
+            <link href="{{ asset('bundles/dhiuser/css/responsive.css') }}" rel="stylesheet" />
+            <link href="{{ asset('bundles/dhiadmin/css/jquery-confirm.css') }}" rel="stylesheet" />
+            <link href="{{ asset('bundles/dhiuser/tooltip/tip-twitter/tip-twitter.css') }}" rel="stylesheet" />  
+            
+            <!-- datatable css -->
+            <link href="{{ asset('bundles/dhiadmin/css/dataTables.bootstrap.css') }}" rel="stylesheet">
+            <link href="{{ asset('bundles/dhiadmin/css/style.datatables.css') }}" rel="stylesheet">          
+            
+            <!-- confirm css --> 
+			<link href="{{ asset('bundles/dhiadmin/css/jquery-confirm.css') }}" rel="stylesheet">
+            
+        {% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('bundles/dhiuser/images/dhi-favicon.png') }}" />
+    </head>
+    
+    <body>
+        {% block header %}
+            <div>
+                {#{% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+                    {{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} |
+                    <a href="{{ path('fos_user_security_logout') }}">
+                        {{ 'layout.logout'|trans({}, 'FOSUserBundle') }}
+                    </a>
+                {% endif %}#}
+            </div>
+            
+            {#{% for type, messages in app.session.flashbag.all() %}
+                {% for message in messages %}
+                    <div class="flash-{{ type }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}#}
+            <header class="headerMain" id="homeMenu">
+                
+                <div class="container">
+                    <div class="row">
+                        <div class="pull-left dhiLogo"><a href="{{ url('dhi_user_homepage') }}"><img src="{{ asset('bundles/dhiuser/images/dhilogo.jpg') }}" width="216" height="75"></a></div>
+                        
+                        <div class="pull-right">
+                        {% if app.user %}
+                                <div class="pull-right welcomeName">
+                                    <b>Welcome {{ app.user.username}}</b>
+                                </div>
+                            {% endif %}
+                        </div>    
+                        
+                    </div>
+                </div>
+                
+                {#% if app.request.attributes.get('_route') != 'fos_user_security_login' and app.request.attributes.get('_route') != 'fos_user_registration_register' %#}
+                    <div class="mainNav col-xs-12 col-sm-12 col-md-12 col-lg-12 cd-secondary-nav">
+                        <div class="container">
+                            <div class="row">
+                                <a href="javascript:void(0)" class="cd-secondary-nav-trigger"><i class="fa fa-navicon"></i></a>
+                                <nav>
+                                    <ul>
+                                        {% if app.request.attributes.get('_route') == 'dhi_user_homepage' %}
+                                            <li><a href="{{path('dhi_user_homepage')}}" class="scrollMenu">Home <i class="menuHover"></i></a></li></a></li>
+                                            <li><a href="{{ url('dhi_user_support') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_support' ? ' active' : ''}}">Support <i class="menuHover"></i></a></li>
+                                        {% else %}
+                                            <li><a href="{{ url('dhi_user_homepage') }}">Home <i class="menuHover"></i></a></li></a></li>
+                                            <li><a href="{{ url('dhi_user_support') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_support' ? ' active' : ''}}">Support <i class="menuHover"></i></a></li>
+                                        {% endif %}
+                                            
+                                        {% if app.user %}
+                                            <li><a href="{{ url('dhi_user_account') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_account' ? ' active' : ''}}">Account <i class="menuHover"></i></a></li>
+                                            <li><a href="{{ url('dhi_user_profile') }}" class="{{ app.request.attributes.get('_route') == 'dhi_user_profile' ? ' active' : ''}}">Profile <i class="menuHover"></i></a></li>
+                                            
+                                            <li><a href="{{ url('dhi_purchase_history') }}" class="{{ app.request.attributes.get('_route') == 'dhi_purchase_history' ? ' active' : ''}}">Purchase History<i class="menuHover"></i></a></li>
+                                            <li><a href="{{ url('fos_user_security_logout') }}">Logout <i class="menuHover"></i></a></li>
+                                        {% else %}
+                                            <li><a href="{{ url('fos_user_security_login') }}" class="{{ app.request.attributes.get('_route') == 'fos_user_security_login' ? ' active' : ''}}">Signin <i class="menuHover"></i></a></li>
+                                            <li><a href="{{ url('fos_user_registration_register') }}" class="{{ app.request.attributes.get('_route') == 'fos_user_registration_register' ? ' active' : ''}}">Signup <i class="menuHover"></i></a></li>
+                                        {% endif %}
+                                      </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                {#% endif %#}
+            </header>
+        {% endblock header %}
+
+        {% block body %}
+            
+        {% endblock %}
+        
+        {% block footer %}
+            <footer>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12 footerMenu">
+                            <a href="{{ url('dhi_user_homepage') }}">Home</a> | 
+                            <a href="{{ url('dhi_user_support') }}">Support</a> | 
+                            
+                            <a href="javascript:void(0)" data-toggle="modal" data-target="#termCondition">Terms & Conditions</a> 
+                            {% if not app.user %}| 
+                            <a href="{{ url('fos_user_security_login') }}">Signin</a> | 
+                            <a href="{{ url('fos_user_registration_register') }}">Signup</a>
+                             {% endif %}
+                        </div>
+                        <div class="col-md-12 copyright">© 2015. ExchangeVUE. All rights reserved.</div>
+                    </div>
+                </div>
+                
+                <!-- Modal -->
+                <div class="modal fade" id="termCondition" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Terms & Conditions</h4>
+                      </div>
+                      <div class="modal-body">
+                            {% include 'DhiUserBundle:Homepage:terms.html.twig' %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+            </footer>
+        {% endblock footer %}
+        
+        {% block javascripts %}
+            <script src="{{ asset('bundles/dhiuser/js/jquery-2.1.1.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/jquery.validation.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/jquery-migrate-1.1.1.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/jquery-ui.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/bootstrap.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/modernizr.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/placeholders.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/selectivizr-min.js') }}"></script>
+            <!--script src="{{ asset('bundles/dhiuser/js/stickynav.js') }}"></script-->
+            <script src="{{ asset('bundles/dhiuser/js/main.js') }}"></script>
+            <script src="{{ asset('bundles/dhiadmin/js/jquery-confirm.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/commonFunction.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/tooltip/jquery.poshytip.js') }}"></script>      
+            
+            <!-- datatable js added by nirav -->
+            <script src="{{ asset('bundles/dhiadmin/js/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiadmin/js/datatables/media/assets/js/datatables.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiadmin/js/datatables/extras/TableTools/media/js/TableTools.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiadmin/js/datatables/extras/TableTools/media/js/ZeroClipboard.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiadmin/js/jquery.dataTables.columnFilter.js') }}"></script>
+            <script src="{{ asset('bundles/dhiadmin/js/grid_function.js') }}"></script>
+            <script src="{{ asset('bundles/dhiadmin/js/jquery-confirm.js') }}"></script>      
+            {% endblock %}
+    </body>
+</html>

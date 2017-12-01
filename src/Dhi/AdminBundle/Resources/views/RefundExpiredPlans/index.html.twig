@@ -1,0 +1,175 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        #refundPaymentModal .modal-dialog{ width:835px; }
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+    
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>    
+    <section class="content-header">
+        <h1>Refund Expired Plans</h1>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get">
+                        <div class="box-body">
+                            <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="packageName"></div></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="addNewBtnsGrp col_filter">
+                            <a href="{{ path('dhi_admin_user_list') }}" class="btn btn-success pull-right margin-top5">Back</a>
+                        </div>
+                        <table id="expiredPlansTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th>Package Name</th>
+                                    <th>Validity</th>
+                                    <th>Service<br /> Location</th>
+                                    <th>Package<br /> Amount</th>
+                                    <th>Discount<br /> Amount</th>
+                                    <th>Paid<br /> Amount</th>
+                                    <th>Activated<br /> Date</th>
+                                    <th>Expiry Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="modal fade" id="refundPaymentModal" tabindex="-1" role="dialog" aria-labelledby="refundPaymentModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var ajaxPath = '{{ path('dhi_admin_view_expired_plans_json', {'id': 'user_id'}) }}';
+                ajaxPath = ajaxPath.replace("user_id", "{{ id }}");
+
+            dTable = $('#expiredPlansTable').dataTable({
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: ajaxPath,
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                // window.location = "{{ path('dhi_admin_dashboard') }}";
+                            }
+                        }
+                    } );
+                },
+                fnDrawCallback: function () {},
+                aoColumns: [
+                    {"sName": "Service","bSearchable": false,"bSortable": true},
+                    {"sName": "PackageName","bSearchable": true,"bSortable": true},
+                    {"sName": "Validity","bSearchable": false,"bSortable": false},
+                    {"sName": "ServiceLocation","bSearchable": false,"bSortable": true},
+                    {"sName": "PackageAmount","bSearchable": false,"bSortable": true},
+                    {"sName": "DiscountAmount", "bSearchable": false, "bSortable": true},
+                    {"sName": "PaidAmount", "bSearchable": false, "bSortable": true},
+                    {"sName": "ActivatedDate", "bSearchable": false, "bSortable": true},
+                    {"sName": "ExpiryDate", "bSearchable": false, "bSortable": true},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false}
+                ],
+                aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+                            var dataId = row[9];
+                            var status = row[10];
+                            var suspendedStatus = row[11];
+                            var returnData = '';
+                            var packageType = row[0];
+                            {% if admin_permission.checkPermission('refund_expired_plans_refund') %}
+                                if(status == 1 && suspendedStatus != 1 ){
+                                    var fn = "showRefundPaymentBox('"+dataId+"','"+packageType+"',0)";
+                                    returnData = '<a href="javascript:void(0);" class="btn btn-success pull-right" onclick="'+fn+'">Refund</a>';
+                                } else {
+                                    returnData = 'N/A';
+                                }
+                            {% endif %}
+                            return returnData;
+                        },
+                        "aTargets": [9]
+                    }
+                ],
+                aaSorting: [[9, 'DESC']]
+            });
+
+            $('#expiredPlansTable').dataTable().columnFilter({
+                aoColumns: [
+                    null,
+                    {type: "text", sSelector: "#packageName"},
+                ]
+            });
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+    });
+
+    function showRefundPaymentBox(userServiceId, packageType, finalRefundAmount) {
+
+        var refundUrl = '{{ path('dhi_admin_view_expired_plans_refund', {'id': id}) }}';
+
+        $('#ajax-loader-bx').show();
+        $('.modal-content').load(refundUrl, { userId:"{{ id }}", packageType:packageType, userServiceId:userServiceId, finalRefundAmount:finalRefundAmount },function (result) {
+            $('#ajax-loader-bx').hide();
+            $('#refundPaymentModal').modal({show: true});
+        });
+    }
+    function closeModelPopup() {
+        
+        $('#refundPaymentModal').modal('hide');
+        window.location.reload();
+    }
+</script>
+{% endblock javascripts %}

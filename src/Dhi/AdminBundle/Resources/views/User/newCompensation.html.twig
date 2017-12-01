@@ -1,0 +1,79 @@
+{% block body %}
+    <div class="modal-header">
+    	<h4 class="modal-title" id="channelModal-title">Add New Compensation</h4>
+    </div>
+        {% if result == 'success' %}
+                <form action="{{ path('dhi_admin_user_add_compensation', { 'id': id }) }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="add_compensation_form" novalidate>
+                        <div class="modal-body">
+                                <div class="box-body form-group-section">
+                                   <div class="form-group">
+                                       <div class="col-sm-4">
+                                           <label class="control-label">Compensation Hours: </label>
+                                       </div>
+                                       <div class="col-sm-7">
+                                           {{ form_widget(form.ispHours, { 'attr': { 'placeholder': 'Hours', 'class': 'form-control'}}) }}
+                                           <div class="serverError">{{ form_errors(form.ispHours) }}</div> 
+                                           <label id="dhi_admin_compensation_ispHours-error" class="error" for="dhi_admin_compensation_ispHours"></label>
+                                       </div>
+                                   </div>
+                                   <div class="form-group">
+                                       <div class="col-sm-4">
+                                           <label class="control-label">Note: </label>
+                                       </div>
+                                       <div class="col-sm-7">
+                                           {{ form_widget(form.reason, { 'attr': { 'placeholder': 'Note', 'class': 'form-control reason_textarea'}}) }}
+                                           <div class="serverError">{{ form_errors(form.reason) }}</div>
+                                           <label id="dhi_admin_compensation_reason-error" class="error" for="dhi_admin_compensation_reason"></label>
+                                       </div>
+                                   </div>
+                               </div>
+                        </div>
+                        <div class="modal-footer">
+                                <input type="submit" name="add" value="Add" class="btn btn-success"/>
+                                <button type="button" class="btn btn-default" data- id="closeBtn" data-dismiss="modal">Close</button>
+                        </div>
+                    {{ form_rest(form) }}
+                </form>
+        {% else %}
+                <div class="msgBoxCont">
+                    <div class="alert alert-warning">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        {{ msg|raw }}
+                    </div>
+                </div>
+                 <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-right" data- id="closeBtn" data-dismiss="modal">Close</button>
+                </div>
+        {% endif %}
+{% endblock body %}
+{% block javascripts %}
+	<script type="text/javascript">
+        $(document).ready(function(){
+             $.validator.addMethod("validHours", function (value, element) {
+                var reg = /^\d+$/;
+                return reg.test(value)
+            }, 'Please enter valid hours');
+
+            $('#add_compensation_form').validate({
+                rules: {
+                    "dhi_admin_compensation[ispHours]": {
+                        "required": true,
+                        "validHours": true
+                    },
+                    "dhi_admin_compensation[reason]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_admin_compensation[ispHours]": {
+                        "required": "Please enter Hours.",
+                        "number": "Please enter valid hours"
+                    },
+                    "dhi_admin_compensation[reason]": {
+                        "required": "Please enter note."
+                    }
+                }
+            });
+        });
+	</script>
+{% endblock javascripts %}

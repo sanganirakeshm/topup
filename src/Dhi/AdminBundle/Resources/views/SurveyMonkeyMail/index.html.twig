@@ -1,0 +1,132 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>
+
+    <section class="content-header">
+        <h1>Survey Monkey Mail</h1>
+    </section>
+    <section class="content">
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get">
+                        <div class="box-body">
+                            <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="subject"></div></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <table id="emailCampaignTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Subject</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock body %}
+{% block javascripts %}
+
+    {{ parent() }}
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            dTable = $('#emailCampaignTable').dataTable({
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength:{{ record_per_page }},
+                        sAjaxSource: "{{ path('dhi_admin_survey_monkey_mail_json') }}",
+                "fnServerData": function (sUrl, aoData, fnCallback, oSettings) {
+                    oSettings.jqXHR = $.ajax({
+                        "url": sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if (json.sError) {
+                                oSettings.oApi._fnLog(oSettings, 0, json.sError);
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback(json);
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if (error == "parsererror") {
+                                window.location = "{{ path('dhi_admin_user_list') }}";
+                            }
+                        }
+                    });
+                },
+                aoColumns: [
+                    {"sName": "Id", "bSearchable": false, "bSortable": true, "bVisible": false},
+                    {"sName": "Subject", "bSearchable": true, "bSortable": true, },
+                    {"sName": "Status", "bSearchable": false, "bSortable": false},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false},
+                ],
+                aoColumnDefs: [
+                    {
+                        "mRender": function (data, type, row) {
+
+                            var actionFlag = row[3].split('^');
+                            var dataId = actionFlag[0];
+
+
+                            var returnData = "<table><tr>";
+        {% if admin_permission.checkPermission('email_campaign_update') %}
+                                var editUrl = '{{ path('dhi_admin_survey_monkey_mail_edit', {'id': 'email_id'}) }}';
+                                var editEmail = editUrl.replace("email_id", dataId);
+                                returnData += '<td><a href="' + editEmail + '" class="btn btn-success" title="Edit"> Edit</a></td>';
+        {% endif %}
+
+                                return returnData;
+                            },
+                            "aTargets": [3]
+                        }
+                    ],
+                    aaSorting: [[3, 'asc']]
+                });
+                $('#emailCampaignTable').dataTable().columnFilter({
+                    aoColumns:  [
+                                    {type: "text", sSelector: "#subject"},
+                                    null,
+                                    
+                                ]
+                            });
+
+                            $("input").addClass("form-control");
+                            $("select").addClass("form-control");
+                        });
+    </script>
+
+{% endblock javascripts %}

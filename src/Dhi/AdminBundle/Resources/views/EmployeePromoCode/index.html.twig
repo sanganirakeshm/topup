@@ -1,0 +1,199 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+{{ parent() }}
+<link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+
+{% endblock stylesheets %}
+{% block body %}
+
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+	<div class="delBoxCont"></div>
+
+         <section class="content-header">
+              <h1>Employee Promo Code</h1>
+            </section>
+            <section class="content">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="box box-success">
+                            <form method="get">
+                                <div class="box-body">
+                                    <div class="form-group col-md-3">
+                                        <div class="row"><div class="col-sm-12" id="employeeName"></div></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box box-success">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="addNewBtnsGrp">
+                                    {% if admin_permission.checkPermission('promo_code_create') %}
+                                        <a href="{{ path('dhi_admin_employee_promo_code_new') }}" class="btn btn-success pull-right margin-top5">Add Employee Promo Code</a>
+                                    {% endif %}
+                                </div>
+                                {# {% endif %}#}
+                                <table id="promoCodeTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th width="80">Employee<br/> Name</th>
+                                            <th width="60">Employee<br/> PromoCode</th>
+                                            <th width="60">Created By</th>
+                                            <th width="60">Amount</th>
+                                            <th width="60">Status</th>
+                                            <th width="75">Number of<br/>Redeemetion</th>
+                                            <th width="60">Note</th>
+                                            <th width="60">Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="emailPreviewModal" tabindex="-1" role="dialog" aria-labelledby="emailPreviewModal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+{% endblock body %}
+{% block javascripts %}
+
+    {{ parent() }}
+ <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+   <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            dTable = $('#promoCodeTable').dataTable({
+
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_employee_promo_code_list_json') }}",
+                "fnServerParams": function ( aoData ) {
+                    aoData.push( { "name": "createdBy", "value": $(".admins").val() } );
+                },
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                            }
+                        }
+                    } );
+                },
+
+                sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+                aoColumns: [
+                    {"sName": "EmployeeName","bSearchable": true,"bSortable": true},
+                    {"sName": "EmployeePromoCode","bSearchable": true,"bSortable": true},
+                    {"sName": "CreatedBy","bSearchable": true,"bSortable": true},
+                    {"sName": "Amount","bSearchable": true,"bSortable": true},
+                    {"sName": "Status", "bSearchable": false, "bSortable": true},
+                    {"sName": "NumberOfRedeemtion", "bSearchable": false, "bSortable": false},
+                    {"sName": "Note", "bSearchable": false, "bSortable": true},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false},
+                ],
+                aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+                        	var dataId = row[7];
+                            var status = row[4];
+                            var returnData = "";
+                                returnData += "<a href='javascript:void(0);' class='selectLink'>Select <span class='fa fa-angle-down'></span></a>";
+                                returnData += "<ul class='selectDropdown' style='display: none;'>";
+
+
+                             {% if admin_permission.checkPermission('employee_promo_code_update') %}
+                                    var editUrl = '{{ path('dhi_admin_employee_promo_code_edit', {'id': 'promo_id'}) }}';
+                                    var editPromo = editUrl.replace("promo_id", dataId);
+                                    returnData +='<li><a href="'+editPromo+'"  > Edit</a></li>';
+                                {% endif %}
+
+                            {% if admin_permission.checkPermission('employee_promo_code_status_update') %}
+							    var disableUrl = '{{ path('dhi_admin_employee_promo_code_disable', {'id': 'promo_id'}) }}';
+                                var disable = disableUrl.replace("promo_id", dataId);
+								if(status == 'Active'){
+									returnData +='<li><a href="'+disable+'"  >Disable</a></li>';
+								} else {
+									returnData +='<li><a href="'+disable+'"  >Enable</a></li>';
+								}
+                            {% endif %}
+
+							{% if admin_permission.checkPermission('employee_promo_code_customer_view') %}
+							    var viewCustomer = '{{ path('dhi_admin_employee_promo_code_customer', {'id': 'promo_id'}) }}';
+                                var customer = viewCustomer.replace("promo_id", dataId);
+								returnData +='<li><a href="'+customer+'"  >View Customer</a></li></ul>';
+								{% endif %}
+
+                            return returnData;
+                        },
+                        "aTargets": [7]
+                    }
+                ],
+                aaSorting: [[9, 'desc']]
+            });
+
+             $.datepicker.regional[""].dateFormat = 'yy-mm-dd';
+                                    $.datepicker.setDefaults($.datepicker.regional['']);
+             $('#promoCodeTable').dataTable().columnFilter({
+                 sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+                aoColumns: [
+                    {type: "select", sSelector: "#employeeName", values:{{employees|raw}}},
+            ]
+        });
+
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+
+        $(".admins").change(function(event) {
+            dTable.fnDraw(true);
+        });
+    });
+    function showDetail(id){
+            var postData = id
+            var notePreviewUrl = '{{ path('dhi_admin_partner_promo_code_batch_view_note', {'id' : 'note_id','type' : 'type_name'  }) }}';
+            var detailsUrl = notePreviewUrl.replace("note_id", id);
+            var detailsUrl1 = detailsUrl.replace("type_name", 'employeePromoCode');
+
+            $('#ajax-loader-box').show();
+            $('.modal-content').load(detailsUrl1,postData, function (result) {
+                $('#ajax-loader-box').hide();
+                $('#emailPreviewModal').modal({show: true});
+            });
+        }
+    </script>
+
+{% endblock javascripts %}

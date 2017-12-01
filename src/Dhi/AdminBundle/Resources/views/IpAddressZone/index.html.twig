@@ -1,0 +1,228 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+	<div class="delBoxCont"></div>		
+        
+         <section class="content-header">
+              <h1>Service Location</h1>
+            </section>
+            <section class="content">	
+		
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="box box-success">
+                            <form method="get">
+                                <div class="box-body">
+                                    <div class="form-group col-md-4">
+                                                        
+                                        <div class="row"><div class="col-sm-12" id="country"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <div class="row"><div class="col-sm-12" id="name"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <div class="row"><div class="col-sm-12" id="name"> <input type="text" placeholder="From Ip Address" name="fromip" id="fromIp"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <div class="row"><div class="col-sm-12"> <input type="text" placeholder="To Ip Address" name="toip" id="toIp"></div></div>
+                                    </div>
+                                  
+                                    
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>		
+                 
+                <div class="box box-success">
+                    <div class="box-body">
+			<div class="row">
+         		    <div class="col-xs-12">  
+                           
+                               <div class="addNewBtnsGrp">
+                                    {% if admin_permission.checkPermission('service_location_create') %}
+                                    <a href="{{ path('dhi_admin_ip_zone_new') }}" class="btn btn-success pull-right margin-top5">Add Service Location</a>
+                                     {% endif %}
+                                       {% if admin_permission.checkPermission('service_location_discount_create') %}
+						<a class="btn btn-success pull-right margin-top5" href="{{ path('dhi_admin_service_location_discount_new') }}">Add Discount</a>
+					{% endif %}
+                                </div>
+                           
+                          
+			    <table id="serviceLocationTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Country</th>
+                                        <th>Name</th>
+                                        <th>IP Address Range</th>
+                                        <th>No. Of Customer</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>        
+            </section>	                
+{% endblock body %}
+{% block javascripts %}
+    
+    {{ parent() }}
+
+   <script type="text/javascript">
+        
+        $(document).ready(function () {
+          
+            deleteAjaxSource = '{{ path('dhi_admin_ip_zone_delete') }}';
+           
+            dTable = $('#serviceLocationTable').dataTable({
+               
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: false,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_ip_zone_list_json', {'fromip' : '0','toip' : '0'})}}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "Id", "bSearchable": false, "bSortable": true, "bVisible": false},
+                    {"sName": "Country","bSearchable": true,"bSortable": true},
+                    {"sName": "Name", "bSearchable": true, "bSortable": true,"sWidth":"10%"},
+                    {"sName": "IPAddressRange", "bSearchable": true, "bSortable": false},
+                    {"sName": "Customer", "bSearchable": true, "bSortable": false,"sWidth":"10%"},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false},
+                    
+                ],
+                aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+                        	
+                        	var actionFlag = row[5].split('^');
+                        	var dataId = actionFlag[0];
+                                var editDiscount = actionFlag[1];
+                                var headTitle = "Service Location Delete";
+                                var msg = 'Are you sure you want to delete this service location?';
+                                var returnData = " ";
+                                returnData += "<a href='javascript:void(0);' class='selectLink'>Select <span class='fa fa-angle-down'></span></a>";
+                                returnData += "<ul class='selectDropdown' style='display: none;'>";
+                                
+                              
+                                {% if admin_permission.checkPermission('service_location_update') %}
+                                    var editUrl = '{{ path('dhi_admin_ip_zone_edit', {'id': 'location_id'}) }}';
+                                    var editLocation = editUrl.replace("location_id", dataId);
+                                    returnData +='<li><a href="'+editLocation+'"  title="Edit"> Edit</a></li>';
+                                {% endif %}    
+                                 
+                                if(editDiscount == 1)
+                                {    
+                                    {% if admin_permission.checkPermission('service_location_discount_update') %}
+                                        var editUrl = '{{ path('dhi_admin_service_location_discount_edit', {'id': 'location_id'}) }}';
+                                        var editLocationDiscount = editUrl.replace("location_id", dataId);
+                                        returnData +='<li><a href="'+editLocationDiscount+'"  title="Edit Discount">Edit Discount</a></li>';
+                                    {% endif %}     
+                                }        
+
+                               {% if admin_permission.checkPermission('service_location_delete') %}
+                                var deleteUrl = '{{ path('dhi_admin_ip_zone_delete', {'id': 'location_id'}) }}';
+                                var finalPath = deleteUrl.replace("location_id", dataId);
+                                returnData +='<li><a href="javascript:void(0)"  title="Delete" onclick="return deleterecord(' + dataId + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" +')">Delete</a></li>';  
+                               {% endif %}
+                             
+                            return returnData;
+                        },
+                        "aTargets": [5]
+                    }
+                ],                
+                aaSorting: [[5, 'asc']]
+            });
+            $('#serviceLocationTable').dataTable().columnFilter({
+            aoColumns: [
+             {# null,#}
+             {type: "select", sSelector: "#country", values: {{countries|json_encode()|raw}}},
+             {type: "text", sSelector: "#name"},
+            ]
+        });
+
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+        });
+        
+  $(document).ready(function(){
+  
+        $("#fromIp").keyup(function(){
+            
+             var toIp = $('#toIp').val() == "" ? 0 : $('#toIp').val();
+             var fromIp = $('#fromIp').val() == "" ? 0 : $('#fromIp').val();
+             
+             var IpUrl = '{{ path('dhi_admin_ip_zone_list_json', {'fromip' : 'from_ip', 'toip' : 'to_ip' }) }}';
+                 IpUrl = IpUrl.replace("from_ip", fromIp);
+                 IpUrl = IpUrl.replace("to_ip", toIp);
+             
+             var oSettings = dTable.fnSettings();
+           
+                oSettings.sAjaxSource = IpUrl;
+                dTable.fnDraw(true);
+           // alert($(this).val());
+        }); 
+        
+        
+        $("#toIp").keyup(function(){
+            
+             var toIp = $('#toIp').val() == "" ? 0 : $('#toIp').val();
+             var fromIp = $('#fromIp').val() == "" ? 0 : $('#fromIp').val();
+             
+             var IpUrl = '{{ path('dhi_admin_ip_zone_list_json', {'fromip' : 'from_ip', 'toip' : 'to_ip' }) }}';
+                 IpUrl = IpUrl.replace("from_ip", fromIp);
+                 IpUrl = IpUrl.replace("to_ip", toIp);
+             
+             var oSettings = dTable.fnSettings();
+           
+                oSettings.sAjaxSource = IpUrl;
+                dTable.fnDraw(true);
+           // alert($(this).val());
+        }); 
+        
+        $('input').focus(function(){
+            $(this).data('placeholder',$(this).attr('placeholder'))
+                   .attr('placeholder','');
+         }).blur(function(){
+            $(this).attr('placeholder',$(this).data('placeholder'));
+        });
+        
+    }) 
+    </script>
+    
+{% endblock javascripts %}

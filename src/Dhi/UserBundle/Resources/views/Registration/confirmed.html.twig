@@ -1,0 +1,24 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+
+{% trans_default_domain 'FOSUserBundle' %}
+{% block body %}
+    <div class="innerBg">
+        <div class="container min_cont_hight">
+            <div class="row">
+                {% block fos_user_content %}
+                    <div class="msgBox">
+                        <div class="msgboxin">
+                            <p>{{ 'registration.confirmed'|trans({'%username%': user.username}) }}</p>
+                            <p>You can <a href="{{ url('fos_user_security_login') }}">Login</a> here!</p>
+
+                            {% if app.session is not empty %}
+                                {% set targetUrl = app.session.get('_security.' ~ app.security.token.providerKey ~ '.target_path') %}
+                                {% if targetUrl is not empty %}<p><a href="{{ targetUrl }}">{{ 'registration.back'|trans }}</a></p>{% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endblock fos_user_content %}
+            </div>
+        </div>
+    </div>
+{% endblock body %}

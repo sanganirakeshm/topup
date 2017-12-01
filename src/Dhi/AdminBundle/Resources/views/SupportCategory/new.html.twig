@@ -1,0 +1,109 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+{% include "DhiUserBundle::flashMessage.html.twig" %}
+<section class="content-header">
+    <h1>Add Support Category</h1>
+</section>		  
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+           <div class="box box-success">
+                <form action="{{ path('dhi_admin_support_category_new') }}" method="POST" id="add_category" class="form-horizontal" novalidate>
+				    <div class="box-body">
+		    	  
+                        <div class="form-group col-md-4">
+                             <label class="control-label">Site: </label>
+
+                             {{ form_widget(form.supportsite, { 'attr': { 'placeholder': 'Name', 'class': 'form-control'}}) }}
+                             <div class="serverError">{{ form_errors(form.supportsite) }}</div>
+                        </div>
+                        
+                        <div class="form-group col-md-4">
+                             <label class="control-label">Name: </label>
+
+                             {{ form_widget(form.name, { 'attr': { 'placeholder': 'Name', 'class': 'form-control'}}) }}
+                             <div class="serverError">{{ form_errors(form.name) }}</div>
+                             <label id="dhi_user_support_category_name-error" class="error" for="dhi_user_support_category_name"></label>
+                        </div>
+
+				    </div>
+
+                    {{ form_rest(form) }}
+
+                <div class="box-footer">
+                    <div class="col-md-8 add-btn-bx">
+				        <input type="submit" class="btn btn-success" name="add" value="Add"/>
+                        <a href="{{ path('dhi_admin_support_category_list') }}" class="btn btn-default">Back</a>
+                    </div>
+				 </div>
+			   </form>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="ajax-loader-bx" style="display:none;">
+    <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+    <div id="loader-text">Please wait....</div>
+</div>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#add_category").validate({
+                rules: {
+                    "dhi_user_support_category[supportsite]": "required",
+                    "dhi_user_support_category[name]": { 
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_user_support_category[supportsite]": "Please select site",
+                    "dhi_user_support_category[name]": { 
+                        "required": "Please enter category"
+                    },
+                }
+            });
+            $("#dhi_user_support_category_supportsite, #dhi_user_support_category_name").change(function(event) {
+                $("#add_category").valid();
+            });
+            
+        $("#dhi_user_support_category_name").blur(function() {
+            chekcDuplicateCategory();
+        });
+        $("#add_category").submit(function (event){
+            chekcDuplicateCategory();
+            if($("#dhi_user_support_category_name-error").text() != ''){
+                event.preventDefault();
+                return false;
+            }
+        });
+        function chekcDuplicateCategory(){
+            var supportSite = $("#dhi_user_support_category_supportsite").val();
+            var name   = $("#dhi_user_support_category_name").val();
+            if(supportSite != '' && name != ''){
+                $.ajax({
+                   type: "POST",
+                    url: "{{ path('dhi_admin_support_category_check_duplicate') }}",
+                    async: false,
+                    data: { supportSite:supportSite, name:name},
+                    beforeSend: function( xhr ) {
+                        $('#ajax-loader-bx').show();
+                    },
+                    success:function(result){
+                        var ajaxRes = jQuery.parseJSON(result);
+                        if(ajaxRes == false){
+
+                            $("#dhi_user_support_category_name").attr('aria-invalid', 'true');
+                            $("#dhi_user_support_category_name-error").css('display', 'block');
+                            $("#dhi_user_support_category_name-error").text("Support category is already exists in this site");
+                        }
+                        $('#ajax-loader-bx').hide();
+                    } 
+                });
+            }
+        }
+    });
+    </script>
+{% endblock javascripts %}

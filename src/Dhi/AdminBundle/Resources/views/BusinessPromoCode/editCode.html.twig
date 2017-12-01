@@ -1,0 +1,182 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('bundles/dhiadmin/FCBKcomplete/style.css') }}" type="text/css" media="screen" charset="utf-8" />
+
+    <style type="text/css">
+        .ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+    <section class="content-header"><h1>Edit Business Promo Code</h1></section>
+    <section class="content">
+        <div class="box box-success">
+            <form action="{{ path('dhi_admin_business_promo_code_edit',{'batchId': app.request.get('batchId'), 'codeId': app.request.get('codeId') }) }}" method="POST" {{ form_enctype(form_code) }} id="edit_business_promo_code" class="form-horizontal" novalidate>
+                <div class="box-body">
+                    <div class="col-xs-12">
+                        <div class="form-group col-sm-4">
+                            <label class="control-label">Expiry Date: </label>
+                            <div class="row">
+                                <div class="col-lg-7">
+                                    {{ form_widget(form_code.expirydate, { 'attr': { 'placeholder': 'Select expiry date', 'class': 'form-control'}}) }}
+                                    <div class="serverError">{{ form_errors(form_code.expirydate) }}</div>
+                                    <label id="dhi_admin_promo_code_service-error" class="error" for="dhi_admin_promo_code_service"></label>
+                                </div>
+                                <div class="col-lg-5">
+                                    <input type="checkbox" name="chkNeverExpire" id="chkNeverExpire">Never Expire  
+                                </div>
+                            </div>
+                        </div>
+                                
+                         <div class="form-group col-xs-4">
+                            <label class="control-label">Status: </label>
+                            {{ form_widget(form_code.status, { 'attr': { 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form_code.status) }}</div>
+                            <label id="dhi_admin_promo_code_duration-error" class="error" for="dhi_admin_promo_code_duration"></label>
+                        </div>       
+                        
+
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="form-group col-sm-4">
+                            <label class="control-label">Reason: </label>
+                            <div>
+                                {{ form_widget(form_batch.reason, { 'attr': { 'placeholder': 'Enter reason', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form_batch.reason) }}</div>
+                                <label id="dhi_admin_promo_code_service-error" class="error" for="dhi_admin_promo_code_service"></label>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label">Note: </label>
+                            <div>
+                                {{ form_widget(form_code.note, { 'attr': { 'placeholder': 'Enter note', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form_code.note) }}</div>
+                                <label id="dhi_admin_promo_code_service-error" class="error" for="dhi_admin_promo_code_note"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box-footer">
+                    {{ form_rest(form_batch) }}
+                    {{ form_rest(form_code) }}
+                    <div class="col-sm-12">
+                        <div class="col-sm-6">
+                            <input type="submit" class="btn btn-success" name="update" value="Update"/>
+{#                            /*TODO #}
+{#                            <a href="{{ path('dhi_admin_partner_promo_code_list',{'batchId': app.request.get('batchId')}) }}" class="btn btn-default">Back</a>#}
+{#                                */#}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    {{ tinymce_init() }}
+
+    <div class="modal fade" id="emailPreviewModal" tabindex="-1" role="dialog" aria-labelledby="emailPreviewModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+            </div>
+        </div>
+    </div>
+
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiadmin/FCBKcomplete/jquery.fcbkcomplete.js') }}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            
+            $("#dhi_admin_business_promo_code_batch_reason").val("");
+            $("#edit_business_promo_code").submit(function () {
+                // update underlying textarea before submit validation
+                tinyMCE.triggerSave();
+            }).validate({
+                ignore: [],
+                rules: {
+                    "dhi_admin_business_promo_code[expirydate]": {
+                        "required": true
+                    },
+                    "dhi_admin_business_promo_code_batch[reason]": {
+                        "required": true,
+                        "maxlength": 255
+                    },
+                    "dhi_admin_business_promo_code[note]": {
+                        "required": true,
+                        "maxlength": 255
+                    },
+                    "dhi_admin_business_promo_code[status]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_admin_business_promo_code[expirydate]": {
+                        "required": "Please select expiry date."
+                    },
+                    "dhi_admin_business_promo_code_batch[reason]": {
+                        "required": "Please enter reason.",
+                        "maxlength": "Reason can have maximum 255 characters."
+                    },
+                    "dhi_admin_business_promo_code[note]": {
+                        "required": "Please enter note.",
+                        "maxlength": "Note can have maximum 255 characters."
+                    },
+                    "dhi_admin_business_promo_code[status]": {
+                        "required": "Please select status."
+                    }
+                }
+            });
+            var expiryDate = $("#dhi_admin_business_promo_code_expirydate").val();
+            if(expiryDate == "" )
+            {
+                
+                $("#chkNeverExpire").prop('checked',true);
+                $("#dhi_admin_business_promo_code_expirydate").prop("disabled", true);
+            }
+            $("#chkNeverExpire").click(function (){
+                var isDisabled = $("#dhi_admin_business_promo_code_expirydate").prop('disabled');
+                if(isDisabled){
+                    $("#dhi_admin_business_promo_code_expirydate").prop("disabled", false);
+                }
+                else{
+                    $("#dhi_admin_business_promo_code_expirydate").prop("disabled", true);
+                }
+                    
+            });
+{#            $('#dhi_admin_business_promo_code_batch_reason').on('keyup',function(){
+                var count = $(this).val().length;
+                $('#textCounter').text(255-count);
+            });#}
+        $('#dhi_admin_business_promo_code_expirydate').datepicker({
+		timepicker:false,
+		format:'mm-dd-yy',
+		dateFormat:'mm-dd-yy',
+                readOnly: true,
+                minDate:0,
+                onSelect: function(selected) {
+                    var dt = new Date(selected);
+                    dt.setDate(dt.getDate() - 1);
+                }
+	}).keyup(function(e) {
+            if (e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+           
+        });
+    </script>
+{% endblock javascripts %}

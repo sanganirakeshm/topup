@@ -1,0 +1,45 @@
+#dhi_isppartner_homepage:
+#    path:     /hello/{name}
+#    defaults: { _controller: DhiIsppartnerBundle:Default:index }
+isppartner_homepage:
+    pattern:  /
+    defaults: { _controller: DhiIsppartnerBundle:Security:login }
+
+isppartner_login:
+    pattern:  /login
+    defaults: { _controller: DhiIsppartnerBundle:Security:login }
+    
+#isppartner_login_check:
+#    pattern:  /login_check
+#    defaults: { _controller: FOSUserBundle:Security:check }
+
+isppartner_login_check:
+    pattern:  /login_check
+    defaults: { _controller: DhiIsppartnerBundle:Security:check }
+    
+dhi_isppartner_logout:
+    pattern:  /logout
+    defaults: { _controller: DhiIsppartnerBundle:Security:logout }
+
+dhi_isppartner_dashboard:
+    pattern:  /dashboard
+    defaults: { _controller: DhiIsppartnerBundle:Dashboard:index }
+    
+dhi_isppartner_promocode_search:
+    pattern:  /promo-code/search/
+    defaults: { _controller: DhiIsppartnerBundle:Dashboard:search }
+
+dhi_isppartner_promocode_edit:
+    pattern:  /promo-code/edit/{batchId}/{codeId}
+    defaults: { _controller: DhiIsppartnerBundle:Dashboard:editCode }
+
+dhi_isppartner_promocode_deactivate:
+    pattern:  /promo-code/deactivate
+    defaults: { _controller: DhiIsppartnerBundle:Dashboard:deactivate }
+    
+#    dhi_admin_partner_promo_code_edit:
+#    path:   /partner-promo-code/edit/{batchId}/{codeId}
+#    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:editCode }
+dhi_isppartner_resetpassword:
+    path:     /resetpassword
+    defaults: { _controller: DhiIsppartnerBundle:Security:resetpassword }

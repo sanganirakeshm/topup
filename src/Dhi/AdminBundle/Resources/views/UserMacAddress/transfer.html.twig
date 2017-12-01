@@ -1,0 +1,121 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+	<link rel="stylesheet" href="{{ asset('bundles/dhiadmin/css/select2.min.css') }}" type="text/css" media="screen" charset="utf-8" />		
+    <style type="text/css">
+        .ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+	
+	
+				<section class="content-header">
+				<h1>Transfer Device</h1>
+				</section>
+                <section class="content">
+					{% include "DhiUserBundle::flashMessage.html.twig" %}
+				<div class="box box-success">
+                <form action="{{ path('dhi_admin_mac_address_transfer',{'id' : macAddress.id,'userId' :userId  }) }}" method="POST" {{ form_enctype(form) }} id="edit_email" class="form-horizontal" novalidate>
+                <div class="box-body">
+				<div class="col-xs-8">    
+                    <div class="form-group col-sm-6">
+                        <label class="control-label">Mac Address: </label>
+                        <div>
+                            
+							{{ form_widget(form.macAddress, { 'attr': {'data-prompt-position': 'topRight', 'placeholder': 'User Mac Address', 'class' : 'form-control'}}) }}
+        
+							<div class="serverError">
+
+							   {% if form_errors(form.macAddress) %}
+								   {{ form_errors(form.macAddress) }}
+							   {% endif %}
+						   </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label class="control-label">Customer </label>
+                        <div>
+                            {{ form_widget(form.user, { 'attr': {'data-prompt-position': 'topRight', 'placeholder': 'Select Customer', 'class' : 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.user) }}</div>
+                        </div>
+                    </div>
+                </div>   
+                
+				</div>
+				<div class="box-footer">	
+                    {{ form_rest(form) }}
+
+                    <div class="col-xs-12">
+                        <div class="col-sm-6">
+                            <input type="submit" class="btn btn-success" name="Transfer" value="Transfer"/>
+                            <a href="{{ path('dhi_admin_view_customer',{'id':userId  }) }}" class="btn btn-default">Back</a>
+                        </div>
+                    </div>
+                </div>    
+                </form>
+				</div>
+				</section>
+    {{ tinymce_init() }}
+    
+{% endblock body %}
+    
+{% block javascripts %}
+    {{ parent() }}
+    
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiadmin/js/select2.min.js') }}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+			
+			$("#dhi_transfer_mac_address_user").select2({
+	    
+		ajax: {
+			url: '{{ path('dhi_admin_set_top_box_cutomer_search') }}',
+			dataType: 'json',
+			delay: 250,
+			data: function(params) {
+				//console.log(params);
+				return {
+					q: params.term, // search term
+					page: params.page
+				};
+			},
+			processResults: function(data, page) {
+                return {
+                    results: data
+                };
+            },
+			cache: true
+		},
+		//formatResult: formatResult,		
+		// let our custom formatter work
+		minimumInputLength: 1,
+		//templateResult: formatResult, // omitted for brevity, see the source of this page
+		//templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+	});
+	
+	function formatResult(data) {
+	//console.log(data);
+		return data.value ;
+	};
+	
+        	
+        });
+    </script>
+{% endblock javascripts %}
+
+
+
+
+
+
+
+
+
+
+
+
+

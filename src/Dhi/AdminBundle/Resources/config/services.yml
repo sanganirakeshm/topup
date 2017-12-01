@@ -1,0 +1,39 @@
+parameters:
+#    dhi_admin.example.class: Dhi\AdminBundle\Example
+
+services:
+#    dhi_admin.example:
+#        class: %dhi_admin.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
+                
+    login_success_handler:
+        class:  'Dhi\AdminBundle\EventListener\LoginSuccessHandler'
+        arguments:  ['@router', '@security.context', '@session', '@doctrine']
+        tags:
+            - { name: 'monolog.logger', channel: 'security' }
+
+    admin_permission:
+        class: Dhi\AdminBundle\Controller\AdminPermissionController
+        arguments: 
+            container: "@service_container"
+    
+    grid_helper_function:
+        class:  'Dhi\AdminBundle\Helper\GridFunction'
+        arguments:  [@doctrine]        
+        
+    chart:
+        class: Dhi\AdminBundle\Controller\ChartController
+        arguments: 
+            container: "@service_container"    
+            
+#    kernel.listener.accessDenied:        
+#        class: 'Dhi\AdminBundle\EventListener\AccessDeniedListener'
+#        scope: request
+#        arguments: ["@session", "@router", "@request"]
+#        tags:
+#           - { name: kernel.event_listener, event: kernel.exception, method: onAccessDeniedException }
+
+    ChaseMerchantIdAuditLog:
+        class: Dhi\AdminBundle\Controller\ChaseMerchantIdAuditLogServiceController
+        arguments: 
+            container: "@service_container"

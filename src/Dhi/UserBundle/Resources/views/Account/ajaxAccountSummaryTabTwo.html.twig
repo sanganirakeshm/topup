@@ -1,0 +1,168 @@
+{% block body %}
+
+	{% set subTotalIPTV = 0 %}
+	{% set subTotalISP = 0 %}
+	{% set totalBundleDiscount = 0 %}
+	{% set TotalUnusedCredit = 0 %}
+	<div class="purchasePlanList">
+		<ul>
+			{% if 'IPTV' in summaryData.AvailableServicesOnLocation or 'BUNDLE' in summaryData.AvailableServicesOnLocation %}
+				<li class="internetServicePlan">
+	            	<h6><a href="javascript:void(0);">IPTV</a></h6>
+					{% if summaryData.IsIPTVAvailabledInCart == 1 or summaryData.IsAddOnAvailabledInCart == 1 %}
+		                <div class="purchaseListCont">
+							
+							{% if summaryData.IsIPTVAvailabledInCart == 1 %}
+								{% for iptvPackage in summaryData.Cart.IPTV.RegularPack %}
+									<p>{{ iptvPackage.packageName }}: ${{ iptvPackage.actualAmount }}</p>
+									{#<p>Plan: {{ iptvPackage.packageName }}</p>#}
+{#				                    <p>Plan Duration: {{ iptvPackage.validity }}</p>#}
+{#				                    <p>Price: ${{ iptvPackage.amount }}</p>#}
+				                    {% if iptvPackage.bundleId < 1 %}
+				                    	<a href="javascript:void(0);" onclick="deletePackage('IPTV','{{ iptvPackage.servicePurchaseId }}')" class="deleteBtn"></a>
+				              		{% endif %}
+
+				                    {% set subTotalIPTV = subTotalIPTV + iptvPackage.actualAmount %}
+				                    {% if iptvPackage.discountPercentage > 0 %}
+										<p>{{ iptvPackage.discountPercentage }}% Bundle discount on TV Package</p>
+										<p>-${{ iptvPackage.discountAmount }}</p>
+										{% set subTotalIPTV = subTotalIPTV - iptvPackage.discountAmount %}
+				                   	{% endif %}
+				                   	{% if iptvPackage.bundleDiscountAmount > 0 %}
+				                   	    {% set totalBundleDiscount = totalBundleDiscount + iptvPackage.bundleDiscountAmount %}
+                					{% endif %}
+			                	{% endfor %}
+
+			                	{% if summaryData.Cart.IPTV.unusedDays > 0 %}
+			                		{% if summaryData.IsBundleAvailabledInCart == 0 %}
+				                		<p>Applied Credit: -${{ summaryData.Cart.IPTV.unusedCredit|number_format(2) }}</p>
+				                		{% set subTotalIPTV = subTotalIPTV - summaryData.Cart.IPTV.unusedCredit %}
+				                	{% endif %}
+				                	{% set TotalUnusedCredit = TotalUnusedCredit + summaryData.Cart.IPTV.unusedCredit %}
+			                	{% endif %}
+			                {% endif %}
+							{% if summaryData.IsAddOnAvailabledInCart == 1 %}
+	            				<h6><a href="javascript:void(0);">Premium Package</a></h6>
+		                		<div class="purchaseListCont">
+		                			{% for addOnPackage in summaryData.Cart.IPTV.AddOnPack %}
+		                				{% set discAddOns = '' %}
+										{% if addOnPackage.discountPercentage > 0 %}
+											{% set discAddOns = '('~addOnPackage.discountPercentage~'% ISP discount $'~addOnPackage.amount~' - $'~addOnPackage.discountAmount~')' %}	
+										{% endif %}
+										<p>{{ addOnPackage.packageName }} {{ discAddOns }}: ${{ addOnPackage.actualAmount }}
+										{#<p>Plan: {{ addOnPackage.packageName }} {{ discAddOns }}</p>
+										<p>Price: ${{ addOnPackage.payableAmount }}</p>#}
+										<a href="javascript:void(0);" onclick="deletePackage('AddOns','{{ addOnPackage.servicePurchaseId }}')" class="deleteBtn"></a></p>
+										{% set subTotalIPTV = subTotalIPTV + addOnPackage.actualAmount %}
+		                			{% endfor %}
+		                		</div>
+			                {% endif %}
+			                <h6>
+	        					<p>ExchangeVUE Subtotal: ${{ subTotalIPTV|number_format(2) }}</p>
+	        				</h6>
+		                </div>
+		            {% else %}
+		            	<p class="text-center">No package found</p>
+					{% endif %}
+	            </li>
+			{% endif %}
+
+			{% if summaryData and 'Credit' in summaryData.Cart|keys and summaryData.Cart.Credit is not null %}
+				<li class="iptvPlan">
+	            	<h6><a href="javascript:void(0);">Credits</a></h6>
+	                <div class="purchaseListCont">
+            			{% set creditTotal = ''%}
+            			{%  for record in summaryData.Cart.Credit %}
+			            	<p>Credit: {{ record.credit }}</p>
+			            	<p>Amount: ${{record.amount}}</p>
+		                    {% set creditTotal =  record.amount %}
+			            {% endfor %}
+			            <h6>
+        					<a href="javascript:void(0);">Credit Subtotal: ${{ creditTotal }}</a>
+        				</h6>
+	                </div>
+	            </li>
+			{% endif %}
+
+			{% if 'ISP' in summaryData.AvailableServicesOnLocation or 'BUNDLE' in summaryData.AvailableServicesOnLocation  %}
+				<li class="iptvPlan">
+	            	<h6><a href="javascript:void(0);">Internet Service</a></h6>
+					{% if summaryData.IsISPAvailabledInCart == 1 %}
+						{% if summaryData.Cart.ISP.RegularPack %}
+							{% for ispPackage in summaryData.Cart.ISP.RegularPack %}
+
+								{% if ispPackage.validityType == "HOURS" %}
+									{% set validityCaps = "Hour(s)" %}
+								{% else %}
+									{% set validityCaps = "Day(s)" %}
+								{% endif %}
+                                                                
+                                                                {% if ispPackage.bandwidth >= 1024%}
+                                                                    {% set mbbandwidth = ispPackage.bandwidth/1024%}
+                                                                     <p>{{ ispPackage.packageName~' - '~mbbandwidth~'MB - '~ispPackage.validity~' '~validityCaps }}: ${{ ispPackage.actualAmount }}</p>
+                                                                {% else %}
+                                                                    <p>{{ ispPackage.packageName~' - '~ispPackage.bandwidth~'k - '~ispPackage.validity~' '~validityCaps }}: ${{ ispPackage.actualAmount }}</p>
+                                                                {% endif %}  
+                                                                
+								{#<p>Plan: {{ ispPackage.packageName~' - '~ispPackage.bandwidth~'k - '~ispPackage.validity~' days' }}</p>
+								<p>Price: ${{ ispPackage.amount }}</p>#}
+								{% if ispPackage.bundleId < 1 %}
+									<a href="javascript:void(0);" onclick="deletePackage('ISP','{{ ispPackage.servicePurchaseId }}')" class="deleteBtn"></a>
+								{% endif %}
+
+								{% set subTotalISP = subTotalISP + ispPackage.actualAmount %}
+								{% if ispPackage.bundleDiscountAmount > 0 %}
+		                            {% set totalBundleDiscount = totalBundleDiscount + ispPackage.bundleDiscountAmount %}
+		                        {% endif %}
+							{% endfor %}
+							{% if summaryData.Cart.ISP.unusedDays > 0 %}				
+								{% if summaryData.IsBundleAvailabledInCart == 0 %}
+									<p>Applied Credit: -${{ summaryData.Cart.ISP.unusedCredit|number_format(2) }}
+									{% set subTotalISP = subTotalISP - summaryData.Cart.ISP.unusedCredit %}
+								{% endif %}
+								{% set TotalUnusedCredit = TotalUnusedCredit + summaryData.Cart.ISP.unusedCredit %}
+							{% endif %}
+						{% endif %}
+						<h6>
+							<p>Internet Subtotal: ${{ subTotalISP|number_format(2) }}</p> 
+						</h6>
+					{% else %}
+						<div class="fildblk text-center">
+							<span>No package found</span>
+						</div>
+					{% endif %}
+
+				</li>
+			{% endif %}
+        </ul>
+        <div class="planTotal">
+        	{# <span class="subtotalPrice">Sub-Total: <label>$250.00</label></span> #}
+        	{% if summaryData.IsBundleAvailabledInCart == 1 and totalBundleDiscount > 0 %}
+            	{% if TotalUnusedCredit > 0 %}
+	        		<span>Total Applied Credit: <label>- ${{ TotalUnusedCredit|number_format(2) }}</label>
+	        	{% endif %}
+            	{% set servicePurchaseId = summaryData.CartBundleServicePurchaseId[summaryData.Cart.Bundle.RegularPack.bundleId] %}
+                <span>{{ summaryData.Cart.Bundle.RegularPack.bundleName }}: <label>${{ totalBundleDiscount|number_format(2) }}</label>
+                <a href="javascript:void(0)" class="deleteBtn" onclick="deletePackage('BUNDLE','{{ servicePurchaseId }}')"></a></span>
+            {% endif %}
+            {% if summaryData.TotalPromotionPer > 0 %}
+                <span>Promotion Off ({{ summaryData.TotalPromotionPer }}%)
+                    <label> - ${{ summaryData.TotalPromotionOff|number_format(2) }}</label>
+                </span>
+            {% endif %}
+
+        	<span class="subtotalPrice">Current total: <label>${{ summaryData.TotalPurchasedAmount|number_format(2) }}</label></span>
+
+            <span class="totalPrice"><strong>Updated Total: </strong><label>${{ summaryData.TotalCartAmount|number_format(2) }}</label></span>
+        </div>
+		{% if emailVerifiedForNextPurchase == true %}
+			{% if summaryData.IsCreditAvailabledInCart == 0 %}
+				<div class="checkboxStyle">
+					<label><input type="checkbox" name="termsUse" id="termsUse" value="1"> I agree to <a href="#" data-toggle="modal" data-target="#termCondition" class="agreeTerms">terms and conditions</a> .</label>
+				</div>
+			{% else %}
+				<div class="checkoutBtn"><input type="button" value="CHECKOUT" class="btn-disabled" id="btn-continue" /></div>
+			{% endif %}
+		{% endif %}
+    </div>
+{% endblock body %}

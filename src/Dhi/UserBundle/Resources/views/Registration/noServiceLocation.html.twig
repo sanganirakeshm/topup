@@ -1,0 +1,32 @@
+{% extends "DhiUserBundle::layout.html.twig" %}
+{% block body %}
+{% block fos_user_content %}
+
+{% trans_default_domain 'FOSUserBundle' %}
+    {% set brand = app.session.get('brand') %}
+    {% set brandName = '' %}
+    {% set brandDomain = '' %}
+    {% if brand %}
+        {% set brandName = brand.name %}
+        {% set brandDomain = brand.domain %}
+    {% endif %}
+<section class="signup">
+	<div class="container-fluid">
+            <div class="container" id="step-1">
+                <div class="msgBoxContainer">
+                    <div class="col-xs-12" id="flash">{% include "DhiUserBundle::flashMessage.html.twig" %}</div>
+                </div>
+                    </div>
+		<div class="row no-service-loc">
+			<div class="col-xs-12 col-sm-10 col-md-6 signUpText_main">
+				<div class="signUpText">
+                                    <p>Thank you for your interest in {{ brandName }}. You are accessing the website from a location that is not currently offering {{ brandName }} at this time.  Please connect to the website from a network that offers the {{ brandName }} service in order to register and purchase.</p>
+                                    <p>Thank you - Team {{ brandName }}</p>
+                                </div>
+			</div>
+			<div class="col-xs-12 col-sm-2 col-md-6"></div>
+		</div>
+	</div>
+</section>
+{% endblock fos_user_content %}
+{% endblock body %}

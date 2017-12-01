@@ -1,0 +1,48 @@
+{% block body %}
+	<h1> Refund Report </h1>  
+	{% if RefundData|length > 0 %}
+		<table class="purchase_table" style="width:100%;" cellspacing="0" cellpadding="5">
+			<tr>
+                            <th>Service Type</th>
+                            <th style="width:12%;">Customer</th>
+                            <th>Plan name</th>
+                            <th>Status</th>
+                            <th>Payment Method</th>
+                            <th>Date</th>
+                            <th>Admin</th>
+                            <th>Plan Amount</th>
+                            <th style="width:12%;">Refunded Amount</th>			
+                            <th style="width:12%;">Refund Type</th>			
+			</tr>
+                        {% for id,refund in RefundData %}
+                            <tr>
+                                {% if(refund['Customer'] is defined ) %}
+                                <td>{{refund['Type']}}</td>
+                                <td>{{refund['Customer']}}</td>
+                                <td>{{refund['Plan Name']}}</td>
+                                <td>{{refund['Status']}}</td>
+                                <td>{{refund['Payment Method']}}</td>
+                                <td>{{refund['Date']}}</td>
+                                <td>{{refund['Admin']}}</td>
+                                <td>{{refund['Plan Amount']}}</td>
+                                <td>{{refund['Refunded Amount']}}</td>
+                                <td>{{refund['Refund Type']}}</td>
+                                {% else %}
+                                    <td>{{refund['Type']}}</td>
+                                <td>{{refund['User Name']}}</td>
+                                <td>{{refund['Plan Name']}}</td>
+                                <td>{{refund['Status']}}</td>
+                                <td>{{refund['Payment Method']}}</td>
+                                <td>{{refund['Date']}}</td>
+                                <td>{{refund['Admin']}}</td>
+                                <td>{{refund['Plan Amount']}}</td>
+                                <td>{{refund['Refunded Amount']}}</td>
+                                <td>{{refund['Refund Type']}}</td>
+                                {% endif %}
+                            </tr>
+                         {% endfor%}   
+                        
+		</table>
+	{% endif %}
+
+{% endblock body %}

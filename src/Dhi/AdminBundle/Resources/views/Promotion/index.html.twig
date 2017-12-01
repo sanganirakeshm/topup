@@ -1,0 +1,148 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block body %}
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+	<div class="delBoxCont"></div>		
+        <section class="content-header">
+            <h1>Search Promotion</h1>
+        </section>
+        <section class="content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="box box-success">
+                        <form method="get">
+                            <div class="box-body">
+                                <div class="form-group col-md-3">
+                                    <div class="row"><div class="col-sm-12" id="status"></div></div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="box box-success">
+                <div class="box-body">
+        			<div class="row">
+     	          	    <div class="col-xs-12">  
+                        {% if admin_permission.checkPermission('promotion_new') %}
+                           <div class="addNewBtnsGrp">
+                            <a href="{{ path('dhi_admin_promotion_new') }}" class="btn btn-success pull-right margin-top5">Add Promotion</a>
+                           </div>
+                        {% endif %}
+		                <table id="promotionTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="80">Start Date</th>
+                                    <th width="80">End Date</th>
+                                    <th width="70">Promotion Off</th>
+                                    <th width="100">Status</th>
+                                    <th width="50">Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+             </div>        
+        </section>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            dTable = $('#promotionTable').dataTable({
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_promotion_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                window.location = "{{ path('dhi_admin_dashboard') }}";
+                            }
+                        }
+                    });
+		        },
+                aoColumns: [
+                    {"sName": "startDate","bSearchable": false,"bSortable": true},
+                    {"sName": "endDate", "bSearchable": false, "bSortable": true},
+                    {"sName": "Amount", "bSearchable": false, "bSortable": true},
+                    {"sName": "Status", "bSearchable": true, "bSortable": true},
+                    {"sName": "Id", "bSearchable": false, "bSortable": false}
+                ],
+                aoColumnDefs: [{
+                    "mRender": function(data, type, row) {
+                        var promotionId = row[4];
+                        var statusText = row[5];
+                        var returnData = "";
+                        returnData += "<a href='javascript:void(0);' class='selectLink'>Select <span class='fa fa-angle-down'></span></a>";
+                        returnData += "<ul class='selectDropdown' style='display: none;'>";
+                        {% if admin_permission.checkPermission('promotion_update') %}
+                            var editUrl = '{{ path('dhi_admin_promotion_edit', {'id': 'promotion_id'}) }}';
+                            var editPromotion = editUrl.replace("promotion_id", promotionId);
+                            returnData +='<li><a href="'+editPromotion+'"  title="Edit"> Edit</a></li>';
+                        {% endif %}
+
+                        {% if admin_permission.checkPermission('promotion_status') %}
+                            var statusUrl = '{{ path('dhi_admin_promotion_status', {'id': 'promotion_id'}) }}';
+                            var statusPromotion = statusUrl.replace("promotion_id", promotionId);
+                            returnData +='<li><a href="javascript:void(0);" data-href="'+statusPromotion+'"  title="'+ (statusText == true ? "Deactivate" : "Activate") +'" class="cls-change-status" > '+ (statusText == true ? "Deactivate" : "Activate") +'</a></li>';
+                        {% endif %}
+                        return returnData;
+                    },
+                    "aTargets": [4]
+                }],
+                aaSorting: [[4, 'desc']]
+            });
+            $('#promotionTable').dataTable().columnFilter({
+                aoColumns: [
+                    null,
+                    null,
+                    null,
+                    {type: "select", sSelector: "#status", values : ['Active', 'Inactive'] },
+                    null,
+                ]
+            });
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+
+        $(document).on('click', '.cls-change-status', function(event) {
+            event.preventDefault();
+            var href = $(this).data('href');
+            $.ajax({
+                url: href,
+                type: 'POST',
+                dataType: 'json',
+                data: {},
+                success: function(result){
+                    dTable.fnDraw(true);
+                    deleteMessage(result);
+                }
+            });
+            
+        });
+    });
+    </script>
+{% endblock javascripts %}

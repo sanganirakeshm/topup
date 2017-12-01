@@ -1,0 +1,304 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <style type="text/css">
+        .margin-top10 { margin-top:10px; }
+        .ui-datepicker-trigger { float: right; margin-top: -24px; margin-right: 1px; }
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+
+                 {% include "DhiUserBundle::flashMessage.html.twig" %}
+	<div class="delBoxCont"></div>
+
+         <section class="content-header">
+              <h1>Search Audit Log</h1>
+            </section>
+            <section class="content">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="box box-success">
+                            <form method="get">
+                                <div class="box-body">
+                                    <div class="form-group col-md-3">
+                                        <!-- <div class="row"><div class="col-sm-12" id="admin"></div></div> -->
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <select class="admins search_init select_filter form-control">
+                                                    <option value="" class="search_init">Admin</option>
+                                                    {% for admin in admins %}
+                                                        <option value="{{ admin.username }}">{{admin.firstname}} {{admin.lastname}} ({{admin.username}})</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <div class="row"><div class="col-sm-12" id="user"></div></div>
+                                    </div>
+                                     <div class="form-group col-md-3">
+                                        <div class="row"><div class="col-sm-12" id="activity"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <div class="row"><div class="col-sm-12" id="ip"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <select id="sitename" class="sitename search_init select_filter form-control">
+                                                    <option value="0" class="search_init">SiteName</option>
+                                                    {% if allsites %}
+                                                        {% for site in allsites %}
+                                                            <option value="{{ site.id }}">{{site.companyName}} ({{site.domain}})</option>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6 pickup-date-control">
+                                        <div class="row"><div class="col-sm-12" id="date-range"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <div class="row">
+                                            <div class="checkbox chkstyle">
+                                                <input type="checkbox" name="historicalData" id="historicalData">
+                                                <label for="historicalData">Search Historical Data</lable>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box box-success">
+                    <div class="box-body">
+			<div class="row">
+         		    <div class="col-xs-12">
+
+			    <table id="userActivityLogTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+
+                                        <th>Admin</th>
+                                        <th>User</th>
+                                        <th>Activity</th>
+                                        <th>Description</th>
+                                        <th>IP</th>
+                                        <th>Date Time</th>
+                                        <th>Site Name</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+
+      $(document).ready(function() {
+
+        dTable = $('#userActivityLogTable').dataTable({
+            "oLanguage": {
+                "sLengthMenu": "Display _MENU_ Records",
+                "sZeroRecords": "<center>No Record Found!</center>",
+                "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                "sInfoEmpty": "Showing 0 to 0 of 0 Records",
+                "sInfoFiltered": "(filtered from _MAX_ total Records)"
+            },
+            bDeferRender: true,
+            bSortClasses: false,
+            responsive: true,
+            bJQueryUI: false,
+            bProcessing: true,
+            bServerSide: true,
+            bFilter: true,
+            //multipleSelection: true,
+            iDisplayLength: {{ record_per_page }},
+            sAjaxSource: '{{ path('dhi_admin_audit_logs_list_json', {'historical' : '0'}) }}',
+            "fnServerParams": function ( aoData ) {
+                aoData.push( { "name": "admin", "value": $(".admins").val() } );
+                aoData.push( { "name": "sitename", "value": $(".sitename").val() } );
+            },
+            "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+            aoColumns: [
+                {"sName": "Admin"},
+                {"sName": "User"},
+                {"sName": "Activity"},
+                {"sName": "Description", "bSearchable": false, "bSortable": true},
+                {"sName": "IP"},
+                {"sName": "Date Time"},
+                {"sName": "SiteName", "bSearchable": true, "bSortable": true},
+            ],
+            aaSorting: [[5, 'desc']]
+
+        });
+
+        $.datepicker.regional[""].dateFormat = 'yy-mm-dd';
+        $.datepicker.setDefaults($.datepicker.regional['']);
+
+        $('#userActivityLogTable').dataTable().columnFilter({
+			sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+            aoColumns: [
+                null,
+                // {type: "text", sSelector: "#admin"},
+                {type: "text", sSelector: "#user"},
+                {type: "select", sSelector: "#activity", values: {{activity|json_encode()|raw}} },
+                null,
+                {type: "text", sSelector: "#ip"},
+                {type: "date-range", sSelector: "#date-range"}
+            ]
+        });
+
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+        $("checkbox").addClass("form-control");
+
+        $(".admins").change(function(event) {
+            dTable.fnDraw(true);
+        });
+        
+        $(".sitename").change(function(event) {
+            dTable.fnDraw(true);
+        });
+        $('#historicalData').change(function() {
+            if ($(this).attr('checked')) {
+
+                var oSettings = dTable.fnSettings();
+                oSettings.sAjaxSource = '{{ path('dhi_admin_audit_logs_list_json', {'historical' : '1'}) }}';
+                dTable.fnDraw(true);
+
+            } else {
+                var oSettings = dTable.fnSettings();
+                oSettings.sAjaxSource = '{{ path('dhi_admin_audit_logs_list_json', {'historical' : '0'}) }}';
+                dTable.fnDraw(true);
+
+            }
+        });
+        $(".filter_date_range .date_range_filter.hasDatepicker").attr({ readonly: 'true' }).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+    });
+
+
+    $('#historicalData').change(function() {
+        if (!$(this).is(":checked")) {
+
+            temp_pickup_first = 0;
+            temp_pickup_last = 0;
+            flag = false;
+            fDate = false;
+            tDate = false;
+            tFlag = false;
+
+        }
+        else {
+            flag = false;
+            fDate = false;
+            tDate = false;
+            tFlag = false;
+
+        }
+
+    });
+
+    var temp_pickup_first = temp_pickup_last = temp_request_first = temp_request_last = 0;
+    var flag = false;
+    var fDate = false;
+    jQuery(document).on("focus", "div.pickup-date-control #date-range input:first", function() {
+        var toDate = $('#date-range input:last').val();
+
+        if ($("#historicalData").prop("checked")) {
+            if (!fDate)
+            {
+                if (!flag) {
+                    $(this).datepicker("option", "maxDate", '-90D');
+                    $(this).datepicker("option", "minDate", new Date('2010-01-01'));
+                }
+                flag = true;
+            }
+
+            temp_pickup_first++;
+            temp_pickup_last = 0;
+        }
+
+        if (temp_pickup_first == 0) {
+
+
+            $(this).datepicker('option', 'minDate', '-90d');
+            $(this).datepicker('option', 'maxDate', '0d');
+            temp_pickup_first++;
+            temp_pickup_last = 0;
+
+        }
+    });
+
+    var tDate = false;
+    var tFlag = false;
+    jQuery(document).on("focus", "div.pickup-date-control #date-range input:last", function() {
+        var fromDate = $('#date-range input:first').val();
+
+        if ($("#historicalData").prop("checked")) {
+            if (!tDate)
+            {
+                if (!tFlag) {
+                    $(this).datepicker("option", "maxDate", '-90D');
+                    $(this).datepicker("option", "minDate", new Date('2010-01-01'));
+                }
+                tFlag = true;
+            }
+
+            temp_pickup_first = 0;
+            temp_pickup_last++;
+        }
+
+
+        if (temp_pickup_last == 0) {
+
+            $(this).datepicker('option', 'minDate', '-90d');
+            $(this).datepicker('option', 'maxDate', '0d');
+            temp_pickup_first = 0;
+            temp_pickup_last++;
+        }
+    });
+
+
+
+
+    </script>
+{% endblock javascripts %}

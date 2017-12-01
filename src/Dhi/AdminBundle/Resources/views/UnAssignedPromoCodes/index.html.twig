@@ -1,0 +1,182 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .delBoxCont .alert-danger { color: #464646 !important; }
+    </style>
+{% endblock stylesheets %}
+{% block body %}
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+	<div class="delBoxCont"></div>		
+    <section class="content-header">
+        <h1>UnAssigned Promo Code</h1>
+    </section>
+    <section class="content">	
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get">
+                        <div class="box-body">
+                            <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="code"></div></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12"> 
+                		<form method="post" name="frmPromoCodes" id="frmPromoCodes" action="{{ path('dhi_admin_unassigned_bulk_promo_codes_reassign') }}">
+                        <div class="addNewBtnsGrp col_filter"> 
+                            {% if admin_permission.checkPermission('unassigned_promo_codes_bulk_reassign') %}
+                                <button type="submit" class="btn btn-success pull-right cls-reassign margin-top5">Reassign Promo Codes</button>
+                            {% endif %}
+                        </div>
+                        <div class="clearfix"></div>
+                            <table id="promoCodeTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="1"><input type="checkbox" class="cls-select-all"></th>
+                                        <th width="60">Promo Code</th>
+        								<th width="50">Type</th>
+                                        <th>Expiry Date</th>
+        								<th>Duration</th>
+                                        <th>Note</th>
+                                        <th>Service Location</th>
+        								<th>Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+         </div>
+         <div class="modal fade" id="emailPreviewModal" tabindex="-1" role="dialog" aria-labelledby="emailPreviewModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content"></div>
+            </div>
+        </div>
+    </section>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            $(".cls-select-all").click(function() {
+                if ($(this).is(":checked")) {
+                    $(".cls-chkbox").prop('checked', true);
+                }else{
+                    $(".cls-chkbox").prop('checked', false);
+                }
+            });
+
+            dTable = $('#promoCodeTable').dataTable({
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_unassigned_promo_codes_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                window.location = "{{ path('dhi_admin_dashboard') }}";
+                            }
+                        }
+                    } );
+                },
+                aoColumns: [
+                    {"sClass": "cls-parent-chkbox", "sDefaultContent": "", "bSearchable": false, "bSortable": false},
+                    {"sName": "code", "bSearchable": true, "bSortable": true},
+                    {"sName": "type", "bSearchable": false, "bSortable": true},
+                    {"sName": "expiryDate", "bSearchable": false, "bSortable": true},
+                    {"sName": "duration", "bSearchable": false, "bSortable": true},
+                    {"sName": "note", "bSearchable": false, "bSortable": false},
+                    {"sName": "serviceLocation", "bSearchable": false, "bSortable": true},
+                    {"sName": "Action", "bSearchable": true, "bSortable": false}
+                ],
+                aaSorting: [[7, 'desc']],
+                aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+                            var promoCodeId   = row[7];
+                            var promoCodeType = row[2];
+                            return '<input type="checkbox" class="cls-chkbox" name="promoIds[]" value="'+ promoCodeType.toLowerCase() +'~'+promoCodeId + '">';
+                        },
+                        "aTargets": [0]
+                    },
+                    {
+                        "mRender": function(data, type, row) {
+                            var promoCodeId   = row[7];
+                            var promoCodeType = row[2];
+                            var returnData    = "<a href='javascript:void(0);' class='selectLink'>Select <span class='fa fa-angle-down'></span></a><ul class='selectDropdown' style='display: none;'>";
+                            {% if admin_permission.checkPermission('unassigned_promo_codes_delete') %}
+                                deleteAjaxSource = '{{ path('dhi_admin_unassigned_promo_codes_delete') }}';
+                                var headTitle    = "Promo Code Delete";
+                                var msg          = 'Are you sure you want to delete '+promoCodeType+' promo code?';
+                                returnData       +='<li><a href="javascript:void(0)"  title="Delete" onclick="return deleterecord(' + "'" + promoCodeType.toLowerCase()+"^"+promoCodeId + "'" + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" +')">Delete</a></li>';
+                            {% endif %}
+
+                            {% if admin_permission.checkPermission('unassigned_promo_codes_reassign') %}
+                                var reAssignUrl = '{{ path('dhi_admin_unassigned_promo_codes_reassign', {"id": "promoCodeId", type: "promoType"}) }}';
+                                reAssignUrl = reAssignUrl.replace('promoCodeId', promoCodeId);
+                                reAssignUrl = reAssignUrl.replace('promoType', promoCodeType.toLowerCase());
+                                returnData      +='<li><a href="'+reAssignUrl+'"  title="ReAssign">ReAssign</a></li>';
+                            {% endif %}
+
+                            return returnData;
+                        },
+                        "aTargets": [7]
+                    }
+                ]
+            });
+
+            $('#promoCodeTable').dataTable().columnFilter({
+                sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+                aoColumns: [
+                    null,
+        			{type: "text", sSelector: "#code"},
+                ]
+            });
+
+            $("input:not(:checkbox)").addClass("form-control");
+            $("select").addClass("form-control");
+        });
+        function showDetail(id, type){
+            $('#ajax-loader-box').show();
+            var notePreviewUrl = '{{ path('dhi_admin_partner_promo_code_batch_view_note', {'id' : 'note_id','type' : 'type_name'  }) }}';
+            var detailsUrl     = notePreviewUrl.replace("note_id", id);
+            var detailsUrl     = detailsUrl.replace("type_name", type);
+            $('.modal-content').load(detailsUrl, id, function (result) {
+                $('#ajax-loader-box').hide();
+                $('#emailPreviewModal').modal({show: true});
+            });
+        }
+    </script>
+{% endblock javascripts %}

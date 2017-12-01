@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>
+            {% block title %}
+                {% set is_exchange_host = app.session.get('is_exchange_host') %}
+                {% if is_exchange_host %}
+                    Welcome To Exchange TopUp
+                {% else %}
+                    Welcome To DHI TopUp
+                {% endif %}
+            {% endblock %}
+        </title>
+        
+        {% block stylesheets %}
+        <link href="{{ asset('bundles/dhiuser/css/bootstrap.css') }}" rel="stylesheet">
+        <link href="{{ asset('bundles/dhiuser/css/bootstrap-theme.min.css') }}" rel="stylesheet">
+        <link href="{{ asset('bundles/dhiuser/css/font-awesome.css') }}" rel="stylesheet">
+        <link href="{{ asset('bundles/dhiuser/css/slick.css') }}" rel="stylesheet">
+        {% set is_exchange_host = app.session.get('is_exchange_host') %}
+        {% if is_exchange_host %}
+            <link href="{{ asset('bundles/dhiuser/css/main-exchange.css') }}" rel="stylesheet" />
+            <link rel="icon" type="image/x-icon" href="{{ asset('bundles/dhiuser/images/exchange-favicon.ico') }}" />
+        {% else %}
+            <link href="{{ asset('bundles/dhiuser/css/main.css') }}" rel="stylesheet" />
+            <link rel="icon" type="image/x-icon" href="{{ asset('bundles/dhiuser/images/dhi-favicon.png') }}" />
+        {% endif %}
+        <link href="{{ asset('bundles/dhiuser/css/responsive.css') }}" rel="stylesheet">
+        {% endblock %}
+    
+    </head>
+    <body>
+        <!--header start here-->
+        <header id="homeMenu" class="headerMain">
+            <div class="container">
+                <div class="row">
+                    <div class="pull-left dhiLogo">
+                        {% set is_exchange_host = app.session.get('is_exchange_host') %}
+                        {% if is_exchange_host %}
+                            <div class="pull-left dhiLogo"><a href="{{ url('dhi_user_homepage') }}"><img src="{{ asset('bundles/dhiuser/images/x-logo.png') }}" width="216" height="52"></a></div>
+                        {% else %}
+                            <div class="pull-left dhiLogo"><a href="{{ url('dhi_user_homepage') }}"><img src="{{ asset('bundles/dhiuser/images/dhilogo.jpg') }}" width="216" height="52"></a></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!--middle start here-->
+        <section class="middlesection">
+            <div class="container">
+                <div class="errorcont">
+                    <div class="leftcont">
+                        <img src="{{ asset('bundles/dhiuser/images/opps.png') }}" alt="opps" width="223" height="112" />
+                    </div>
+                    <div class="rightcont">
+                        {% if status_code == 404 %}
+                            <h1>Page not found</h1>
+                            <p>The Web server cannot find the file or script you asked for. Please check the URL to ensure that the path is correct.</p>
+                        {% elseif status_code == 500 %}
+                            <h1>Internal Server Error</h1>
+                            <p>We're sorry! The server encountered an internal error and was unable to complete  your request. Please try again later.</p>
+                        {% elseif status_code == 501 %}
+                            <h1>Not Implemented</h1>
+                            <p>The server either does not recognize the request method, or it lacks the ability to fulfil the request</p>
+                        {% elseif status_code == 502 %}
+                            <h1>Bad Gateway</h1>
+                            <p>The server was acting as a gateway or proxy and received an invalid response from the upstream server.</p>
+                        {% elseif status_code == 503 %}
+                            <h1>Service Unavailable</h1>
+                            <p>The server is currently unavailable (because it is overloaded or down for maintenance).</p>
+                        {% elseif status_code == 504 %}
+                            <h1>Gateway Timeout</h1>
+                            <p>The server was acting as a gateway or proxy and did not receive a timely response from the upstream server.</p>
+                        {% elseif status_code == 505 %}
+                            <h1>HTTP Version Not Supported</h1>
+                            <p>The server does not support the HTTP protocol version used in the request.</p>
+                        {% elseif status_code == 506 %}
+                            <h1>Variant Also Negotiates</h1>
+                        {% elseif status_code == 507 %}
+                            <h1>Insufficient Storage</h1>
+                            <p>The server is unable to store the representation needed to complete the request</p>
+                        {% elseif status_code == 508 %}
+                            <h1>Loop Detected</h1>
+                            <p>The server detected an infinite loop while processing the request</p>
+                        {% elseif status_code == 509 %}
+                            <h1>Bandwidth Limit Exceeded</h1>
+                        {% elseif status_code == 510 %}
+                            <h1>Not Extended</h1>
+                        {% elseif status_code == 511 %}
+                            <h1>Network Authentication Required</h1>
+                            <p>The client needs to authenticate to gain network access</p>
+                        {% elseif status_code == 598 %}
+                            <h1>Network read timeout error</h1>
+                        {% elseif status_code == 599 %}
+                            <h1>Network connect timeout error</h1>
+                        {% else %}
+                            {{ status_code }}
+                            <p>Sorry, but the page you are looking for has not been found. Try checking the URL for errors, then hit the refresh button on your browser.</p>
+                        {% endif %}
+                        <p>&nbsp;</p>
+                        <p>Please contact the <a href="{{url('dhi_user_support')}}">server's administrator</a> if this problem persists.</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+         {% block footer %}
+            <footer>
+                <div class="container">
+                    <div class="row">
+                        {% set is_exchange_host = app.session.get('is_exchange_host') %}
+                        {% if is_exchange_host %}
+                            <div class="col-md-12 copyright">© 2015. Exchange TopUp. All rights reserved.</div>
+                        {% else %}
+                            <div class="col-md-12 copyright">© 2015. DHI Telecom Group - DHI-Afghanistan. All rights reserved.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </footer>
+        {% endblock footer %}
+        
+        {% block javascripts %}
+            <script src="{{ asset('bundles/dhiuser/js/jquery-2.1.1.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/jquery.validation.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/jquery-migrate-1.1.1.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/jquery-ui.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/bootstrap.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/modernizr.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/placeholders.min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/selectivizr-min.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/stickynav.js') }}"></script>
+            <script src="{{ asset('bundles/dhiuser/js/main.js') }}"></script>
+            {% endblock %}
+        
+    </body>
+</html>

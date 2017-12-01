@@ -1,0 +1,820 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+
+{% endblock %}
+{% block body %}
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>Confirm Purchase ({{ (user)?user.username:'' }})</h1>
+    </section>
+    <section class="content">
+        <div class="box-success">
+            <div class="row"><div class="col-lg-12"><div id="cartmsg" class="pay_ment_success_msg"></div></div>
+            <div class="row">
+                {% include "DhiUserBundle::flashMessage.html.twig" %}
+                <div class="col-sm-12">
+                    <div id="cartmsg"></div>
+                    {% set paybleAmount = 0 %}
+                    {% set TotalUnusedCredit = 0 %}
+                    {% set totalBundleDiscount = 0 %}
+                    <div class="panel-group" id="confirm-order-accordion">
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#confirm-order-accordion" href="#tabOrderSummary" id="tabOrderSummaryHead">Summary</a>
+                                </h4>			                
+                            </div>
+                            <div id="tabOrderSummary" class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                    {{ form_start(form, {'method': 'POST', 'action': '', 'attr': {'id': 'frmSummary', 'onsubmit':'return proccedActivation()'}  }) }}
+                                    <div class="box-body">
+                                        <table class="table table-bordered table-hover refundSummary">
+
+                                            {% if summaryData.CartAvailable == 1 %}			
+
+                                                {% set totalIPTVAmount = 0 %}
+                                                {% set totalAddOnAmount = 0 %}
+                                                {% set totalISPAmount = 0 %}
+                                                {% set totalCreditAmount = 0 %}
+
+                                                {% set cartData = summaryData.Cart %}
+
+                                                {% if summaryData.IsIPTVAvailabledInCart == 1 %}
+                                                    {% set iptvPackages = cartData.IPTV.RegularPack %}
+                                                    <tr>
+                                                        <th rowspan="{{ iptvPackages|length + 1 }}" style="color:#6c509a">ExchangeVUE Packages</th>
+                                                        <th>Package</th>
+                                                        <th width="200">Price</th>
+                                                    </tr>
+
+                                                    {% for iptvPackage in iptvPackages %}
+
+                                                        {% set discountedAmount = 0 %}
+
+                                                        <tr id="row_{{ iptvPackage.servicePurchaseId }}">
+                                                            <td>{{ iptvPackage.packageName }}</td>
+                                                            <td>${{ iptvPackage.actualAmount }}</td>
+                                                            {% set totalIPTVAmount = totalIPTVAmount + iptvPackage.actualAmount %}
+                                                        </tr>
+
+                                                        {% if cartData.IPTV.unusedCredit > 0 %}
+                                                            <tr>
+                                                                {% if summaryData.IsBundleAvailabledInCart == 0 %}
+                                                                    <td align="right" colspan="2"><i>Existing ExchangeVUE Pack Unused credit</i></td>
+                                                                    <td>-{{ cartData.IPTV.unusedCredit }}</td>
+                                                                    {% set totalIPTVAmount = totalIPTVAmount - cartData.IPTV.unusedCredit %}
+                                                                {% endif %}
+                                                            </tr>
+                                                            {% set TotalUnusedCredit = TotalUnusedCredit + cartData.IPTV.unusedCredit %}
+                                                        {% endif %}
+
+                                                        {% if iptvPackage.discountPercentage > 0 %}
+                                                            {% set discountedAmount = (iptvPackage.amount * iptvPackage.discountPercentage) / 100 %}
+                                                            <tr>
+                                                                <td align="right" colspan="2"><i>{{ iptvPackage.discountPercentage }}% Bundle discount on TV Package</i></td>
+                                                                <td>-${{ discountedAmount|number_format(2) }}</td>
+                                                            </tr>									
+                                                            {% set totalIPTVAmount = totalIPTVAmount - discountedAmount %}
+                                                        {% endif %}
+
+                                                        {% if iptvPackage.bundleDiscount > 0 %}
+                                                            {% set discountedAmount = (iptvPackage.amount * iptvPackage.bundleDiscount) / 100 %}
+                                                            {% if discountedAmount > 0 %}
+                                                                {#
+                                                                        <tr>
+                                                        <td align="right" colspan="2"><i>{{ iptvPackage.bundleName }}</i></td>
+                                                        <td>-${{ discountedAmount|number_format(2) }}</td>
+                                                </tr>
+                                        #}
+
+                                                            {% endif %}
+                                                        {% endif %}
+
+                                                    {% endfor %}
+                                                    {% if summaryData.IsBundleAvailabledInCart == 0 %}
+                                                        <tr>
+                                                            <td align="right" colspan="2"><b>Sub Total</b></td>
+                                                            <td><b>${{ totalIPTVAmount|number_format(2) }}</b></td>
+                                                        </tr>
+                                                    {% endif %}
+
+                                                {% endif %}
+
+                                                {% if summaryData.IsAddOnAvailabledInCart == 1 %}
+
+                                                    {% set addOnPackages = cartData.IPTV.AddOnPack %}
+                                                    <tr>
+                                                        <th rowspan="{{ addOnPackages|length + 1 }}" style="color:#6c509a">Premium Packages</th>
+                                                        <th>Package</th>
+                                                        <th>Price</th>
+                                                    </tr>
+
+                                                    {% for addOnPackage in addOnPackages %}
+                                                        <tr id="row_{{ addOnPackage.servicePurchaseId }}">
+                                                            <td>{{ addOnPackage.packageName }}</td>
+                                                            <td>${{ addOnPackage.payableAmount }}</td>
+                                                        </tr>
+                                                        {% set totalAddOnAmount = totalAddOnAmount + addOnPackage.payableAmount %}												
+                                                    {% endfor %}
+                                                    {% if summaryData.IsBundleAvailabledInCart == 0 %}
+                                                        <tr>
+                                                            <td align="right" colspan="2"><b>Sub Total</b></td>
+                                                            <td><b>${{ totalAddOnAmount|number_format(2) }}</b></td>
+                                                        </tr>
+                                                    {% endif %}
+                                                {% endif %}
+
+                                                {% if summaryData.IsISPAvailabledInCart == 1 %}
+                                                    {% set ispPackages = cartData.ISP.RegularPack %}
+                                                    <tr>
+                                                        <th rowspan="{{ ispPackages|length + 1 }}" style="color:#6c509a">ISP Packages</th>
+                                                        <th>Package</th>
+                                                        <th>Price</th>
+                                                    </tr>
+
+                                                    {% for ispPackage in ispPackages %}
+                                                        {% if ispPackage.validityType == "HOURS" %}
+                                                            {% set validityCaps = "Hour(s)" %}
+                                                        {% else %}
+                                                            {% set validityCaps = "Day(s)" %}
+                                                        {% endif %}
+                                                        <tr id="row_{{ ispPackage.servicePurchaseId }}">
+                                                            <td>{{ ispPackage.packageName~' - '~ispPackage.bandwidth~'k - '~ispPackage.validity~' '~validityCaps }}</td>
+                                                            <td>${{ ispPackage.actualAmount }}</td>									                
+                                                        </tr>			
+                                                        {% set totalISPAmount = totalISPAmount + ispPackage.actualAmount %}
+
+                                                        {% if cartData.ISP.unusedCredit > 0 %}
+                                                            <tr>
+                                                                {% if summaryData.IsBundleAvailabledInCart == 0 %}
+                                                                    <td align="right" colspan="2"><i>Existing ISP Pack Unused credit</i></td>
+                                                                    <td>-{{ cartData.ISP.unusedCredit }}</td>                
+                                                                    {% set totalISPAmount = totalISPAmount - cartData.ISP.unusedCredit %}
+                                                                {% endif %}
+                                                            </tr>
+                                                            {% set TotalUnusedCredit = TotalUnusedCredit + cartData.ISP.unusedCredit %}
+                                                        {% endif %}
+
+                                                        {% if ispPackage.bundleDiscount > 0 %}
+                                                            {% set discountedAmount = (ispPackage.amount * ispPackage.bundleDiscount) / 100 %}
+                                                            {% if discountedAmount > 0 %}
+                                                                <tr>
+                                                                    {#
+                                                    <td align="right" colspan="2"><i>{{ ispPackage.bundleName }}</i></td>
+                                                    <td>-${{ discountedAmount|number_format(2) }}</td>
+                                            #}	
+                                                                </tr>
+                                                            {% endif %}
+                                                        {% endif %}
+
+                                                    {% endfor %}
+                                                    {% if summaryData.IsBundleAvailabledInCart == 0 %}
+                                                        <td align="right" colspan="2"><b>Sub Total</b></td>
+                                                        <td><b>${{ totalISPAmount|number_format(2) }}</b></td>
+                                                    {% endif %}
+                                                    </tr>
+                                                    </tbody>
+                                                {% endif %}
+
+                                                {% if summaryData.IsCreditAvailabledInCart == 1 %}
+
+                                                    <tr>
+                                                        <th rowspan="2" style="color:#6c509a">Credit Purchase</th>
+                                                        <th>Description</th>
+                                                        <th>Price</th>
+                                                    </tr>
+
+                                                    {% set purchaseCredits = cartData.Credit %}
+                                                    {% for credit in purchaseCredits %}
+                                                        <tr>
+                                                            <td>Pay ${{ credit.amount }} and get {{ credit.credit }} credit in your account.</td>
+                                                            <td>${{ credit.amount }}</td>
+                                                        </tr>
+                                                        {% set totalCreditAmount = totalCreditAmount + credit.amount %}
+
+                                                    {% endfor %}
+                                                    <tr>
+                                                        <td align="right" colspan="2"><b>Sub Total</b></td>
+                                                        <td><b>${{ totalCreditAmount|number_format(2) }}</b></td>
+                                                    </tr>
+                                                    </tbody>
+                                                {% endif %}
+
+                                                {% set grandTotal = totalIPTVAmount + totalAddOnAmount + totalISPAmount + totalCreditAmount %}
+                                                {% set paybleAmount = grandTotal - summaryData.discountCodeAmount - summaryData.TotalPromotionOff %}
+
+                                                {% if summaryData.IsBundleAvailabledInCart == 1 %}
+                                                    <tr>
+                                                        <td colspan="2" align="right"><b>Sub Total</b></td>
+                                                        <td><i> ${{ grandTotal|number_format(2) }}</i></td>
+                                                    </tr>
+                                                    {% if TotalUnusedCredit > 0 %}
+                                                        <tr>
+                                                            <td colspan="2" align="right"><i>Total Unused credit</i></td>
+                                                            <td><i> - ${{ TotalUnusedCredit|number_format(2) }}</i></td>
+                                                        </tr>
+                                                        {% set grandTotal = grandTotal - TotalUnusedCredit %}
+                                                    {% endif %}
+                                                    {% set bundleCart = cartData.Bundle.RegularPack %}
+                                                    {% set grandTotal = grandTotal - summaryData.TotalbundleDiscount %}
+                                                    <tr>
+                                                        <td align="right" colspan="2"><i>{{ bundleCart.bundleName }}</i></td>
+                                                        <td>
+                                                            <i> - ${{ summaryData.TotalbundleDiscount|number_format(2) }}</i>
+                                                        </td>                            
+                                                    </tr>
+                                                {% endif %}
+                                                {% if summaryData.isPromotionAvailable > 0 %}
+                                                    <tr>
+                                                        <td align="right" colspan="2"><i>Promotion Off ({{ summaryData.TotalPromotionPer }}%)</i></td>
+                                                        <td>
+                                                            <i> - ${{ summaryData.TotalPromotionOff|number_format(2) }}</i>
+                                                        </td>
+                                                    </tr>
+                                                    {% set grandTotal = grandTotal|number_format(2) - summaryData.TotalPromotionOff|number_format(2) %}
+                                                {% endif %}
+
+                                                {% if allowToApplyDiscount == 1 %}
+                                                <tr>
+                                                    
+                                                    {% if summaryData.isDiscountCodeApplied == 1 %}
+                                                        <td align="right" colspan="2">
+                                                            <i>Discount applied {{summaryData.discountCodeRate}}%</i>
+                                                        </td>
+                                                        <td><i>- ${{ summaryData.discountCodeAmount|number_format(2) }}</i>
+                                                            <a class="btn btn-sm btn-danger" href="javascript:void(0);" onclick="deleteCouponCode();" >x</a></td>
+                                                        {% set grandTotal = grandTotal - summaryData.discountCodeAmount %}
+                                                    {% else %}
+                                                
+                                                    {% if  paybleAmount > 0  %}
+                                                        <td align="right" colspan="2">
+                                                            <div id="discountLink" >
+                                                                <a href="javascript:void(0);" onclick="$('#discountCode').val('');$('#discountBox').removeClass('hide');$('#discountLink').addClass('hide');"> Apply Discount?</a>
+                                                            </div>
+                                                            <div id="responseMsg"></div>
+                                                            <div id="discountBox" class="hide">
+                                                                <div class="row">
+                                                                    <div class="col-md-6 col-md-offset-6 col-sm-12 col-xs-12">
+                                                                            <select name='discountType' id='discountType' class="inline pull-left padding10">
+                                                                                <option value=''>Discount Type</option>
+                                                                                <option value='percentage'>percentage</option>
+                                                                                <option value="amount">Amount</option>
+                                                                            </select>
+                                                                            <input type="text" class="form-control inline pull-left" id="discountCode"  name="discountCode" value=""/> &nbsp;
+                                                                            <a class="btn btn-sm inline padding10 btn-theme-blue" href="javascript:void(0);" onclick="checkValidDiscount( {{app.request.get('userId')}} , {{ grandTotal|number_format(2) }});"> Apply</a>
+                                                                            <a class="btn btn-sm btn-danger inline padding10" href="javascript:void(0);" onclick="$('#discountBox').addClass('hide');$('#discountLink').removeClass('hide');$('#discountCode').val('');"> X</a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <i><div class="pull-right" id="discountLabel"></div></i>
+                                                            <td><div class="discountAmo hide"><i><span id="disocuntAmount"></span></i> <a class="btn btn-sm btn-danger" href="javascript:void(0);" onclick="deleteCouponCode();" >x</a></div></td>
+                                                        </td>
+                                                    {% endif %}
+                                                    {% endif %}
+                                                </tr>
+                                                {% endif %}
+                                                <tr>
+                                                    <td align="right" colspan="2"><b>Grand Amount</b></td>
+                                                    <td><b><div id="grandTotal">${{ grandTotal|number_format(2) }}</div></b></td>
+                                                </tr>
+
+                                                <input type="hidden" name="paybleAmount" value="{{ paybleAmount }}" />	        
+                                            {% else %}
+
+
+                                                <tr>
+                                                    <td colspan="2" align="center">Your cart is empty</td>							
+                                                </tr>
+                                            {% endif %}												            		
+
+                                        </table>						                							                    						                    
+                                    </div>
+
+                                    {% set isShowPaymentSection = 0 %} 
+                                    {% if summaryData.IsIPTVAvailabledInCart == 1 or summaryData.IsISPAvailabledInCart == 1 or summaryData.IsAddOnAvailabledInCart == 1 or summaryData.IsCreditAvailabledInCart == 1 %}
+
+                                        {% if summaryData.IsDeersRequiredPlanAdded == 1 %}
+
+                                            {% set isShowPaymentSection = 1 %}
+                                        {% endif %}	 
+                                        
+                                        {% if paybleAmount > 0 %}
+                                            {% set isShowPaymentSection = 1 %}
+                                        {% else %}
+                                            {% set isShowPaymentSection = 0 %}
+                                        {% endif %}	 
+                                        
+                                    {% endif %}
+
+                                    {% if summaryData.isEmployee == 1 %}
+                                        {% set isShowPaymentSection = 0 %}
+                                        {% set returnUrl = path('dhi_admin_employee_service_details', {'id': userId }) %}
+
+                                    {% else %}
+                                        {% set returnUrl = path('dhi_admin_user_service_details', {'id': userId }) %}
+                                    {% endif %}
+                                    <div class="box-body col-sm-6"></div>
+                                    <div class="col-sm-12">
+                                        <div class="pull-left">					                    	
+                                            <a href="{{ returnUrl }}" class="btn btn-info" id="continue">Continue Shopping</a>					                    		
+                                        </div>
+                                        {% if summaryData.CartAvailable == 1 %}		
+                                            <div class="pull-right"> 
+                                                {% if isShowPaymentSection == 1 %}
+
+                                                    <input type="button" name="submit" value="Next" class="btn btn-info" onclick="confirmOrderSummary('frmSummary');"/>
+                                                {% else %}
+                                                    <input type="submit" name="submit" value="Proceed" class="btn btn-info"/>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    {{ form_end(form) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if isShowPaymentSection == 1 %}
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#confirm-order-accordion" href="#tabPaymentOption" id="tabPaymentOptionHead">
+                                            {{ (paybleAmount > 0)?'Payment Options':'Authentication' }}				                    		
+                                        </a>										
+                                    </h4>
+                                </div>
+                                <div id="tabPaymentOption" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        {{ form_start(form, {'method': 'POST', 'action': '', 'attr': {'id': 'frmPaymentOptions'}  }) }}
+                                        <input type="hidden" name="processStep" id="paymentOptions" class="form-control" value="paymentOptions">
+                                        <input type="hidden" name="isStepThreeCompleted" id="isStepThreeCompleted" value="0" />
+                                        <input type="hidden" name="isDeersRequiredPlanAdded" id="isDeersRequiredPlanAdded" value="{{ summaryData.IsDeersRequiredPlanAdded }}" />
+                                        <input type="hidden" name="paybleAmount" id="paybleAmount" value="{{ paybleAmount }}" />
+                                        <div class="box-body">
+                                            <div class="col-xs-12">
+                                                <div class="row">
+
+                                                    <div class="col-md-8">
+                                                        <div class="row">
+
+                                                            {% if summaryData.IsDeersRequiredPlanAdded == 1 %}
+                                                                <div class="form-group cc-bx">
+                                                                    <label class="col-sm-5 control-label">CAC Card Number:</label>
+                                                                    <div class="col-sm-7">
+                                                                        <input type="text" name="cac[Number]" id="cacNumber" class="form-control" placeholder="CAC Card Number" value="">
+                                                                        <label id="cacNumber-error" class="error" for="cacNumber" style="display: none;"></label>						                                                    
+                                                                    </div>
+                                                                </div><br/><br/>
+                                                            {% endif %}
+
+                                                            {% if paybleAmount > 0 %}
+                                                                <div class="form-group cc-bx col-sm-12">
+                                                                    <label class="col-sm-3 control-label">Pay By:</label>
+                                                                    <div class="col-sm-3">
+                                                                        <input type="radio" name="paymentBy" value="pos" onclick="showEagleCashBox(this.value)"/>
+                                                                        <label>Pos Credit-Card</label></div>
+                                                                    <div class="col-sm-3">
+                                                                        <input type="radio" name="paymentBy" value="cash" onclick="showEagleCashBox(this.value)"/>
+                                                                        <label>Cash</label>						                                                    
+                                                                    </div>
+                                                                    <div class="col-sm-3">
+                                                                        <input type="radio" name="paymentBy" value="eagleCash" onclick="showEagleCashBox(this.value)"/>
+                                                                        <label>Eagle Cash</label>						                                                    
+                                                                    </div>							                            	
+                                                                </div>
+                                                                <div class="form-group cc-bx">
+                                                                    <label class="col-sm-5 control-label">&nbsp;</label>
+                                                                    <div class="col-sm-7">
+                                                                        <label id="paymentBy-error" class="error" for="paymentBy" style="display:none;"></label>						                                                    
+                                                                    </div>
+                                                                </div>
+                                                            {% endif %}	
+                                                              <div class="form-group order-bx cc-bx col-sm-12" id="posOrderNo" style="display: none;">
+                                                                    <label class="col-sm-5 control-label">Order Number:</label>
+                                                                    <div class="col-sm-7">
+                                                                        <input type="text" name="posOrderNo" id="orderNo" onblur="checkPosOrderNo(this.value)" class="form-control" placeholder="Order Number" value="">
+                                                                        
+                                                                        <label id="posOrderNo-error" class="error custom-err"></label>
+                                                                    </div>
+                                                                </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>								                		                							                   
+                                        </div>
+                                        <div class="box-body col-sm-6"></div>
+                                        <div class="col-sm-12">
+                                            <div class="pull-left">
+                                                <a href="javascript:void(0);" class="btn btn-info" onclick="collapseOpenTab('tabOrderSummary')">Back</a>					                    		
+                                            </div>
+                                            <div class="pull-right">
+                                                <input type="button" class="btn btn-info"  value="Procced" onclick="return confirmOrderSummary('frmPaymentOptions');">
+                                            </div>
+                                        </div>
+                                        {{ form_end(form) }}
+
+                                    </div>
+                                </div>
+                            </div>	
+                        {% endif %}			        					        					        
+                    </div>					    					    
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>	   
+
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#frmPaymentOptions').validate();
+        })
+        function confirmOrderSummary(formName) {
+
+            var checkDetailUrl = '{{ path('dhi_admin_user_validate_payment', {'step' : 'stepNumber'}) }}';
+
+            if (formName == 'frmSummary') {
+
+                collapseOpenTab('tabPaymentOption');
+            }
+
+            if (formName == 'frmPaymentOptions') {
+                
+                
+                isValidate = validatePaymentMethodForm(formName);
+                if($('#orderNo').val()){
+                    var posOrder = $('#orderNo').val();
+                    isPos = checkPosOrderNo(posOrder);
+                } else {
+                    isPos = 1;    
+                }
+                if (isValidate && isPos) {
+
+                    if ($('#' + formName).valid()) {
+
+                        processCheckoutDetail(formName, checkDetailUrl);
+                    }
+                }
+            }
+        }
+        
+        function checkPosOrderNo(orderNo) {
+            flagerr = 0;
+            $.ajax({
+                    type: "POST",
+                    url: "{{ path('dhi_admin_unique_pos_order_no') }}",
+                    async: false,
+                    data:{
+                                            orderNo:orderNo
+                        },
+                    beforeSend: function( xhr ) {
+
+                        $('#ajax-loader-bx').show();
+                    },
+                    success:function(result){
+                            var obj = jQuery.parseJSON( result );
+                            $('.custom-err').html('').hide();
+
+                            if(obj['status'] == 'error') {
+                                    $('#posOrderNo-error').html(obj['error']).show();
+                                    flagerr = 1;
+                            } 
+
+                            $('#ajax-loader-bx').hide();
+                    }
+		})	
+                if(flagerr){
+                    return false;
+                }else {
+                    return true;
+                }
+            }
+
+        function processCheckoutDetail(name, ajaxUrl) {
+
+            if (name == 'frmPaymentOptions') {
+
+                ajaxUrl = ajaxUrl.replace('stepNumber', 2);
+                var postData = $('#' + name + ',#frmSummary').serializeArray();
+            }
+
+            $.ajax({
+                type: "POST",
+                url: ajaxUrl,
+                data: postData,
+                beforeSend: function (xhr) {
+
+                    $('#ajax-loader-bx').show();
+                },
+                success: function (result) {
+
+                    var obj = jQuery.parseJSON(result);
+
+                    var isGlobalError = false;
+
+                    if (obj['requestStep'] == 2 && obj['stepTwoResponse'] != '') {
+
+                        processStepTwo(obj['stepTwoResponse']);
+                    } else {
+
+                        if (obj['status'] == 'failed') {
+
+                            var errorMsg = obj['message'];
+                        } else {
+                            var errorMsg = 'Something went wrong in ajax request.';
+                        }
+
+                        $('#cartmsg').html(disErrorMsg('warning', errorMsg));
+                        $('#ajax-loader-bx').hide();
+                    }
+                }
+            });
+        }
+
+        function validatePaymentMethodForm(formName) {
+
+            var paymentType = $('input[name=paymentBy]:checked').val();
+            var paybleAmount = $('#paybleAmount').val();
+            var orderNo = $('#orderNo').val();
+            var isDeersRequiredPlanAdded = $('#isDeersRequiredPlanAdded').val();
+            var flagerr = false;
+
+            if (paybleAmount > 0) {
+
+                $('input[name="paymentBy"]').rules('add', {
+                    required: true,
+                    messages: {
+                        required: "Please select any one payment option.",
+                    }
+                });
+
+                flagerr = true;
+            }
+            if (paymentType == 'pos') {
+                 $.validator.addMethod("loginaRegex", function (value, element) {
+                    return this.optional(element) || /^[A-Za-z0-9\-\s]+$/i.test(value);
+                }, "Order number must contain only alpha numeric.");
+
+                $('input[name="posOrderNo"]').rules('add', {
+                    required: true,
+                    loginaRegex: true,
+                    messages: {
+                        required: "Please enter order number.",
+                    }
+                });
+
+                flagerr = true;
+            }
+
+            if (isDeersRequiredPlanAdded == 1) {
+
+                $.validator.addMethod("loginRegex", function (value, element) {
+                    return this.optional(element) || /^[A-Za-z][a-z0-9\-\s]+$/i.test(value);
+                }, "CAC card number must contain only alpha numeric.");
+
+                $('#cacNumber').rules('add', {
+                    required: true,
+                    //loginRegex: true,
+                    messages: {
+                        required: "Please enter CAC card number.",
+                    }
+                });
+
+                flagerr = true;
+            }
+
+            return flagerr;
+        }
+
+        function processStepTwo(obj) {
+
+            var isStepTwoSuccess = false;
+
+            if (obj['status'] == 'success') {
+
+                $('#ajax-loader-bx').show();
+
+                if (obj['paymentBy'] == 'FreePurchase') {
+
+                    if (proccedActivation()) {
+
+                        window.location.href = '{{ path('dhi_admin_user_process_freeplan', {'userId': userId}) }}';
+                    }
+                } else {
+
+                    window.location.href = '{{ path('dhi_admin_payment_process', {'userId': userId}) }}';
+                }
+
+            } else if (obj['status'] == 'error') {
+
+                displayServerErrorMsg(obj['errorMessages']); //Show error message
+                $('#ajax-loader-bx').hide();
+            } else if (obj['status'] == 'failed') {
+
+                $('#cartmsg').html(disErrorMsg('warning', obj['message']));
+                $('#ajax-loader-bx').hide();
+            } else {
+
+                $('#cartmsg').html(disErrorMsg('warning', 'Something went wrong in ajax request.'));
+                $('#ajax-loader-bx').hide();
+            }
+
+            collapseOpenTab('tabPaymentOption');
+        }
+
+        function displayServerErrorMsg(errorMessages) {
+
+            if (errorMessages != '') {
+
+                for (var key in errorMessages) {
+
+                    $("#" + key + "-error").html(errorMessages[key]).show();
+                }
+            }
+        }
+
+        function showEagleCashBox(val) {
+
+            $('#ajax-loader-bx').show();
+
+        {% if summaryData.IsDeersRequiredPlanAdded == 0 %}
+
+                $('#cardDetailInfo').hide();
+        {% endif %}
+
+                if (val == 'pos') {
+                    $('#posOrderNo').show();
+                    $('#eagleCashInfo').hide();
+                }else if (val == 'cash') {
+                    $('#posOrderNo').hide();
+                    $('#posOrderNo-error').hide();
+                    $('#orderNo-error').hide();
+                    $('#orderNo').val('');
+                    $('#eagleCashInfo').hide();
+                }  
+                else if (val == 'eagleCash') {
+                    $('#posOrderNo').hide();
+                    $('#posOrderNo-error').hide();
+                    $('#orderNo-error').hide();
+                    $('#orderNo').val('');
+                    $('#cardDetailInfo').show();
+                    $('#eagleCashInfo').show();
+                } else {
+                    $('#posOrderNo').hide();
+                    $('#posOrderNo-error').hide();
+                    $('#orderNo-error').hide();
+                    $('#orderNo').val('');
+                    $('#eagleCashInfo').hide();
+                }
+                $('#ajax-loader-bx').hide();
+            }
+
+        function collapseOpenTab(tabId) {
+
+                //$('.panel-collapse.in').collapse('hide');
+                if (!$("#" + tabId).hasClass("in")) {
+
+                    $("#" + tabId + "Head").trigger("click");
+                }
+            }
+
+        function proccedActivation() {
+
+                $('#frmSummary').attr('action', '{{ path('dhi_admin_user_process_freeplan', {'userId': userId}) }}');
+
+                return true;
+            }
+        
+        function checkValidDiscount(userId, amount){
+            
+            var discountType = $('#discountType').val();
+            var discountCode = $('#discountCode').val();
+            if($.isNumeric(discountCode) && discountCode > 0 && discountType){
+               
+            	var postData = 'userId='+userId+'&adminDiscount='+discountCode+'&discountType='+discountType+'&amount='+amount;
+                var checkCodeUrl = '{{ path('dhi_admin_service_discount_apply') }}';
+                
+                $.ajax({
+                    type: "POST",
+                    url: checkCodeUrl,
+                    data: postData,
+                    beforeSend: function( xhr ) {
+                        $('#ajax-loader-bx').show();
+                    },
+                    success:function(result){
+                        // SET label  to view after discount
+                        if(result.success){
+
+                            if(result.discountPercentage == 100){
+                                  window.location.reload();
+                            }
+
+                            $("#discountBox").hide();
+                            if(result.percentageType == 'amount'){
+                                $("#discountLabel").text("Discount ");
+                            }else if(result.percentageType == 'percentage'){
+                                $("#discountLabel").text("Discount "+result.percentage+"% " );
+                            }
+                            $("#disocuntAmount").text("- "+"$"+result.discountAmount);
+                            $(".discountAmo").removeClass("hide");
+
+                            $("#grandTotal").text("$"+result.finalAmount);
+
+                            // SET amount to submit after discount
+                            $("#paybleAmount").val(result.finalAmount);
+                            var err = disErrorMsg('success',"Success. "+result.percentage+"% Discount is applied");
+                            $('#cartmsg').html(err);
+                            $('#ajax-loader-bx').hide();
+                            scroll_to('cartmsg');
+
+                        } else if(result.error) {
+
+                            var finalMessage = "";
+
+                            if(result.error == 'emptyDiscount'){
+                                finalMessage = "Please enter discount value.";
+                            }else if(result.error == 'greaterThanPayable'){
+                                finalMessage = "Please enter less than or equal to payable amount.";
+                            }
+                            var err = disErrorMsg(((result.success) ? 'success' : 'warning'),finalMessage);
+                            $('#discountCode').val('');
+                            $('#cartmsg').html(err);
+                            scroll_to('cartmsg');
+                        }
+
+                        $('#ajax-loader-bx').hide();
+                    },
+                    error : function(result){
+                        var err = disErrorMsg('warning','Something is wrong please try after sometime.');
+                        $('#cartmsg').html(err);
+                        scroll_to('cartmsg');
+                        return false;
+                    }
+                });
+            }else{
+                var errorMsg = '';
+                if(discountType == '' && discountCode == ''){
+                    errorMsg = 'Please select discount type and enter discount.';
+                }else if(discountCode == ''){
+                    errorMsg = 'Please enter discount.';
+                }else if(discountType == ''){
+                    errorMsg = 'Please select discount type.';
+                }else if(!$.isNumeric(discountCode)){
+                    errorMsg = 'Please enter only digits.';
+                }else if(discountCode < 0){
+                    errorMsg = 'Please enter positive discount value.';
+                }
+                var err = disErrorMsg('warning', errorMsg);
+                $('#cartmsg').html(err);
+                scroll_to('cartmsg');
+            }
+        }
+        
+        function deleteCouponCode(){
+            $.ajax({
+		type: "POST",
+		url: '{{path('dhi_admin_service_discount_remove')}}',
+		data: {
+			action: 'remove',
+                        userId: {{app.request.get('userId')}}
+		},
+		beforeSend: function( xhr ) {
+		    $('#ajax-loader-bx').show();
+		},
+		success:function(result){
+	        if(result.status == 'success'){
+	            location.reload();
+	        } else {
+	            var err = disErrorMsg('warning',result.msg);
+	            $('#cartmsg').html(err);
+	        }
+	        $('#ajax-loader-bx').hide();
+		},
+	   	error : function(result){
+	        var err = disErrorMsg('warning','Something is wrong please try after sometime.');
+	        $('#cartmsg').html(err);
+	        return false;
+	    }
+	});
+    }
+    function scroll_to(div){
+	$('html, body').animate({
+
+		scrollTop: $("#"+div).offset().top
+	},1000);
+    }   
+    </script>
+{% endblock javascripts %}

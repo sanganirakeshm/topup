@@ -1,0 +1,23 @@
+{% set c_path = app.request.attributes.get('_route') %}
+ 
+<ul class="sidebar-menu">
+   
+    
+        <li class="header">
+		<h4 class="box-title mainTitle text-white">Main Menu</h4>
+	</li>
+        <li class="{% if c_path in ['dhi_isppartner_dashboard'] %}active{% endif %}">
+            <a class="{% if c_path in ['dhi_isppartner_dashboard'] %}active{% endif %}" href="{{ path('dhi_isppartner_dashboard')}}">
+                <i class="fa fa-dashboard"></i> 
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li class="{% if c_path in ['dhi_isppartner_resetpassword'] %}active{% endif %}">
+            <a class="{% if c_path in ['dhi_isppartner_resetpassword'] %}active{% endif %}"
+               href="{{ path('dhi_isppartner_resetpassword')}}">
+                <i class="fa fa-unlock-alt"></i> 
+                <span>Change Password</span>
+            </a>
+        </li>
+	
+</ul>

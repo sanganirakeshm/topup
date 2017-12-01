@@ -1,0 +1,121 @@
+<span style="font-family:Times New Roman;font-size:14px;">Hi {{ purchasedSummaryData.UserName }},</span><br/><br />
+<span style="font-family:Times New Roman;font-size:14px;">Thank you for your T-Vod purchase.</span><br /> <br />
+
+{%  if purchasedSummaryData.RecurringStatus == 1 %}   
+	<span style="font-family:Times New Roman;font-size:14px;">Your recurring payment profile successfully created. Now, your plan will be automatically renew on every month.</span><br /> <br />
+{% endif %}
+
+{%  if purchasedSummaryData.RecurringStatus == 2 or purchasedSummaryData.RecurringStatus == 3 %}   
+	<span style="font-family:Times New Roman;font-size:14px;">Your recurring payment profile has not been created.</span><br /> <br />
+{% endif %}
+
+<span style="font-family:Times New Roman;font-size:14px;">Your order is now complete and the transaction details are below.</span><br /><br />
+{% if purchasedSummaryData.OrderNumber != '' %}
+	{% set tvodArrLength = 0 %}
+	<table border="1" cellpadding="5" style="font-family:Times New Roman;font-size:14px;">
+		<tr>
+			<td colspan="5" algin="left" style="font-family:Times New Roman;font-size:14px;">
+                            User: {{ purchasedSummaryData.firstName }} {{ purchasedSummaryData.lastName }}<br/>
+				{% if purchasedSummaryData.TransactionId != '' %}
+				Transaction ID: {{ purchasedSummaryData.TransactionId }}<br/>
+				{% endif %}
+				Date: {{ purchasedSummaryData.PurchasedDate }}<br/>
+				Payment Method: {{ purchasedSummaryData.PaymentMethod }}<br/>						
+            </td>                    
+		</tr>
+
+    {% set BundleDiscount = 0 %}
+    {% if 'TVOD' in purchasedSummaryData|keys %}
+		{% set tvodArrLength = purchasedSummaryData.TVOD|length %}
+			{% if tvodArrLength > 0 %}
+        <tr>
+          <td rowspan="{{ tvodArrLength + 1 }}" style="color:#6c509a;font-family:Times New Roman;font-size:14px;"><b>T-Vod Packages</b></td>
+            <td style="font-family:Times New Roman;font-size:14px;">Package</td>
+            <td style="font-family:Times New Roman;font-size:14px;">Activation Status</td>
+            <td style="font-family:Times New Roman;font-size:14px;">Payment Status</td>
+            <td style="font-family:Times New Roman;font-size:14px;">Price</td>                    
+          </tr>
+         	{% for tvodPurchase in purchasedSummaryData.TVOD %}
+         		{% if tvodPurchase.isDiscountAvailable == 1 %}								                
+              <tr>
+                  <td colspan="3" align="right" style="font-family:Times New Roman;font-size:14px;">{{ tvodPurchase.Discription }}</td>
+                  <td style="font-family:Times New Roman;font-size:14px;">-{{ tvodPurchase.TotalDiscount }}</td>                    
+              </tr>
+            {% elseif tvodPurchase.isUnusedCreditAvailable == 1 %}
+              <tr>
+                  <td colspan="3" align="right" style="font-family:Times New Roman;font-size:14px;">{{ tvodPurchase.Discription }}</td>
+                  <td style="font-family:Times New Roman;font-size:14px;">-{{ tvodPurchase.TotalUnusedCredit }}</td>                    
+              </tr>
+
+            {% elseif tvodPurchase.isBundleDiscountAvailable == 1 %}
+              <tr>
+                  {# <td colspan="3" align="right" style="font-family:Times New Roman;font-size:14px;">{{ tvodPurchase.bundleName }}</td>
+                  <td style="font-family:Times New Roman;font-size:14px;">-{{ tvodPurchase.bundleDiscountAmount }}</td> #}
+              </tr>
+            
+            {% else %}
+              <tr>
+                  <td style="font-family:Times New Roman;font-size:14px;">{{ tvodPurchase.packageName }}</td>
+                  <td style="font-family:Times New Roman;font-size:14px;">{{ tvodPurchase.packageStatus }}</td>
+                  <td style="font-family:Times New Roman;font-size:14px;">{{ tvodPurchase.paymentStatus }}</td>
+                  <td style="font-family:Times New Roman;font-size:14px;">${{ tvodPurchase.packageActualAmount }}</td>                    
+              </tr>
+            {% endif %}
+         	
+          {% endfor %}
+          {% set TotalTVODAmo = purchasedSummaryData.TVODTotalPaybleAmount %}
+          
+            <tr>
+              <td colspan="4" align="right" style="font-family:Times New Roman;font-size:14px;">Sub Total</td>
+              <td style="font-family:Times New Roman;font-size:14px;">${{ TotalTVODAmo|number_format(2) }}</td>                    
+            </tr>
+          
+         {% endif %}
+        {% endif %}
+              
+              
+        {% set grandTotal = 0 %}
+        {% set netPaidBy = 0 %}
+        {% set totalRefund = 0 %}
+        
+        {% set grandTotal = purchasedSummaryData.PurchaseOrderNetPaidAmount %}
+        
+        {% if purchasedSummaryData.ServiceNetRefundedAmount == purchasedSummaryData.PurchaseOrderNetRefundedAmount %}
+        
+        	{% set totalRefund = purchasedSummaryData.PurchaseOrderNetRefundedAmount %}
+        {% endif %}
+        
+        {% set netPaidBy = grandTotal - totalRefund %}
+        {% if purchasedSummaryData.discountCouponPercentage > 0 %}
+            <tr>
+                <td colspan="4" style="font-family:Times New Roman;font-size:14px;" align="right">{{purchasedSummaryData.discountCouponPercentage}}% Discount</td>
+                <td style="font-family:Times New Roman;font-size:14px;">- ${{ purchasedSummaryData.discountCouponAmount|number_format(2) }}</td>
+            </tr>
+        {% endif %}
+        {% if purchasedSummaryData.TotalBundleDiscount > 0 %}
+          <tr>
+              <td colspan="4" align="right" style="font-family:Times New Roman;font-size:14px;"><i>{{ purchasedSummaryData.BundleName }}</i></td>
+              <td style="font-family:Times New Roman;font-size:14px;"><i> - ${{ purchasedSummaryData.TotalBundleDiscount|number_format(2) }}</i></td>
+          </tr>                         
+        {% endif %}
+        <tr>
+            <td colspan="4" align="right" style="font-family:Times New Roman;font-size:14px;">Grand Total</td>
+            <td style="font-family:Times New Roman;font-size:14px;">${{ grandTotal|number_format(2) }}</td>                    
+        </tr>
+        
+        {% if totalRefund > 0 %}
+        <tr>
+            <td colspan="5" style="font-family:Times New Roman;font-size:14px;">Refunded Payment Summary</td>                                        
+        </tr>
+        <tr>
+            <td colspan="4" align="right" style="font-family:Times New Roman;font-size:14px;">This amount refunded in your selected payment option account.</td>
+            <td style="font-family:Times New Roman;font-size:14px;">${{ totalRefund|number_format(2) }}</td>                    
+        </tr>
+        {% endif %}
+              
+	</table>
+{% endif %}
+<br/>
+<span style="font-family:Times New Roman;font-size:14px;">Thank you,</span>
+<br /><br />
+<span style="font-family:Times New Roman;font-size:14px;">The {{companyname}} Team</span>

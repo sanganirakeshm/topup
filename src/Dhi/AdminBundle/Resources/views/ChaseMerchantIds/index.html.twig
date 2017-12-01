@@ -1,0 +1,185 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block body %}	
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+         <div class="delBoxCont"></div>
+         <section class="content-header">
+              <h1>Chase Merchant Id's</h1>
+            </section>
+            <section class="content">	
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="box box-success">
+                            <form method="get" id="searchService">
+                                <div class="box-body">
+                                    <div class="form-group col-md-4">                                                       
+                                        <div class="row">
+                                            <div class="col-sm-12" id="merchantId">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-4">                                                       
+                                        <div class="row">
+                                            <div class="col-sm-12" id="status">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>		
+                <div class="box box-success">
+                    <div class="box-body">
+		                <div class="row">
+                 		    <div class="col-xs-12">  
+                                {% if admin_permission.checkPermission('chase_merchant_ids_create') %}
+                                   <div class="addNewBtnsGrp">
+                                        <a href="{{ path('dhi_admin_service_location_wise_chase_merchant_id_list') }}" class="btn btn-success pull-right margin-top5">Assigned Chase Merchant IDs</a>
+                                        <a href="{{ path('dhi_admin_chase_merchant_ids_new') }}" class="btn btn-success pull-right margin-top5">Add Merchant Id</a>
+                                   </div>
+                                {% endif %}
+    			                <table id="ChaseMerchantId" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Merchant<br/>Name</th>
+                                            <th>Merchant Id</th>
+                                            <th>Is Default</th>
+                                            <th>Created By</th>
+                                            <th width="120">Created At</th>
+                                            <th width="120">Updated At</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>        
+            </section>	                    
+{% endblock body %}
+{% block javascripts %}
+    
+    {{ parent() }}
+
+   <script type="text/javascript">
+        
+        $(document).ready(function () {
+          
+            deleteAjaxSource = '{{ path('dhi_admin_chase_merchant_ids_set_default') }}';
+            activeInactiveAjaxSource = '{{ path('dhi_admin_chase_merchant_ids_active_inactive') }}';
+            dTable = $('#ChaseMerchantId').dataTable({
+               
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_chase_merchant_ids_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_dashboard') }}";
+                                }
+                        }
+                    } );
+        		},
+                aoColumns: [
+                    {"sName": "MerchantName", "bSearchable": false, "bSortable": true},
+                    {"sName": "MerchantId", "bSearchable": true, "bSortable": true},
+                    {"sName": "IsDefault", "bSearchable": false, "bSortable": true},
+                    {"sName": "CreatedAt", "bSearchable": false, "bSortable": true},
+                    {"sName": "CreatedBy", "bSearchable": false, "bSortable": true},
+                    {"sName": "UpdatedAt","bSearchable": false,"bSortable": true},
+                    {"sName": "IsActive","bSearchable": true,"bSortable": true},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false}
+                ],
+                aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+                            var actionFlag = row[7].split('^');
+                            var dataId = actionFlag[0];        
+                            var editFlag = actionFlag[1];
+                            var isActiveFlag = actionFlag[2];
+                            var activeInactiveFlag = actionFlag[3];
+                            var headTitle = "Set Chase Merchant Id as Default";
+                            var msg = 'Are you sure you want to set this merchant id as default?';
+                                                    
+                            var returnData = "<table><tr>";
+                            {% if admin_permission.checkPermission('chase_merchant_ids_update') %}
+                                 
+                                var activeStatus = 'Enable';
+                                var activeInactiveVal = 1;
+                                if(row[6] == 'Enabled')
+                                {
+                                    activeStatus = 'Disable';
+                                    activeInactiveVal = 0;
+                                }
+                                
+                                if(row[2] == 'No' && activeInactiveFlag == 0)
+                                {
+                                    returnData +='<td><a href="javascript:void(0);" class="btn btn-success" title="' + activeStatus + '" onclick="return activeInactiverecord(' + dataId + ',' + "'" + activeInactiveVal + "'" + ',' + "'" + activeInactiveAjaxSource + "'" +','+ "'" + activeStatus + " this chase MID'" +','+"'Are you sure you want to "+ activeStatus +" this chase MID? '"+')">' + activeStatus + '</a></td>';
+                                }
+                                    
+                                if(editFlag == 0){
+                                    var editUrl = '{{ path('dhi_admin_chase_merchant_ids_edit', {'id': 'chase_merchantids_id'}) }}';
+                                    var editChaseMarchantId = editUrl.replace("chase_merchantids_id", dataId);
+                                    returnData +='<td><a href="'+editChaseMarchantId+'" class="btn btn-success" title="Edit"> Edit</a></td>';
+                                }
+                                if(row[2] == 'No' && row[6] == 'Enabled'){
+                                    var activeInactiveUrl = '{{ path('dhi_admin_chase_merchant_ids_set_default', {'id': 'chase_merchantids_id'}) }}';
+                                    var finalactiveInactiveUrl = activeInactiveUrl.replace("chase_merchantids_id", dataId);
+                                    returnData +='<td><a href="javascript:void(0);" class="btn btn-success" title="Set Default" onclick="return deleterecord(' + dataId + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" +')">Set As Default</a></td>';
+                                }
+                            {% endif %}
+                            
+                            returnData += "</tr></table>";
+
+                            return returnData;
+                        },
+                        "aTargets": [7]
+                    }
+                ],
+                aaSorting: [[7, 'desc']]
+            });
+             $('#ChaseMerchantId').dataTable().columnFilter({
+                aoColumns: [
+                    null,
+                    {type: "text", sSelector: "#merchantId"},
+                    null,
+                    null,
+                    null,
+                    null,
+                    {type: "select", sSelector: "#status", values: ['Enable','Disable']},
+                ]
+        });
+        
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+        $("#status select").val("Enable").change();
+        });
+    </script>
+    
+{% endblock javascripts %}

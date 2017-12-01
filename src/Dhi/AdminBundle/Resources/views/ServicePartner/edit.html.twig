@@ -1,0 +1,198 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block body %}
+	<section class="content-header">
+		<h1>Edit ISP Service Partner</h1>
+	</section>
+	<section class="content">
+    	<div class="box box-success">
+            <form action="{{ path('dhi_admin_service_partner_edit', { id : servicePartner.id}) }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="edit_partner_form" novalidate>
+				<div class="box-body form-group-section">	
+                <div class="form-group col-sm-12 col-md-4 col-lg-4">
+                    <label class="control-label">Partner Name: </label>
+                    <div>
+                        {{ form_widget(form.name, {'attr':{'placeholder':'Partner Name','class':'form-control'}})}}
+                        <div class="serverError">{{ form_errors(form.name) }}</div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12 col-md-8 col-lg-8" style="height:auto;">
+                    <label class="control-label">Description: </label>
+                    <div>
+                        {{ form_widget(form.description, { 'attr': { 'placeholder': 'Description', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.description) }}</div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">POC Name: </label>
+                    <div>
+                        {{ form_widget(form.pocName, { 'attr': { 'placeholder': 'POC Name', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.pocName) }}</div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">POC Email: </label>
+                    <div>
+                        {{ form_widget(form.pocEmail, { 'attr': { 'placeholder': 'POC Email Address', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.pocEmail) }}</div>
+                        <label id="ajaxEmailMsg"></label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label">POC Phone: </label>
+                    <div>
+                        {{ form_widget(form.pocPhone, { 'attr': { 'placeholder': 'POC Phone Number', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.pocPhone) }}</div>
+                    </div>
+                </div>
+                
+                
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Status: </label>
+                    <div>
+                        {{ form_widget(form.status, { 'attr': { 'placeholder': 'Active', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.status) }}</div>
+                    </div>
+                </div>
+               
+                <div class="form-group col-sm-12 col-md-8 col-lg-8">
+                    <label class="control-label">Reason: </label>
+                    <div>
+                        <textarea name="reason" class="form-control valid" id="reason" placeholder="Enter reason"></textarea>
+                        <label id="reason-error" class="error" for="reason"></label>
+                    </div>
+                </div>
+                <input type="checkbox" id="chdShowCredentials" name="chdShowCredentials">Show Credentials
+                    <div class="clearfix"></div>
+                    <div class="credentials">
+                        <div class="form-group col-sm-4">
+                            <label class="control-label">Username: </label>
+                            <div>
+                                {{ form_widget(form.username, { 'attr': { 'placeholder': 'Enter username', 'class': 'form-control', 'readonly': 'true'}}) }}
+                                <div class="serverError">{{ form_errors(form.username) }}</div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label">Password: </label>
+                            <div>
+                                {{ form_widget(form.password, { 'attr': { 'placeholder': 'Enter password', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form.password) }}</div>
+                            </div>
+                        </div>
+                    </div>    
+                    </div>
+			<div class="box-footer">		
+                {{ form_rest(form) }}
+                <div class=" col-sm-6 edit-btn-bx">
+                    <input type="submit" name="edit" value="Update" class="btn btn-success"/>
+                    <a href="{{ path('dhi_admin_service_partner_list') }}" class="btn btn-default">Back</a>
+                </div>
+			</div>	
+            </form>
+		</div>
+	</section>	
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('bundles/dhiuser/js/commonFunction.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#edit_partner_form').validate({
+                rules: {
+                    "dhi_admin_service_partner[pocEmail]": {
+                        "email": true
+                    },
+                    "dhi_admin_service_partner[name]": {
+                        "required": true,
+                        "remote": {
+                            url: "{{ path("dhi_admin_service_partner_check_name") }}",
+                            type: "post",
+                            data:{
+                                action:'edit',
+                                id: {{ id }}
+                            }
+                        }
+                    },
+                    "dhi_admin_service_partner[status]": {
+                        "required": true
+                    },
+                    "reason": {
+                       "required": true,
+                       "maxlength": 255
+                    },
+                    "dhi_admin_service_partner[username]": {
+                        "required": '#chdShowCredentials:checked',
+                        "remote": {
+                            url: "{{ path("dhi_admin_check_service_partner_username") }}",
+                            type: "post",
+                            data:{
+                                action:'edit'
+                            }
+                        }
+                    },
+                    "dhi_admin_service_partner[password]": {
+                        "required": function(element){
+                            return $("#dhi_admin_service_partner_username").val()=="";
+                        }
+                    },
+                    "dhi_admin_service_partner[pocPhone]":{
+                        number:true
+                    }    
+
+                },
+                messages: {
+                    "dhi_admin_service_partner[pocEmail]": {
+                        "email": "Please enter valid email"
+                    },
+                    "dhi_admin_service_partner[name]" : {
+                         "required" : "Please enter partner name",
+                         "remote": "The partner name is already exists."
+                    },
+                    "dhi_admin_service_partner[status]": {
+                        "required": "Please select status"
+                    },
+                    "reason": {
+                        "required": "Please enter reason",
+                        "maxlength": "Reason can have maximum 255 characters"
+                    },
+                    "dhi_admin_service_partner[username]": {
+                        "required": "Please enter username",
+                        "remote": "The username is already exists."
+                    },
+                    "dhi_admin_service_partner[password]": {
+                        "required": "Please enter password"
+                    },
+                    "dhi_admin_service_partner[pocPhone]":{
+                        "number": "Please enter valid phone number"
+                    }
+                }
+            });
+            
+            var username = $("#dhi_admin_service_partner_username").val();
+            if(username != null && username != "")
+            {
+                $("#chdShowCredentials").prop('checked',true);
+            }else{
+                $(".credentials").hide();
+                $("#dhi_admin_service_partner_username").prop("readonly",false);
+                $("#chdShowCredentials").prop('checked',false);
+            }
+            
+            $("#chdShowCredentials").click(function (){
+                var isHide = $(".credentials").is(":hidden")
+                if(isHide){
+                    $(".credentials").show();
+                }
+                else{
+                    $(".credentials").hide();
+                    $("#dhi_admin_service_partner_password").val("");
+                }
+            });
+            {% if errorMsg is  defined %}
+                var msg = "{{ errorMsg }}";
+                $("#reason").val("{{reasonValue}}");
+                $("#reason-error").html(msg);
+            {% endif %}
+            
+        });
+    </script>
+{% endblock javascripts %}

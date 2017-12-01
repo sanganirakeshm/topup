@@ -1,0 +1,88 @@
+{% block title %}
+    <title>&nbsp;</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('bundles/dhiuser/images/dhi-favicon.png') }}" />
+{% endblock title %}    
+{% block stylesheets %}
+    <link href="{{ asset('bundles/dhiuser/css/pdf.css') }}" rel="stylesheet">
+{% endblock stylesheets %}        
+{% block body %}
+        <img src="{{ img }}"/>
+	<h1>User Login Log</h1>  
+	{% if userLoginLog|length > 0 %}
+	<table class="purchase_table" style="width:100%;" cellspacing="0" cellpadding="5">
+		<tr>
+			<th>Id</th>
+			<th>Name</th>
+                        <th>Ip Address</th>
+			<th>Serivce Location</th>
+			<th>Active Services</th>
+			<th>Available Services</th>
+			<th>Country</th>
+			<th>LogInTime</th>
+		</tr>
+		{% for log in userLoginLog %}
+			
+			<tr class="">
+                            
+				<td>{{ log.id }}</td>
+				<td>{{ log.name }}</td>
+				<td>{{ log.ip }}</td>
+				<td>{{ log.location|raw }}</td>
+				<td>{{ log.activeService|raw }}</td>
+				<td>{{ log.availableServices|raw }}</td>
+				<td>{{ log.country }}</td>
+				<td>{{ log.loginDate }}</td>
+                       </tr>
+			
+		{% endfor %}	
+	</table>
+	{% endif %}
+	
+{% endblock body %}
+{% block javascripts %}
+<script src="{{ asset('bundles/dhiuser/js/jquery-2.1.1.min.js') }}"></script>
+<script type="text/javascript">
+   {#window.print();
+   window.location.href = "{{ path('dhi_admin_purchase_history',app.request.query.all) }}";#}
+{#   (function() {
+    var beforePrint = function() {
+        console.log('Functionality to run before printing.');
+    };
+    
+    var beforeUnload = function() {
+        console.log('Functionality to run before printing.');
+    };
+    
+    var afterPrint = function() {
+        window.close();
+    };
+
+    if (window.matchMedia) {
+        var mediaQueryList = window.matchMedia('print');
+        mediaQueryList.addListener(function(mql) {
+            if (!mql.matches) {
+                if(navigator.userAgent.toLowerCase().indexOf('chrome') > -1){
+                    window.location.href = "{{ path('dhi_admin_purchase_history',app.request.query.all) }}";
+                        
+                }else{
+                    afterPrint();
+                }
+                
+            } else {
+                beforePrint();
+            }
+        });
+    }
+
+    window.onbeforeprint = beforePrint;
+    window.onafterprint = afterPrint;
+    window.onbeforeunload = beforeUnload;
+}());    
+window.print();#}
+var document_focus = false; // var we use to monitor document focused status.
+    // Now our event handlers.
+            //$(document).focus(function() { document_focus = true; });
+    $(document).ready(function() {window.print();document_focus = true; });
+    setInterval(function() { if (document_focus === true) { window.close(); }  }, 100);  
+</script>
+{% endblock javascripts %}

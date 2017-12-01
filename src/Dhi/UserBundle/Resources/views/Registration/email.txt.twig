@@ -1,0 +1,24 @@
+{% trans_default_domain 'FOSUserBundle' %}
+{% set brand = app.session.get('brand') %}
+    {% set brandName = '' %}
+    {% set brandDomain = '' %}
+    {% set supportfacebookurl = '' %}
+    {% if brand %}
+        {% set brandName = brand.name %}
+        {% set brandDomain = brand.domain %}
+        {% set supportfacebookurl = brand.supportpage %}
+    {% endif %}
+     {% set sitehost =  app.request.getScheme() ~ '://' ~ brandDomain ~ '/support' %}
+{% block subject %}
+{% autoescape false %}
+    
+{#{{ 'registration.email.subject'|trans({'%name%': user.name, '%confirmationUrl%': confirmationUrl}) }}#}
+Welcome {{user.name }} to {{brandName}}!
+{% endautoescape %}
+{% endblock %}
+{% block body_text %}
+{% autoescape false %}
+{{ 'registration.email.message'|trans({'%name%': user.name, '%confirmationUrl%': confirmationUrl, '%facebookUrl%': supportfacebookurl, '%supportUrl%': sitehost, '%siteName%': brandName}) }}
+{% endautoescape %}
+{% endblock %}
+{% block body_html %}{% endblock %}

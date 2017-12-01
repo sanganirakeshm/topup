@@ -1,0 +1,55 @@
+dhi_tvod_purchaseverification:
+    path:     /tvod/purchaseverification
+    defaults: {_controller: DhiTvodBundle:Service:purchaseverification}
+
+dhi_tvod_payment_process_confirm_detail:
+    path:     /tvod/tvod-confirm-payment-detail/{step}
+    defaults: { _controller: DhiTvodBundle:ConfirmOrder:confirmPaymentDetail,step:null }
+
+dhi_tvod_service_plan:
+    path:     /tvod/tvod-package/{service}/{userId}
+    defaults: { _controller: DhiTvodBundle:Service:package, service:null, userId:null}
+
+dhi_tvod_do_payment_process:
+    path:     /tvod/tvod-do-payment-process/{userId}
+    defaults: { _controller: DhiTvodBundle:ConfirmOrder:doPaymentProcess, userId:null }
+
+dhi_tvod_paymentby_expresscheckout:
+    path:     /tvod/tvod-paypalexpresscheckout/{userId}
+    defaults: { _controller: DhiTvodBundle:Paypal:paypalexpresscheckout, userId:null }
+
+dhi_tvod_paymentby_dodirect:
+    path:     /tvod/tvod-dodirect-process
+    defaults: { _controller: DhiTvodBundle:Paypal:dodirectProcess }
+
+dhi_tvod_paymentconfirm:
+    path:     /tvod/tvod-paypal/tvod-paymentconfirm
+    defaults: { _controller: DhiTvodBundle:Paypal:paymentconfirm }
+
+dhi_tvod_paymentcancel:
+    path:     /tvod/tvod-paymentcancel
+    defaults: { _controller: DhiTvodBundle:Service:paymentCancel}
+
+dhi_tvod_purchase_order_confirm:
+    path:     /tvod/purchase-order-comfirmation/{userId}
+    defaults: { _controller: DhiTvodBundle:Service:orderComfirmation, id:null }
+
+dhi_tvod_active_by_credit:
+    path:     /tvod/tvod-proceed-activation
+    defaults: { _controller: DhiTvodBundle:Service:activateFreePlan }
+
+dhi_tvod_return_url:
+    path:     /tvod/tvod-return
+    defaults: { _controller: DhiTvodBundle:Service:purchaseFailAlert }
+
+dhi_tvod_chase_order_confirm:
+    path:     /tvod/chase-confirm-order/{userId}
+    defaults: { _controller: DhiTvodBundle:ChasePayment:doDirectProfilePayment, userId:null }
+
+dhi_tvod_apply_promo_code:
+    path:     /tvod/apply-promo-code/{userId}
+    defaults: { _controller: DhiTvodBundle:InAppPromoCode:applyPromoCode, userId:null }
+
+dhi_tvod_ajax_remove_discount:
+    path:     /tvod/remove-promo-code/{userId}
+    defaults: { _controller: DhiTvodBundle:InAppPromoCode:removePromoCode, userId:null }

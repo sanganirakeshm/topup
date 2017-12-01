@@ -1,0 +1,10 @@
+parameters:
+#    dhi_isppartner.example.class: Dhi\IsppartnerBundle\Example
+
+services:
+#    dhi_isppartner.example:
+#        class: %dhi_isppartner.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
+    app.form_login_authenticator:
+        class: DhiIsppartnerBundle\Security\FormLoginAuthenticator
+        arguments: ["@service_container"]

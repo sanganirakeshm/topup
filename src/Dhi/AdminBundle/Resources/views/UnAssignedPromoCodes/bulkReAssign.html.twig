@@ -1,0 +1,833 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+
+    <style type="text/css">
+        .ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }
+    </style>
+{% endblock stylesheets %}
+{% block body %}
+	<section class="content-header"><h1>ReAssign Promo Code</h1></section>
+	<section class="content">
+		<div class="">
+			<div class="box box-success">
+				<div class="box-body form-group-section">
+					{% set promoCodes = '' %}
+					{% if oldBusinessPromoCode is defined and oldBusinessPromoCode is not empty %}
+						<div class="col-md-12"><b>Business Promo Code(s):</b></div>
+						{% set i = 1 %}
+						{% for promocode in oldBusinessPromoCode %}
+							<div class="col-md-3">
+								<label class="control-label">{{i}}) </label> {{ promocode.code }}
+							</div>
+							{% set i = i + 1 %}
+							{% set promoCodes = promoCodes~' <input type="hidden" value="business~'~promocode.id~'" name="promoIds[]" />' %}
+						{% endfor %}
+					{% endif %}
+					{% if oldPartnerPromoCode is defined and oldPartnerPromoCode is not empty %}
+						<div class="col-md-12"><b>Partner Promo Code(s):</b></div>
+						{% set i = 1 %}
+						{% for promocode in oldPartnerPromoCode %}
+							<div class="col-md-3">
+								<label class="control-label">{{i}}) </label> {{ promocode.code }}
+							</div>
+							{% set i = i + 1 %}
+							{% set promoCodes = promoCodes~' <input type="hidden" value="partner~'~promocode.id~'" name="promoIds[]" />' %}
+						{% endfor %}
+					{% endif %}
+					{% if oldCustomerPromoCode is defined and oldCustomerPromoCode is not empty %}
+						<div class="col-md-12"><b>Customer Promo Code(s):</b></div>
+						{% set i = 1 %}
+						{% for promocode in oldCustomerPromoCode %}
+							<div class="col-md-3">
+								<label class="control-label">{{i}}) </label> {{ promocode.promoCode }}
+							</div>
+							{% set promoCodes = promoCodes~' <input type="hidden" value="customer~'~promocode.id~'" name="promoIds[]" />' %}
+							{% set i = i + 1 %}
+						{% endfor %}
+					{% endif %}
+				</div>
+			</div>
+			<div class="panel-group" id="promocode-accordion">
+				
+				<!-- Customer -->
+				<div class="panel panel-default">
+		            <div class="panel-heading">
+		            	<h4 class="panel-title">
+		                    <a data-toggle="collapse" data-parent="#promocode-accordion" href="#tabCustomer">Customer Promo Code</a>
+		                </h4>			                
+		            </div>
+		            <div id="tabCustomer" class="panel-collapse collapse in">
+		            	<div class="panel-body">
+		            		<div class="box-body">
+		            			<form action="{{ path('dhi_admin_unassigned_bulk_promo_codes_reassign') }}" method="POST" {{ form_enctype(form) }} id="dhi_admin_customer_promo_code" class="form-horizontal" novalidate>
+		            				{{ promoCodes|raw }}
+									<div class="col-xs-12">
+										<div class="form-group col-md-3 col-sm-12">
+											<label class="control-label">Service Location: </label>
+											{{ form_widget(form.serviceLocations, { 'attr': { 'placeholder': 'Service Location', 'class': 'form-control'}}) }}
+											<div class="serverError">{{ form_errors(form.serviceLocations) }}</div>
+											<label id="dhi_admin_customer_promo_code_serviceLocations-error" class="error" for="dhi_admin_customer_promo_code_serviceLocations"></label>
+										</div>
+										<div class="form-group col-md-3 col-sm-12">
+											<label class="control-label">Service: </label>
+											<div>
+												{{ form_widget(form.service, { 'attr': { 'placeholder': 'Service', 'class': 'form-control'}}) }}
+												<div class="serverError">{{ form_errors(form.service) }}</div>
+												<label id="dhi_admin_customer_promo_code_service-error" class="error" for="dhi_admin_customer_promo_code_service"></label>
+											</div>
+										</div>
+										<div class="form-group col-md-6 col-sm-12" id="promoPackage"  style="display:none;" >
+											<label class="control-label">Package Type: </label>
+											{{ form_widget(form.packageId, { 'attr': { 'placeholder': 'Package Type', 'class': 'form-control',}}) }}
+											<div class="serverError">{{ form_errors(form.packageId) }}</div>
+										</div>
+									</div>
+									<div class="col-xs-12">
+										<div class="form-group col-md-3 col-sm-12">
+							                <label class="control-label">Expiration Date: </label>
+							                <div>
+							                    {{ form_widget(form.expiredAt, { 'attr': { 'placeholder': 'Expiration Date' , 'class': 'form-control cls-datepicker', 'readonly':'readonly'}}) }}
+							                    <div class="serverError">{{ form_errors(form.expiredAt) }}</div>
+							                </div>
+							            </div>
+							            <div class="form-group col-md-3 col-sm-12">
+											<label class="control-label">Duration: </label>
+											<div>
+												{{ form_widget(form.duration, { 'attr': { 'placeholder': 'Enter duration in hours', 'class': 'form-control'}}) }}
+												<div class="serverError">{{ form_errors(form.duration) }}</div>
+											</div>
+										</div>
+										<div class="form-group col-md-3 col-sm-12">
+											<label class="control-label">Status: </label>
+											<div>
+												{{ form_widget(form.status, { 'attr': { 'placeholder': 'Select Status', 'class': 'form-control'}}) }}
+												<div class="serverError">{{ form_errors(form.status) }}</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-12">
+										<div class="form-group col-md-6 col-sm-12" >
+							                <label class="control-label">Note: </label>
+							                <div>
+							                    {{ form_widget(form.note, { 'attr': { 'placeholder': 'Enter note', 'class': 'form-control'}}) }}
+							                    <div class="serverError">{{ form_errors(form.note) }}</div>
+							                </div>
+							            </div>
+									</div>
+						            <div class="form-group col-md-12 col-sm-12" >
+						            	<div class="form-group col-md-6 col-sm-12" >
+											<input type="submit" class="btn btn-success" name="Reassign" value="Reassign To Customer Promo Code"/>
+											<a href="{{ path('dhi_admin_unassigned_promo_codes_view') }}" class="btn btn-default">Back</a>
+										</div>
+									</div>
+									{{ form_rest(form) }}
+								</form>
+		            		</div>
+		            	</div>
+		            </div>
+	            </div>
+
+	            <!-- Partner -->
+	            {#<div class="panel panel-default">
+		            <div class="panel-heading">
+		            	<h4 class="panel-title">
+		                    <a data-toggle="collapse" data-parent="#promocode-accordion" href="#tabPartner">Partner Promo Code</a>
+		                </h4>			                
+		            </div>
+		            <div id="tabPartner" class="panel-collapse collapse">
+		            	<div class="panel-body">
+		            		<div class="box-body">
+			                    <form action="{{ path('dhi_admin_unassigned_bulk_promo_codes_reassign') }}" method="POST" {{ form_enctype(partnerBatchForm) }}{{ form_enctype(partnerForm) }} id="dhi_admin_partner_promo_codes_reassign" class="form-horizontal" novalidate>
+			                    	{{ promoCodes|raw }}
+			                        <div class="col-xs-12">
+			                            <div class="form-group col-xs-4">
+			                                <label class="control-label">Select Partner: </label>
+			                                {{ form_widget(partnerBatchForm.partner, { 'attr': { 'placeholder': 'Service Location', 'class': 'form-control'}}) }}
+			                                <div class="serverError">{{ form_errors(partnerBatchForm.partner) }}</div>
+			                                <label id="dhi_admin_partner_promo_code_batch_partner-error" class="error" for="dhi_admin_partner_promo_code_batch_partner"></label>
+			                            </div>
+			                            <div class="form-group col-xs-4">
+			                                <label class="control-label">Service Location: </label>
+			                                {{ form_widget(partnerForm.serviceLocations, { 'attr': { 'placeholder': 'Service Location', 'class': 'form-control'}}) }}
+			                                <div class="serverError">{{ form_errors(partnerForm.serviceLocations) }}</div>
+			                                <label id="dhi_admin_unassigned_partner_promo_code_serviceLocations-error" class="error" for="dhi_admin_unassigned_partner_promo_code_serviceLocations"></label>
+			                            </div>    
+			                        </div>
+			                        <div class="col-xs-12">
+			                            <div class="form-group col-sm-4">
+			                                <label class="control-label">Select Package: </label>
+			                                <div>
+			                                    {{ form_widget(partnerForm.packageId, { 'attr': { 'placeholder': 'Select Package', 'class': 'form-control'}}) }}
+			                                    <div class="serverError">{{ form_errors(partnerForm.packageId) }}</div>
+			                                    <label id="dhi_admin_unassigned_partner_promo_code_packageId-error" class="error" for="dhi_admin_unassigned_partner_promo_code_packageId"></label>
+			                                </div>
+			                            </div>
+			                            <div class="form-group col-xs-4">
+			                                <label class="control-label">Duration (Hours): </label>
+			                                {{ form_widget(partnerForm.duration, { 'attr': { 'placeholder': 'Enter duration', 'class': 'form-control'}}) }}
+			                                <div class="serverError">{{ form_errors(partnerForm.duration) }}</div>
+			                                <label id="dhi_admin_partner_promo_code_duration-error" class="error" for="dhi_admin_partner_promo_code_duration"></label>
+			                            </div>
+			                            <div class="form-group col-sm-4">
+			                                <label class="control-label">Expiry Date: </label>
+			                                <div class="row">
+			                                    <div class="col-lg-7">
+			                                        {{ form_widget(partnerForm.expirydate, { 'attr': { 'placeholder': 'Select expiry date', 'class': 'form-control cls-datepicker'}}) }}
+			                                        <div class="serverError">{{ form_errors(partnerForm.expirydate) }}</div>
+			                                        <label id="dhi_admin_unassigned_partner_promo_code_expirydate-error" class="error" for="dhi_admin_unassigned_partner_promo_code_expirydate"></label>
+			                                    </div>
+			                                    <div class="col-lg-5">
+			                                        <label><input type="checkbox" name="chkNeverExpire" id="chkNeverExpire">Never Expire</label>
+			                                    </div>
+			                                </div>
+			                            </div>
+			                        </div>
+
+			                        <div class="col-xs-12">
+			                            <div class="form-group col-xs-4">
+			                                <label class="control-label">Partner Value: </label>
+			                                {{ form_widget(partnerForm.partnerValue, { 'attr': { 'placeholder': 'Enter partner value', 'class': 'form-control'}}) }}
+			                                <div class="serverError">{{ form_errors(partnerForm.partnerValue) }}</div>
+			                                <label id="dhi_admin_partner_promo_code_partnerValue-error" class="error" for="dhi_admin_partner_promo_code_partnerValue"></label>
+			                            </div>
+			                            <div class="form-group col-xs-4">
+			                                <label class="control-label">Customer Value: </label>
+			                                {{ form_widget(partnerForm.customerValue, { 'attr': { 'placeholder': 'Enter customer value', 'class': 'form-control'}}) }}
+			                                <div class="serverError">{{ form_errors(partnerForm.customerValue) }}</div>
+			                                <label id="dhi_admin_partner_promo_code_customerValue-error" class="error" for="dhi_admin_partner_promo_code_customerValue"></label>
+			                            </div>   
+			                        </div>          
+
+			                        <div class="col-xs-12">
+			                            <div class="form-group col-xs-4">
+			                                <label class="control-label">Status: </label>
+			                                {{ form_widget(partnerForm.status, { 'attr': { 'placeholder': '', 'class': 'form-control'}}) }}
+			                                <div class="serverError">{{ form_errors(partnerForm.status) }}</div>
+			                                <label id="dhi_admin_partner_promo_code_status-error" class="error" for="dhi_admin_partner_promo_code_status"></label>
+			                            </div>
+			                            <div class="form-group col-xs-4">
+			                                <label class="control-label">Reason: </label>
+			                                {{ form_widget(partnerBatchForm.reason, { 'attr': { 'placeholder': 'Enter reason', 'class': 'form-control'}}) }}
+			                                <div class="serverError">{{ form_errors(partnerBatchForm.reason) }}</div>
+			                                <label id="dhi_admin_partner_promo_code_batch_reason-error" class="error" for="dhi_admin_partner_promo_code_batch_reason"></label>
+			                            </div>
+			                            <div class="form-group col-xs-4">
+			                                <label class="control-label">Note: </label>
+			                                {{ form_widget(partnerBatchForm.note, { 'attr': { 'placeholder': 'Enter note', 'class': 'form-control'}}) }}
+			                                <div class="serverError">{{ form_errors(partnerBatchForm.note) }}</div>
+			                                <label id="dhi_admin_partner_promo_code_batch_note-error" class="error" for="dhi_admin_partner_promo_code_batch_note"></label>
+			                            </div>
+			                        </div>
+			                        {{ form_rest(partnerBatchForm) }}
+			                        {{ form_rest(partnerForm) }}
+			                        <div class="col-sm-12">
+			                            <div class="col-sm-6">
+			                                <input type="submit" class="btn btn-success" name="reassign" value="Assign To Partner Promo Code"/>
+			                                <a href="{{ path('dhi_admin_unassigned_promo_codes_view') }}" class="btn btn-default">Back</a>
+			                            </div>
+			                        </div>
+			                    </form>
+			                </div>
+		            	</div>
+		            </div>
+	            </div>#}
+
+	            <!-- Business -->
+	            <div class="panel panel-default">
+		            <div class="panel-heading">
+		            	<h4 class="panel-title">
+		                    <a data-toggle="collapse" data-parent="#promocode-accordion" href="#tabBusiness">Business Promo Code</a>
+		                </h4>			                
+		            </div>
+		            <div id="tabBusiness" class="panel-collapse collapse">
+		            	<div class="panel-body">
+		            		<div class="box-body">
+		            			<form action="{{ path('dhi_admin_unassigned_bulk_promo_codes_reassign') }}" method="POST" {{ form_enctype(businessBatchForm) }}{{ form_enctype(businessForm) }} id="dhi_admin_business_promo_codes_reassign" class="form-horizontal" novalidate>
+		            				{{ promoCodes|raw }}
+				                    <div class="col-xs-12">
+				                        <div class="form-group col-xs-4">
+				                            <label class="control-label">Select Business: </label>
+				                            {{ form_widget(businessBatchForm.business, { 'attr': { 'placeholder': 'Service Location', 'class': 'form-control'}}) }}
+				                            <div class="serverError">{{ form_errors(businessBatchForm.business) }}</div>
+				                            <label id="dhi_admin_promo_code_business-error" class="error" for="dhi_admin_promo_code_business"></label>
+				                        </div>
+				                        <div class="form-group col-xs-4">
+				                            <label class="control-label">Service Location: </label>
+				                            {{ form_widget(businessForm.serviceLocations, { 'attr': { 'placeholder': 'Service Location', 'class': 'form-control'}}) }}
+				                            <div class="serverError">{{ form_errors(businessForm.serviceLocations) }}</div>
+				                            <label id="dhi_admin_unassigned_business_promo_code-error" class="error" for="dhi_admin_unassigned_business_promo_code"></label>
+				                        </div>  
+				                        <div class="form-group col-xs-4">
+				                            <label class="control-label">Service: </label>
+				                            {{ form_widget(businessForm.service, { 'attr': { 'placeholder': 'Service', 'class': 'form-control'}}) }}
+				                            <div class="serverError">{{ form_errors(businessForm.service) }}</div>
+				                            <label id="dhi_admin_promo_code_service-error" class="error" for="dhi_admin_promo_code_service"></label>
+				                        </div>
+				                    </div>
+				                    <div class="col-xs-12">
+				                        <div class="form-group col-sm-4">
+				                            <label class="control-label">Select Package: </label>
+				                            <div>
+				                                {{ form_widget(businessForm.packageId, { 'attr': { 'placeholder': 'Select Package', 'class': 'form-control'}}) }}
+				                                <div class="serverError">{{ form_errors(businessForm.packageId) }}</div>
+				                                <label id="dhi_admin_promo_code_service-error" class="error" for="dhi_admin_promo_code_service"></label>
+				                            </div>
+				                        </div>
+				                        <div class="form-group col-xs-4">
+				                            <label class="control-label">Duration (Hours): </label>
+				                            {{ form_widget(businessForm.duration, { 'attr': { 'placeholder': 'Enter duration', 'class': 'form-control'}}) }}
+				                            <div class="serverError">{{ form_errors(businessForm.duration) }}</div>
+				                            <label id="dhi_admin_unassigned_business_promo_code-error" class="error" for="dhi_admin_unassigned_business_promo_code"></label>
+				                        </div>
+				                        <div class="form-group col-sm-4">
+				                            <label class="control-label">Expiry Date: </label>
+				                            <div class="row">
+				                                <div class="col-lg-7">
+				                                    {{ form_widget(businessForm.expirydate, { 'attr': { 'placeholder': 'Select expiry date', 'class': 'cls-datepicker form-control', 'readonly':'readonly'}}) }}
+				                                    <div class="serverError">{{ form_errors(businessForm.expirydate) }}</div>
+				                                    <label id="dhi_admin_promo_code_service-error" class="error" for="dhi_admin_promo_code_service"></label>
+				                                </div>
+				                                <div class="col-lg-5">
+				                                    <label><input type="checkbox" name="chkNeverExpire" id="chkBusinessNeverExpire">Never Expire</label>
+				                                </div>
+				                            </div>
+				                        </div>
+				                    </div>
+				                    <div class="col-xs-12">
+				                        <div class="form-group col-xs-4">
+				                            <label class="control-label">Business Value: </label>
+				                            {{ form_widget(businessForm.businessValue, { 'attr': { 'placeholder': 'Enter business value', 'class': 'form-control'}}) }}
+				                            <div class="serverError">{{ form_errors(businessForm.businessValue) }}</div>
+				                            <label id="dhi_admin_unassigned_business_promo_code-error" class="error" for="dhi_admin_unassigned_business_promo_code"></label>
+				                        </div>
+				                        <div class="form-group col-xs-4">
+				                            <label class="control-label">Customer Value: </label>
+				                            {{ form_widget(businessForm.customerValue, { 'attr': { 'placeholder': 'Enter customer value', 'class': 'form-control'}}) }}
+				                            <div class="serverError">{{ form_errors(businessForm.customerValue) }}</div>
+				                            <label id="dhi_admin_unassigned_business_promo_code-error" class="error" for="dhi_admin_unassigned_business_promo_code"></label>
+				                        </div>
+				                        <div class="form-group col-xs-4">
+				                            <label class="control-label">Status: </label>
+				                            {{ form_widget(businessForm.status, { 'attr': { 'placeholder': '', 'class': 'form-control'}}) }}
+				                            <div class="serverError">{{ form_errors(businessForm.status) }}</div>
+				                            <label id="dhi_admin_unassigned_business_promo_code-error" class="error" for="dhi_admin_unassigned_business_promo_code"></label>
+				                        </div>
+				                    </div>
+				                    <div class="col-xs-12">
+				                        <div class="form-group col-xs-4">
+				                            <label class="control-label">Reason: </label>
+				                            {{ form_widget(businessBatchForm.reason, { 'attr': { 'placeholder': 'Enter reason', 'class': 'form-control'}}) }}
+				                            <div class="serverError">{{ form_errors(businessBatchForm.reason) }}</div>
+				                            <label id="dhi_admin_unassigned_business_promo_code-error" class="error" for="dhi_admin_promo_code_reason"></label>
+				                        </div>
+				                        <div class="form-group col-xs-4">
+				                            <label class="control-label">Note: </label>
+				                            {{ form_widget(businessBatchForm.note, { 'attr': { 'placeholder': 'Enter note', 'class': 'form-control'}}) }}
+				                            <div class="serverError">{{ form_errors(businessBatchForm.note) }}</div>
+				                            <label id="dhi_admin_unassigned_business_promo_code-error" class="error" for="dhi_admin_promo_code_note"></label>
+				                        </div>
+				                    </div>
+		                            {{ form_rest(businessBatchForm) }}
+				                    {{ form_rest(businessForm) }}
+				                    <div class="col-sm-12">
+				                        <div class="col-sm-6">
+				                            <input type="submit" class="btn btn-success" name="reassign" value="Reassign To Business Promo Code"/>
+				                            <a href="{{ path('dhi_admin_unassigned_promo_codes_view') }}" class="btn btn-default">Back</a>
+				                        </div>
+				                    </div>
+				            	</form>
+			                </div>
+	            		</div>
+            		</div>
+            	</div>
+
+			</div>
+		</div>
+	</section>
+	<div id="ajax-loader-bx" style="display:none;">
+		<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+		<div id="loader-text">Please wait....</div>
+	</div>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+    	$(document).ready(function() {
+
+    		// Customer Promo Code Start
+    		$("#dhi_admin_customer_promo_code").validate({
+                ignore: [],
+                rules: {
+                	"dhi_admin_customer_promo_code[serviceLocations]":  {
+                        "required": true
+                    },
+                	"dhi_admin_customer_promo_code[service]": {
+                        "required": true
+                    },
+                    "dhi_admin_customer_promo_code[packageId]": {
+                        "required": true
+                    },
+                    "dhi_admin_customer_promo_code[promocode]": {
+                        "required": false
+                    },
+                    "dhi_admin_customer_promo_code[note]":{
+                        "required": true,
+                        "maxlength": 255
+                    },
+					"dhi_admin_customer_promo_code[expiredAt]":{
+                        "required": true
+                    },
+					"dhi_admin_customer_promo_code[duration]":{
+						"required": true,
+						"digits": true,
+						"min": 1
+					},
+					"dhi_admin_customer_promo_code[status]":{
+						  "required": true
+					}
+                },
+                messages: {
+					"dhi_admin_customer_promo_code[serviceLocations]": {
+                        "required": "Please select a service location."
+                    },
+                	"dhi_admin_customer_promo_code[service]": {
+                        "required": "Please select a service."
+                    },
+                    "dhi_admin_customer_promo_code[packageId]": {
+                        "required": "Please select package."
+                    },
+                    "dhi_admin_customer_promo_code[note]": {
+                        "required": "Please enter note.",
+                         "maxlength": "Note can have maximum 255 characters."
+                    },
+                    "dhi_admin_customer_promo_code[expiredAt]": {
+                        "required": "Please enter expiry date."
+                    },
+					"dhi_admin_customer_promo_code[duration]":{
+						"required":  "Please enter duration.",
+						"digits": "please enter only digits.",
+						"min": "please enter duration."
+					},
+					"dhi_admin_customer_promo_code[status]":{
+						 "required": "Please select status."
+					}
+
+                }
+            });
+
+            $('.cls-datepicker').datepicker({
+				dateFormat: 'mm-dd-yy',
+                readOnly: true,
+                minDate: 0
+            });
+            $(".cls-datepicker").datepicker().datepicker("setDate", new Date());
+
+			$('#dhi_admin_customer_promo_code_serviceLocations').change(function() {
+				var locationId = $('#dhi_admin_customer_promo_code_serviceLocations').val();
+				$.ajax({
+					type: "POST",
+					url: "{{ path('dhi_admin_get_promo_service') }}",
+					data: {locationId:locationId},
+					beforeSend: function( xhr ) {
+						$('#ajax-loader-bx').show();
+					},
+					success:function(result){
+						$('#dhi_admin_customer_promo_code_service').empty();
+						var s= document.getElementById('dhi_admin_customer_promo_code_service');
+						s.options[0]= new Option('Select', '');
+						$.each(result,function(key,value){
+							var pkgId = key;
+							var pkgName = value;
+							$("#dhi_admin_customer_promo_code_service").append('<option value="' + key + '">'  +   value + '</option>');
+						});						
+						$('#ajax-loader-bx').hide();
+					}
+				});
+			}).change();
+
+			$('#dhi_admin_customer_promo_code_serviceLocations,#dhi_admin_customer_promo_code_service').change(function() {
+				var serviceId = $('#dhi_admin_customer_promo_code_service').val();
+				var locationId = $('#dhi_admin_customer_promo_code_serviceLocations').val();
+				if(serviceId != 0 && locationId ) {
+					$('#promoPackage').show();
+					$.ajax({
+						type: "POST",
+						url: "{{ path('dhi_admin_get_promo_package') }}",
+						data: { serviceId:serviceId,locationId:locationId},
+						beforeSend: function( xhr ) {
+							$('#ajax-loader-bx').show();
+						},
+						success:function(result){
+							$('#dhi_admin_customer_promo_code_packageId').empty();
+							$.each(result,function(key,value){
+								if(value.packageId) {
+									var pkgId = value.packageId;
+									if(value.packageType == "ISP"){
+										var validityCap = "";
+										if (value.isHourlyPlan) {
+											validityCap = "Hour(s)";
+										}else{
+											validityCap = "Day(s)";
+										}
+
+										var pkgName = value.validity + " " + validityCap + " - "+ value.packageName + " plan (up to " + value.bandwidth + "kbps) ";
+									}else{
+										var pkgName = value.packageName;
+									}
+									var pkgamunt  = value.amount;
+								} else if(value.bundle_id) {
+									var pkgId = value.bundle_id;
+									var pkgName = value.description;
+									var pkgamunt  =value.amount;
+								}
+								var s= document.getElementById('dhi_admin_customer_promo_code_packageId');
+								s.options[key]= new Option(pkgName+' - $'+pkgamunt, pkgId);
+							});
+							$('#ajax-loader-bx').hide();
+						}
+					});
+				} else {
+					$('#promoPackage').hide();
+				}
+			});
+            // Customer Promo Code End
+
+            // Partner Promo Code
+            $.validator.addMethod("valueRegex", function(value, element) {
+                var isValidMoney = /^\d{0,4}(\.\d{0,2})?$/.test(value);
+                return this.optional(element) || isValidMoney;
+            }, "Please enter valid value");
+            
+            $("#dhi_admin_partner_promo_codes_reassign").validate({
+                rules: {
+                    "dhi_admin_unassigned_partner_promo_code[serviceLocations]": {
+                        "required": true
+                    },
+                    "dhi_admin_partner_promo_code_batch[partner]": {
+                        "required": true
+                    },
+                    "dhi_admin_partner_promo_code_batch[noOfCodes]": {
+                        "required": true,
+                        "digits": true,
+                        "min": 1
+                    },
+                    "dhi_admin_partner_promo_code_batch[reason]": {
+                        "required": true,
+                        "maxlength": 255
+                    },
+                    "dhi_admin_partner_promo_code_batch[note]": {
+                        "required": true,
+                        "maxlength": 255
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[packageId]": {
+                        "required": true
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[duration]": {
+                        "required": true,
+                        'digits': true,
+                        "min": 1
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[expirydate]": {
+                        "required": true
+                    },
+                    "dhi_admin_partner_promo_code_batch[batchName]": {
+                        "required": true,
+                        "rangelength": [4, 4]
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[partnerValue]": {
+                        "required": true,
+                        "number": true,
+                        "min": 0,
+                        "valueRegex": true
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[customerValue]": {
+                        "required": true,
+                        "number": true,
+                        "min": 0,
+                        "valueRegex": true
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[status]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_admin_unassigned_partner_promo_code[serviceLocations]": {
+                        "required": "Please select a service location."
+                    },
+                    "dhi_admin_partner_promo_code_batch[partner]": {
+                        "required": "Please select a partner."
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[packageId]": {
+                        "required": "Please select a package."
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[duration]": {
+                        "required": "Please enter duration.",
+                        "digits": "Please enter valid duration",
+                        "min": "Please enter a value greater than or equal to 1."
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[expirydate]": {
+                        "required": "Please select expiry date."
+                    },
+                    "dhi_admin_partner_promo_code_batch[noOfCodes]": {
+                        "required": "Please enter number of codes you want to generate.",
+                        "digits": "Please enter valid number of code.",
+                        "min": "Please enter a value greater than or equal to 1."
+                    },
+                    "dhi_admin_partner_promo_code_batch[reason]": {
+                        "required": "Please enter reason.",
+                        "maxlength": "Reason can have maximum 255 characters"
+                    },
+                    "dhi_admin_partner_promo_code_batch[note]": {
+                        "required": "Please enter note.",
+                        "maxlength": "Note can have maximum 255 characters"
+                    },
+                    "dhi_admin_partner_promo_code_batch[batchName]": {
+                        "required": "Please enter batch prefix.",
+                        "rangelength": "Please enter must be 4 character value"
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[partnerValue]": {
+                        "required": "Please enter partner value.",
+                        "min": "Please enter a value greater than or equal to 0.",
+                        "number": "Please enter valid partner value",
+                        "valueRegex": "Please enter valid partner value (Ex: xxxx.xx)"
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[customerValue]": {
+                        "required": "Please enter customer value.",
+                        "min": "Please enter a value greater than or equal to 0.",
+                        "number": "Please enter valid customer value",
+                        "valueRegex": "Please enter valid customer value (Ex: xxxx.xx)"
+                    },
+                    "dhi_admin_unassigned_partner_promo_code[status]": {
+                        "required": "Please select a status"
+                    }
+                }
+            });
+            
+            $("#chkNeverExpire").click(function (){
+                var isDisabled = $("#dhi_admin_unassigned_partner_promo_code_expirydate").prop('disabled');
+                if(isDisabled){
+                    $("#dhi_admin_unassigned_partner_promo_code_expirydate").prop("disabled", false);
+                }
+                else{
+                    $("#dhi_admin_unassigned_partner_promo_code_expirydate").prop("disabled", true);
+                }
+                    
+            });
+            
+            $('#dhi_admin_unassigned_partner_promo_code_serviceLocations, #dhi_admin_partner_promo_code_batch_partner').change(function () {
+                var locationId = $('#dhi_admin_unassigned_partner_promo_code_serviceLocations').val();
+                var partnerId = $('#dhi_admin_partner_promo_code_batch_partner').val();
+
+                var serviceLocation = $('#dhi_admin_unassigned_partner_promo_code_serviceLocations option:selected').text();
+                $.ajax({
+                    type: "POST",
+                    url: "{{ path('dhi_admin_get_partner_promo_code_package') }}",
+                    data: {locationId: locationId, partnerId: partnerId},
+                    beforeSend: function (xhr) {
+
+                        $('#ajax-loader-bx').show();
+                    },
+                    success: function (result) {
+                        $('#dhi_admin_unassigned_partner_promo_code_packageId').empty();
+                        var s = document.getElementById('dhi_admin_unassigned_partner_promo_code_packageId');
+                        var cnt = 0;
+                        s.options[cnt] = new Option('Select', '');
+                        cnt++;
+                        $.each(result, function (key, value) {
+                            s.options[cnt] = new Option(value, parseInt(key));
+                            cnt++;
+                        });
+                        
+                        $('#ajax-loader-bx').hide();
+                    }
+                });
+            }).change();
+
+            // Business Promo Code
+            $("#dhi_admin_business_promo_codes_reassign").validate({
+                rules: {
+                    "dhi_admin_unassigned_business_promo_code[serviceLocations]": {
+                        "required": true
+                    },
+                    "dhi_admin_business_promo_code_batch[business]": {
+                        "required": true
+                    },
+                    "dhi_admin_unassigned_business_promo_code[service]": {
+                        "required": true
+                    },
+                    "dhi_admin_business_promo_code_batch[noOfCodes]": {
+                        "required": true,
+                        "number": true
+                    },
+                    "dhi_admin_business_promo_code_batch[reason]": {
+                        "required": true,
+                        "maxlength": 255
+                    },
+                     "dhi_admin_business_promo_code_batch[note]": {
+                        "required": true,
+                        "maxlength": 255
+                    },
+                    "dhi_admin_unassigned_business_promo_code[packageId]": {
+                        "required": true
+                    },
+                    "dhi_admin_unassigned_business_promo_code[duration]": {
+                        "required": true,
+                        'number': true,
+                        "min": 1
+                    },
+                    "dhi_admin_unassigned_business_promo_code[expirydate]": {
+                        "required": true
+                    },
+                    "dhi_admin_business_promo_code_batch[batchName]": {
+                        "required": true,
+                        "rangelength": [4, 4]
+                    },
+                    "dhi_admin_unassigned_business_promo_code[businessValue]": {
+                        "required": true,
+                        "number": true,
+                        "min": 0,
+                        "valueRegex": true
+                    },
+                    "dhi_admin_unassigned_business_promo_code[customerValue]": {
+                        "required": true,
+                        "number": true,
+                        "min": 0,
+                        "valueRegex": true
+                    },
+                    "dhi_admin_unassigned_business_promo_code[status]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_admin_unassigned_business_promo_code[serviceLocations]": {
+                        "required": "Please select a service location."
+                    },
+                    "dhi_admin_business_promo_code_batch[business]": {
+                        "required": "Please select a business."
+                    },
+                    "dhi_admin_unassigned_business_promo_code[service]": {
+                        "required": "Please select a service."
+                    },
+                    "dhi_admin_unassigned_business_promo_code[packageId]": {
+                        "required": "Please select a package."
+                    },
+                    "dhi_admin_unassigned_business_promo_code[duration]": {
+                        "required": "Please enter duration.",
+                        "number": "Please enter valid duration.",
+                        "min": "Please enter duration."
+                    },
+                    "dhi_admin_unassigned_business_promo_code[expirydate]": {
+                        "required": "Please select expiry date."
+                    },
+                    "dhi_admin_business_promo_code_batch[noOfCodes]": {
+                        "required": "Please enter number of codes you want to generate.",
+                        "number": "Please enter valid number of code."
+                    },
+                    "dhi_admin_business_promo_code_batch[reason]": {
+                        "required": "Please enter reason.",
+                        "maxlength": "Reason can have maximum 255 characters."
+                    },
+                    "dhi_admin_business_promo_code_batch[note]": {
+                        "required": "Please enter note.",
+                        "maxlength": "Note can have maximum 255 characters."
+                    },
+                    "dhi_admin_business_promo_code_batch[batchName]": {
+                        "required": "Please enter batch prefix.",
+                        "rangelength": "Please enter must be 4 character value"
+                    },
+                    "dhi_admin_unassigned_business_promo_code[businessValue]": {
+                        "required": "Please enter business value.",
+                        "min": "Please enter a value greater than or equal to 0.",
+                        "number": "Please enter valid business value.",
+                        "valueRegex": "Please enter valid business value (Ex: xxxx.xx)."
+                    },
+                    "dhi_admin_unassigned_business_promo_code[customerValue]": {
+                        "required": "Please enter customer value.",
+                        "min": "Please enter a value greater than or equal to 0.",
+                        "number": "Please enter valid customer value.",
+                        "valueRegex": "Please enter valid customer value (Ex: xxxx.xx)."
+                    },
+                    "dhi_admin_unassigned_business_promo_code[status]": {
+                        "required": "Please select a status."
+                    }
+                }
+            });
+
+			$("#chkBusinessNeverExpire").click(function (){
+                var isDisabled = $("#dhi_admin_unassigned_business_promo_code_expirydate").prop('disabled');
+                if(isDisabled){
+                    $("#dhi_admin_unassigned_business_promo_code_expirydate").prop("disabled", false);
+                }
+                else{
+                    $("#dhi_admin_unassigned_business_promo_code_expirydate").prop("disabled", true);
+                }
+            });
+
+            $('#dhi_admin_unassigned_business_promo_code_serviceLocations, #dhi_admin_business_promo_code_batch_business').change(function () {
+                var locationId = $('#dhi_admin_unassigned_business_promo_code_serviceLocations').val();
+                var businessId = $('#dhi_admin_business_promo_code_batch_business').val();
+
+                var serviceLocation = $('#dhi_admin_unassigned_business_promo_code_serviceLocations option:selected').text();
+                $('#hdnServicePrefix').val(serviceLocation);
+                $.ajax({
+                    type: "POST",
+                    url: "{{ path('dhi_admin_get_business_promo_code_service') }}",
+                    data: {locationId: locationId, businessId: businessId},
+                    beforeSend: function (xhr) {
+
+                        $('#ajax-loader-bx').show();
+                    },
+                    success: function (result) {
+                        $('#dhi_admin_unassigned_business_promo_code_service').empty();
+                        var s = document.getElementById('dhi_admin_unassigned_business_promo_code_service');
+                        var cnt = 0;
+                        s.options[cnt] = new Option('Select Service', '');
+                        cnt++;
+                        $.each(result, function (key, value) {
+                            s.options[cnt] = new Option(value, parseInt(key));
+                            cnt++;
+                        });
+                        
+                        $('#ajax-loader-bx').hide();
+                    }
+                });
+            }).change();
+
+            $('#dhi_admin_unassigned_business_promo_code_serviceLocations, #dhi_admin_unassigned_business_promo_code_service').change(function () {
+                var locationId = $('#dhi_admin_unassigned_business_promo_code_serviceLocations').val();
+                var serviceId = $('#dhi_admin_unassigned_business_promo_code_service').val();
+
+                var serviceLocation = $('#dhi_admin_unassigned_business_promo_code_serviceLocations option:selected').text();
+                $('#hdnServicePrefix').val(serviceLocation);
+                $.ajax({
+                    type: "POST",
+                    url: "{{ path('dhi_admin_get_business_promo_code_package') }}",
+                    data: {locationId: locationId, serviceId: serviceId},
+                    beforeSend: function (xhr) {
+                        $('#ajax-loader-bx').show();
+                    },
+                    success: function (result) {
+                        $('#dhi_admin_unassigned_business_promo_code_packageId').empty();
+                        var s = document.getElementById('dhi_admin_unassigned_business_promo_code_packageId');
+                        var cnt = 0;
+                        s.options[cnt] = new Option('Select', '');
+                        cnt++;
+                        $.each(result, function (key, value) {
+                            s.options[cnt] = new Option(value, parseInt(key));
+                            cnt++;
+                        });
+                        
+                        $('#ajax-loader-bx').hide();
+                    }
+                });
+            }).change();
+
+    	});
+    	$('#promocode-accordion').on('show.bs.collapse', function () {
+            $('#promocode-accordion .in').collapse('hide');
+        });
+    </script>
+{% endblock javascripts %}

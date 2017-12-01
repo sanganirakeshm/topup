@@ -1,0 +1,106 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block body %}
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+	<div class="delBoxCont"></div>		
+    <section class="content-header">
+        <h1>Import Tikilive Promo Code</h1>
+    </section>
+    <section class="content">	
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <div class="addNewBtnsGrp" style="margin-top: 10px;">
+                      <a href="{{ path('dhi_admin_tikilive_promo_code_download_sample') }}" class="btn btn-success">Download Sample CSV file</a>
+                    </div>
+                    <form action="{{ path('dhi_admin_tikilive_promo_code_import') }}" method="POST" {{ form_enctype(form_code) }} id="add_tikilive_promo_code" class="form-horizontal" novalidate>
+                        <div class="box-body">
+                            <div class="col-xs-12">
+                                
+                                <div class="form-group col-xs-5">
+                                    <label class="control-label">Batch Prefix:</label>
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <input type="text" class="form-control" name="txtRandomChar" id="txtRandomChar" readonly="true" value={{ randBatchNameCode }}>
+                                        </div>
+                                        <div class="col-xs-5">
+                                            {{ form_widget(form_code.batchName, { 'attr': { 'placeholder': 'Enter batch prefix', 'class': 'form-control', 'maxlength': '4'}}) }}
+                                            <div class="serverError">{{ form_errors(form_code.batchName) }}</div>
+                                            <label id="dhi_admin_tikilive_promo_code-error" class="error" for="dhi_admin_tikilive_promo_code_batchName"></label>
+                                        </div>
+                                        <div class="col-xs-4">
+                                           <input type="text" class="form-control" name="txtdateprefix" id="txtdateprefix" readonly="true" value={{'now'| date("mdY") }}>
+                                         </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group col-xs-6"> 
+                                    <label class="control-label">Select CSV File To Import: </label>
+                                    {{ form_widget(form_code.csvFile, { 'attr': { 'placeholder': 'Service Location', 'class': ''}}) }}
+                                    <div class="serverError">{{ form_errors(form_code.csvFile) }}</div>
+                                    <label id="dhi_admin_tikilive_promo_code_csvFile-error" class="error" for="dhi_admin_tikilive_promo_code_csvFile"></label>
+                                </div>
+                            </div>
+                            {{ form_rest(form_code) }}
+                        </div>
+                       
+                        <div class="box-footer" style="clear:both;">
+                            <div class="col-sm-12">
+                                <div class="col-sm-6">
+                                    <input type="submit" class="btn btn-success" name="add" id="btnImport" value="Import"/>
+                                    <a href="{{ path('dhi_admin_tikilive_promo_code_list') }}" class="btn btn-default">Back</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiadmin/js/additional-methods.min.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            jQuery.validator.addMethod("regex_name", function(value, element, regexpr) {
+                return regexpr.test(value);
+            }, "Please enter valid batch prefix");
+            jQuery.validator.addMethod("exactlength", function(value, element, param) {
+             return this.optional(element) || value.length == param;
+            }, $.validator.format("You need to enter 4 charcter for batch prefix"));
+
+            $("#add_tikilive_promo_code").validate({
+                rules: {
+                    "dhi_admin_tikilive_promo_code[batchName]": {
+                        "required": true,
+                        "regex_name": /^[A-Za-z0-9]+$/,
+                        "exactlength": 4
+                        
+                    },
+                   "dhi_admin_tikilive_promo_code[csvFile]": {
+                        "required": true,
+                        "extension": "csv"
+                    }
+                },
+                messages: {
+                    "dhi_admin_tikilive_promo_code[batchName]": {
+                        "required": "Please enter Batch prefix"
+                    },
+                    "dhi_admin_tikilive_promo_code[csvFile]": {
+                        "required": "Please select CSV file",
+                        "extension": "Only CSV file is allowed"
+                    }
+                }
+            })
+            $('#btnImport').click(function(e){
+                $("#ajax-loader-bx").show();
+            });
+        });
+    </script>
+    
+{% endblock javascripts %}

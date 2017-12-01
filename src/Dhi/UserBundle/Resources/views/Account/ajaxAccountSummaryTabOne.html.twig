@@ -1,0 +1,100 @@
+{% block body %}
+	{% set subTotalIPTV = 0 %}
+	{% set subTotalISP = 0 %}
+
+	<div class="accountAddedPkg">
+		{# IPTV Purchased plans #}
+		{% if 'IPTV' in summaryData.AvailableServicesOnLocation  or 'BUNDLE' in summaryData.AvailableServicesOnLocation %}
+			<h6>ExchangeVUE Service</h6>
+			{% if summaryData.IsIPTVAvailabledInPurchased == 1 %}
+                           {% set expirationData = null %}
+			    <div class="addedServiceTitle">Package <label>Price</label></div>
+				{% if summaryData.Purchased.IPTV.RegularPack %}
+					{% for iptvPackage in summaryData.Purchased.IPTV.RegularPack %}
+                                             {% set expirationData = iptvPackage.expiryDate %}
+						<div class="fildblk">
+							<div class="addedServicePkgName">{{ iptvPackage.packageName }} <label>${{ iptvPackage.amount }}</label></div>
+						</div>
+						{% set subTotalIPTV = subTotalIPTV + iptvPackage.amount %}
+					{% endfor %}
+                                        {% if summaryData.IsAddOnAvailabledInPurchased == 1 %}
+						<div class="addedServiceTitle">Premium Package <label>Price</label></div>
+
+						{% for addOnPackage in summaryData.Purchased.IPTV.AddOnPack %}
+							<div class="fildblk">
+								<div class="addedServicePkgName">{{ addOnPackage.packageName }} <label>${{ addOnPackage.amount }}</label></div>
+							</div>
+							{% set subTotalIPTV = subTotalIPTV + addOnPackage.amount %}
+						{% endfor %}
+					{% endif %}
+	    			<div class="addedServicePkgTotal">ExchangeVUE Subtotal <label>${{ subTotalIPTV|number_format(2) }} </label></div>
+                                <div class="addedServicePkgTotal">Service Location <label>{{ summaryData.Purchased.IPTV.RegularPack[0].serviceLocation }} </label></div>
+                                {% if expirationData %}
+                                      <div class="addedServicePkgTotalExpiryDate">Expires on <label>{{ expirationData|date('M-d-Y H:i:s') }} </label></div>
+                                {% endif %}
+				{% endif %}
+			{% else %}
+				<div class="fildblk text-center">
+					<span>No package found</span>
+				</div>
+			{% endif %}
+		{% endif %}
+
+	    {# ISP Purchased plans #}
+	    {% if 'ISP' in summaryData.AvailableServicesOnLocation or 'BUNDLE' in summaryData.AvailableServicesOnLocation %}
+	    	<h6>Internet Service</h6>
+	    	{% if summaryData.IsISPAvailabledInPurchased == 1 %}
+                    {% set expirationData = null %}
+	    		<div class="addedServiceTitle">Package <label>Price</label></div>
+	    		{% if summaryData.Purchased.ISP.RegularPack %}
+                            {% for ispPackage in summaryData.Purchased.ISP.RegularPack %}
+                                 {% if ispPackage.expiryDate %}
+	                               	{% if ispPackage.isPlanActive == 1 %}
+	                                 	{% set expirationData = ispPackage.expiryDate|date('M-d-Y H:i:s') %}
+	                                {% else %}
+																		{% set expirationData = "Not Logged in" %}
+	                                {% endif %}
+                                 {% endif %}
+                            		{% if ispPackage.validityType == "HOURS" %}
+																	{% set validityCaps = "Hour(s)" %}
+																{% else %}
+																	{% set validityCaps = "Day(s)" %}
+																{% endif %}
+                                <div class="addedServicePkgName">
+                                     {% if ispPackage.bandwidth >= 1024%}
+                                        {% set mbbandwidth = ispPackage.bandwidth/1024%}
+                                        {{ ispPackage.packageName~' - '~mbbandwidth~'MB - '~ispPackage.validity~' '~validityCaps }} 
+                                    {% else %}
+                                       {{ ispPackage.packageName~' - '~ispPackage.bandwidth~'k - '~ispPackage.validity~' '~validityCaps }} 
+                                    {% endif %} 
+                                    
+                                    <label>${{ ispPackage.amount }}</label>
+                                </div>
+                                    {% set subTotalISP = subTotalISP + ispPackage.amount %}
+                            {% endfor %}
+                            <div class="addedServicePkgTotal">Internet Subtotal <label>${{ subTotalISP|number_format(2) }} </label></div>
+                            <div class="addedServicePkgTotal">Service Location <label>{{ summaryData.Purchased.ISP.RegularPack[0].serviceLocation }} </label></div>
+                            {% if expirationData %}
+                                  <div class="addedServicePkgTotalExpiryDate">Expires on <label>{{ expirationData }} </label></div>
+                            {% endif %}
+			{% endif %}
+		    {% else %}
+				<div class="fildblk text-center">
+					<span>No package found</span>
+				</div>
+	    	{% endif %}
+	    {% endif %}
+	    
+	    <h5>Order Summary</h5>
+	    {% if 'IPTV' in summaryData.AvailableServicesOnLocation and 'ISP' in summaryData.AvailableServicesOnLocation %}
+	    	{% if summaryData.IsBundleAvailabledInPurchased == 1 %}
+	    		{% if summaryData.Purchased.BUNDLE.RegularPack %}
+	    			{% for bundlePack in summaryData.Purchased.BUNDLE.RegularPack %}
+	    				<div class="addedServicePkgTotal">{{ bundlePack.bundleName }} <label>${{ bundlePack.bundleDiscountAmount|number_format(2) }}</label></div>
+					{% endfor %}
+	    		{% endif %}	
+	    	{% endif %}
+	    {% endif %}
+	    <div class="accountTotal">Current total <label>${{ summaryData.TotalPurchasedAmount|number_format(2) }}</label></div>
+	</div>
+{% endblock body %}

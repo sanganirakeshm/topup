@@ -1,0 +1,83 @@
+{% block body %}
+	{% if isDeersAuthenticated == 2 and (IsIPTVAvailabledInCart == 1 or IsIPTVAvailabledInPurchased == 1 or IsBundleAvailabledInCart == 1)and IsDeersRequiredPlanAdded == 1 %}
+            <div class="continueBtn">
+            	<span class="newRedText">*Requires DEERS Authentication</span>
+            	<a class="btnDeersSignIn newRedbtn" title="Sign in to Authenticate">Sign in to Authenticate</a>
+            	<a href="javascript:void(0);" title="{{ checkoutLabel }}" class="btn-disabled" id="btn-continue">{{ checkoutLabel }}</a>
+            </div>
+	{% else %}
+		{% if emailVerifiedForNextPurchase == true and (IsIPTVAvailabledInCart == 1 or IsISPAvailabledInCart == 1 or IsBundleAvailabledInCart == 1 or IsAddOnAvailabledInCart == 1) %}
+    		<div class="continueBtn">
+                {% if IsCreditAvailabledInCart == 0 %}
+                    {% if (bundlePlanCount > 0 or IsBundleAvailabledInCart == 1) and 'BUNDLE' in AvailableServicesOnLocation and checkoutLabel != 'Extend' and screen != 2 %}
+                		<span style="display:none" class="deersbtn newRedText">*Requires DEERS Authentication</span>
+                		<a style="display:none" class="deersbtn btnDeersSignIn newRedbtn" title="Sign in to Authenticate">Sign in to Authenticate</a>
+                    	<a href="javascript:void(0);" id="checkcontinue" onclick="bundlecheckout('{{ CartISPPackageId | first}}')" title="{{checkoutLabel}}">{{checkoutLabel}} </a>
+                    {% else %}
+                    	<span style="display:none" class="deersbtn newRedText">*Requires DEERS Authentication</span>
+                    	<a style="display:none" class="deersbtn btnDeersSignIn newRedbtn" title="Sign in to Authenticate">Sign in to Authenticate</a>
+						<a href="javascript:void(0);" onclick="checkout()" title="{{checkoutLabel}}">{{checkoutLabel}} </a>
+                    {% endif %}
+            	{% else %}
+                	<a href="javascript:void(0);" title="{{ checkoutLabel }}" class="btn-disabled" id="btn-continue">{{ checkoutLabel }}</a>
+            	{% endif %}
+			</div>
+    	{% endif %}
+	{% endif %}
+{% endblock body %}
+
+{% block javascripts %} 
+    <script type="text/javascript">
+		$(document).ready(function() {
+			{% if emailVerifiedForNextPurchase == false %}
+				$("#btn-continue").attr("title", "You need to verify your email address for upgrade plan.");
+				$('#btn-continue').poshytip({
+					className: 'tip-twitter',
+					showTimeout: 1,
+					alignTo: 'target',
+					alignX: 'center',
+					offsetY: 5,
+					allowTipHover: false,
+					fade: false,
+					slide: false,
+					followCursor: true                		
+				});
+			{% endif %}
+		});
+
+		function checkout()	{
+			{% if isDeersAuthenticated == 2 and (IsIPTVAvailabledInCart == 1 or IsIPTVAvailabledInPurchased == 1 or IsBundleAvailabledInCart == 1)and IsDeersRequiredPlanAdded == 1 %}
+				alertBox("DEERS authentication is required for purchase package.",'','');
+
+			{% else %}
+				{% if IsIPTVAvailabledInPurchased == 1 and IsISPAvailabledInCart == 1 and IsIPTVAvailabledInCart == 0 %}
+	        		alertBox("Please select ExchangeVUE Plan To Upgrade The Plan.",'','');
+	        	{% else %}
+					{% if errorMsg != '' %}
+						alertBox("{{errorMsg}}",'','');
+					{% else %}
+						if ($('#termsUse').prop('checked')){
+							{% if bundlePlanCount > 0 and IsBundleAvailabledInCart == 0 and 'BUNDLE' in AvailableServicesOnLocation %}
+			                    showServicePlan('BUNDLE');
+							{% else %}
+								window.location="{{url('dhi_service_purchaseverification')}}";
+							{% endif %}
+						} else{
+							alertBox('Please accept terms of use.','','');
+						}
+					{% endif %}
+				{% endif %}
+			{% endif %}
+		}
+
+        function bundlecheckout(ISPid){
+        	{% if errorMsg != '' %}
+				alertBox("{{errorMsg}}",'','');
+			{% else %}
+	            if(ISPid != null) {
+	                showBundleIptvPlan(ISPid, 1);
+	            }
+			{% endif %}
+        }
+	</script>
+{% endblock javascripts %}

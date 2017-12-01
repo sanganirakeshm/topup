@@ -1,0 +1,271 @@
+Dhi\UserBundle\Entity\User:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [username]
+            message: 
+    properties:
+#        email:
+#            - Email:
+#                message: The email "{{ value }}" is not a valid email.
+        username:
+            - Length:
+                min: 6
+                minMessage: "Your username must have minimum {{ limit }} characters."
+                max: 32
+                maxMessage: "Your username can have maximum {{ limit }} characters."
+                groups: [Registration]
+            - Regex:
+                pattern: /^[a-z0-9-_!@.\/$]+$/
+                message: "username must have lowecase and contains character, number and special chars like -_!@./$"
+        plainPassword:
+            - Length:
+                min: 8
+                minMessage: "Your password must have minimum {{ limit }} characters."
+                max: 18
+                maxMessage: "Your password can have maximum {{ limit }} characters."
+                groups: [Registration, ResetPassword, ChangePassword]
+            - Regex:
+                pattern: /^[A-Za-z0-9!@#$_]+$/
+                message: "Password can contains characters, numbers and special chars like !@#$_"
+                groups: [Registration, ResetPassword, ChangePassword]
+        firstname:
+           - NotBlank:
+                message: "Please enter first name."
+                groups: [Registration]
+           - Length:
+                min: 3
+                minMessage: "Your firstname must have minimum {{ limit }} characters."
+        lastname:
+           - NotBlank:
+                message: "Please enter last name."
+                groups: [Registration]
+           - Length:
+                min: 3
+                minMessage: "Your lastname must have minimum {{ limit }} characters."
+        address:
+           - NotBlank:
+                message: "Please enter address."
+                groups: [Registration]
+           - Length:
+                min: 3
+                minMessage: "Your address must have minimum {{ limit }} characters."
+        city:
+           - NotBlank:
+                message: "Please enter city."
+                groups: [Registration]
+           - Length:
+                min: 3
+                minMessage: "Your city must have minimum {{ limit }} characters."
+        state:
+           - NotBlank:
+                message: "Please enter state."
+                groups: [Registration]
+           - Length:
+                min: 2
+                minMessage: "Your state must have minimum {{ limit }} characters."
+        zip:
+           - NotBlank:
+                message: "Please enter zip code."
+                groups: [Registration]
+           - Length:
+                min: 5
+                minMessage: "Your zip code must have minimum {{ limit }} characters."
+        country:
+           - NotBlank:
+                message: "Please enter country."
+                groups: [Registration]
+#        phone:
+#            - NotBlank:
+#                message: "Please enter phone number."
+#            - Regex:
+#                pattern: /^[0-9+]+$/
+#                message: "Please enter valid phone number."
+
+Dhi\UserBundle\Entity\EmailCampaign:
+    properties:
+        subject:
+            - NotBlank:
+                message: "Please enter email subject."
+        message:
+            - NotBlank:
+                message: "Please enter email message."
+        emailType:
+            - NotBlank:
+                message: "Please select email type."
+
+Dhi\UserBundle\Entity\CountrywiseService:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [country, services]
+            message: "Service(s) already added for selected country."
+    properties:
+        status:
+            - NotBlank:
+                message: "Please select status."
+
+Dhi\AdminBundle\Entity\IpAddressZone:
+    properties:
+        fromIpAddress:
+           - NotBlank:
+                message: "Please enter IP From."
+           - Ip:
+               message: "Not a valid IP address."
+
+        toIpAddress:
+           - NotBlank:
+                message: "Please enter IP To."
+           - Ip:
+               message: "Not a valid IP address."
+
+Dhi\UserBundle\Entity\Service:
+    properties:
+        name:
+           - NotBlank:
+                message: "Please enter service name."
+        status:
+            - NotBlank:
+                message: "Please select status."
+
+Dhi\UserBundle\Entity\UserServiceSetting:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [user, service]
+            message: "Service already added for selected user."
+
+Dhi\UserBundle\Entity\UserSetting:
+    properties:
+        macAddress:
+            - Length:
+                max: 100
+                maxMessage: "Please enter a value less than or equal to 100.." 
+            - Regex:
+                pattern: /^[0-9+]+$/
+                message: "Please enter valid number."
+
+        maxDailyTransaction:
+            - Length:
+                max: 100
+                maxMessage: "Please enter a value less than or equal to 100.." 
+            - Regex:
+                pattern: /^[0-9+]+$/
+                message: "Please enter valid number."
+
+Dhi\AdminBundle\Entity\GlobalDiscount:
+    properties:
+        minAmount:
+            - NotBlank:
+                message: "Please enter minimum amount."
+            - Regex:
+                pattern: /^[0-9+]+$/
+                message: "Please enter valid number."
+
+        maxAmount:
+            - NotBlank:
+                message: "Please enter maximum amount."
+            - Regex:
+                pattern: /^[0-9+]+$/
+                message: "Please enter valid number."
+
+        percentage:
+            - NotBlank:
+                message: "Please enter percentage."
+            - Regex:
+                pattern: /^[0-9+]+$/
+                message: "Please enter valid number."
+
+Dhi\UserBundle\Entity\UserMacAddress:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [macAddress]
+            message: "Mac address already exists."
+
+    properties:
+        macAddress:
+           - NotBlank:
+                message: "Please enter mac address."
+           - Regex:
+                pattern: /^([0-9A-F]{2}[-]){5}([0-9A-F]{2})$/
+                message: "Please enter valid mac address example: 48-51-B7-F2-67-82"     
+ 
+Dhi\UserBundle\Entity\Group:     
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [name]
+            message: "Group name already exists."
+
+Dhi\UserBundle\Entity\SupportCategory:
+    properties:
+        name:
+            - NotBlank:
+                message: "Please enter categoty."
+        supportsite:
+            - NotBlank:
+                message: "Please select site."
+
+Dhi\UserBundle\Entity\Support:
+    properties:
+        country:
+            - NotBlank:
+                message: "Please select country."
+        location:
+            - NotBlank:
+                message: "Please select location."
+        firstname:
+            - NotBlank:
+                message: "Please enter first name."
+        lastname:
+            - NotBlank:
+                message: "Please enter last name."                
+        email:
+            - NotBlank:
+                message: "Please enter email."
+            - Email:
+                message: "Please enter valid email address."
+        number:
+            - NotBlank:
+                message: "Please enter telephone or mobile number." 
+        category:
+            - NotBlank:
+                message: "Please select support category."
+        supportService:
+             - NotBlank:
+                message: "Please select support service."
+        building:
+            - NotBlank:
+                message: "Please enter Building/LSA."
+        roomNumber:
+            - NotBlank:
+                message: "Please enter room number."
+        time:
+            - NotBlank:
+                message: "Please enter time avilable."
+        message:
+            - NotBlank:
+                message: "Please enter message."
+       
+Dhi\UserBundle\Entity\SolarWindsSupportLocation:
+    properties:
+        supportsite:
+            - NotBlank:
+                message: "Please select site"
+        supportLocation:
+            - NotBlank:
+                message: "Please select support location"
+        solarWindsRequestType:
+            - NotBlank:
+                message: "please select solar winds Request Type"
+        
+Dhi\UserBundle\Entity\SupportLocation:
+    properties:
+        name:
+            - NotBlank:
+                message: "Please enter support location."
+        supportsite:
+            - NotBlank:
+                message: "Please select site."
+                
+Dhi\UserBundle\Entity\SupportService:
+    properties:
+        serviceName:
+            - NotBlank:
+                message: "Please enter service name."

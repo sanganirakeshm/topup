@@ -1,0 +1,199 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+{% endblock stylesheets %}
+
+{% block body %}
+    
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>
+    
+    <section class="content-header">
+        <h1>Tikilive Active User Report</h1>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get">
+                        <div class="box-body">
+                            <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="username"></div></div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="serviceLocation"></div></div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="lastLoginIp"></div></div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="actualCountry"></div></div>
+                            </div>
+                            <div class="form-group col-md-6 pickup-date-control">                                                        
+                                <div class="row"><div class="col-sm-12" id="lastLogin"></div></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">
+
+                        <div class="addNewBtnsGrp col_filter">
+                            <a href="{{ path('dhi_admin_tikilive_promo_code_list') }}" class="btn btn-success pull-right margin-top5">Back</a>
+                            {% if admin_permission.checkPermission('tikilive_active_user_export_csv') %}
+                                <a href="{{ path('dhi_admin_tikilive_active_uset_export_csv',app.request.query.all) }}" class="btn btn-success pull-right export-option margin-top5" id="export_csv" >Export CSV</a>
+                            {% endif %}
+                            <div class="col-md-3 margin-top5 pull-right">
+                                <select class="pull-right cls-export-slot" id="cls-export-slot"></select>
+                                <label class="lbl-error cls-err-slot" style="display:none;">Select Range To Export</label>
+                            </div>
+                        </div>
+                        <table id="tikiliveActiveUserTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Portal/Tikilive <br />Username</th>
+                                    <th>Portal User ISP Plan <br />Purchased Service Location</th>
+                                    <th>Tikilive User Country</th>
+                                    <th>Tikilive System Last Login Date Time</th>
+                                    <th>Tikilive System Last Login IP</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock body %}
+{% block javascripts %}
+
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+   <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $(".export-option").click(function(event) {
+                event.preventDefault();
+                var offset = $("#cls-export-slot").val();
+                if (offset == "NA") {
+                    $(".cls-err-slot").show();
+                }else{
+                    $(".cls-err-slot").hide();
+                    var url = $(this).attr('href'); 
+                        url = url+"?offset="+(Number(offset));
+
+                    if ($(this).attr('target') == "_blank") {
+                        window.open(url, "_blank");
+                    }else{
+                        window.location = url;
+                    }
+                }
+            });
+
+            dTable = $('#tikiliveActiveUserTable').dataTable({
+
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_tikilive_active_uset_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $('#cls-export-slot').empty().val(0);
+                            if (json.exportSlots) {
+                                var s = document.getElementById('cls-export-slot');
+                                s.options[0] = new Option("Select Range To Export", "NA");
+                                var i = 1;
+                                $.each(json.exportSlots, function(index, value) {
+                                    s.options[i] = new Option(value, index);
+                                    i++;
+                                });
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                window.location = "{{ path('dhi_admin_dashboard') }}";
+                            }
+                        }
+                    } );
+		},
+                fnDrawCallback: function () {
+
+                    if (this.fnSettings().fnRecordsTotal() == 0) {
+                        $("#export_csv").addClass('disabled');
+                    } else {
+                        $("#export_csv").removeClass('disabled');
+                    }
+                },
+                aoColumns: [
+                    {"sName": "Username","bSearchable": true,"bSortable": false},
+                    {"sName": "ServiceLocation","bSearchable": true,"bSortable": true},
+                    {"sName": "Country","bSearchable": true,"bSortable": true},
+                    {"sName": "LastLogin","bSearchable": true,"bSortable": true},
+                    {"sName": "LastLoginIp", "bSearchable": true, "bSortable": true},
+                ],
+                aaSorting: [[3, 'desc']]
+            });
+            $('#tikiliveActiveUserTable').dataTable().columnFilter({
+            sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+            aoColumns: [
+                {type: "text", sSelector: "#username"},
+                {type: "select", sSelector: "#serviceLocation", values:  {{serviceLocations|json_encode()|raw }} },
+                {type: "select", sSelector: "#actualCountry", values:  {{arrActualCountry|json_encode()|raw }} },
+                {type: "date-range", sSelector: "#lastLogin"},
+                {type: "text", sSelector: "#lastLoginIp"},
+            ]
+        });
+
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+        
+        $("#lastLogin .date_range_filter:first").change(function(event) {
+            $("#lastLogin .date_range_filter:last").datepicker("option", "minDate", $(this).val());
+        }).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+
+        $("#lastLogin .date_range_filter:last").change(function(event) {
+            $("#lastLogin .date_range_filter:first").datepicker("option", "maxDate", $(this).val());
+        }).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+            }
+        });
+
+        $(".filter_date_range .date_range_filter.hasDatepicker").attr({ readonly: 'true' });
+    });
+</script>
+
+{% endblock javascripts %}

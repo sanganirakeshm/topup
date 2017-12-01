@@ -1,0 +1,138 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <style type="text/css">
+        .ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+<section class="content-header"><h1>Add Banner</h1></section>
+<section class="content">
+	<div class="box box-success">
+		<form action="{{ path('dhi_admin_banner_new') }}" method="POST" {{ form_enctype(form) }} id="add_banner" class="form-horizontal" novalidate>
+		<div class="box-body">	
+			<div class="col-xs-8">
+				<div class="form-group col-sm-8">
+					<label class="control-label">Country: </label>
+					<div>
+						{{ form_widget(form.country, { 'attr': { 'placeholder': 'Subject', 'class': 'form-control'}}) }}
+						<div class="serverError">{{ form_errors(form.country) }}</div>
+					</div>
+				</div>
+				
+			</div>
+			
+			<div class="col-xs-8">
+				<div class="form-group col-sm-8">
+					<label class="control-label">Position:</label>
+	                <div>
+							{{ form_widget(form.orderNo,{ 'attr': { 'placeholder': 'please enter banner text', 'class': 'form-control' }}) }}
+							<label id="dhi_admin_banner-error" class="error" for="dhi_admin_banner_orderNo" style="display:none"> Order No. already exist</label>
+							<div class="serverError"><span class="banner-error" style="color: #ff0000;"></span></div>
+	                </div>
+	            </div>
+			</div>
+			<div class="col-xs-8">
+				<div class="form-group col-sm-8">
+					<label class="control-label">Status: </label>
+					<div>
+						{{ form_widget(form.status, { 'attr': { 'placeholder': 'Active', 'class': 'form-control'}}) }}
+						<div class="serverError">{{ form_errors(form.status) }}</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-8">
+				<div class="form-group col-sm-4">
+					<label class="control-label">{{ form_label(form.bannerImages) }}</label>
+	                <div>
+							{{ form_widget(form.bannerImages) }}
+
+						<div class="serverError" style="width:500px;">{{ form_errors(form.bannerImages) }}</div>
+	                </div>
+	            </div>
+			</div>
+			
+		</div>
+		
+	
+	
+		{{ form_rest(form) }}
+			<div class="box-footer">	
+			<div class="col-sm-12">
+			    <div class="col-sm-6">
+			        <input type="submit" class="btn btn-success" name="add" value="Add"/>
+			        <a href="{{ path('dhi_admin_banner_list') }}" class="btn btn-default">Back</a>
+			    </div>
+			</div>
+		</div>    
+		</form>
+	</div>
+</section> 
+          
+{{ tinymce_init() }}
+    
+{% endblock body %}
+    
+{% block javascripts %}
+    {{ parent() }}
+    
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+	<script type="text/javascript">
+		 $(document).ready(function () {
+        		$("#add_banner").submit(function() {
+    		
+    		}).validate({
+                rules: {
+                	"dhi_admin_banner[country]": "required",
+                	"dhi_admin_banner[orderNo]": "required",
+					"dhi_admin_banner[bannerImages]": "required",
+					"dhi_admin_banner[status]": "required",
+                },
+                messages: {
+					"dhi_admin_banner[country]": "Please select country",
+					"dhi_admin_banner[orderNo]":"Please select position",
+                	"dhi_admin_banner[bannerImages]": "Please select files",
+					"dhi_admin_banner[status]": "Please select status"
+                }
+            });
+
+		
+			$('#dhi_admin_banner_country').change(function() {
+				var country = $('#dhi_admin_banner_country').val();
+				$.ajax({
+						type: "POST",
+						url: "{{ path('dhi_admin_get_banner_orderno') }}",
+						async:false,
+						data: {
+								country:country
+						},
+						beforeSend: function( xhr ) {
+
+							//$('#ajax-loader-bx').show();
+						},
+						success:function(result){
+							
+							$('#dhi_admin_banner_orderNo').empty();
+							var s= document.getElementById('dhi_admin_banner_orderNo');
+							s.options[0]= new Option('Select Position', '');
+							$.each(result,function(key,value){
+								
+								$('#dhi_admin_banner_orderNo').append('<option value="' + key + '">'+value+'</option>');
+								//s.options[key]= new Option(value, key);
+							});
+							
+							$('#ajax-loader-bx').hide();
+						}
+					});
+			}).change();
+		
+		});
+
+		
+	</script>
+
+  
+{% endblock javascripts %}

@@ -1,0 +1,359 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+{% block stylesheets %}
+{{ parent() }}
+<link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+
+{% endblock stylesheets %}
+{% block body %}
+
+
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <div class="delBoxCont"></div>
+
+    <section class="content-header">
+        <h1> Aradial User Purchase History</h1>
+    </section>
+    <section class="content">
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="box box-success">
+                    <form method="get" id="searchService">
+                        <div class="box-body">
+                            <div class="form-group col-md-4">
+
+                                <div class="row"><div class="col-sm-12" id="username"></div></div>
+                            </div>
+
+                            <div class="form-group col-md-4">
+
+                                <div class="row"><div class="col-sm-12" id="transationId"></div></div>
+                            </div>
+
+                            <div class="form-group col-md-4">
+
+                                <div class="row"><div class="col-sm-12" id="paymentMethod"></div></div>
+                            </div>
+
+                             <div class="form-group col-md-4">
+                                <div class="row"><div class="col-sm-12" id="paymentStatus"></div></div>
+                            </div>
+
+                            <div class="form-group col-md-8 pickup-date-control">
+                                <div class="row"><div class="col-sm-12" id="date-range"></div></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="addNewBtnsGrp col_filter">
+                            {% if admin_permission.checkPermission('aradial_user_purchase_history_export_pdf') %}
+                                <a href="{{ path('dhi_admin_aradial_user_purchase_history_export_pdf',app.request.query.all) }}" class="btn btn-success export-option
+                                 pull-right margin-top5" id="export_pdf" >Export PDF</a>
+                            {% endif %}
+                            {%  if admin_permission.checkPermission('aradial_user_purchase_history_export_csv') %}
+                                <a href="{{ path('dhi_admin_aradial_user_purchase_history_export_csv',app.request.query.all) }}" class="btn btn-success export-option
+                                 pull-right margin-top5" id="export_csv" >Export CSV</a>
+                            {% endif %}
+                            {%  if admin_permission.checkPermission('aradial_user_purchase_history_export_print') %}
+                                <a href="{{ path('dhi_admin_aradial_user_purchase_history_print',app.request.query.all) }}" class="btn btn-success export-option
+                                 pull-right margin-top5" id="export_print" target="_blank">Print</a>
+                            {% endif %}
+                            <div class="col-md-3 margin-top5 pull-right">
+                                <select class="pull-right cls-export-slot" id="cls-export-slot"></select>
+                                <label class="lbl-error cls-err-slot" style="display:none;">Select Range To Export</label>
+                            </div>
+                        </div>
+                        <table id="purchaseHistoryTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Order Number</th>
+                                    <th>Transaction Id</th>
+                                    <th>Username</th>
+                                    <th>Purchased<br/>Service</th>
+                                    <th>Payment<br/>Method</th>
+                                    <th>Payment<br/>Status</th>
+                                    <th>Total<br/>Amount</th>
+                                    <th>Refund<br/>Amount</th>
+                                    <th>Purchase<br/>Date</th>
+                                    <th>IP Address</th>
+                                    <th></th>
+                                    <th>Purchase Order Id</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $(".export-option").click(function(event) {
+                event.preventDefault();
+                var offset = $("#cls-export-slot").val();
+                if (offset == "NA") {
+                    $(".cls-err-slot").show();
+                }else{
+                    $(".cls-err-slot").hide();
+                    var url = $(this).attr('href'); 
+                        url = url+"?offset="+(Number(offset));
+
+                    if ($(this).attr('target') == "_blank") {
+                        window.open(url, "_blank");
+                    }else{
+                        window.location = url;
+                    }
+                }
+            });
+
+            dTable = $('#purchaseHistoryTable').dataTable({
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: false,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength:{{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_aradial_user_purchase_history_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $('#cls-export-slot').empty().val(0);
+                            if (json.exportSlots) {
+                                var s = document.getElementById('cls-export-slot');
+                                s.options[0] = new Option("Select Range To Export", "NA");
+                                var i = 1;
+                                $.each(json.exportSlots, function(index, value) {
+                                    s.options[i] = new Option(value, index);
+                                    i++;
+                                });
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+                },
+                fnDrawCallback: function () {
+
+                    if (this.fnSettings().fnRecordsTotal() == 0) {
+
+                        $("#export_print").addClass('disabled');
+                        $("#export_csv").addClass('disabled');
+                        $("#export_pdf").addClass('disabled');
+                    } else {
+
+                        $("#export_print").removeClass('disabled');
+                        $("#export_csv").removeClass('disabled');
+                        $("#export_pdf").removeClass('disabled');
+                    }
+                },
+                aoColumns: [
+                    {"sClass": "details-control", "sDefaultContent": "", "bSearchable": false, "bSortable": false},
+                    {"sName": "orderNumber"},
+                    {"sName": "transactionId", "bSearchable" : true, "bSortable": false},
+                    {"sName": "userName"},
+                    {"sName": "purcasedService", "bSearchable": true, "bSortable": true},
+                    {"sName": "paymentMethod", "bSearchable": true, "bSortable": true},
+                    {"sName": "paymentStatus"},
+                    {"sName": "totalAmount"},
+                    {"sName": "refundAmount"},
+                    {"sName": "purchaseDate"},
+                    {"sName": "ipAddress"},
+                    {"sName": "action", "bSearchable": false, "bSortable": false},
+                    {"sName": "purchaseOrderId",  "bSearchable": false, "bSortable": false, "bVisible": false}
+                ],
+                aoColumnDefs: [
+                               {
+                                   "mRender": function(data, type, row) {
+
+                                	   	var returnData = "<table><tr>";
+
+                                	   	if(row[11] > 0) {
+
+                                	   		var viewRecurringUrl = '{{ path('dhi_admin_recurring_profile_history_list', {'id': 'service_id'}) }}';
+                                            var viewRecurringProfile = viewRecurringUrl.replace("service_id", row[11]);
+
+                                	   		returnData +='<td><a href="'+viewRecurringProfile+'" class="btn btn-success">View Recurring Profile</a></td>';
+                                	   	}
+                                	   	returnData += "</tr></table>";
+
+                                       	return returnData;
+                                   },
+                                   "aTargets": [11]
+                               }
+                ],
+                aaSorting: [[9, 'desc']]
+            });
+
+
+            $.datepicker.regional[""].dateFormat = 'yy-mm-dd';
+            $.datepicker.setDefaults($.datepicker.regional['']);
+            $('#purchaseHistoryTable').dataTable().columnFilter({
+            	sRangeFormat: "<label class='dateRange1'>From</label> {from} <label class='dateRange2'>To</label> {to}",
+                aoColumns: [
+                    null,
+                    null,
+                    {type: "text", sSelector: "#transationId"},
+                    {type: "text", sSelector: "#username"},
+                    null,
+                    {type: "select", sSelector: "#paymentMethod", values:{{paymentMethod|raw}}},
+                    {type: "select", sSelector: "#paymentStatus", values: ['Completed', 'Refunded','Voided', 'Plan Expired by Customer Support']},
+                    null,
+                    null,
+                    {type: "date-range", sSelector: "#date-range"},                                        ]
+            });
+
+            $("input").addClass("form-control");
+            $("select").addClass("form-control");
+
+            {% if (app.user.group != 'Super Admin') %}
+
+            	//var bVis = dTable.fnSettings().aoColumns[9].bVisible;
+            	dTable.fnSetColumnVis( 10, false);
+            {% endif %}
+
+            // Add event listener for opening and closing details
+            jQuery('#purchaseHistoryTable tbody').on('click', 'td.details-control', function () {
+
+                console.log(dTable);
+                var tr = $(this).closest('tr');
+
+                var nTr = $(this).parents('tr')[0];
+                if (dTable.fnIsOpen(nTr))
+                {
+
+                    //this.src = "../examples_support/details_open.png";
+                    dTable.fnClose(nTr);
+                    tr.removeClass('shown');
+                }
+                else
+                {
+
+                    //this.src = "../examples_support/details_close.png";
+                    tr.addClass('shown');
+                    var aData = dTable.fnGetData(nTr);
+                    if (aData[12]) {
+
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ path('dhi_admin_expanded_purchase_history') }}",
+                            data: {poId: aData[12]},
+                            beforeSend: function (xhr) {
+
+                                $('#ajax-loader-bx').show();
+                            },
+                            success: function (result) {
+
+                                $('#ajax-loader-bx').hide();
+                                dTable.fnOpen(nTr, result, 'details');
+                            }
+                        })
+                    }
+                    //dTable.fnOpen( nTr, fnFormatDetails(dTable, nTr), 'details' );
+
+                }
+            });
+
+            $("#date-range .date_range_filter:first").change(function(event) {
+                $("#date-range .date_range_filter:last").datepicker("option", "minDate", $(this).val());
+            }).keyup(function(e) {
+                if(e.keyCode == 8 || e.keyCode == 46) {
+                    $.datepicker._clearDate(this);
+                }
+            });
+            $("#date-range .date_range_filter:last").change(function(event) {
+                $("#date-range .date_range_filter:first").datepicker("option", "maxDate", $(this).val());
+            }).keyup(function(e) {
+                if(e.keyCode == 8 || e.keyCode == 46) {
+                    $.datepicker._clearDate(this);
+                }
+            });
+            $(".filter_date_range .date_range_filter.hasDatepicker").attr({ readonly: 'true' });
+        });
+
+
+
+        function print_list() {
+
+            $('.topSrchBox').hide();
+            $('#export-item').hide();
+            $('table').next().hide();
+            $('body').addClass('sidebar-collapse');
+
+            $('#searchService').parent('div').hide();
+            $('div.addNewBtnsGrp').hide();
+            $('#purchaseHistoryTable_length').hide();
+
+            $.each($('tr#headerlink a'), function () {
+                $(this).attr('rel', $(this).attr('href'));
+                $(this).removeAttr('href');
+            });
+
+            $.each($('td#action-headerlink a'), function () {
+                $(this).attr('rel', $(this).attr('href'));
+                $(this).removeAttr('href');
+            });
+
+            window.print();
+
+            $('.topSrchBox').show();
+            $('#export-item').show();
+            $('table').next().show();
+            $('body').removeClass('sidebar-collapse');
+
+            $('#searchService').parent('div').show();
+            $('div.addNewBtnsGrp').show();
+            $('#purchaseHistoryTable_length').show();
+
+            $.each($('tr#headerlink a'), function () {
+                $(this).attr('href', $(this).attr('rel'));
+                $(this).removeAttr('rel');
+            });
+
+            $.each($('td#action-headerlink a'), function () {
+                $(this).attr('href', $(this).attr('rel'));
+                $(this).removeAttr('rel');
+            });
+
+        }
+
+    </script>
+
+{% endblock %}

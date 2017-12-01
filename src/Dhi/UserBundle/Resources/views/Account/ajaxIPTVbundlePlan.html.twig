@@ -1,0 +1,65 @@
+{% block body %}
+    {% if IsBundleAvailabledInPurchased == 1 %}
+        {% set headerText = "Upgrade your Internet Plan or XVUE Channels!"  %}
+    {% else %}
+        {% set headerText = "Select your ExchangeVUE Package!"  %}
+    {% endif %}
+    <h3 class="select-plan">{{headerText}}</h3>
+    <div class="newRow newXVUE">
+        <div class="newRightSide">
+            <div class="newRow">
+                <div class="newPromotions selXchangePkg">
+                    {% if IPTVbundleplan|length > 0 %}
+                        {% for iptvbundle in IPTVbundleplan %}
+                             <div class="newRow">
+                                 <h4>
+                                     <label>
+                                        {% if iptvbundle.bundle_id not in PurchasedBUNDLEPackageId %}
+                                            {% set onevent = "onclick=addPackagebundle('BUNDLE','"~iptvbundle.bundle_id~"',1,0,0,'"~iptvbundle.isDeers~"')" %}
+                                            <input type="radio" name="iptvbundle" {{onevent}} {% if iptvbundle.bundle_id in CartBundleIds %} checked="checked" {% endif %} />
+                                        {% endif %}
+                                        {{iptvbundle.packageName}}
+                                        {% if iptvbundle.bundle_id in PurchasedBUNDLEPackageId %}
+                                            <span class="subText">Already Included In Your Internet Plan</span>
+                                        {% endif %}
+                                     </label>
+                                 </h4>
+                                <div class="planpkgImg_price">
+                                    {% if iptvbundle.totalChannels > 0 %}
+                                        <div class="planpkgImg" id="planpkgImg_{{ iptvbundle.packageId }}">
+                                            {% set channelarray = iptvbundle.channelname | split(',') %}
+                                            {% set channelCount = 1 %}
+                                            {% for channel in channelarray %}
+                                                {% if channelCount <= maxShowChannels %}
+                                                    {% if arrChannelImage[channel] is defined and arrChannelImage[channel] != '' %}
+                                                        {% set imageSrc = asset('uploads/channels/'~arrChannelImage[channel]) %}
+                                                        <img alt="{{ channel }}" src="{{ imageSrc }}">
+                                                    {% else %}
+                                                        {{ channel }}&nbsp;
+                                                    {% endif %}
+                                                    {% set channelCount = channelCount + 1 %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if maxShowChannels < iptvbundle.totalChannels %}
+                                                <div>
+                                                    <a href="javascript:void(0)" onclick="showChannelList('{{ iptvbundle.packageId }}')" id="showAllChannels_{{ iptvbundle.packageId }}">Show All Channels</a>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="planpkgPrice"> ${{ iptvbundle.amount }}</div>
+                                </div>
+                             </div>
+                        {% endfor %}    
+                    {% endif %}
+                    <input type="hidden" name="isiptvpage" id="isiptvpage" value="1">
+                    </div>
+                </div>
+            </div>
+            {% if IsBundleAvailabledInPurchased == 0 and IsIPTVAvailabledInPurchased == 1 and IsBundleAvailabledInCart == 0 %}
+                
+            {% else %}
+                <div class="newLeftSide addons"></div>
+            {% endif %}
+        </div>
+{% endblock body %}

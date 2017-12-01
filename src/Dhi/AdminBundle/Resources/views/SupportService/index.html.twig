@@ -1,0 +1,166 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <style type="text/css">
+        .margin-top10 { margin-top:10px; }
+        .ui-datepicker-trigger { float: right; margin-top: -24px; margin-right: 1px; }
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+   
+{% include "DhiUserBundle::flashMessage.html.twig" %}
+            <div class="delBoxCont"></div> 
+            <section class="content-header">
+              <h1>Support Service</h1>
+            </section>
+            <section class="content">	
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="box box-success">
+                            <form method="get">
+                                <div class="box-body">
+                                    <div class="form-group col-md-4">                    
+                                        <div class="row"><div class="col-sm-12" id="serviceName"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">                    
+                                        <div class="row"><div class="col-sm-12" id="createdBy"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">                    
+                                        <div class="row"><div class="col-sm-12" id="status"></div></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>		
+                 
+                <div class="box box-success">
+                    <div class="box-body">
+			<div class="row">
+         		    <div class="col-xs-12">  
+                            {% if admin_permission.checkPermission('support_service_new') %}
+                                <div class="addNewBtnsGrp">
+                                    <a href="{{ path('dhi_admin_support_service_new') }}" class="btn btn-success pull-right margin-top5">Add Support Service</a>
+                                </div>
+                            {% endif %}
+                            <table id="supportServiceTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Service Name</th>
+                                        <th>Status</th>
+                                        <th>Created By</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>        
+            </section>	       
+            <div id="ajax-loader-bx" style="display:none;">
+		<img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+		<div id="loader-text">Please wait....</div>
+            </div>
+{% endblock body %}
+{% block javascripts %}
+    
+    {{ parent() }}
+
+   <script type="text/javascript">
+        
+        $(document).ready(function () {
+          
+            deleteAjaxSource = '{{ path('dhi_admin_support_service_delete') }}';
+           
+            dTable = $('#supportServiceTable').dataTable({
+               
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_support_service_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            {#if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_dashboard') }}";
+                                }#}
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "ServiceName","bSearchable": true,"bSortable": true},
+                    {"sName": "Status","bSearchable": true,"bSortable": true},
+                    {"sName": "CreatedBy","bSearchable": true,"bSortable": true},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false}
+                ],
+                aoColumnDefs: [
+                    {
+                        "mRender": function(data, type, row) {
+                        	
+                            var dataId = row[3];        
+                            var headTitle = "Support Service Delete";
+                            var msg = 'Are you sure you want to delete this support service?';
+                            var returnData = "<table><tr>";
+
+                            {% if admin_permission.checkPermission('support_service_edit') %}
+                                var editUrl = '{{ path('dhi_admin_support_service_edit', {'id': 'service_id'}) }}';
+                                var editSupportService = editUrl.replace("service_id", dataId);
+                                returnData +='<td><a href="'+editSupportService+'" class="btn btn-success" title="Edit"> Edit</a></td>';
+                            {% endif %}                                
+
+
+                            {% if admin_permission.checkPermission('support_service_delete') %}
+                                var deleteUrl = '{{ path('dhi_admin_support_service_delete', {'id': 'service_id'}) }}';
+                                var finalPath = editUrl.replace("service_id", dataId);
+                                returnData +='<td><a href="javascript:void(0)" class="btn btn-danger" title="Delete" onclick="return deleterecord(' + dataId + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" +')">Delete</a></td>';  
+                            {% endif %}
+                            return returnData;
+                        },
+                        "aTargets": [3]
+                    }
+                ],
+                aaSorting: [[3, 'asc']]
+            });
+
+            $('#supportServiceTable').dataTable().columnFilter({
+                aoColumns: [
+                    {type: "text", sSelector: "#serviceName"},
+                    {type: "select", sSelector: "#status", values: ['Active', 'InActive'] },
+                    {type: "select", sSelector: "#createdBy", values: {{ allAdmins|json_encode()|raw }}},
+                ]
+            });
+
+            $("input").addClass("form-control");
+            $("select").addClass("form-control");
+
+        });
+    </script>
+    
+{% endblock javascripts %}

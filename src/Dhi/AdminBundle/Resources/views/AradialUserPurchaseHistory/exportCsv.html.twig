@@ -1,0 +1,16 @@
+Username, Service, Package, Amount, Payment Status, Purchase Date, Transaction ID, Payment Method, Refund Amount
+{% for record in purchaseData %} {% set createdAt = '' %} {% set tranjactionId = '' %} {% set paymentMethod = '' %} {% set refundAmount = 'Refund' %}
+    {% if (record.servicePurchases is not null) %}
+        {% set createdAt = record.servicePurchases.createdAt|date('M-d-Y H:i:s') %}
+    {% endif %}
+    {% if (record.servicePurchases is not null and record.servicePurchases.paypalCheckout is not null) %}
+        {% set tranjactionId = record.servicePurchases.paypalCheckout.paypalTransactionId %}
+    {% endif %}
+    {% if (record.servicePurchases.paypalCheckout) %}
+        {% set paymentMethod = record.servicePurchases.paypalCheckout.paymentMethod.name %}
+    {% endif %}
+    {% if (record.refundAmount > 0) %}
+        {% set refundAmount = record.refundAmount %}
+    {% endif %}
+{{ record.user.username }}, {{ record.service.name }}, {{ record.packageName }}, {{ record.amount }},{{ record.servicePurchases.paymentStatus }}, {{ createdAt }}, {{ tranjactionId }}, {{ paymentMethod }}, {{ refundAmount }}
+{% endfor %}

@@ -1,0 +1,230 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiadmin/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+	<link rel="stylesheet" href="{{ asset('bundles/dhiadmin/css/select2.min.css') }}" type="text/css" media="screen" charset="utf-8" />		
+    <style type="text/css">
+        .ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+
+    <section class="content-header"><h1>Edit Set Top Box</h1></section>
+		<section class="content">
+                <div class="box box-success">
+                <form action="{{ path('dhi_admin_set_top_box_edit', {'id': settopbox.id}) }}" method="POST" {{ form_enctype(form) }} id="edit_settopbox" class="form-horizontal" novalidate>
+                    
+		<div class="box-body">	
+			<div class="col-xs-8">
+				<div class="form-group col-sm-6">
+					<label class="control-label">Mac Address: </label>
+					<div>
+						{{ form_widget(form.macAddress, { 'attr': { 'placeholder': 'Mac Address', 'class': 'form-control'}}) }}
+						<label id="editmacAddress-error" class="error custom-err"></label>
+						<div class="serverError">{{ form_errors(form.macAddress) }}</div>
+					</div>
+				</div>
+				<div class="form-group col-sm-6">
+					<label class="control-label">Given Date: </label>
+                    <div>
+                        {{ form_widget(form.givenAt, { 'attr': { 'placeholder': 'Date', 'class': 'form-control'}}) }}
+                        <div class="serverError">{{ form_errors(form.givenAt) }}</div>
+                    </div>
+				</div>
+			</div> 
+			
+			<div class="col-xs-8">
+				<div class="form-group col-xs-12">
+	                <label class="control-label">Customer Name: </label>
+	                <div>
+	                    {{ form_widget(form.user, { 'attr': { 'placeholder': 'Customer Name', 'class': 'form-control'}}) }}
+	                    <div class="serverError">{{ form_errors(form.user) }}</div>
+	                </div>
+	            </div>	          
+			</div>
+		</div>     
+		<div class="box-footer">	
+			{{ form_rest(form) }}
+
+			<div>
+				<div class="col-sm-12">
+					<div class="col-sm-6">
+					<input type="submit" class="btn btn-success" name="update" value="Update"/>
+					<a href="{{ path('dhi_admin_set_top_box_list') }}" class="btn btn-default">Back</a>
+					</div>
+				</div>	
+			</div>
+		</div>
+				
+		</form>
+	</div>
+</section>			
+            
+
+    
+    
+{% endblock body %}
+    
+{% block javascripts %}
+    {{ parent() }}
+    
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+     <script src="{{ asset('bundles/dhiadmin/js/select2.min.js') }}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+			
+			 $("#dhi_set_top_box_macAddress").keyup(function(){
+
+				// store current positions in variables
+				var start = this.selectionStart,
+					end = this.selectionEnd;
+
+				// do your stuff
+				$(this).val( $(this).val().toUpperCase());
+
+				// restore from variables...
+				this.setSelectionRange(start, end);
+			});
+
+        $.validator.addMethod("regex_mac", function(value, element, regexpr) {
+            return regexpr.test(value);
+        }, "Please enter valid mac address example: 48-51-B7-F2-67-82");
+        
+		
+		$("#edit_settopbox").validate({
+                rules: {
+                	"dhi_set_top_box[macAddress]": {
+						"required": true,
+						"regex_mac": /^([0-9A-F]{2}[-]){5}([0-9A-F]{2})$/                     
+					},
+                	"dhi_set_top_box[user]": {
+                    "required": true                     
+					},
+					"dhi_set_top_box[givenAt]":{
+					"required": true 	
+					}
+                },
+                messages: {
+                	"dhi_set_top_box[macAddress]": {
+						"required": 'Please enter mac address'
+					},
+					"dhi_set_top_box[user]": {
+                    "required": 'Please select at least one user.'                     
+					},
+					"dhi_set_top_box[givenAt]": {
+                    "required": 'Please enter date.'                     
+					}  
+                },
+				submitHandler: function(form) {
+                
+                checkMacAddress('submitFrom',form);
+                
+                return false;
+			}
+            });
+        	
+
+		jQuery(document).on("focus", "#dhi_set_top_box_givenAt", function() {
+			
+            $(this).datepicker({
+                showOn: "both",
+                buttonImage: '{{ asset("bundles/dhiadmin/images/calendar.gif") }}',
+                buttonImageOnly: true,
+                dateFormat: 'mm-dd-yy',
+                readOnly: true,
+               
+            })
+		}) ;        
+		
+		$("#dhi_set_top_box_user").select2({
+	    
+		ajax: {
+			url: '{{ path('dhi_admin_set_top_box_cutomer_search') }}',
+			dataType: 'json',
+			delay: 250,
+			data: function(params) {
+				//console.log(params);
+				return {
+					q: params.term, // search term
+					page: params.page
+				};
+			},
+			processResults: function(data, page) {
+                return {
+                    results: data
+                };
+            },
+			cache: true
+		},
+		//formatResult: formatResult,		
+		// let our custom formatter work
+		minimumInputLength: 1,
+		//templateResult: formatResult, // omitted for brevity, see the source of this page
+		//templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+	});
+	
+	function formatResult(data) {
+	//console.log(data);
+		return data.value ;
+	};
+		
+		function checkMacAddress(type,frm) {
+    	
+    	var flag = false;
+    	$.ajax({
+			
+			type: "POST",
+			url: "{{ path('dhi_admin_set_top_box_mac_address',{'id': settopbox.id}) }}",
+			data: $('#edit_settopbox').serializeArray(),	
+			beforeSend: function( xhr ) {
+				
+			    $('#ajax-loader-bx').show();
+			},
+			success:function(result){
+				
+				var obj = jQuery.parseJSON( result );
+				$('.custom-err').html('').hide();
+				
+				if(obj['status'] == 'success') {
+				
+					if(type == 'submitFrom') {
+						
+						frm.submit();
+					}
+				}
+				
+				if(obj['status'] == 'error') {
+					$('#editmacAddress-error').html(obj['error']).show();	
+					//$('#editmacAddress-error').html(obj['error']['1']).show();	
+					
+					{#$.each(obj['error'], function(idx) {
+						
+				        $.each(this, function(k, val) {
+				        	
+				        	if(k == 'fromIp') {
+				        		
+				        		$('#macAddress-error').html(obj['error']).show();				        		
+				        	}
+				        	
+				        	if(k == 'toIp') {
+				        		
+				        		$('#toIpAddress-error-'+idx).html(val).show();				        		
+				        	}				            
+				        });
+				    });			#}		
+				} 
+				
+				$('#ajax-loader-bx').hide();
+			}
+		})			
+    }
+            
+            
+            
+});
+        
+		
+    </script>
+{% endblock javascripts %}

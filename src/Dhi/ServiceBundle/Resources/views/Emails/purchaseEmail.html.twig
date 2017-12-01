@@ -1,0 +1,319 @@
+<span style="font-family:Times New Roman;font-size:14px;">Hi {{ purchasedSummaryData.firstName }} {{ purchasedSummaryData.lastName }},</span><br/><br />
+<span style="font-family:Times New Roman;font-size:14px;">Thank you for your internet purchase. {% if purchasedSummaryData.PaymentStatus == "Completed" and tikiliveMsg != '' %}Your internet plan included a Premium ExchangeVUE package.{% endif %}</span><br />
+{% if purchasedSummaryData.PaymentStatus == "Completed" and tikiliveMsg != '' %}
+<br /><span style="font-family:Times New Roman;font-size:14px;">To start watching your favorite channels on your device, visit <a title="" href="http://www.exchangevue.com">www.ExchangeVUE.com</a> and enter the promo code below for a free 1 month premium package. Due to content security rules, our channel providers require a set top box for viewing. Visit DHI Mobile store and have our staff set you up with one.</span><br />
+{% endif %}
+{%  if purchasedSummaryData.RecurringStatus == 1 %}   
+    <span style="font-family:Times New Roman;font-size:14px;">Your recurring payment profile successfully created. Now, your plan will be automatically renew on every month.</span><br />
+{% endif %}
+{%  if purchasedSummaryData.RecurringStatus == 2 or purchasedSummaryData.RecurringStatus == 3 %}   
+    <span style="font-family:Times New Roman;font-size:14px;">Your recurring payment profile has not been created.</span><br />
+{% endif %}
+<span style="font-family:Times New Roman;font-size:14px;">
+    {% if purchasedSummaryData.PaymentStatus == "Completed" %}
+        <h4>Your order is now complete and you are ready to go!</h4>
+    {% else %}
+        <h4>Sorry! we could not complete your order. Your transaction is voided.</h4>
+    {% endif %}
+</span>
+<span style="font-family:Times New Roman;font-size:14px;">Your purchase details are below. Please contact us if you need any assistance.</span><br /><br />
+{% if purchasedSummaryData.OrderNumber != '' %}
+    {% set ispArrLength = 0 %}
+    {% set TotalUnusedCredit = 0 %}
+    {% set TotalDiscountCodeAmount = 0 %}
+    <table border="1" cellpadding="5" style="font-family:Times New Roman;font-size:14px;">
+        {% if tikiliveMsg != '' %}
+            <tr>
+                <td colspan="5" algin="left" style="font-family:Times New Roman;font-size:14px;">
+                    {{ tikiliveMsg|raw }}
+                </td> 
+            <tr>    
+        {% endif %}
+        <tr>
+            <td colspan="5" algin="left" style="font-family:Times New Roman;font-size:14px;">
+                User: {{ purchasedSummaryData.firstName }} {{ purchasedSummaryData.lastName }}<br/>
+                {% if purchasedSummaryData.TransactionId != '' %}
+                    Transaction ID: {{ purchasedSummaryData.TransactionId }}<br/>
+                {% endif %}
+                Date: {{ purchasedSummaryData.PurchasedDate }}<br/>
+                Payment Method: {{ purchasedSummaryData.PaymentMethod }}<br/>						
+            </td>                    
+        </tr>
+        
+        {% set totalBundleDiscount = 0 %}
+        {% set totalISPBundleDiscount = 0 %}
+        {% if 'ISP' in purchasedSummaryData|keys %}
+
+            {% set ispArrLength = purchasedSummaryData.ISP|length %}
+            {% if ispArrLength > 0 %}
+                <tr>
+                    <td rowspan="{{ ispArrLength + 1 }}" style="color:#6c509a;font-family:Times New Roman;font-size:14px;"><b>ISP Packages</b></td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Package</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Activation Status</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Payment Status</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Price</td>                    
+                </tr>
+               	{% for ispPurchase in purchasedSummaryData.ISP %}
+
+                    {% if ispPurchase.isDiscountAvailable == 1 %}								                
+                        <tr>
+                            <td colspan="3" align="right" style="font-family:Times New Roman;font-size:14px;">{{ ispPurchase.Discription }}</td>
+                            <td style="font-family:Times New Roman;font-size:14px;">-{{ ispPurchase.TotalDiscount }}</td>                    
+                        </tr>
+                    {% elseif ispPurchase.isUnusedCreditAvailable == 1 %}
+                        <tr>
+                            {% if purchasedSummaryData.isBundleDiscountApplied == 0 and purchasedSummaryData.TotalBundleDiscount == 0 %}
+                                <td colspan="3" align="right" style="font-family:Times New Roman;font-size:14px;">{{ ispPurchase.Discription }}</td>
+                                <td style="font-family:Times New Roman;font-size:14px;">-{{ ispPurchase.TotalUnusedCredit }}</td> 
+                            {% endif %}
+                            {% set TotalUnusedCredit = TotalUnusedCredit + ispPurchase.TotalUnusedCredit %}
+                        </tr>
+
+                    {% elseif ispPurchase.isBundleDiscountAvailable == 1 %}
+                        <tr>
+                            {# <td colspan="3" align="right" style="font-family:Times New Roman;font-size:14px;">{{ ispPurchase.bundleName }}</td>
+                            <td style="font-family:Times New Roman;font-size:14px;">-{{ ispPurchase.bundleDiscountAmount }}</td> #}
+                        </tr>
+                        {% set totalBundleDiscount = totalBundleDiscount + ispPurchase.bundleDiscountAmount %}
+
+                    {% else %}
+                        <tr>
+                            <td style="font-family:Times New Roman;font-size:14px;">
+                                {% if ispPurchase.bandwidth >= 1024%}
+                                    {% set mbbandwidth = ispPurchase.bandwidth/1024%}
+                                    {{ ispPurchase.packageName~' - '~mbbandwidth~'MB - '~ispPurchase.validity~' day(s)' }}
+                                {% else %}
+                                    {{ ispPurchase.packageName~' - '~ispPurchase.bandwidth~'k - '~ispPurchase.validity~' day(s)' }}
+                                {% endif %} 
+                            </td>
+                            <td style="font-family:Times New Roman;font-size:14px;">{{ ispPurchase.packageStatus }}</td>
+                            <td style="font-family:Times New Roman;font-size:14px;">
+                                {% if ispPurchase.paymentStatus == "Refunded" %}
+                                    Voided
+                                {% else %}
+                                    {{ ispPurchase.paymentStatus }}
+                                {% endif %}
+                            </td>
+                            <td style="font-family:Times New Roman;font-size:14px;">${{ ispPurchase.packageActualAmount }}</td>                    
+                        </tr>
+                    {% endif %}
+                    {% if ispPurchase.totalDiscountCodeAmount is defined and ispPurchase.totalDiscountCodeAmount != 0 and  ispPurchase.totalDiscountCodeAmount is not null%}
+                        {% set TotalDiscountCodeAmount = TotalDiscountCodeAmount + ispPurchase.totalDiscountCodeAmount %}
+                    {% endif %}
+                {% endfor %}
+                {% set TotalIPTVAmo = totalBundleDiscount + purchasedSummaryData.ISPTotalActualAmount %}
+                {% if purchasedSummaryData.isBundleDiscountApplied == 0 and totalBundleDiscount == 0 %}
+                    <tr>
+                        <td colspan="4" align="right" style="font-family:Times New Roman;font-size:14px;">Sub Total</td>
+                        <td style="font-family:Times New Roman;font-size:14px;">${{ TotalIPTVAmo|number_format(2) }}</td>                    
+                    </tr>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+        {% if 'IPTV' in purchasedSummaryData|keys %}
+            {% set iptvArrLength = purchasedSummaryData.IPTV|length %}
+            {% if iptvArrLength > 0 %}
+                <tr>
+                    <td rowspan="{{ iptvArrLength + 1 }}" style="color:#6c509a;font-family:Times New Roman;font-size:14px;"><b>ExchangeVUE Packages</b></td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Package</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Activation Status</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Payment Status</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Price</td>                    
+                </tr>
+               	{% for iptvPurchase in purchasedSummaryData.IPTV %}
+
+                    {% if iptvPurchase.isDiscountAvailable == 1 %}								                
+                        <tr>
+                            <td colspan="3" align="right" style="font-family:Times New Roman;font-size:14px;">{{ iptvPurchase.Discription }}</td>
+                            <td style="font-family:Times New Roman;font-size:14px;">-{{ iptvPurchase.TotalDiscount }}</td>                    
+                        </tr>
+                    {% elseif iptvPurchase.isUnusedCreditAvailable == 1 %}
+                        <tr>
+                            {% if purchasedSummaryData.isBundleDiscountApplied == 0 and purchasedSummaryData.TotalBundleDiscount == 0 %}
+                                <td colspan="3" align="right" style="font-family:Times New Roman;font-size:14px;">{{ iptvPurchase.Discription }}</td>
+                                <td style="font-family:Times New Roman;font-size:14px;">-{{ iptvPurchase.TotalUnusedCredit }}</td>
+                            {% endif %}
+                            {% set TotalUnusedCredit = TotalUnusedCredit + iptvPurchase.TotalUnusedCredit %}
+                        </tr>
+
+                    {% elseif iptvPurchase.isBundleDiscountAvailable == 1 %}
+                        <tr>
+                            {# <td colspan="3" align="right" style="font-family:Times New Roman;font-size:14px;">{{ iptvPurchase.bundleName }}</td>
+                            <td style="font-family:Times New Roman;font-size:14px;">-{{ iptvPurchase.bundleDiscountAmount }}</td> #}
+                        </tr>
+                        {% set totalBundleDiscount = totalBundleDiscount + iptvPurchase.bundleDiscountAmount %}
+                        {% set totalISPBundleDiscount = totalISPBundleDiscount + iptvPurchase.bundleDiscountAmount %}
+
+                    {% else %}
+                        <tr>
+                            <td style="font-family:Times New Roman;font-size:14px;">{{ iptvPurchase.packageName }}</td>
+                            <td style="font-family:Times New Roman;font-size:14px;">{{ iptvPurchase.packageStatus }}</td>
+                            <td style="font-family:Times New Roman;font-size:14px;">
+                                {% if iptvPurchase.paymentStatus == "Refunded" %}
+                                    Voided
+                                {% else %}
+                                    {{ iptvPurchase.paymentStatus }}
+                                {% endif %}
+                            </td>
+                            <td style="font-family:Times New Roman;font-size:14px;">${{ iptvPurchase.packageActualAmount }}</td>                    
+                        </tr>
+                    {% endif %}
+                    {% if iptvPurchase.totalDiscountCodeAmount is defined and iptvPurchase.totalDiscountCodeAmount != 0 and  iptvPurchase.totalDiscountCodeAmount is not null%}
+                        {% set TotalDiscountCodeAmount = TotalDiscountCodeAmount + iptvPurchase.totalDiscountCodeAmount %}
+                    {% endif %}    
+                {% endfor %}
+                {% set TotalISPAmo = totalISPBundleDiscount + purchasedSummaryData.IPTVTotalActualAmount %}
+                {% if purchasedSummaryData.isBundleDiscountApplied == 0 and totalISPBundleDiscount == 0 %}
+                    <tr>
+                        <td colspan="4" align="right" style="font-family:Times New Roman;font-size:14px;">Sub Total</td>
+                        <td style="font-family:Times New Roman;font-size:14px;">${{ TotalISPAmo|number_format(2) }}</td>                    
+                    </tr>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+
+        {% if 'AddOn' in purchasedSummaryData|keys %}
+
+            {% set addOnArrLength = purchasedSummaryData.AddOn|length %}
+            {% if addOnArrLength > 0 %}
+                <tr>
+                    <td rowspan="{{ addOnArrLength+1 }}" style="color:#6c509a;font-family:Times New Roman;font-size:14px;"><b>Premium Packages</b></th>
+                    <td style="font-family:Times New Roman;font-size:14px;">Package</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Activation Status</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Payment Status</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Price</td>                    
+                </tr>
+
+               	{% for addOnPurchase in purchasedSummaryData.AddOn %}
+                    {% if addOnPurchase.isDiscountAvailable == 1 %}                                              
+                        <tr></tr>
+                    {% elseif addOnPurchase.packageName is defined %}
+                        <tr>
+                            <td style="font-family:Times New Roman;font-size:14px;">{{ addOnPurchase.packageName }}</td>
+                            <td style="font-family:Times New Roman;font-size:14px;">{{ addOnPurchase.packageStatus }}</td>
+                            <td style="font-family:Times New Roman;font-size:14px;">
+                                {% if addOnPurchase.paymentStatus == "Refunded" %}
+                                    Voided
+                                {% else %}
+                                    {{ addOnPurchase.paymentStatus }}
+                                {% endif %}
+                            </td>
+                            <td style="font-family:Times New Roman;font-size:14px;">{{ addOnPurchase.packageActualAmount }}</td>                    
+                        </tr>
+                    {% endif %}
+                    {% if addOnPurchase.totalDiscountCodeAmount is defined and addOnPurchase.totalDiscountCodeAmount != 0 and  addOnPurchase.totalDiscountCodeAmount is not null%}
+                        {% set TotalDiscountCodeAmount = TotalDiscountCodeAmount + addOnPurchase.totalDiscountCodeAmount %}
+                    {% endif %}    
+                {% endfor %}
+
+                <tr>
+                    <td colspan="4" align="right" style="font-family:Times New Roman;font-size:14px;">Sub Total</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">{{ purchasedSummaryData.AddOnTotalActualAmount|number_format(2) }}</td>                    
+                </tr>
+            {% endif %}
+        {% endif %}
+
+        {% if 'Credit' in purchasedSummaryData|keys %}
+
+            {% set creditArrLength = purchasedSummaryData.Credit|length %}
+            {% if creditArrLength > 0 %}
+                <tr>
+                    <td rowspan="{{ creditArrLength + 1 }}" style="color:#6c509a;font-family:Times New Roman;font-size:14px;"><b>Credit Purchase</b></td>
+                    <td colspan="2" style="font-family:Times New Roman;font-size:14px;">Description</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Payment Status</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">Price</td>                    
+                </tr>
+               	{% for creditPurchase in purchasedSummaryData.Credit %}
+                    <tr>
+                        <td colspan="2" style="font-family:Times New Roman;font-size:14px;">{{ creditPurchase.packageName }}</td>			                	
+                        <td style="font-family:Times New Roman;font-size:14px;">{{ creditPurchase.paymentStatus }}</td>
+                        <td style="font-family:Times New Roman;font-size:14px;">{{ creditPurchase.packageActualAmount }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="4" align="right" style="font-family:Times New Roman;font-size:14px;">Sub Total</td>
+                    <td style="font-family:Times New Roman;font-size:14px;">{{ purchasedSummaryData.CreditTotalActualAmount|number_format(2) }}</td>                    
+                </tr>
+            {% endif %}
+        {% endif %}
+
+
+        {% set grandTotal = 0 %}
+        {% set netPaidBy = 0 %}
+        {% set totalRefund = 0 %}
+
+        {% set grandTotal = purchasedSummaryData.PurchaseOrderNetPaidAmount %}
+
+        {% if purchasedSummaryData.ServiceNetRefundedAmount == purchasedSummaryData.PurchaseOrderNetRefundedAmount %}
+
+            {% set totalRefund = purchasedSummaryData.PurchaseOrderNetRefundedAmount %}
+        {% endif %}
+
+        {% set netPaidBy = grandTotal - totalRefund %}
+        {% if purchasedSummaryData.discountCouponPercentage > 0 %}
+            <tr>
+                <td colspan="4" style="font-family:Times New Roman;font-size:14px;" align="right">Promo Code Discount</td>
+                <td style="font-family:Times New Roman;font-size:14px;">- ${{ purchasedSummaryData.discountCouponAmount|number_format(2) }}</td>
+            </tr>
+        {% endif %}
+        {% if purchasedSummaryData.isBundleDiscountApplied == 1 %}
+            <tr>
+                <td style="font-family:Times New Roman;font-size:14px;" colspan="4" align="right">Sub Total</td>
+                <td style="font-family:Times New Roman;font-size:14px;"> ${{ (grandTotal + purchasedSummaryData.TotalBundleDiscount + TotalUnusedCredit)|number_format(2) }}</td>
+            </tr>
+            {% if TotalUnusedCredit > 0 %}
+                <tr>
+                    <td style="font-family:Times New Roman;font-size:14px;" colspan="4" align="right"><i>Total Unused credit</i></td>
+                    <td style="font-family:Times New Roman;font-size:14px;"><i> - ${{ TotalUnusedCredit|number_format(2) }}</i></td>
+                </tr>
+            {% endif %}
+            {% if purchasedSummaryData.TotalPromotionOff > 0 %}
+                <tr>
+                    <td style="font-family:Times New Roman;font-size:14px;" colspan="4" align="right"><b>Promotion Off ({{ purchasedSummaryData.TotalPromotionPer }}%)</b></td>
+                    <td style="font-family:Times New Roman;font-size:14px;"><i> - ${{ (purchasedSummaryData.TotalPromotionOff)|number_format(2) }}</i></td>
+                </tr>
+                {# set grandTotal = grandTotal - purchasedSummaryData.TotalPromotionOff #}
+            {% endif %}
+            <tr>
+                <td colspan="4" align="right" style="font-family:Times New Roman;font-size:14px;"><i>{{ purchasedSummaryData.BundleName }}</i></td>
+                <td style="font-family:Times New Roman;font-size:14px;"><i> - ${{ purchasedSummaryData.TotalBundleDiscount|number_format(2) }}</i></td>
+            </tr>
+        {% else %}
+            {% if purchasedSummaryData.TotalPromotionOff > 0 %}
+                <tr>
+                    <td colspan="4" align="right"><b>Promotion Off ({{ purchasedSummaryData.TotalPromotionPer }}%)</b></td>
+                    <td><i> - ${{ (purchasedSummaryData.TotalPromotionOff)|number_format(2) }}</i></td>
+                </tr>
+                {# set grandTotal = grandTotal - purchasedSummaryData.TotalPromotionOff #}
+            {% endif %}
+        {% endif %}
+        {% if TotalDiscountCodeAmount != 0 and TotalDiscountCodeAmount is not null%}
+            <tr>
+                <td colspan="4" align="right"><b>Promo Code Discount</b></td>
+                <td> - ${{ TotalDiscountCodeAmount|number_format(2) }}</td>                    
+            </tr>
+        {% endif %}
+        <tr>
+            <td colspan="4" align="right" style="font-family:Times New Roman;font-size:14px;">Grand Total</td>
+            <td style="font-family:Times New Roman;font-size:14px;">${{ grandTotal|number_format(2) }}</td>                    
+        </tr>
+
+        {% if totalRefund > 0 %}
+            <tr>
+                <td colspan="5" style="font-family:Times New Roman;font-size:14px;">Refunded Payment Summary</td>                                        
+            </tr>
+            <tr>
+                <td colspan="4" align="right" style="font-family:Times New Roman;font-size:14px;">This amount refunded in your selected payment option account.</td>
+                <td style="font-family:Times New Roman;font-size:14px;">${{ totalRefund|number_format(2) }}</td>                    
+            </tr>
+        {% endif %}
+
+    </table>
+{% endif %}
+<br/>
+<span style="font-family:Times New Roman;font-size:14px;">Questions? Talk to us on <a href="{{supportpage}}">{{supportpage}}</a> or go to <a href="{{ httpProtocol ~ companydomain}}/support">{{ httpProtocol ~ companydomain}}/support</a> and tell us what you think. We'd love to hear from you.</span>
+<br /><br />
+<span style="font-family:Times New Roman;font-size:14px;">Thank you!</span>
+{# <br /><br /><span style="font-family:Times New Roman;font-size:14px;">exchangevue.com/support</span> #}

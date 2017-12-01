@@ -1,0 +1,151 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+	<section class="content-header">
+		<h1>Edit Global Bundle Discount</h1>
+	</section>		  
+	
+	<section class="content">
+    	<div class="row">
+        	<div class="col-md-12">
+           		<div class="box box-success">
+                                        {% if isValidDiscountRangeSlot == false %}
+                                            <div class="msgBoxCont">
+                                                <div class="alert alert-danger">
+                                                    <button data-dismiss="alert" class="close" type="button">×</button>
+                                                    Some error during updating global discount amount : Range is already available!
+                                                </div>
+                                            </div>
+                                        {% endif %}
+					<form action="{{ path('dhi_admin_global_discount_edit',{ 'id': id }) }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="form-global-discount" novalidate>
+						<div class="box-body form-group-section">
+						
+							<div class="form-group col-md-4">
+								<label class="control-label">Country: </label>
+								<div>{{ form_widget(form.country, { 'attr': { 'placeholder': 'Country', 'class': 'form-control'}}) }}
+		                        <div class="serverError">{{ form_errors(form.country) }}</div>
+                                        </div>
+							</div>
+							
+							<div class="form-group col-md-4">
+								<label class="control-label">Minimum Amount: </label>
+								<div>{{ form_widget(form.minAmount, { 'attr': { 'placeholder': 'Minimum Amount', 'class': 'form-control inputFromAmount'}}) }}
+		                        <div class="serverError">{{ form_errors(form.minAmount) }}</div>
+                                        </div>
+							</div>
+							
+							<div class="form-group col-md-4">
+								<label class="control-label">Maximum Amount: </label>
+								<div>{{ form_widget(form.maxAmount, { 'attr': { 'placeholder': 'Maximum Amount', 'class': 'form-control inputToAmount'}}) }}
+		                        <div class="serverError">{{ form_errors(form.maxAmount) }}</div>
+                                        </div>
+							</div>
+                                                        
+							<div class="form-group col-md-4">
+								<label class="control-label">Discount(%): </label>
+		                        <div>{{ form_widget(form.percentage, { 'attr': { 'placeholder': 'Discount', 'class': 'form-control inputDiscount'}}) }}
+		                        <div class="serverError">{{ form_errors(form.percentage) }}</div>
+                                        </div>
+		                	</div>
+		                </div>
+
+                        
+                
+                        <div class="box-footer">
+                            {{ form_rest(form) }}
+                        	<div class="col-md-8 add-btn-bx"> 
+                        		<input type="submit" name="update" value="Update" class="btn btn-success"/>
+                        		<a href="{{ path('dhi_admin_global_discount_list') }}" class="btn btn-default">Back</a>
+                        	</div>
+                        </div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+<script type="text/javascript">
+    
+    $(document).ready(function() {
+        
+        $.validator.addMethod('lessThan', function(value, element, param) {
+		
+        var $max = $(param);
+        
+		if(value <= parseInt($max.val())){
+            
+            return false;
+            
+		}else{
+            
+			return true;
+		}		
+	    //return this.optional(element) || value <= $(param).val();
+	      
+	});
+	
+	$.validator.addMethod('greaterThan', function(value, element, param) {
+		
+        var $min = $(param);
+        
+		if(value >= parseInt($min.val())){
+            
+          	return false;
+            
+		}else{
+          	return true;
+		}
+	      //return this.optional(element) || value >= $(param).val();
+
+	});
+        
+        $('#form-global-discount').validate({
+        	rules: {
+        		"dhi_global_discount[minAmount]": {
+                    "required": true,
+                    "digits" : true,
+                    "maxlength": 9,
+                    "greaterThan":'#dhi_global_discount_maxAmount'
+                },
+                "dhi_global_discount[maxAmount]": {
+                    "required": true,
+                    "digits" : true,
+                    "maxlength": 9,
+                    "lessThan":'#dhi_global_discount_minAmount'
+                },
+                 "dhi_global_discount[percentage]": {
+                    "required": true,
+                    "digits" : true,
+                    "maxlength": 9
+                }
+            },
+            messages: {
+                
+                "dhi_global_discount[minAmount]": {
+                    "required": "Please enter minimum amount",
+                    "digits" : "Please enter valid number",
+                    "greaterThan": "Must be less than maximum amount",
+                    "maxlength": "Minimum Amount can have maximum 9 digits."
+                },
+                "dhi_global_discount[maxAmount]": {
+                    "required": "Please enter maximum amount",
+                    "digits" : "Please enter valid number",
+                    "lessThan": "Must be greater than minimum amount.",
+                    "maxlength": "Maximum Amount can have maximum 9 digits."
+                },
+                 "dhi_global_discount[percentage]": {
+                    "required": "Please enter percentage",
+                    "digits" : "Please enter valid number",
+                    "maxlength": "Discount(%) Amount can have maximum 9 digits."
+                }
+            }
+        });
+        
+    });
+    
+</script>
+{% endblock javascripts %}

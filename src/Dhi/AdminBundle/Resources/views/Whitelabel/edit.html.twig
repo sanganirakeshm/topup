@@ -1,0 +1,406 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+    {% include "DhiUserBundle::flashMessage.html.twig" %}
+    <section class="content-header"><h1>Edit Site</h1></section>
+    <section class="content">
+        <div class="box box-success">
+            <form action="{{ path('dhi_admin_white_label_edit', {'id': whitelabel.id}) }}" method="POST" {{ form_enctype(form) }} id="edit_white_label" class="form-horizontal" novalidate>
+                <div class="box-body">
+                    <div class="form-group col-sm-4">
+                        <label class="control-label">Site Name: </label>
+                        <div>
+                            {{ form_widget(form.companyName, { 'attr': { 'placeholder': 'Site Name', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.companyName) }}</div>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="control-label">Site Domain: </label>
+                        <div>
+                            {{ form_widget(form.domain, { 'attr': { 'placeholder': 'Site Domain', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.domain) }}</div>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="control-label">Facebook URL: </label>
+                        <div>
+                            {{ form_widget(form.supportpage, { 'attr': { 'placeholder': 'Facebook URL', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.supportpage) }}</div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                      <div class="form-group col-sm-4">
+                        <label class="control-label">From Email: </label>
+                        <div>
+                            {{ form_widget(form.fromEmail, { 'attr': { 'placeholder': 'From Email', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.fromEmail) }}</div>
+                        </div>
+                    </div>
+                     <div class="form-group col-sm-4">
+                        <label class="control-label">Support Email: </label>
+                        <div>
+                            {{ form_widget(form.supportEmail, { 'attr': { 'placeholder': 'Support Email', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.supportEmail) }}</div>
+                        </div>
+                    </div>
+                     <div class="form-group col-sm-4">
+                        <label class="control-label">Status: </label>
+                        <div>
+                            {{ form_widget(form.status, { 'attr': { 'placeholder': 'Active', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form.status) }}</div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Header Logo (Width: 311, Height: 114): </label>
+                            <div>
+                                {{ form_widget(form.headerLogo, { 'attr' : { 'class':'imgControl', 'data-width' : 311, 'data-height' : 114 } }) }}
+                                    {% if whitelabel.headerLogo %}
+                                        <a href="javascript:void(0);" class="btn btn-success" style="float:right" onclick="removeimage('{{whitelabel.headerLogo}}','HeadeLogo')">Remove Image</a>
+                                 
+                                        <div>
+                                            <img class="margintop10" src="{{app.request.getUriForPath("/uploads/whitelabel/headerlogo/#{whitelabel.headerLogo}")|replace({"/app_dev.php": ''})}}" width="311">
+                                        </div>
+                                    {% endif %}
+                                 <input type="hidden" name="hlogoimage" id="hlogoimage" value="{{whitelabel.headerLogo}}">
+                                <div class="serverError">{{ form_errors(form.headerLogo) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="col-xs-12">
+                         <div class="form-group">
+                            <label class="control-label">Footer Logo (Width: 270, Height: 98): </label>
+                            <div>
+                                {{ form_widget(form.footerLogo, { 'attr' : { 'class':'imgControl', 'data-width' : 270, 'data-height' : 98 } }) }}
+                                {% if whitelabel.footerLogo %}
+                                    <a href="javascript:void(0);" class="btn btn-success" style="float:right" onclick="removeimage('{{whitelabel.footerLogo}}','FooterLogo')">Remove Image</a>
+                                    <div><img class="margintop10" src="{{app.request.getUriForPath("/uploads/whitelabel/footerlogo/#{whitelabel.footerLogo}")|replace({"/app_dev.php": ''})}}" width="270"></div>
+                                {% endif %}
+                                <input type="hidden" name="flogoimage" id="flogoimage" value="{{whitelabel.footerLogo}}">
+                                <div class="serverError">{{ form_errors(form.footerLogo) }}</div>
+                            </div>
+                        </div>
+                     </div>
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Branding Banner (Width: 1133, Height: 411): </label>
+                            <div>
+                                {{ form_widget(form.brandingBanner, { 'attr' : { 'class':'imgControl', 'data-width' : 1133, 'data-height' : 411 } }) }}
+                                {% if whitelabel.brandingBanner %}
+                                    <a href="javascript:void(0);" class="btn btn-success" style="float:right" onclick="removeimage('{{whitelabel.brandingBanner}}','BrandingBanner')">Remove Image</a>
+                                    <div><img class="margintop10" src="{{app.request.getUriForPath("/uploads/whitelabel/brandingbanner/#{whitelabel.brandingBanner}")|replace({"/app_dev.php": ''})}}" width="700"></div>
+                               {% endif %}
+                                <input type="hidden" name="bbimage" id="bbimage" value="{{whitelabel.brandingBanner}}">
+                                <div class="serverError">{{ form_errors(form.brandingBanner) }}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Background Image (Width: 521, Height: 760): </label>
+                            <div>
+
+                                {{ form_widget(form.backgroundimage, { 'attr' : { 'class':'imgControl', 'data-width' : 521, 'data-height' : 760 } }) }} 
+                                {% if whitelabel.backgroundimage %}
+                                <a href="javascript:void(0);" class="btn btn-success" style="float:right" onclick="removeimage('{{whitelabel.backgroundimage}}','BackgroundImage')">Remove Image</a>
+
+                                <div><img class="margintop10" src="{{app.request.getUriForPath("/uploads/whitelabel/backgroundimage/#{whitelabel.backgroundimage}")|replace({"/app_dev.php": ''})}}" width="521"></div>
+                                {% endif %}
+                                <input type="hidden" name="bckimage" id="bckimage" value="{{whitelabel.backgroundimage}}">
+                                <div class="serverError">{{ form_errors(form.backgroundimage) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">Branding Banner Inner Page (Width: 674, Height: 241): </label>
+                            <div>
+                                {{ form_widget(form.brandingBannerInnerPage, { 'attr' : { 'class':'imgControl', 'data-width' : 674, 'data-height' : 241 } }) }}
+                                {% if whitelabel.brandingBannerInnerPage %}
+                                  <a href="javascript:void(0);" class="btn btn-success" style="float:right" onclick="removeimage('{{whitelabel.brandingBannerInnerPage}}','BrandingBannerInnerPage')">Remove Image</a>
+
+                                    <div><img class="margintop10" src="{{app.request.getUriForPath("/uploads/whitelabel/brandingbannerinnerpage/#{whitelabel.brandingBannerInnerPage}")|replace({"/app_dev.php": ''})}}" width="674"></div>
+                                 {% endif %}
+                                 <input type="hidden" name="bbipimage" id="bbipimage" value="{{whitelabel.brandingBannerInnerPage}}">
+                                <div class="serverError">{{ form_errors(form.brandingBannerInnerPage) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                          <div class="form-group ">
+                            <label class="control-label">Favicon (Width: 20, Height: 20): </label>
+                            <div>
+                                {{ form_widget(form.favicon, { 'attr' : { 'class':'imgControl', 'data-width' : 20, 'data-height' : 20 } }) }}
+                                {% if whitelabel.favicon %}
+                                  <a href="javascript:void(0);" class="btn btn-success" style="float:right" onclick="removeimage('{{whitelabel.favicon}}','Favicon')">Remove Image</a>
+                                
+                                    <div><img class="margintop10" src="{{app.request.getUriForPath("/uploads/whitelabel/favicon/#{whitelabel.favicon}")|replace({"/app_dev.php": ''})}}" width="20"></div>
+                                {% endif %}
+                                <input type="hidden" name="favimage" id="favimage" value="{{whitelabel.favicon}}">
+                                <div class="serverError">{{ form_errors(form.favicon) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="validateImg" id="validateImg" value="0" />
+                {{ form_rest(form) }}
+                <div class="box-footer">	
+                    <div class="col-sm-12 col-md-12 col-xs-12">
+                        <input type="submit" class="btn btn-success" name="update" value="Update"/>
+                        <a href="{{ path('dhi_admin_white_label_list') }}" class="btn btn-default">Back</a>
+                    </div>
+                </div>  
+            </form>
+        </div>
+    </section>
+     <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+   <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+   <script src="{{ asset('bundles/dhiadmin/js/additional-methods.min.js') }}"></script>  
+   <script type="text/javascript" src="{{ asset('bundles/dhiuser/js/commonFunction.js') }}"></script>
+<script>
+ $(document).ready(function () {
+        $.validator.addMethod("regex_domain", function(value, element, domainRegex) {
+           var regexpr = new RegExp(domainRegex);
+            return regexpr.test(value);
+        }, "Please Enter valid domain");
+        
+
+        $(".imgControl").change(function(e){
+            var _URL = window.URL || window.webkitURL;
+            var file, img;
+            var width = $(this).data('width');
+            var height = $(this).data('height');
+            var myId = $(this).attr('id');
+
+            if ((file = this.files[0])) {
+                img = new Image();
+                img.onload = function () {
+
+                    if(this.width != width || this.height != height){
+                        $("#validateImg").val(1);
+                        if($("#"+ myId + "-image-error").length > 0){
+                            $("#"+ myId + "-image-error").show();
+                        }else{
+                            $('<label id="'+ myId +'-image-error" class="emsg">Please select valid image.</label>').insertAfter("#"+myId);
+                        }
+                    }else{
+                        $("#validateImg").val(0);
+                        $("#"+ myId + "-image-error").hide();
+                    }
+                };
+                img.src = _URL.createObjectURL(file);
+            }
+        });
+
+        var reqvarhlogo = false;
+        var reqvarflogo = false;
+        var reqvarbbimage = false;
+        var reqvarbbspimage = false;
+        var reqvarbbipimage = false;
+        var reqvarfavimage = false;
+        var reqvarbckimage = false;
+        
+        if($('#hlogoimage').val()==''){reqvarhlogo = true;}
+        if($('#flogoimage').val()==''){reqvarflogo = true; }
+        if($('#bbimage').val()=='' ){reqvarbbimage = true;}
+        if($('#bbspimage').val()==''){reqvarbbspimage = true;}    
+        if($('#bbipimage').val()==''){reqvarbbipimage = true;} 
+        if($('#favimage').val()==''){reqvarfavimage = true;}
+        if($('#bckimage').val()==''){reqvarbckimage = true;}
+
+        $.validator.addMethod(
+            "multiemail",
+            function (value, element) {
+                var email = value.split(/[;,]+/); // split element by , and ;
+                valid = true;
+                for (var i in email) {
+                    value = email[i];
+                    valid = valid && $.validator.methods.email.call(this, $.trim(value), element);
+                }
+                return valid;
+            },
+            $.validator.messages.multiemail
+        );
+
+        $('#edit_white_label').validate({
+            rules: {
+                "dhi_admin_white_label[companyName]": {
+                    "required": true,
+                    remote: {
+                        url: "{{ path('dhi_admin_white_label_check_site_details') }}",
+                        type: "post",
+                        data:{
+                            id: "{{ whitelabel.id }}"
+                        }
+                    }
+                },
+                "dhi_admin_white_label[domain]": {
+                   "required": true,    
+                   "regex_domain": "^[a-z0-9][a-z0-9\-]+[a-z0-9](\.[a-z]{2,5})+$",
+                    remote: {
+                        url: "{{ path('dhi_admin_white_label_check_site_details') }}",
+                        type: "post",
+                        data:{
+                            id: "{{ whitelabel.id }}"
+                        }
+                    }
+               },
+                "dhi_admin_white_label[fromEmail]": {
+                    "required": true,
+                    "email": true
+                },
+                "dhi_admin_white_label[supportpage]": {
+                    "required": true,
+                    "url"  : true
+                },
+                "dhi_admin_white_label[supportEmail]": {
+                    "required": true,
+                    "multiemail": true
+                },
+                "dhi_admin_white_label[status]": {
+                    "required": true
+                },
+                "dhi_admin_white_label[headerLogo]": {
+                    "required": reqvarhlogo,
+                    "extension": "jpeg|png|jpg"
+                },                   
+                "dhi_admin_white_label[footerLogo]": {
+                    "required": reqvarflogo,
+                    "extension": "jpeg|png|jpg"
+                },
+                "dhi_admin_white_label[brandingBanner]": {
+                    "required": reqvarbbimage,
+                    "extension": "jpeg|png|jpg"
+                },
+                "dhi_admin_white_label[brandingBannerInnerPage]": {
+                    "required": reqvarbbipimage,
+                    "extension": "jpeg|png|jpg"
+                },
+                "dhi_admin_white_label[favicon]": {
+                    "required": reqvarfavimage,
+                    "extension": "png|ico|gif|jpeg|jpg"
+                }
+                ,
+                "dhi_admin_white_label[backgroundimage]": {
+                    "required": reqvarbckimage,
+                    "extension": "jpeg|png|jpg"
+                }
+            },
+            messages: {
+                "dhi_admin_white_label[companyName]": {
+                    "required": "Please enter site name.",
+                    remote: "Site name is already exists."
+                },
+                "dhi_admin_white_label[domain]": {
+                    "required": "Please enter site domain.",
+                    "regex_domain"     : "Please enter valid domain",
+                    remote: "Site domain already exists."
+                },
+                "dhi_admin_white_label[supportpage]": {
+                    "required": "Please enter facebook URL",
+                    "url"     : "Please enter valid facebook URL"
+                },
+                "dhi_admin_white_label[fromEmail]": {
+                    "required": "Please enter from email.",
+                    "email": "Please enter valid email"
+                },
+                "dhi_admin_white_label[supportEmail]": {
+                    "required": "Please enter suport emails",
+                    "multiemail": "You must enter a valid email, or comma separate multiple"
+                },
+                "dhi_admin_white_label[status]": {
+                    "required": "Please select status"
+                },
+                "dhi_admin_white_label[headerLogo]": {
+                    "required": "Please Upload Header Logo",
+                    "extension": "Please upload jpg, jpeg or png file."
+                },
+                "dhi_admin_white_label[footerLogo]": {
+                    "required": "Please Upload Footer Logo",
+                    "extension": "Please upload jpg, jpeg or png file."
+                },
+                "dhi_admin_white_label[brandingBanner]": {
+                    "required": "Please Upload Branding banner",
+                    "extension": "Please upload jpg, jpeg or png file."
+                },
+                "dhi_admin_white_label[brandingBannerInnerPage]": {
+                    "required": "Please Upload Branding banner for inner page",
+                    "extension": "Please upload jpg, jpeg or png file."
+                },
+                "dhi_admin_white_label[favicon]": {
+                    "required": "Please upload favicon",
+                    "extension": "Please upload ico, gif or png file."
+                },
+                "dhi_admin_white_label[backgroundimage]": {
+                    "required": "Please upload background image.",
+                    "extension": "Please upload jpg, jpeg or png file."
+                }
+
+            }
+        });
+
+        $("#edit_white_label").submit(function(){
+            if($("#validateImg").val() == 0 && $("#edit_white_label").valid()){
+                return true;
+            }else{
+                return false;
+            }
+        });
+  });
+  
+  function removeimage(imagefile,type){
+      
+      
+      var sId = '{{siteId}}';
+       
+         $.confirm({
+                title: 'Remove Site Image',
+                content: 'Are you sure you want to remove image?',
+                icon: '',
+                confirmButton: 'Yes',
+                cancelButton: 'No',
+                confirmButtonClass: 'btn-info',
+                cancelButtonClass: 'btn-danger',
+                theme: 'white',
+                animation: 'scale',
+                animationSpeed: 400,
+                animationBounce: 1.5,
+                keyboardEnabled: false,
+                container: 'body',
+                confirm: function(){
+                    $.ajax({
+                        type: "POST",
+                        url: '{{ path('dhi_admin_white_label_remove_image') }}',
+                        data: { imagefile: imagefile, imagetype: type,siteid:sId },
+                        beforeSend: function (xhr) {
+                            $('#ajax-loader-bx').show();
+                        },
+                        success: function (result) {
+                            $('#ajax-loader-bx').hide();
+                            var redirecturl = '{{ path('dhi_admin_white_label_edit', {'id': 'siteid'}) }}';
+                            redirecturl = redirecturl.replace("siteid", '{{siteId}}');
+                            window.location.href = redirecturl;
+                        }
+                    });
+                },
+                cancel: function() {},
+                contentLoaded: function() {},
+                backgroundDismiss: false,
+                autoClose: false,
+                closeIcon: true
+            });
+       
+       
+  }
+  
+    
+</script>
+{% endblock javascripts %}

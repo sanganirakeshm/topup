@@ -1,0 +1,144 @@
+{% extends "DhiIsppartnerBundle::layout.html.twig" %}
+
+{% block title %}Welcome ExchangeVUE ISP Partner Portal | Edit Promo code{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('bundles/dhiisppartner/css/jquery-ui-1.10.3.custom.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('bundles/dhiisppartner/FCBKcomplete/style.css') }}" type="text/css" media="screen" charset="utf-8" />
+
+    <style type="text/css">
+        .ui-datepicker-trigger { float: right;  margin-right: -20px; margin-top: -24px; }
+    </style>
+{% endblock stylesheets %}
+
+{% block body %}
+    <section class="content-header"><h1>Edit Partner Promo Code</h1></section>
+    <section class="content">
+        <div class="box box-success">
+            <form action="{{ path('dhi_isppartner_promocode_edit',{'batchId': app.request.get('batchId'), 'codeId': app.request.get('codeId') }) }}" method="POST" {{ form_enctype(form_code) }} id="edit_parter_promo_code" class="form-horizontal" novalidate>
+                <div class="box-body">
+                    <div class="col-xs-12">
+                         <div class="form-group col-xs-4">
+                            <label class="control-label">Status: </label>
+                            {{ form_widget(form_code.status, { 'attr': { 'placeholder': 'Enter duration', 'class': 'form-control'}}) }}
+                            <div class="serverError">{{ form_errors(form_code.status) }}</div>
+                            <label id="dhi_admin_promo_code_duration-error" class="error" for="dhi_admin_promo_code_duration"></label>
+                        </div>       
+                        
+
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="form-group col-sm-4">
+                            <label class="control-label">Reason: </label>
+                            <div>
+                                {{ form_widget(form_batch.reason, { 'attr': { 'placeholder': 'Enter reason', 'class': 'form-control'}}) }}
+                                <div class="serverError">{{ form_errors(form_batch.reason) }}</div>
+                                <label id="dhi_admin_promo_code_service-error" class="error" for="dhi_admin_promo_code_service"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box-footer">
+                    {{ form_rest(form_batch) }}
+                    {{ form_rest(form_code) }}
+                    <div class="col-sm-12">
+                        <div class="col-sm-6">
+                            <input type="submit" class="btn btn-success" name="update" value="Update"/>
+                            <a href="{{ path('dhi_isppartner_dashboard') }}" class="btn btn-default">Back</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    {{ tinymce_init() }}
+
+    <div class="modal fade" id="emailPreviewModal" tabindex="-1" role="dialog" aria-labelledby="emailPreviewModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+            </div>
+        </div>
+    </div>
+
+    <div id="ajax-loader-bx" style="display:none;">
+        <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+        <div id="loader-text">Please wait....</div>
+    </div>
+
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('bundles/dhiisppartner/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiisppartner/FCBKcomplete/jquery.fcbkcomplete.js') }}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            
+            $("#edit_parter_promo_code").submit(function () {
+                // update underlying textarea before submit validation
+
+                tinyMCE.triggerSave();
+            }).validate({
+                ignore: [],
+                rules: {
+                    "dhi_admin_partner_promo_code_batch[reason]": {
+                        "required": true,
+                        "maxlength": 255,
+                    },
+                    "dhi_admin_partner_promo_code[status]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_admin_partner_promo_code_batch[reason]": {
+                        "required": "Please enter reason.",
+                         "maxlength": "Reason can have maximum 255 characters",
+                    },
+                    "dhi_admin_partner_promo_code[status]": {
+                        "required": "Please select status."
+                    }
+                }
+            });
+            
+            $('#dhi_admin_partner_promo_code_serviceLocations').change(function () {
+
+
+                var locationId = $('#dhi_admin_partner_promo_code_serviceLocations').val();
+                var partnerId = {{ partnerId }};
+                $.ajax({
+                    type: "POST",
+                    url: "{{ path('dhi_admin_get_partner_promo_code_package') }}",
+                    data: {locationId: locationId, partnerId: partnerId},
+                    beforeSend: function (xhr) {
+
+                        $('#ajax-loader-bx').show();
+                    },
+                    success: function (result) {
+
+                        $('#dhi_admin_partner_promo_code_packageId').empty();
+                        //var s = document.getElementById('dhi_admin_partner_promo_code_packageId');
+                        //s.options[0] = new Option('Select', 0);
+                        var s = document.getElementById('dhi_admin_partner_promo_code_packageId');  
+                        var cnt = 0;
+                        $.each(result, function (key, value) {
+                            //var pkgId = value.packageId;
+                            //var pkgName = value.packageName;
+                            
+                            s.options[cnt]= new Option(value, parseInt(key));
+                            cnt++;
+                            //$("#dhi_admin_partner_promo_code_packageId").append('<option value="' + parseInt(pkgId) + '">' + pkgName + '</option>');
+                        });
+
+                        $('#ajax-loader-bx').hide();
+                    }
+                });
+            });
+
+        });
+    </script>
+{% endblock javascripts %}

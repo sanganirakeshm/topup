@@ -1,0 +1,63 @@
+{% extends "DhiAdminBundle::login_layout.html.twig" %}
+
+{% block body %}
+    <div class="login-box">
+      <div class="login-logo">
+	  <a href="{{ url('dhi_admin_dashboard') }}"><img src="{{ asset('bundles/dhiadmin/images/dhi_telecom_logo.png') }}" width="180" height="70"></a>
+      </div>
+	  <div class="login-box-body">
+		<h4 class="login-box-msg">Forgot Password</h4>
+            
+                {% block fos_user_content %}
+                    {% trans_default_domain 'FOSUserBundle' %}
+                    
+                    <form action="{{ path('dhi_admin_resetting_send_email') }}" method="POST" class="fos_user_resetting_request" id="forgot_password">
+                        {% include "DhiUserBundle::flashMessage.html.twig" %}
+                        
+                            {% if invalid_username is defined %}
+                                <p>{{ 'resetting.request.invalid_username'|trans({'%username%': invalid_username}) }}</p>
+                            {% endif %}
+{#                            <label for="username">{{ 'resetting.request.username'|trans }}</label>#}
+                            <div class="form-group has-feedback">
+                                <!--<input type="text" id="username" name="username" required="required" class="form-control" placeholder="username or email address" />-->
+                                {{ form_widget(requestPasswordForm.usernameoremail, { 'attr': { 'placeholder': 'username or email address', 'class': 'form-control'}}) }}
+                                {% if form_errors(requestPasswordForm.usernameoremail) %}
+                                    <div class="serverError">{{ form_errors(requestPasswordForm.usernameoremail) }}</div>
+                                    <div class="clear">&nbsp;</div>
+                                {% endif %}
+			    </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+				<input type="submit" value="{{ 'resetting.request.submit'|trans }}" class="btn btn-success "/>
+                            </div>
+                        </div>
+                        {{ form_rest(requestPasswordForm) }}
+                    </form>
+                {% endblock fos_user_content %}
+            
+        </div>
+    </div>
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+                        
+            $('#forgot_password').validate({
+                rules: {
+                    "dhi_admin_request_password[usernameoremail]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_admin_request_password[usernameoremail]": {
+                        "required": "Please enter username/email.",
+                    }
+                }
+            });
+        });
+    </script>
+
+{% endblock javascripts %}

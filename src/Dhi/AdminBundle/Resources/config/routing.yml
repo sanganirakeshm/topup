@@ -1,0 +1,1855 @@
+admin_homepage:
+    pattern:  /
+    defaults: { _controller: DhiAdminBundle:Security:login }
+
+admin_login:
+    pattern:  /login
+    defaults: { _controller: DhiAdminBundle:Security:login }
+
+admin_login_check:
+    pattern:  /login_check
+    defaults: { _controller: FOSUserBundle:Security:check }
+
+admin_logout:
+    pattern:  /logout
+    defaults: { _controller: FOSUserBundle:Security:logout }
+
+dhi_admin_dashboard:
+    pattern:  /dashboard
+    defaults: { _controller: DhiAdminBundle:Dashboard:index }
+
+dhi_admin_dashboard_chart:
+    pattern:  /dashboard/chart/all-data
+    defaults: { _controller: DhiAdminBundle:Dashboard:getChartData }
+
+dhi_admin_dashboard_payment_method_chart:
+    pattern:  /dashboard/chart/payment-method/data
+    defaults: { _controller: DhiAdminBundle:Dashboard:getPaymentMethodChartData }
+
+dhi_admin_dashboard_pm_payment_method_chart:
+    pattern:  /dashboard/chart/prev-payment-method/data
+    defaults: { _controller: DhiAdminBundle:Dashboard:getPreviousMonthPaymentMethodChartData }
+
+dhi_admin_dashboard_service_location_chart:
+    pattern:  /dashboard/chart/service-location/data
+    defaults: { _controller: DhiAdminBundle:Dashboard:getServiceLocationChartData }
+
+dhi_admin_dashboard_pm_service_location_chart:
+    pattern:  /dashboard/chart/prev-service-location/data
+    defaults: { _controller: DhiAdminBundle:Dashboard:getPreviousMonthServiceLocationChartData }
+
+dhi_admin_user_list:
+    pattern:  /user/user-list
+    defaults: { _controller: DhiAdminBundle:User:index }
+
+dhi_admin_user_list_json:
+    pattern:  /user/user-list-json
+    defaults: { _controller: DhiAdminBundle:User:userListJson }
+
+dhi_admin_list:
+    pattern:  /admin-list
+    defaults: { _controller: DhiAdminBundle:Admin:index }
+
+dhi_admin_list_json:
+    pattern:  /admin-list-json
+    defaults: { _controller: DhiAdminBundle:Admin:adminListJson }
+
+dhi_admin_new:
+    pattern:  /add-new-admin
+    defaults: { _controller: DhiAdminBundle:Admin:new }
+
+dhi_admin_edit:
+    pattern:  /edit-admin/{id}
+    defaults: { _controller: DhiAdminBundle:Admin:edit }
+
+dhi_admin_delete:
+    pattern:  /delete-admin
+    defaults: { _controller: DhiAdminBundle:Admin:delete }
+
+dhi_user_new:
+    pattern:  /add-customer
+    defaults: { _controller: DhiAdminBundle:User:new }
+
+dhi_admin_edit_customer:
+    pattern:  /edit-customer/{id}
+    defaults: { _controller: DhiAdminBundle:User:edit }
+
+dhi_admin_delete_customer:
+    pattern:  /delete-customer
+    defaults: { _controller: DhiAdminBundle:User:delete }
+
+dhi_admin_view_customer:
+    pattern:  /view-customer/{id}
+    defaults: { _controller: DhiAdminBundle:User:view }
+
+dhi_admin_password_resetting_request:
+    pattern:  /resetting/request
+    defaults: { _controller: DhiAdminBundle:Resetting:request }
+
+dhi_admin_password_reset_success:
+    path:     /resetting/password-reset-success
+    defaults: { _controller: DhiAdminBundle:Resetting:resetSuccess }
+
+dhi_admin_resetting_send_email:
+    path:     /resetting/check-email
+    defaults: { _controller: DhiAdminBundle:Resetting:sendEmail }
+
+dhi_admin_resetting_check_email:
+    path:     /resetting
+    defaults: { _controller: DhiAdminBundle:Resetting:checkEmail }
+
+dhi_admin_reset_password:
+    path:     /resetting/reset/{token}
+    defaults: { _controller: DhiAdminBundle:Resetting:reset }
+
+dhi_admin_email_campaign_new:
+    pattern:  /email-campaign/add-email-campaign
+    defaults: { _controller: DhiAdminBundle:EmailCampaign:new }
+
+dhi_admin_email_campaign_list:
+    pattern:  /email-campaign/email-campaign-list
+    defaults: { _controller: DhiAdminBundle:EmailCampaign:index }
+
+dhi_admin_email_campaign_edit:
+    pattern:  /email-campaign/edit-email-campaign/{id}
+    defaults: { _controller: DhiAdminBundle:EmailCampaign:edit }
+
+dhi_admin_email_campaign_delete:
+    pattern:  /email-campaign/delete-email-campaign
+    defaults: { _controller: DhiAdminBundle:EmailCampaign:delete }
+
+dhi_admin_email_campaign_list_json:
+    pattern:  /email-campaign/email-campaign-list-json
+    defaults: { _controller: DhiAdminBundle:EmailCampaign:emailCampaignListJson }
+
+dhi_admin_email_campaign_send:
+    pattern:  /email-campaign/send-email-campaign/{id}
+    defaults: { _controller: DhiAdminBundle:EmailCampaign:sendEmail }
+
+dhi_admin_survey_monkey_mail_list:
+    pattern:  /survey-monkey-mail/survey-monkey-mail-list
+    defaults: { _controller: DhiAdminBundle:SurveyMonkeyMail:index }
+
+dhi_admin_survey_monkey_mail_json:
+    pattern:  /survey-monkey-mail/survey-monkey-mail-list-json
+    defaults: { _controller: DhiAdminBundle:SurveyMonkeyMail:surveyMonkeyMailListJson }
+
+dhi_admin_survey_monkey_mail_edit:
+    pattern:  /edit-survey-monkey-mail/edit-survey-monkey-mail-campaign/{id}
+    defaults: { _controller: DhiAdminBundle:SurveyMonkeyMail:edit }
+
+dhi_admin_user_log:
+    pattern:  /user/user-login-log/{id}
+    defaults: { _controller: DhiAdminBundle:User:loginLog, id:0 }
+
+dhi_admin_user_log_export:
+    pattern:  /user/user-login-log-export/{id}
+    defaults: { _controller: DhiAdminBundle:User:loginLogExport, id:0 }
+
+dhi_admin_user_log_export_print:
+    pattern:  /user/user-login-log-export-print/{id}
+    defaults: { _controller: DhiAdminBundle:User:loginLogExportPrint, id:0 }
+
+dhi_admin_user_log_print:
+    pattern:  /user/user-login-log-print/{id}
+    defaults: { _controller: DhiAdminBundle:User:loginLogPrint, id:0 }
+
+dhi_admin_user_log_json:
+    pattern:  /user/user-login-log-json/{id}
+    defaults: { _controller: DhiAdminBundle:User:loginLogListJson, id:0 }
+
+dhi_countrywiseservice_new:
+    pattern:  /service/add-countrywise-service
+    defaults: { _controller: DhiAdminBundle:CountrywiseService:new }
+
+dhi_countrywiseservice_list:
+    pattern:  /service/countrywise-service-list
+    defaults: { _controller: DhiAdminBundle:CountrywiseService:index }
+
+dhi_admin_countrywiseservise_list_json:
+    pattern:  /service/countrywise-service-list-json
+    defaults: { _controller: DhiAdminBundle:CountrywiseService:countryWiseServiceListJson }
+
+dhi_countrywiseservice_delete:
+    pattern:  /service/delete-countrywise-service
+    defaults: { _controller: DhiAdminBundle:CountrywiseService:delete}
+
+dhi_countrywiseservice_edit:
+    pattern:  /service/edit-countrywise-service/{id}
+    defaults: { _controller: DhiAdminBundle:CountrywiseService:edit }
+    
+dhi_admin_validate_coutrywise_bundle_validate:
+    pattern:  /service/countrywise-service-bundle-validate
+    defaults: { _controller: DhiAdminBundle:CountrywiseService:bundlevalidate}
+
+dhi_admin_setting_new:
+    pattern:  /setting/add-setting
+    defaults: { _controller: DhiAdminBundle:Setting:new }
+
+dhi_admin_setting_edit:
+    pattern:  /setting/edit-setting/{id}
+    defaults: { _controller: DhiAdminBundle:Setting:edit }
+
+dhi_admin_setting_delete:
+    pattern:  /setting/delete-setting
+    defaults: { _controller: DhiAdminBundle:Setting:delete }
+
+dhi_admin_setting_list:
+    pattern:  /setting/setting-list
+    defaults: { _controller: DhiAdminBundle:Setting:index }
+
+dhi_admin_setting_list_json:
+    pattern:  /setting/setting-list-json
+    defaults: { _controller: DhiAdminBundle:Setting:settingListJson }
+
+dhi_admin_service_new:
+    pattern:  /service/add-service
+    defaults: { _controller: DhiAdminBundle:Services:new }
+
+dhi_admin_service_list:
+    pattern:  /service/service-list
+    defaults: { _controller: DhiAdminBundle:Services:index }
+
+dhi_admin_service_delete:
+    pattern:  /service/delete-service
+    defaults: { _controller: DhiAdminBundle:Services:delete}
+
+dhi_admin_service_edit:
+    pattern:  /service/edit-service/{id}
+    defaults: { _controller: DhiAdminBundle:Services:edit }
+
+dhi_admin_service_list_json:
+    pattern:  /service/service-list-json
+    defaults: { _controller: DhiAdminBundle:Services:serviceListJson }
+
+dhi_admin_audit_logs:
+    pattern:  /audit-logs
+    defaults: { _controller: DhiAdminBundle:UserActivityLog:index }
+
+dhi_admin_audit_logs_list_json:
+    pattern:  /audit-log-list-json/{historical}
+    defaults: { _controller: DhiAdminBundle:UserActivityLog:activityLogListJson }
+
+dhi_admin_ip_zone_list:
+    pattern:  /service-location-list
+    defaults: { _controller: DhiAdminBundle:IpAddressZone:index }
+
+dhi_admin_ip_zone_list_json:
+    pattern:  /service-location-list-json/{fromip}/{toip}
+    defaults: { _controller: DhiAdminBundle:IpAddressZone:serviceLocationListJson,fromip:0,toip:0 }
+
+dhi_admin_ip_zone_new:
+    pattern:  /add-service-location
+    defaults: { _controller: DhiAdminBundle:IpAddressZone:new }
+
+dhi_admin_ip_zone_edit:
+    pattern:  /edit-service-location/{id}
+    defaults: { _controller: DhiAdminBundle:IpAddressZone:edit }
+
+dhi_admin_ip_zone_delete:
+    pattern:  /delete-service-location
+    defaults: { _controller: DhiAdminBundle:IpAddressZone:delete }
+
+dhi_admin_ajax_ip_zone_delete:
+    pattern:  /ajax-delete-service-location
+    defaults: { _controller: DhiAdminBundle:IpAddressZone:ajaxDelete}
+
+dhi_admin_support_list:
+    pattern:  /support/support-list
+    defaults: { _controller: DhiAdminBundle:Support:index }
+
+dhi_user_support_change_status:
+    path:     /support/change-status/{id}/{status}
+    defaults: { _controller: DhiAdminBundle:Support:changeStatus }
+
+dhi_user_support_view:
+    path:     /support/view-support/{id}
+    defaults: { _controller: DhiAdminBundle:Support:view }
+
+dhi_admin_support_category_list:
+    path:     /support-category/category-list
+    defaults: { _controller: DhiAdminBundle:SupportCategory:index }
+
+dhi_admin_support_category_new:
+    path:     /support-category/add-category
+    defaults: { _controller: DhiAdminBundle:SupportCategory:new }
+
+dhi_admin_support_category_edit:
+    path:     /support-category/edit-category/{id}
+    defaults: { _controller: DhiAdminBundle:SupportCategory:edit }
+
+dhi_admin_support_category_delete:
+    path:     /support-category/delete-category
+    defaults: { _controller: DhiAdminBundle:SupportCategory:delete }
+
+dhi_admin_support_category_list_json:
+    pattern:  /support-category-list-json
+    defaults: { _controller: DhiAdminBundle:SupportCategory:supportCategoryListJson }
+
+dhi_admin_support_location_list:
+    path:     /support-location/location-list
+    defaults: { _controller: DhiAdminBundle:SupportLocation:index }
+
+dhi_admin_support_location_new:
+    path:     /support-location/add-location
+    defaults: { _controller: DhiAdminBundle:SupportLocation:new }
+
+dhi_admin_support_location_edit:
+    path:     /support-location/edit-location/{id}
+    defaults: { _controller: DhiAdminBundle:SupportLocation:edit }
+
+dhi_admin_support_location_delete:
+    path:     /support-location/delete-location
+    defaults: { _controller: DhiAdminBundle:SupportLocation:delete}
+
+dhi_admin_support_location_list_json:
+    path:     /support-location/support-location-list-json
+    defaults: { _controller: DhiAdminBundle:SupportLocation:supportLocationListJson }
+
+dhi_admin_package_list:
+    path:     /package/package-list
+    defaults: { _controller: DhiAdminBundle:Package:index }
+
+dhi_admin_package_list_json:
+    path:     /package/package-list-json
+    defaults: { _controller: DhiAdminBundle:Package:packageListJson }
+
+dhi_admin_package_new:
+    path:     /package/add-package
+    defaults: { _controller: DhiAdminBundle:Package:new }
+
+dhi_admin_package_edit:
+    path:     /package/edit-package/{id}
+    defaults: { _controller: DhiAdminBundle:Package:edit }
+
+dhi_admin_package_delete:
+    path:     /package/delete-package/{id}
+    defaults: { _controller: DhiAdminBundle:Package:delete, id:0 }
+
+dhi_admin_package_sync:
+    path:     /package/sync-package
+    defaults: { _controller: DhiAdminBundle:Package:syncPackage }
+
+dhi_admin_user_service_status:
+    path:     /user/service-status/{userId}/{serviceSettingId}
+    defaults: { _controller: DhiAdminBundle:User:changeServiceStatus }
+
+dhi_admin_user_service_details:
+    path:     /user/service-details/{id}
+    defaults: { _controller: DhiAdminBundle:User:serviceDetail }
+
+dhi_admin_user_view_plan:
+    path:     /view-plan
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:viewPlan }
+
+dhi_admin_user_addto_cart:
+    path:     /add-to-cart-plan/{extendPlan}/{}
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:addToCartPlan, extendPlan:0 }
+
+dhi_admin_user_confirm_purchase:
+    path:     /confirm-purchase/{userId}
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:confirmPurchase,userId:0 }
+
+dhi_admin_user_order_confirm:
+    path:     /order-confirmation/{orderNumber}
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:orderConfirmation, orderNumber:0 }
+
+dhi_admin_user_validate_payment:
+    path:     /validate-payment/{step}
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:validatePayment,step:null }
+
+dhi_admin_user_process_freeplan:
+    path:     /proceed-free-activation/{userId}
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:activateFreePlan, userId:0 }
+
+dhi_admin_payment_process:
+    path:     /do-payment-process/{userId}
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:doPaymentProcess,userId:0 }
+
+dhi_admin_unique_pos_order_no:
+    path:   /unique-order-no
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:uniquePosOrder }
+
+dhi_admin_validate_tabs:
+    path:     /validate-tabs
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:validateTabs }
+
+dhi_admin_user_account_summary:
+    path:     /load-summary/{tab}
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:ajaxAccountSummary,tab:1}
+
+dhi_admin_user_add_iptv_package:
+    path:     /user/add-iptv-package/{userId}
+    defaults: { _controller: DhiAdminBundle:User:addIptvPackage }
+
+#dhi_admin_user_purchase:
+#    pattern:  /user/purchase-history
+#    defaults: { _controller: DhiAdminBundle:User:purchaseHistory }
+
+dhi_admin_purchase_history:
+    pattern:  /user/purchase-history
+    defaults: { _controller: DhiAdminBundle:PurchaseHistory:purchaseHistory }
+
+dhi_admin_expanded_purchase_history:
+    pattern:  /user/expand-purchase-history
+    defaults: { _controller: DhiUserBundle:PurchaseHistory:expandedPurchaseHistory }
+
+#dhi_admin_user_purchase_list_json:
+#    pattern:  /user/purchase-history-list-json
+#    defaults: { _controller: DhiAdminBundle:User:purchaseHistoryListJson }
+
+dhi_admin_purchase_history_list_json:
+    pattern:  /user/purchase-history-list-json
+    defaults: { _controller: DhiAdminBundle:PurchaseHistory:purchaseHistoryListJson }
+
+#dhi_admin_user_purchase_export_pdf:
+#    pattern:  /user/purchase-history-export-pdf
+#    defaults: { _controller: DhiAdminBundle:User:exportpdf }
+
+dhi_admin_purchase_history_export_pdf:
+    pattern:  /user/purchase-history-export-pdf
+    defaults: { _controller: DhiAdminBundle:PurchaseHistory:exportpdf }
+
+#dhi_admin_user_purchase_export_csv:
+#    pattern:  /user/purchase-history-export-csv
+#    defaults: { _controller: DhiAdminBundle:User:exportCsv }
+
+dhi_admin_purchase_history_export_csv:
+    pattern:  /user/purchase-history-export-csv
+    defaults: { _controller: DhiAdminBundle:PurchaseHistory:exportCsv }
+
+dhi_admin_purchase_history_print:
+    pattern:  /user/purchase-history-print
+    defaults: { _controller: DhiAdminBundle:PurchaseHistory:print }
+
+dhi_admin_recurring_profile_history_list:
+    path:     /recurring-profile-list/{id}
+    defaults: { _controller: DhiAdminBundle:PurchaseHistory:recurringProfileList, id:0 }
+
+dhi_admin_recurring_profile_history_json:
+    pattern:  /recurring-profile-list-json/{id}
+    defaults: { _controller: DhiAdminBundle:PurchaseHistory:recurringProfileListJson, id:0}
+
+dhi_admin_group_list:
+    path:     /group/group-list
+    defaults: { _controller: DhiAdminBundle:Group:index }
+
+dhi_admin_group_new:
+    path:     /group/add-group
+    defaults: { _controller: DhiAdminBundle:Group:new }
+
+dhi_admin_group_edit:
+    path:     /group/edit-group/{id}
+    defaults: { _controller: DhiAdminBundle:Group:edit }
+
+dhi_admin_group_delete:
+    path:     /group/delete-group
+    defaults: { _controller: DhiAdminBundle:Group:delete}
+
+dhi_admin_group_permission:
+    path:     /group/permissions/{id}
+    defaults: { _controller: DhiAdminBundle:Group:permission, id:0 }
+
+dhi_admin_group_list_json:
+     pattern:  /group/group-list-json
+     defaults: { _controller: DhiAdminBundle:Group:groupListJson }
+
+dhi_admin_group_check:
+    path:     /group/check
+    defaults: { _controller: DhiAdminBundle:Group:check }
+
+dhi_admin_permission_list:
+    path:     /permission/permission-list
+    defaults: { _controller: DhiAdminBundle:Permission:index }
+
+dhi_admin_permission_new:
+    path:     /permission/add-permission
+    defaults: { _controller: DhiAdminBundle:Permission:new }
+
+dhi_admin_permission_edit:
+    path:     /permission/edit-permission/{id}
+    defaults: { _controller: DhiAdminBundle:Permission:edit }
+
+dhi_admin_permission_delete:
+    path:     /permission/delete-permission/{id}
+    defaults: { _controller: DhiAdminBundle:Permission:delete, id:0 }
+
+dhi_admin_permission_list_json:
+     pattern:  /permission/permission-list-json
+     defaults: { _controller: DhiAdminBundle:Permission:permissionListJson }
+
+dhi_admin_service_location_discount_list:
+    pattern:  /service/location-discount-list
+    defaults: { _controller: DhiAdminBundle:ServiceLocationDiscount:index }
+
+dhi_admin_service_location_discount_edit:
+    pattern:  /service/edit-location-discount/{id}
+    defaults: { _controller: DhiAdminBundle:ServiceLocationDiscount:edit }
+
+dhi_admin_service_location_discount_new:
+    pattern:  /service/add-location-discount
+    defaults: { _controller: DhiAdminBundle:ServiceLocationDiscount:new }
+
+dhi_admin_service_location_discount_delete:
+    pattern:  /service/delete-location-discount/{id}
+    defaults: { _controller: DhiAdminBundle:ServiceLocationDiscount:delete, id:0 }
+
+dhi_admin_global_discount_list:
+    path:     /global-discount/global-discount-list
+    defaults: { _controller: DhiAdminBundle:GlobalDiscount:index }
+
+dhi_admin_global_discount_new:
+    path:     /global-discount/add-global-discount
+    defaults: { _controller: DhiAdminBundle:GlobalDiscount:new }
+
+dhi_admin_global_discount_edit:
+    path:     /global-discount/edit-global-dicount/{id}
+    defaults: { _controller: DhiAdminBundle:GlobalDiscount:edit }
+
+dhi_admin_global_discount_delete:
+    path:     /global-discount/delete-global-discount
+    defaults: { _controller: DhiAdminBundle:GlobalDiscount:delete}
+
+dhi_admin_global_discount_list_json:
+    pattern:  /global-discount/global-discount-list-json
+    defaults: { _controller: DhiAdminBundle:GlobalDiscount:globalDiscountListJson }
+
+
+dhi_admin_service_location:
+    path:     /admin-service-location/{id}
+    defaults: { _controller: DhiAdminBundle:AdminServiceLocation:index}
+
+dhi_admin_customer_refund:
+    path:     /refund
+    defaults: { _controller: DhiAdminBundle:User:refund }
+
+dhi_admin_mac_address:
+    path:     /mac-address/{id}/{type}/{userId}
+    defaults: { _controller: DhiAdminBundle:UserMacAddress:macAddress, id:0, type:null, userId:null}
+
+dhi_admin_mac_address_list:
+    path:     /mac-address-list/{id}
+    defaults: { _controller: DhiAdminBundle:UserMacAddress:listMacAddress, id:0}
+
+dhi_admin_mac_address_remove:
+    path:     /mac-address-remove/{id}/{userId}
+    defaults: { _controller: DhiAdminBundle:UserMacAddress:deleteMacAddress, userId:0}
+
+dhi_admin_mac_address_edit:
+    path:     /edit-mac-address/{id}/{userId}
+    defaults: { _controller: DhiAdminBundle:UserMacAddress:editMacAddress}
+
+dhi_admin_mac_address_transfer:
+    path:     /transfer-mac-address/{id}/{userId}
+    defaults: { _controller: DhiAdminBundle:UserMacAddress:transferDevice}
+
+dhi_admin_mac_address_add:
+    path:     /add-mac-address
+    defaults: { _controller: DhiAdminBundle:UserMacAddress:addMacAddress}
+
+dhi_admin_compensation_list:
+    pattern:  /compensation-list
+    defaults: { _controller: DhiAdminBundle:Compensation:index }
+
+dhi_admin_compensation_new:
+    pattern:  /add-new-compensation
+    defaults: { _controller: DhiAdminBundle:Compensation:new }
+
+dhi_admin_compensation_edit:
+    pattern:  /edit-compensation/{id}
+    defaults: { _controller: DhiAdminBundle:Compensation:edit }
+
+dhi_admin_compensation_delete:
+    pattern:  /delete-compensation
+    defaults: { _controller: DhiAdminBundle:Package:deleteCompensation }
+
+dhi_admin_compensation_list_json:
+    pattern:  /compensation-list-json
+    defaults: { _controller: DhiAdminBundle:Compensation:compensationListJson }
+
+dhi_admin_compensation_validation:
+    pattern:  /validate-compensation
+    defaults: { _controller: DhiAdminBundle:Compensation:validateData }
+
+dhi_admin_compensation_search_user:
+    pattern:  /search-user
+    defaults: { _controller: DhiAdminBundle:Compensation:searchUser }
+
+dhi_admin_compensation_search_service_location:
+    pattern:  /search-service_location
+    defaults: { _controller: DhiAdminBundle:Compensation:searchServiceLocation }
+
+dhi_admin_compensation_remove_autocomplete_data:
+    pattern:  /remove-autocomplete-data
+    defaults: { _controller: DhiAdminBundle:Compensation:removeAutoCompleteData }
+
+dhi_admin_compensation_preview:
+    pattern:  /compensation-preview
+    defaults: { _controller: DhiAdminBundle:Compensation:previewCompensation }
+
+dhi_admin_credit_list:
+    path:   /credit/credit-list
+    defaults: { _controller: DhiAdminBundle:Credit:index }
+
+dhi_admin_credit_new:
+    path:   /credit/add-credit
+    defaults: { _controller: DhiAdminBundle:Credit:new }
+
+dhi_admin_credit_edit:
+    path:   /credit/edit-credit/{id}
+    defaults: { _controller: DhiAdminBundle:Credit:edit }
+
+dhi_admin_credit_delete:
+    path:   /credit/delete-credit
+    defaults: { _controller: DhiAdminBundle:Credit:delete }
+
+dhi_admin_credit_list_json:
+    path:   /credit/credit-list-json
+    defaults: { _controller: DhiAdminBundle:Credit:creditListJson }
+
+dhi_admin_user_credit:
+    path:   /user-credit
+    defaults: { _controller: DhiAdminBundle:User:credit }
+
+dhi_admin_service_plan:
+    path:   /remove-services/{userId}/{service}/{id}
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:removeService, id:0 }
+
+dhi_admin_check_email:
+    path:     /check-email/{id}
+    defaults: { _controller: DhiAdminBundle:Admin:checkEmail, id:0 }
+
+dhi_admin_user_service_location_list:
+    path:     /user/service-location-list/{id}
+    defaults: { _controller: DhiAdminBundle:User:serviceLocationAdminList }
+
+dhi_admin_validate_ipaddress:
+    path:     /validate-ip-range
+    defaults: { _controller: DhiAdminBundle:IpAddressZone:validateIpRange }
+
+dhi_admin_sales_report:
+    pattern:  /user/sales-report
+    defaults: { _controller: DhiAdminBundle:SalesReport:salesReport }
+
+
+dhi_admin_sales_report_list_json:
+    pattern:  /user/sales-report-list-json
+    defaults: { _controller: DhiAdminBundle:SalesReport:salesReportListJson }
+
+dhi_admin_sales_report_export_pdf:
+    pattern:  /user/sales-report-export-pdf
+    defaults: { _controller: DhiAdminBundle:SalesReport:exportpdf }
+
+dhi_admin_sales_report_csv:
+    pattern:  /user/sales-report-export-csv
+    defaults: { _controller: DhiAdminBundle:SalesReport:exportCsv }
+
+dhi_admin_sales_report_excel:
+    pattern:  /user/sales-report-export-excel
+    defaults: { _controller: DhiAdminBundle:SalesReport:exportExcel }
+
+dhi_admin_valid_discount_range:
+    pattern:  /service/valid-discount-range
+    defaults: { _controller: DhiAdminBundle:ServiceLocationDiscount:validateDiscountRange }
+
+dhi_admin_refund_report:
+    pattern:  /refund-report
+    defaults: { _controller: DhiAdminBundle:RefundReport:index }
+
+dhi_admin_refund_report_list_json:
+    pattern:  /refund-report-list-json
+    defaults: { _controller: DhiAdminBundle:RefundReport:refundReportListJson }
+
+dhi_admin_refund_report_csv:
+    pattern:  /refund-report-export-csv
+    defaults: { _controller: DhiAdminBundle:RefundReport:exportCsv }
+
+dhi_admin_refund_report_excel:
+    pattern:  /refund-report-export-excel
+    defaults: { _controller: DhiAdminBundle:RefundReport:exportExcel }
+
+dhi_admin_api_failure_email_new:
+    pattern:  /add-failure-email
+    defaults: { _controller: DhiAdminBundle:ApiFailureEmail:new }
+
+dhi_admin_api_failure_email_list:
+    pattern:  /api-failure-email-list
+    defaults: { _controller: DhiAdminBundle:ApiFailureEmail:index }
+
+dhi_admin_api_failure_email_delete:
+    pattern:  /delete-api-failure-email
+    defaults: { _controller: DhiAdminBundle:ApiFailureEmail:delete}
+
+dhi_admin_api_failure_email_edit:
+    pattern:  /edit-api-failure-email/{id}
+    defaults: { _controller: DhiAdminBundle:ApiFailureEmail:edit }
+
+dhi_admin_api_failure_email_list_json:
+    pattern:  /api-failure-email-list-json
+    defaults: { _controller: DhiAdminBundle:ApiFailureEmail:apiFailureEmailJson }
+
+dhi_admin_set_top_box_new:
+    pattern:  /add-new-set-top-box
+    defaults: { _controller: DhiAdminBundle:SetTopBox:new }
+
+dhi_admin_set_top_box_return:
+    pattern:  /retun-set-top-box/{id}
+    defaults: { _controller: DhiAdminBundle:SetTopBox:return }
+
+dhi_admin_set_top_box_delete:
+    path:   /delete-set-top-box
+    defaults: { _controller: DhiAdminBundle:SetTopBox:delete }
+
+dhi_admin_set_top_box_list:
+    pattern:  /set-top-box-list
+    defaults: { _controller: DhiAdminBundle:SetTopBox:index }
+
+dhi_admin_set_top_box_list_json:
+    pattern:  /set-top-box-list-json
+    defaults: { _controller: DhiAdminBundle:SetTopBox:setTopBoxListJson }
+
+dhi_admin_set_top_box_edit:
+    path:   /edit-set-top-box/{id}
+    defaults: { _controller: DhiAdminBundle:SetTopBox:edit }
+
+dhi_admin_set_top_box_mac_address:
+    path:   /stb-mac-address
+    defaults: { _controller: DhiAdminBundle:SetTopBox:stbMacAddress }
+
+dhi_admin_set_top_box_cutomer_search:
+    path:   /search-customer
+    defaults: { _controller: DhiAdminBundle:SetTopBox:searchCustomer }
+
+dhi_admin_promo_code_list:
+    path:     /promo-code-list
+    defaults: { _controller: DhiAdminBundle:PromoCode:index }
+
+dhi_admin_promo_code_list_json:
+    pattern:  /promo-code-list-json
+    defaults: { _controller: DhiAdminBundle:PromoCode:promoCodeListJson }
+
+dhi_admin_employee_promo_code_report_list:
+    path:     /employee-promo-code-report-list
+    defaults: { _controller: DhiAdminBundle:EmployeePromoCode:employeePromoCodeReport }
+
+dhi_admin_employee_promo_code_report_list_json:
+    pattern:  /employee-promo-code-report-list-json
+    defaults: { _controller: DhiAdminBundle:EmployeePromoCode:employeePromoCodeReportJson }
+
+dhi_admin_employee_promo_code_list:
+    path:     /employee-promo-code-list
+    defaults: { _controller: DhiAdminBundle:EmployeePromoCode:index }
+
+dhi_admin_employee_promo_code_list_json:
+    pattern:  /employee-promo-code-list-json
+    defaults: { _controller: DhiAdminBundle:EmployeePromoCode:employeePromoCodeListJson }
+
+dhi_admin_employee_promo_code_customer:
+    path:   /employee-promo-code-customer/{id}
+    defaults: { _controller: DhiAdminBundle:EmployeePromoCode:viewcustomer }
+
+dhi_admin_employee_promo_code_customer_list_json:
+    pattern:  /employee-promo-code-customer-list-json/{id}
+    defaults: { _controller: DhiAdminBundle:EmployeePromoCode:employeePromoCodeCustomerListJson }
+
+dhi_admin_employee_promo_code_new:
+    pattern:  /add-new-employee-promo-code
+    defaults: { _controller: DhiAdminBundle:EmployeePromoCode:new }
+
+dhi_admin_employee_promo_code_preview:
+    path:   /preview-employee-promo-code
+    defaults: { _controller: DhiAdminBundle:EmployeePromoCode:previewEmployeePromoCode }
+
+dhi_admin_employee_promo_code_edit:
+    path:   /edit-employee-promo-code/{id}
+    defaults: { _controller: DhiAdminBundle:EmployeePromoCode:edit }
+
+dhi_admin_employee_promo_code_disable:
+    path:   /disable-employee-promo-code/{id}
+    defaults: { _controller: DhiAdminBundle:EmployeePromoCode:disable }
+
+dhi_admin_promo_code_new:
+    pattern:  /add-new-promo-code
+    defaults: { _controller: DhiAdminBundle:PromoCode:new }
+
+dhi_admin_promo_code_edit:
+    path:   /edit-promo-code/{id}
+    defaults: { _controller: DhiAdminBundle:PromoCode:edit }
+
+dhi_admin_promo_code_delete:
+    path:   /delete-promo-code
+    defaults: { _controller: DhiAdminBundle:PromoCode:delete }
+
+dhi_admin_promo_code_disable:
+    path:   /disable-promo-code/{id}
+    defaults: { _controller: DhiAdminBundle:PromoCode:disable }
+
+dhi_admin_promo_code_customer:
+    path:   /promo-code-customer/{id}
+    defaults: { _controller: DhiAdminBundle:PromoCode:viewcustomer }
+
+dhi_admin_promo_code_customer_list_json:
+    pattern:  /promo-code-customer-list-json/{id}
+    defaults: { _controller: DhiAdminBundle:PromoCode:promoCodeCustomerListJson }
+
+dhi_admin_promo_code_preview:
+    path:   /preview-promo-code
+    defaults: { _controller: DhiAdminBundle:PromoCode:previewPromoCode }
+
+dhi_admin_promo_code_unique:
+    path:   /unique-promo-code
+    defaults: { _controller: DhiAdminBundle:PromoCode:uniquePromoCode }
+
+dhi_admin_promo_code_export_pdf:
+    pattern:  /promo-code-export-pdf
+    defaults: { _controller: DhiAdminBundle:PromoCode:exportpdf }
+
+dhi_admin_promo_code_export_csv:
+    pattern:  /promo-code-export-csv
+    defaults: { _controller: DhiAdminBundle:PromoCode:exportCsv }
+
+dhi_admin_promo_code_print:
+    pattern:  /promo-code-print
+    defaults: { _controller: DhiAdminBundle:PromoCode:print }
+
+dhi_admin_changes_sales_report:
+    pattern:  /sales-reports
+    defaults: { _controller: DhiAdminBundle:ChangesSalesReport:salesReport }
+
+dhi_admin_changes_sales_report_list_json:
+    pattern:  /sales-reports-list-json/{fromip}/{toip}/{packageName}/{whiteLabel}
+    defaults: { _controller: DhiAdminBundle:ChangesSalesReport:salesReportListJson,fromip:0,toip:0,packageName:0,whiteLabel:0 }
+
+dhi_admin_changes_sales_report_export_pdf:
+    pattern:  /sales-report-export-pdf
+    defaults: { _controller: DhiAdminBundle:ChangesSalesReport:exportpdf }
+
+dhi_admin_changes_sales_report_csv:
+    pattern:  /sales-report-export-csv
+    defaults: { _controller: DhiAdminBundle:ChangesSalesReport:exportCsv }
+
+dhi_admin_changes_sales_report_excel:
+    pattern:  /sales-report-export-excel
+    defaults: { _controller: DhiAdminBundle:ChangesSalesReport:exportExcel }
+
+dhi_milstar_transaction_lookup:
+    pattern:    user/milstar-transaction-lookup
+    defaults: { _controller: DhiAdminBundle:Milstar:transactionLookup }
+
+#dhi_admin_new_dashboard:
+#    pattern:  /dashboard
+#    defaults: { _controller: DhiAdminBundle:Dashboard:index }
+
+dhi_admin_aradial_user_list:
+    pattern:  /user/aradial-session-hisotory-list
+    defaults: { _controller: DhiAdminBundle:AradialUser:index }
+
+dhi_admin_aradial_user_list_json:
+    pattern:  /user/aradial-user-history-list-json
+    defaults: { _controller: DhiAdminBundle:AradialUser:aradialUserListJson }
+
+dhi_admin_aradial_user_online_list:
+    pattern:  /user/aradial-online-user-list
+    defaults: { _controller: DhiAdminBundle:AradialUserOnline:index }
+
+dhi_admin_aradial_user_online_list_json:
+    pattern:  /user/aradial-online-user-list-json
+    defaults: { _controller: DhiAdminBundle:AradialUserOnline:aradialUserOnlineListJson }
+
+dhi_admin_aradial_disconnect_user:
+    pattern:  /user/aradial-disconnect-user
+    defaults: { _controller: DhiAdminBundle:AradialUserOnline:disconnectOnlineUserSession}
+
+dhi_admin_aradial_test:
+    pattern:  /test
+    defaults: { _controller: DhiAdminBundle:Test:selevisionWs }
+
+dhi_admin_isp_pin_list:
+    pattern:  /isp-pin-list
+    defaults: { _controller: DhiAdminBundle:IspPin:index }
+
+dhi_admin_isp_pin_list_json:
+    pattern:  /isp-pin-list-json
+    defaults: { _controller: DhiAdminBundle:IspPin:ispPinJson }
+
+dhi_admin_isp_pin_create_single:
+    pattern:  /add-single-isp-ipn
+    defaults: { _controller: DhiAdminBundle:IspPin:createSingle }
+
+dhi_admin_isp_pin_create_multiple:
+    pattern:  /add-multiple-isp-ipn
+    defaults: { _controller: DhiAdminBundle:IspPin:createMultiple }
+
+dhi_admin_isp_pin_edit:
+    pattern:  /edit-isp-pin/{id}
+    defaults: { _controller: DhiAdminBundle:IspPin:edit }
+
+dhi_admin_isp_pin_delete:
+    path:   /delete-isp-pin
+    defaults: { _controller: DhiAdminBundle:IspPin:delete }
+
+dhi_admin_milstar_transaction_list_json:
+    pattern:  /user/milstar-transaction-list-json
+    defaults: { _controller: DhiAdminBundle:Milstar:milstarTransactionListJson }
+
+dhi_milstar_failure_lookup:
+    pattern:    user/milstar-failure-lookup
+    defaults: { _controller: DhiAdminBundle:Milstar:failureLookup }
+
+dhi_admin_milstar_failure_list_json:
+    pattern:  /user/milstar-failure-list-json
+    defaults: { _controller: DhiAdminBundle:Milstar:milstarFailureListJson }
+
+dhi_admin_active_user_report:
+    pattern:  /user/active-user-report
+    defaults: { _controller: DhiAdminBundle:User:activeUserReport }
+
+dhi_admin_active_user_list_json:
+    pattern:  /user/active-user-list-json/{fromip}/{toip}
+    defaults: { _controller: DhiAdminBundle:User:activeUserListJson,fromip:0,toip:0 }
+
+dhi_admin_active_user_export_csv:
+    pattern:  /user/active-user-export-csv
+    defaults: { _controller: DhiAdminBundle:User:activeUserExportCsv }
+
+dhi_admin_active_user_export_excel:
+    pattern:  /user/active-user-export-excel
+    defaults: { _controller: DhiAdminBundle:User:activeUserExportExcel }
+
+dhi_admin_aradial_user_list_print:
+    pattern:  /user/aradial-session-history-list-print
+    defaults: { _controller: DhiAdminBundle:AradialUser:print }
+
+dhi_admin_aradial_user_history_export_csv:
+    pattern:  /user/aradial-session-history-export-csv
+    defaults: { _controller: DhiAdminBundle:AradialUser:exportCsv }
+
+dhi_admin_aradial_user_history_export_pdf:
+    pattern:  /user/aradial-session-history-export-pdf
+    defaults: { _controller: DhiAdminBundle:AradialUser:exportpdf }
+
+dhi_admin_user_log_detail:
+    pattern:  /user/user-log/{id}
+    defaults: { _controller: DhiAdminBundle:User:log }
+
+dhi_admin_user_activity_log_json:
+    pattern:  /user/user-log-list-json/{id}
+    defaults: { _controller: DhiAdminBundle:User:activityLogListJson }
+
+dhi_admin_aradial_user_purchase_history:
+    pattern:  /user/aradial-user-purchase-history
+    defaults: { _controller: DhiAdminBundle:AradialUserPurchaseHistory:purchaseHistory }
+
+dhi_admin_aradial_user_purchase_history_list_json:
+    pattern:  /user/aradial-user-purchase-history-list-json
+    defaults: { _controller: DhiAdminBundle:AradialUserPurchaseHistory:purchaseHistoryListJson }
+
+dhi_admin_aradial_user_purchase_history_export_pdf:
+    pattern:  /user/aradial-user-purchase-history-export-pdf
+    defaults: { _controller: DhiAdminBundle:AradialUserPurchaseHistory:exportpdf }
+
+dhi_admin_aradial_user_purchase_history_export_csv:
+    pattern:  /user/aradial-user-purchase-history-export-csv
+    defaults: { _controller: DhiAdminBundle:AradialUserPurchaseHistory:exportCsv }
+
+dhi_admin_aradial_user_purchase_history_print:
+    pattern:  /user/aradial-user-purchase-history-print
+    defaults: { _controller: DhiAdminBundle:AradialUserPurchaseHistory:print }
+
+dhi_admin_get_promo_package:
+    path:   /get-promo-package
+    defaults: { _controller: DhiAdminBundle:PromoCode:getPromoPackage }
+
+dhi_admin_promo_code_viewSummary:
+    path:   /view-summary
+    defaults: { _controller: DhiAdminBundle:PromoCode:viewSummary }
+
+dhi_admin_front_home_list:
+    pattern:  /front-home
+    defaults: { _controller: DhiAdminBundle:FrontHome:index }
+
+dhi_admin_front_home_new:
+    pattern:  /front-home-add
+    defaults: { _controller: DhiAdminBundle:FrontHome:new }
+
+dhi_admin_front_home_edit:
+    pattern:  /front-home-edit/{id}
+    defaults: { _controller: DhiAdminBundle:FrontHome:edit }
+
+dhi_admin_front_home_delete:
+    path:   /front-home-delete
+    defaults: { _controller: DhiAdminBundle:FrontHome:delete }
+
+dhi_admin_front_home_list_json:
+    pattern:  /front-home-list-json
+    defaults: { _controller: DhiAdminBundle:FrontHome:frontHomeListJson }
+
+dhi_admin_banner_list:
+    pattern:  /banner
+    defaults: { _controller: DhiAdminBundle:Banner:index }
+
+dhi_admin_banner_new:
+    pattern:  /banner-add
+    defaults: { _controller: DhiAdminBundle:Banner:new }
+
+dhi_admin_banner_edit:
+    pattern:  /banner-edit/{id}
+    defaults: { _controller: DhiAdminBundle:Banner:edit }
+
+dhi_admin_banner_delete:
+    path:   /banner-delete
+    defaults: { _controller: DhiAdminBundle:Banner:delete }
+
+dhi_admin_banner_list_json:
+    pattern:  /banner-list-json
+    defaults: { _controller: DhiAdminBundle:Banner:bannerListJson }
+
+dhi_admin_check_banner_orderno:
+    pattern:  /check-exist-orderno
+    defaults: { _controller: DhiAdminBundle:Banner:checkOrderNo }
+
+dhi_admin_get_banner_orderno:
+    pattern:  /get-orderno
+    defaults: { _controller: DhiAdminBundle:Banner:getOrderNo }
+
+dhi_admin_banner_disable:
+    path:   /disable-banner/{id}
+    defaults: { _controller: DhiAdminBundle:Banner:disable }
+
+dhi_admin_discount_code_list:
+    path:     /discount-code-list
+    defaults: { _controller: DhiAdminBundle:DiscountCode:index }
+
+dhi_admin_discount_code_list_json:
+    pattern:  /discount-code-list-json
+    defaults: { _controller: DhiAdminBundle:DiscountCode:discountCodeListJson }
+
+dhi_admin_discount_code_new:
+    pattern:  /add-new-discount-code
+    defaults: { _controller: DhiAdminBundle:DiscountCode:new }
+
+dhi_admin_discount_code_edit:
+    path:   /edit-discount-code/{id}
+    defaults: { _controller: DhiAdminBundle:DiscountCode:edit }
+
+dhi_admin_discount_code_delete_img:
+    path:   /delete-discount-code-image/{id}
+    defaults: { _controller: DhiAdminBundle:DiscountCode:deleteImage }
+
+dhi_admin_discount_code_delete:
+    path:   /delete-discount-code
+    defaults: { _controller: DhiAdminBundle:DiscountCode:delete }
+
+dhi_admin_discount_code_disable:
+    path:   /disable-discount-code/{id}
+    defaults: { _controller: DhiAdminBundle:DiscountCode:disable }
+
+dhi_admin_discount_code_customer:
+    path:   /discount-code-customer/{id}
+    defaults: { _controller: DhiAdminBundle:DiscountCode:viewcustomer }
+
+dhi_admin_discount_code_customer_list_json:
+    pattern:  /discount-code-customer-list-json/{id}
+    defaults: { _controller: DhiAdminBundle:DiscountCode:discountCodeCustomerListJson }
+
+dhi_admin_discount_code_preview:
+    path:   /preview-discount-code
+    defaults: { _controller: DhiAdminBundle:DiscountCode:previewDiscountCode }
+
+dhi_admin_discount_code_unique:
+    path:   /discount-Discount-code
+    defaults: { _controller: DhiAdminBundle:DiscountCode:duplicateDiscountCode }
+
+dhi_admin_discount_code_export_pdf:
+    pattern:  /discount-code-export-pdf
+    defaults: { _controller: DhiAdminBundle:DiscountCode:exportpdf }
+
+dhi_admin_discount_code_export_csv:
+    pattern:  /discount-code-export-csv
+    defaults: { _controller: DhiAdminBundle:DiscountCode:exportCsv }
+
+dhi_admin_get_promo_package:
+    path:   /get-promo-package
+    defaults: { _controller: DhiAdminBundle:PromoCode:getPromoPackage }
+
+dhi_admin_get_promo_service:
+    path:   /get-promo-service
+    defaults: { _controller: DhiAdminBundle:PromoCode:getPromoService }
+
+dhi_admin_promo_code_print:
+    pattern:  /promo-code-print
+    defaults: { _controller: DhiAdminBundle:PromoCode:print }
+
+dhi_admin_user_add_compensation:
+    pattern:  /user/add-compensation/{id}
+    defaults: { _controller: DhiAdminBundle:User:addCompensation }
+
+dhi_admin_user_change_locaiton:
+    pattern:  /user/update-service-location
+    defaults: { _controller: DhiAdminBundle:User:updateServiceLocation }
+
+dhi_admin_refund_report_pdf:
+    pattern:  /refund-report-export-pdf
+    defaults: { _controller: DhiAdminBundle:RefundReport:exportpdf }
+
+dhi_admin_credential_list:
+    pattern: /paypal-credential
+    defaults: { _controller: DhiAdminBundle:Credential:index }
+
+dhi_admin_credential_list_json:
+    pattern:  /paypal-credential-json
+    defaults: { _controller: DhiAdminBundle:Credential:credentialListJson }
+
+dhi_admin_credential_new:
+    pattern:  /add-new-credential
+    defaults: { _controller: DhiAdminBundle:Credential:new }
+
+dhi_admin_credential_edit:
+    pattern:  /edit-credential/{id}
+    defaults: { _controller: DhiAdminBundle:Credential:edit }
+
+dhi_admin_credential_delete:
+    pattern:  /delete-credential
+    defaults: { _controller: DhiAdminBundle:Credential:delete }
+
+dhi_admin_credential_location:
+    pattern:  /credential-search-service_location
+    defaults: { _controller: DhiAdminBundle:Credential:searchServiceLocation }
+
+dhi_admin_credential_preview:
+    pattern:  /credential-preview
+    defaults: { _controller: DhiAdminBundle:Compensation:previewCompensation }
+
+dhi_admin_service_partner_list:
+    pattern:  /service-partner-list
+    defaults: { _controller: DhiAdminBundle:ServicePartner:index }
+
+dhi_admin_service_partner_list_json:
+    pattern:  /service-partner-list-json
+    defaults: { _controller: DhiAdminBundle:ServicePartner:adminListJson }
+
+dhi_admin_service_partner_new:
+    pattern:  /add-new-partner
+    defaults: { _controller: DhiAdminBundle:ServicePartner:new }
+
+dhi_admin_service_partner_edit:
+    pattern:  /edit-service-partner/{id}
+    defaults: { _controller: DhiAdminBundle:ServicePartner:edit }
+
+dhi_admin_service_partner_delete:
+    pattern:  /delete-service-partner
+    defaults: { _controller: DhiAdminBundle:ServicePartner:delete }
+
+dhi_admin_partner_promo_code_batch_list:
+    path:   /partner-promo-batch/list
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:index }
+
+dhi_admin_partner_promo_code_batch_view_note:
+    path:   /partner-promo-batch/view/note/{id}/{type}
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:viewNote}
+
+dhi_admin_partner_promo_code_batch_list_json:
+    path:   /partner-promo-batch/list-json
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:partnerPromoCodeListJson }
+
+dhi_admin_partner_promo_code_new:
+    path:   /partner_promo-code/add
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:new }
+
+dhi_admin_partner_promo_code_edit:
+    path:   /partner-promo-code/edit/{batchId}/{codeId}
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:editCode }
+
+dhi_admin_get_partner_promo_code_package:
+    path:   /get-package
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:getPromoPackage }
+
+dhi_admin_partner_promo_code_list:
+    path:   /partner-promo-code/list/{batchId}
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:codeList }
+
+dhi_admin_partner_promo_code_list_json:
+    path:   /partner-promo-code/list-json
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:codeListJson }
+
+dhi_admin_partner_promo_code_export_pdf:
+    pattern:  /partner-promo-code/export-pdf/{batchId}
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:exportpdf }
+
+dhi_admin_partner_promo_code_export_excel:
+    pattern:  /partner-promo-code/export-excel/{batchId}
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:exportExcel }
+
+dhi_admin_partner_promo_code_export_csv:
+    pattern:  /partner-promo-code/export-csv/{batchId}
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:exportcsv }
+
+dhi_admin_service_partner_location_json:
+    pattern:  /delete-service-partner-location
+    defaults: { _controller: DhiAdminBundle:ServicePartner:getLocation }
+
+dhi_admin_partner_batch_delete:
+    pattern:  /partner-batch/delete
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:deleteBatch }
+
+dhi_admin_partner_promo_code_status:
+    pattern:  /partner-promo-code/code-status/{batchId}/{codeId}
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:changeCodeStatus }
+
+dhi_admin_service_partner_check_name:
+    pattern:  /service-partner/check
+    defaults: { _controller: DhiAdminBundle:ServicePartner:checkPartnerName }
+
+dhi_admin_promocode_redemption_report_list:
+    path:   /promo-code-redemption/list
+    defaults: { _controller: DhiAdminBundle:PromoCodeRedemptionReport:index }
+
+dhi_admin_promocode_redemption_report_list_json:
+    path:   /promo-code-redemption/list-json
+    defaults: { _controller: DhiAdminBundle:PromoCodeRedemptionReport:PromoCodeRedemptionListJson }
+
+dhi_admin_promocode_redemption_report_location_json:
+    path:   /promo-code-redemption/list-location-json
+    defaults: { _controller: DhiAdminBundle:PromoCodeRedemptionReport:ServiceLocationListJson }
+
+dhi_admin_check_service_partner_username:
+    pattern:  /check-service-partner-username
+    defaults: { _controller: DhiAdminBundle:ServicePartner:checkUsername }
+
+dhi_admin_promocode_sales_report_list:
+    path:   /promo-code-sales/list
+    defaults: { _controller: DhiAdminBundle:PromoCodeSalesReport:index }
+
+dhi_admin_promocode_sales_report_list_json:
+    path:   /promo-code-sales/list-json
+    defaults: { _controller: DhiAdminBundle:PromoCodeSalesReport:getListJson }
+
+dhi_admin_promocode_sales_report_location_json:
+    path:   /promo-code-sales/list-location-json
+    defaults: { _controller: DhiAdminBundle:PromoCodeSalesReport:ServiceLocationListJson }
+
+dhi_admin_partner_promocode_deactivation_report:
+    path:   /partner-promo-code/deactivated-list
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:deActivatedReport }
+
+dhi_admin_partner_promocode_deactivation_report_json:
+    path:   /partner-promo-code/deactivated-list-json
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:deActivatedReportJson }
+
+dhi_admin_partner_promocode_deactivation_report_location_json:
+    path:   /partner-promo-code/list-location-json
+    defaults: { _controller: DhiAdminBundle:PartnerPromoCode:ServiceLocationListJson }
+
+dhi_countrywiseservice_show_on_landing:
+    path:   /service/show-on-landing/{id}
+    defaults: { _controller: DhiAdminBundle:CountrywiseService:changeShowonLanging }
+
+dhi_admin_business_list:
+    pattern:  /business-list
+    defaults: { _controller: DhiAdminBundle:Business:index }
+
+dhi_admin_business_list_json:
+    pattern:  /business-list-json
+    defaults: { _controller: DhiAdminBundle:Business:listJson }
+
+dhi_admin_business_new:
+    pattern:  /add-new-business
+    defaults: { _controller: DhiAdminBundle:Business:new }
+
+dhi_admin_business_edit:
+    pattern:  /edit-business/{id}
+    defaults: { _controller: DhiAdminBundle:Business:edit }
+
+dhi_admin_business_delete:
+    pattern:  /delete-business
+    defaults: { _controller: DhiAdminBundle:Business:delete }
+
+dhi_admin_business_check_name:
+    pattern:  /business/check
+    defaults: { _controller: DhiAdminBundle:Business:checkBusinessName }
+
+dhi_admin_business_batch_list:
+    pattern:  /business-batch-list
+    defaults: { _controller: DhiAdminBundle:BusinessBatch:index }
+
+dhi_admin_business_batch_list_json:
+    pattern:  /business-batch-list-json
+    defaults: { _controller: DhiAdminBundle:BusinessBatch:listJson }
+
+dhi_admin_business_batch_new:
+    pattern:  /add-new-business-batch
+    defaults: { _controller: DhiAdminBundle:BusinessBatch:new }
+
+dhi_admin_business_batch_edit:
+    pattern:  /edit-business-batch/{id}
+    defaults: { _controller: DhiAdminBundle:BusinessBatch:edit }
+
+dhi_admin_business_batch_delete:
+    pattern:  /delete-business-batch
+    defaults: { _controller: DhiAdminBundle:BusinessBatch:deleteBatch }
+
+dhi_admin_business_promo_code_list:
+    path:   /business-promo-code/list/{batchId}
+    defaults: { _controller: DhiAdminBundle:BusinessPromoCode:codeList }
+
+dhi_admin_business_promo_code_list_json:
+    pattern:  /business-promo-code/list-json
+    defaults: { _controller: DhiAdminBundle:BusinessPromoCode:codeListJson }
+
+dhi_admin_get_business_promo_code_package:
+    path:   /get-business-package
+    defaults: { _controller: DhiAdminBundle:BusinessBatch:getPromoPackage }
+
+dhi_admin_get_business_promo_code_service:
+    path:   /get-business-promo-code-service
+    defaults: { _controller: DhiAdminBundle:BusinessBatch:getPromoService }
+
+dhi_admin_business_promocode_export_pdf:
+    pattern:  /business-promocode-export-pdf/{batchId}
+    defaults: { _controller: DhiAdminBundle:BusinessBatch:exportpdf }
+
+dhi_admin_business_promocode_export_csv:
+    pattern:  /business-promocode-export-csv/{batchId}
+    defaults: { _controller: DhiAdminBundle:BusinessBatch:exportcsv }
+
+dhi_admin_business_promocode_export_excel:
+    pattern:  /business-promocode-export-excel/{batchId}
+    defaults: { _controller: DhiAdminBundle:BusinessBatch:exportexcel }
+
+dhi_admin_business_promo_code_edit:
+    path:   /business-promo-code/edit/{batchId}/{codeId}
+    defaults: { _controller: DhiAdminBundle:BusinessPromoCode:editCode }
+
+dhi_admin_aradial_payment_history_list:
+    path:   /aradial-purchase-history
+    defaults: { _controller: DhiAdminBundle:AradialPaymentHistory:index }
+
+dhi_admin_aradial_payment_history_list_json:
+    path:   /aradial-purchase-history-json
+    defaults: { _controller: DhiAdminBundle:AradialPaymentHistory:historyListJson }
+
+dhi_admin_aradial_payment_history_import:
+    path:   /aradial-purchase-history/import
+    defaults: { _controller: DhiAdminBundle:AradialPaymentHistory:import }
+
+dhi_admin_employee_list:
+    pattern:  /employee/employee-list
+    defaults: { _controller: DhiAdminBundle:Employee:index }
+
+dhi_admin_employee_list_json:
+    pattern:  /employee/employee-list-json
+    defaults: { _controller: DhiAdminBundle:Employee:listJson }
+
+dhi_employee_new:
+    pattern:  /add-employee
+    defaults: { _controller: DhiAdminBundle:Employee:new }
+
+dhi_admin_edit_employee:
+    pattern:  /edit-employee/{id}
+    defaults: { _controller: DhiAdminBundle:Employee:edit }
+
+dhi_admin_delete_employee:
+    pattern:  /delete-employee
+    defaults: { _controller: DhiAdminBundle:Employee:delete }
+
+dhi_admin_view_employee:
+    pattern:  /view-employee/{id}
+    defaults: { _controller: DhiAdminBundle:Employee:view }
+
+dhi_admin_employee_log:
+    pattern:  /employee/employee-login-log/{id}
+    defaults: { _controller: DhiAdminBundle:Employee:loginLog, id:0 }
+
+dhi_admin_employee_log_print:
+    pattern:  /employee/employee-login-log-print/{id}
+    defaults: { _controller: DhiAdminBundle:Employee:loginLogPrint, id:0 }
+
+dhi_admin_employee_log_json:
+    pattern:  /employee/employee-login-log-json/{id}
+    defaults: { _controller: DhiAdminBundle:Employee:loginLogListJson, id:0 }
+
+dhi_admin_employee_service_status:
+    path:     /employee/service-status/{userId}/{serviceSettingId}
+    defaults: { _controller: DhiAdminBundle:Employee:changeServiceStatus }
+
+dhi_admin_employee_service_details:
+    path:     /employee/service-details/{id}
+    defaults: { _controller: DhiAdminBundle:Employee:serviceDetail }
+
+dhi_admin_employee_add_iptv_package:
+    path:     /employee/add-iptv-package/{userId}
+    defaults: { _controller: DhiAdminBundle:Employee:addIptvPackage }
+
+dhi_admin_employee_log_detail:
+    pattern:  /employee/employee-log/{id}
+    defaults: { _controller: DhiAdminBundle:Employee:log }
+
+dhi_admin_employee_activity_log_json:
+    pattern:  /user/user-log-list-json/{id}
+    defaults: { _controller: DhiAdminBundle:User:activityLogListJson }
+
+dhi_admin_topup_link_list:
+    path: /topup-link-list
+    defaults: { _controller: DhiAdminBundle:TopupLink:index}
+
+dhi_admin_topup_link_list_json:
+    path: /topup-link-list-json
+    defaults: { _controller: DhiAdminBundle:TopupLink:topupListJson}
+
+dhi_admin_topup_link_edit:
+    path: /edit-topup-link/{id}
+    defaults: { _controller: DhiAdminBundle:TopupLink:editTopupLink}
+
+dhi_admin_topup_link_edit_search_service_location:
+    pattern:  /topup-link-search-service_location
+    defaults: { _controller: DhiAdminBundle:TopupLink:searchServiceLocation }
+
+dhi_admin_service_discount_apply:
+    pattern:  /check-service-discount-validation
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:applyDiscount }    
+
+dhi_admin_service_discount_remove:
+    pattern:  /remove-admin-discount
+    defaults: { _controller: DhiAdminBundle:PurchaseProcess:removeDiscountCoupon }
+
+dhi_admin_active_user_service_count_report_list:
+    pattern:  /active-service-count-report
+    defaults: { _controller: DhiAdminBundle:ActiveUserServiceCountReport:index }
+
+dhi_admin_active_user_service_count_report_list_json:
+    pattern:  /active-service-count-list-json
+    defaults: { _controller: DhiAdminBundle:ActiveUserServiceCountReport:activeUserServiceCountListJson}
+
+dhi_admin_employee_service_location_list:
+    path:     /user/service-location-list/{id}
+    defaults: { _controller: DhiAdminBundle:User:serviceLocationAdminList }
+
+dhi_admin_selevision_login_history:
+    pattern: /selevision-login-history
+    defaults: { _controller: DhiAdminBundle:SelevisionLoginHistory:index}
+
+dhi_admin_selevision_login_history_json:
+    pattern: /selevision-login-history-json
+    defaults: { _controller: DhiAdminBundle:SelevisionLoginHistory:listJson}
+
+dhi_admin_compensation_report_list:
+    pattern:  /compensation-report-list
+    defaults: { _controller: DhiAdminBundle:CompensationReport:index }
+
+dhi_admin_compensation_report_list_json:
+    pattern:  /compensation-report-list-json
+    defaults: { _controller: DhiAdminBundle:CompensationReport:listJson }
+
+dhi_admin_compensation_report_export_csv:
+    pattern:  /compensation-report-export-csv
+    defaults: { _controller: DhiAdminBundle:CompensationReport:exportCsv }
+
+dhi_admin_sales_details_report:
+    path:   /sales-details-report
+    defaults: { _controller: DhiAdminBundle:SalesDetailsReport:index } 
+    
+dhi_admin_sales_details_report_list_json:
+    path:   /sales-details-list-json
+    defaults: { _controller: DhiAdminBundle:SalesDetailsReport:salesDetailsListJson }
+    
+dhi_admin_sales_details_report_csv:    
+    path:   /sales-details-export-csv
+    defaults: { _controller: DhiAdminBundle:SalesDetailsReport:exportCsv }
+    
+dhi_admin_email_campaign_history:
+    pattern:  /email-campaign/history/{campaignId}
+    defaults: { _controller: DhiAdminBundle:EmailCampaign:emailCampaignHistory }
+
+dhi_admin_email_campaign_history_json:
+    pattern:  /email-campaign/history-json/{campaignId}
+    defaults: { _controller: DhiAdminBundle:EmailCampaign:emailCampaignHistoryJson }
+
+dhi_admin_topup_link_new:
+    path: /topup-link/new
+    defaults: { _controller: DhiAdminBundle:TopupLink:new}
+
+dhi_admin_topup_link_delete:
+    path: /topup-link/delete
+    defaults: { _controller: DhiAdminBundle:TopupLink:delete}
+
+dhi_admin_user_support_plan_change:
+    pattern:  /user/support-plan-change
+    defaults: { _controller: DhiAdminBundle:User:SupportPlanChange }
+
+dhi_admin_user_redeem_promocode:
+    pattern:  /user/promocode/redeem
+    defaults: { _controller: DhiAdminBundle:User:redeemPromoCode }
+
+dhi_admin_user_service_suspend:
+    path:     /user/service-suspend/{id}
+    defaults: { _controller: DhiAdminBundle:UserServiceSuspend:doServiceSuspend }
+
+dhi_admin_user_service_unsuspend:
+    path:     /user/service-unsuspend/{id}
+    defaults: { _controller: DhiAdminBundle:UserServiceSuspend:doServiceUnsuspend }
+
+dhi_admin_promotion_list:
+    pattern:  /promotion-list
+    defaults: { _controller: DhiAdminBundle:Promotion:index }
+
+dhi_admin_promotion_list_json:
+    pattern:  /promotion-list-json
+    defaults: { _controller: DhiAdminBundle:Promotion:listJson }
+
+dhi_admin_promotion_new:
+    pattern:  /add-new-promotion
+    defaults: { _controller: DhiAdminBundle:Promotion:new }
+
+dhi_admin_promotion_edit:
+    pattern:  /edit-promotion/{id}
+    defaults: { _controller: DhiAdminBundle:Promotion:edit }
+
+dhi_admin_promotion_status:
+    pattern:  /change-promotion-status/{id}
+    defaults: { _controller: DhiAdminBundle:Promotion:changeStatus }
+
+dhi_admin_promotion_check_dates:
+    pattern:  /change-promotion-dates/{startDate}/{endDate}
+    defaults: { _controller: DhiAdminBundle:Promotion:verifyDates }
+
+dhi_admin_in_app_promo_code_list:
+    path:     /in-app-promo-code-list
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:index }
+
+dhi_admin_in_app_promo_code_list_json:
+    pattern:  /in-app-promo-code-list-json
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:promoCodeListJson }
+    
+dhi_admin_in_app_promo_code_new:
+    pattern:  /add-new-in-app-promo-code
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:new }
+
+dhi_admin_in_app_promo_code_edit:
+    path:   /edit-in-app-promo-code/{id}
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:editInAppPromocode }
+
+dhi_admin_in_app_promo_code_delete:
+    path:   /delete-in-app-promo-code
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:delete }
+
+dhi_admin_in_app_promo_code_disable:
+    path:   /disable-in-app-promo-code/{id}
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:disable }
+
+dhi_admin_in_app_promo_code_preview:
+    path:   /preview-in-app-promo-code
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:previewPromoCode }
+
+dhi_admin_in_app_promo_code_unique:
+    path:   /unique-in-app-promo-code
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:uniquePromoCode }
+
+dhi_admin_in_app_promo_code_export_pdf:
+    pattern:  /in-app-promo-code-export-pdf
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:exportpdf }
+
+dhi_admin_in_app_promo_code_export_csv:
+    pattern:  /in-app-promo-code-export-csv
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:exportCsv }
+
+dhi_admin_in_app_promo_code_print:
+    pattern:  /in-app-promo-code-print
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:print }
+
+dhi_admin_get_in_app_promo_service:
+    path:   /get-in-app-promo-service
+    defaults: { _controller: DhiAdminBundle:InAppPromoCode:getPromoService }
+
+dhi_admin_unassigned_promo_codes_view:
+    pattern: /unassigned-promo-codes
+    defaults: { _controller: DhiAdminBundle:UnAssignedPromoCodes:index }
+
+dhi_admin_unassigned_promo_codes_json:
+    pattern: /unassigned-promo-codes-json
+    defaults: { _controller: DhiAdminBundle:UnAssignedPromoCodes:listJson }
+
+dhi_admin_unassigned_promo_codes_delete:
+    pattern: /unassigned-promo-codes-delete
+    defaults: { _controller: DhiAdminBundle:UnAssignedPromoCodes:delete }
+
+dhi_admin_unassigned_promo_codes_reassign:
+    pattern: /unassigned-promo-codes/reassign/{type}/{id}
+    defaults: { _controller: DhiAdminBundle:UnAssignedPromoCodes:reAssign, type:null, id:0 }
+
+dhi_admin_unassigned_bulk_promo_codes_reassign:
+    pattern: /unassigned-promo-codes/bulk/reassign/
+    defaults: { _controller: DhiAdminBundle:UnAssignedPromoCodes:bulkReAssign}
+
+dhi_admin_chase_merchant_ids_list:
+    pattern:  /chase-merchantids-list
+    defaults: {_controller: DhiAdminBundle:ChaseMechantIds:index }
+
+dhi_admin_chase_merchant_ids_list_json:
+    pattern:  /chase-merchantids-list-json
+    defaults: {_controller: DhiAdminBundle:ChaseMechantIds:listJson }
+    
+dhi_admin_chase_merchant_ids_new:
+    pattern:  /chase-merchantids/new
+    defaults: {_controller: DhiAdminBundle:ChaseMechantIds:new }
+    
+dhi_admin_chase_merchant_ids_edit:
+    pattern:  /chase-merchantids/edit/{id}
+    defaults: {_controller: DhiAdminBundle:ChaseMechantIds:edit }
+    
+dhi_admin_chase_merchant_ids_set_default:
+    pattern:  /chase-merchantids/set-default
+    defaults: {_controller: DhiAdminBundle:ChaseMechantIds:setDefaultMerchantId }
+
+dhi_admin_chase_merchant_ids_active_inactive:
+    pattern:  /chase-merchantids/active-inactive
+    defaults: {_controller: DhiAdminBundle:ChaseMechantIds:activeInactive } 
+    
+dhi_admin_service_location_wise_chase_merchant_id_list:
+    pattern:  /service-location-chase-merchantids-list
+    defaults: {_controller: DhiAdminBundle:ServiceLocationWiseChaseMerchantId:index }
+
+dhi_admin_service_location_wise_chase_merchant_id_list_json:
+    pattern:  /service-location-chase-merchantids-list-json
+    defaults: {_controller: DhiAdminBundle:ServiceLocationWiseChaseMerchantId:listJson }
+    
+dhi_admin_service_location_wise_chase_merchant_id_new:
+    pattern:  /service-location-chase-merchantids/new
+    defaults: {_controller: DhiAdminBundle:ServiceLocationWiseChaseMerchantId:new }
+    
+dhi_admin_service_location_wise_chase_merchant_id_edit:
+    pattern:  /service-location-chase-merchantids/edit/{id}
+    defaults: {_controller: DhiAdminBundle:ServiceLocationWiseChaseMerchantId:edit }
+    
+dhi_admin_service_location_wise_chase_merchant_id_delete:
+    pattern:  /service-location-chase-merchantids-delete
+    defaults: {_controller: DhiAdminBundle:ServiceLocationWiseChaseMerchantId:delete }
+
+dhi_admin_tikilive_promo_code_list:
+    path:   /tikilive-promo-code/list
+    defaults: { _controller: DhiAdminBundle:TikilivePromoCode:index }
+
+dhi_admin_tikilive_promo_code_list_json:
+    pattern:  /tikilive-promo-code/list-json
+    defaults: { _controller: DhiAdminBundle:TikilivePromoCode:listJson }
+
+dhi_admin_tikilive_promo_code_import:
+    path:   /tikilive-promo-code/import
+    defaults: { _controller: DhiAdminBundle:TikilivePromoCode:import }
+
+dhi_admin_tikilive_promo_code_status:
+    path:     /tikilive-promo-code/change-status/{id}/{status}
+    defaults: { _controller: DhiAdminBundle:TikilivePromoCode:changeStatus }
+    
+dhi_admin_tikilive_promo_code_download_sample:
+    path:      /tikilive-promocode-download-sample
+    defaults: { _controller: DhiAdminBundle:TikilivePromoCode:downloadSampleCsv}
+    
+dhi_admin_tikilive_promo_code_multi_status_change:
+    path:      /tikilive-promo-code/change-statusall
+    defaults: { _controller: DhiAdminBundle:TikilivePromoCode:changeStatusall}
+
+dhi_admin_tikilive_promo_code_exportcsv:
+    path:      /tikilive-promo-code/export-csv
+    defaults: { _controller: DhiAdminBundle:TikilivePromoCode:exportCsv}
+    
+dhi_admin_package_wise_tikilive_plan_edit:
+    path:     /package/edit-tikilive-plan/{packageId}
+    defaults: { _controller: DhiAdminBundle:Package:editTikiLivePlan }
+
+dhi_admin_package_wise_tikilive_plan_delete:
+    path:     /package/delete-tikilive-plan
+    defaults: { _controller: DhiAdminBundle:Package:deleteTikiLivePlan }
+
+dhi_admin_white_label_list:
+    pattern:  /whitelabel
+    defaults: { _controller: DhiAdminBundle:WhiteLabel:index }
+
+dhi_admin_white_label_list_json:
+    pattern:  /whitelabel/list-json
+    defaults: { _controller: DhiAdminBundle:WhiteLabel:whitelabelListJson }
+
+dhi_admin_white_label_new:
+    pattern:  /whitelabel/add
+    defaults: { _controller: DhiAdminBundle:WhiteLabel:new }
+
+dhi_admin_white_label_edit:
+    pattern:  /whitelabel/edit/{id}
+    defaults: { _controller: DhiAdminBundle:WhiteLabel:edit }
+
+dhi_admin_white_label_delete:
+    path:   /whitelabel/delete
+    defaults: { _controller: DhiAdminBundle:WhiteLabel:delete }
+
+dhi_admin_white_label_disable:
+    path:   /disable-white-label/{id}
+    defaults: { _controller: DhiAdminBundle:WhiteLabel:disable }
+    
+dhi_admin_white_label_remove_image:
+    path:   /whitelabel/removeimage
+    defaults: { _controller: DhiAdminBundle:WhiteLabel:delteimagefile }
+    
+dhi_admin_service_location_to_sites_list:
+    pattern:  /service-location-to-site/list
+    defaults: { _controller: DhiAdminBundle:ServiceLocationWiseSite:index }
+
+dhi_admin_service_location_to_sites_list_json:
+    pattern:  /service-location-to-site/list-json
+    defaults: { _controller: DhiAdminBundle:ServiceLocationWiseSite:listJson }
+
+dhi_admin_service_location_to_sites_new:
+    pattern:  /service-location-to-site/new
+    defaults: { _controller: DhiAdminBundle:ServiceLocationWiseSite:new }
+
+dhi_admin_service_location_to_sites_edit:
+    pattern:  /service-location-to-site/edit/{id}
+    defaults: { _controller: DhiAdminBundle:ServiceLocationWiseSite:edit }
+
+dhi_admin_service_location_to_sites_delete:
+    path:   /service-location-to-site/delete
+    defaults: { _controller: DhiAdminBundle:ServiceLocationWiseSite:delete }
+
+dhi_admin_white_label_check_site_details:
+    path:   /check-white-label-site
+    defaults: { _controller: DhiAdminBundle:WhiteLabel:checkSite }
+
+dhi_admin_solar_winds_location_list:
+    path:   /solar-winds-location/list
+    defaults: { _controller: DhiAdminBundle:SolarWindsRequestType:index }
+    
+dhi_admin_solar_winds_location_list_json:
+    path:   /solar-winds-location/list-json
+    defaults: { _controller: DhiAdminBundle:SolarWindsRequestType:solarwindsLocationListJson }
+
+dhi_admin_solar_winds_location_add:
+    path:   /solar-winds-location/add
+    defaults: { _controller: DhiAdminBundle:SolarWindsRequestType:new}
+
+dhi_admin_solar_winds_location_edit:
+    path:   /solar-winds-location/edit/{id}
+    defaults: { _controller: DhiAdminBundle:SolarWindsRequestType:edit}
+
+
+dhi_admin_solar_winds_location_delete:
+    path:   /solar-winds-location/delete
+    defaults: { _controller: DhiAdminBundle:SolarWindsRequestType:delete }
+    
+dhi_admin_get_sitewise_support_location:
+   path:   /solar-winds-location/support-location
+   defaults: { _controller: DhiAdminBundle:SolarWindsRequestType:supportlocation }
+  
+
+dhi_admin_update_support_location_sequence_number:
+    path:     /support-location/sequence-number
+    defaults: { _controller: DhiAdminBundle:SupportLocation:updateSequenceNumber }
+
+dhi_admin_tikilive_active_uset_list:
+    path:   /tikilive-active-user
+    defaults: { _controller: DhiAdminBundle:TikiliveActiveUser:index }
+
+dhi_admin_tikilive_active_uset_list_json:
+    path:   /tikilive-active-user-list-json
+    defaults: { _controller: DhiAdminBundle:TikiliveActiveUser:listJson }
+
+dhi_admin_tikilive_active_uset_export_csv:
+    path:   /tikilive-active-user/export-csv
+    defaults: { _controller: DhiAdminBundle:TikiliveActiveUser:exportCsv }
+
+dhi_admin_channel_list:
+    pattern: /channel-list
+    defaults: { _controller: DhiAdminBundle:ChannelMaster:index}
+
+dhi_admin_channel_list_json:
+    path:   /channel-list-json
+    defaults: { _controller: DhiAdminBundle:ChannelMaster:listJson }
+
+dhi_admin_channel_list_edit:
+    path:   /edit-channel/{id}
+    defaults: { _controller: DhiAdminBundle:ChannelMaster:edit }
+
+dhi_admin_channel_list_image_remove:
+    path:   /remove-channel-image/{id}
+    defaults: { _controller: DhiAdminBundle:ChannelMaster:removeImage }
+
+dhi_admin_addons_list:
+    pattern: /addons-list
+    defaults: { _controller: DhiAdminBundle:AddonsMaster:index}
+
+dhi_admin_addons_list_json:
+    path:   /addons-list-json
+    defaults: { _controller: DhiAdminBundle:AddonsMaster:listJson }
+
+dhi_admin_addons_edit:
+    path:   /edit-addons/{id}
+    defaults: { _controller: DhiAdminBundle:AddonsMaster:edit }
+
+dhi_admin_addons_image_remove:
+    path:   /remove-addons-image/{id}
+    defaults: { _controller: DhiAdminBundle:AddonsMaster:removeImage }
+    
+dhi_admin_update_support_category_sequence_number:
+    path:     /support-category/sequence-number
+    defaults: { _controller: DhiAdminBundle:SupportCategory:updateSequenceNumber }
+
+dhi_admin_support_service_list:
+    path:     /support-service-list
+    defaults: { _controller: DhiAdminBundle:SupportService:index }
+
+dhi_admin_support_service_list_json:
+    pattern:  /support-service/list-json
+    defaults: { _controller: DhiAdminBundle:SupportService:listJson }
+
+dhi_admin_support_service_new:
+    path:     /support-service/new
+    defaults: { _controller: DhiAdminBundle:SupportService:new }
+
+dhi_admin_support_service_edit:
+    path:     /support-service/edit-service/{id}
+    defaults: { _controller: DhiAdminBundle:SupportService:edit }
+
+dhi_admin_support_service_delete:
+    path:     /support-service/delete-service
+    defaults: { _controller: DhiAdminBundle:SupportService:delete }
+
+dhi_admin_support_category_check_duplicate:
+    path:     /support-category/check-duplicate
+    defaults: { _controller: DhiAdminBundle:SupportCategory:checkDuplicate }
+
+dhi_admin_support_location_check_duplicate:
+    path:     /support-location/check-duplicate
+    defaults: { _controller: DhiAdminBundle:SupportLocation:checkDuplicate }
+
+dhi_admin_package_change_free_recharge_card_status:
+    path:     /package/change-free-recharge-status
+    defaults: { _controller: DhiAdminBundle:Package:changeFreeRechargeStatus }
+
+dhi_admin_free_recharge_card_list:
+    path:     /free-recharge-card
+    defaults: { _controller: DhiAdminBundle:FreeRechargeCard:index }
+
+dhi_admin_free_recharge_card_list_json:
+    pattern:  /free-recharge-card/list-json
+    defaults: { _controller: DhiAdminBundle:FreeRechargeCard:listJson }
+
+dhi_admin_mark_user_free_recharge_card:
+    path:     /free-recharge-card/new
+    defaults: { _controller: DhiAdminBundle:FreeRechargeCard:markUser }
+
+dhi_admin_free_recharge_card_export_csv:
+    path:     /free-recharge-card/export-csv
+    defaults: { _controller: DhiAdminBundle:FreeRechargeCard:exportCsv }
+    
+dhi_admin_free_recharge_card_check_eligibility:
+    path:     /free-recharge-card/check-eligibility
+    defaults: { _controller: DhiAdminBundle:FreeRechargeCard:checkEligibility }
+
+dhi_admin_view_expired_plans_list:
+    path:  /customer/plans/expired/{id}
+    defaults: { _controller: DhiAdminBundle:RefundExpiredPlans:index }
+
+dhi_admin_view_expired_plans_json:
+    path:  /customer/plans/expired/list/{id}
+    defaults: { _controller: DhiAdminBundle:RefundExpiredPlans:listJson }
+
+dhi_admin_view_expired_plans_refund:
+    path:  /customer/plans/expired/refund/{id}
+    defaults: { _controller: DhiAdminBundle:RefundExpiredPlans:refund }

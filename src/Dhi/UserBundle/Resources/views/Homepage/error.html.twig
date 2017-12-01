@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        
+        {% set brand = app.session.get('brand') %}
+        {% set brandName = '' %}
+        {% set brandDomain = '' %}
+        {% if brand %}
+            {% set brandName = brand.name %}
+            {% set brandDomain = brand.domain %}
+            {% set brandHeaderLogo = brand.headerLogo %}
+            {% set brandFooterLogo = brand.footerLogo %}
+        {% endif %}
+        
+        <title>{% block title %}Welcome {{ brandName }} {% endblock %}</title>
+
+        {% block stylesheets %}
+            <link href="{{ asset('bundles/dhiuser/css/bootstrap.css') }}" rel="stylesheet">
+            <link href="{{ asset('bundles/dhiuser/css/bootstrap-theme.min.css') }}" rel="stylesheet">
+            <link href="{{ asset('bundles/dhiuser/css/font-awesome.css') }}" rel="stylesheet">
+            <link href="{{ asset('bundles/dhiuser/css/slick.css') }}" rel="stylesheet">
+            <link href="{{ asset('bundles/dhiuser/css/main.css') }}" rel="stylesheet">
+            <link href="{{ asset('bundles/dhiuser/css/responsive.css') }}" rel="stylesheet">
+        {% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('bundles/dhiuser/images/dhi-favicon.png') }}" />
+
+    </head>
+    <body class="body_bg">
+        <!--header start here-->
+        <header id="homeMenu" class="headerMain">
+            <div class="container">
+                <div class="row">
+                    <div class="pull-left Logo">
+                        <a href="{{ url('dhi_user_homepage') }}"><img src="{{ asset('uploads/whitelabel/headerlogo/'~brandHeaderLogo) }}" width="216" height="52"></a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!--middle start here-->
+        <section class="middlesection content">
+            <div class="container-fluid">
+                <div class="errorcont">
+
+                    <div class="error-message-404 block">
+
+                        <div class="error_content">
+
+                                <div class="left_error">
+                                <h6>{{status_code ? status_code : '404'}}</h6>
+                                </div>
+                                <div class="right_error">
+                                    <h1><span>Page</span> not found</h1>
+                                    
+                                </div>
+                                <p><span>Sorry,</span>the page you requested cannot be found or does not exist.</p>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </section>
+
+        {% block footer %}
+            <footer>
+                <div class="container">
+                    <div class="row">
+                       <div class="col-xs-12 col-sm-4 col-md-4 footer_logo">
+                            <figure><img src="{{ asset('uploads/whitelabel/footerlogo/'~brandFooterLogo) }}"></figure>
+                        </div>
+                        <div class="col-md-12 col-xs-12 copyright">© 2015. {{ brandName }}. All rights reserved.</div>
+                    </div>
+                </div>
+            </footer>
+        {% endblock footer %}
+
+        {% block javascripts %}
+            
+        {% endblock %}
+
+    </body>
+</html>

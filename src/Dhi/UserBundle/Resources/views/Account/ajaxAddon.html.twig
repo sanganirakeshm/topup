@@ -1,0 +1,70 @@
+<form name="frmAddon" id="frmAddon" method="POST">
+        <div class="newRow">
+            {% set planCount = 0 %}
+            {% if premiumPackage|length > 0 %}
+            {% for addOnsPackage in premiumPackage %}
+                {% if planCount == 0 %}
+                    <h4>Add Ons <span class="subText">${{ addOnsPackage['packagePrice'] }} Each</span></h4>
+                {% endif %}
+                {% set planCount = planCount + 1 %}
+                <div class="newRow">
+                {% set alreadyPurchasedAddOns = 0 %}
+                {% set isAddonsPackageAvailableInCart = 0 %}
+                {% set servicePurchaseId = '' %}
+                {% if addOnsPackage['packageId'] in summaryData.CartAddOnPackageId %}
+                    {% set servicePurchaseId = summaryData.CartAddOnServicePurchaseId[addOnsPackage['packageId']] %}
+                    {% set isAddonsPackageAvailableInCart = 1 %}
+                {% endif %}
+
+                {#{% if summaryData.IsIPTVAvailabledInCart == 0 %}
+                    {% set premiumPackagePriceBasedOnIPTV = addOnsPackage['packagePrice'] %}
+                    {% if summaryData.IsIPTVAvailabledInPurchased == 1 %}
+                        {% set perDayPrice = addOnsPackage['packagePrice'] / addOnsPackage['validity'] %}
+                        {% set premiumPackagePriceBasedOnIPTV = perDayPrice * summaryData.Purchased.IPTVRemainDays %}
+                    {% endif %}
+                {% else %}
+                    {% set premiumPackagePriceBasedOnIPTV = 0 %}
+                {% endif %}#}
+                {% if (summaryData.IsIPTVAvailabledInCart == 0 and summaryData.IsIPTVAvailabledInPurchased == 0 and summaryData.IsBundleAvailabledInCart == 0 and summaryData.IsBundleAvailabledInPurchased == 0) or (summaryData.PurchasedAddOnPackageId is defined and addOnsPackage['packageId'] in summaryData.PurchasedAddOnPackageId)%}
+                    {% set disabled = "disabled=disabled" %}
+                {% else %}
+                    {% set disabled = ""%}
+                {% endif %}
+                {#{% if premiumPackagePriceBasedOnIPTV > 5 or summaryData.IsIPTVAvailabledInCart == 1 %}#}
+                    {% set imagename = '' %}
+                    {% if arrAddonsImage[addOnsPackage['packageName']] is defined  %}
+                        {% set imagename = arrAddonsImage[addOnsPackage['packageName']] %}
+                    {% endif %}
+                    {% if isAddonsPackageAvailableInCart == 1 %} 
+                        <input class="chk" type="checkbox" id="premiumPackageId{{ addOnsPackage['Id'] }}" name="premiumPackageId[]" onclick ="deletePackage('AddOns', {{ servicePurchaseId }}, '{{ addOnsPackage['packageName'] }}')" value="{{ addOnsPackage['Id'] }}" checked="">
+                    {% else %}
+                        <input class="chk" type="checkbox" id="premiumPackageId{{ addOnsPackage['Id'] }}" name="premiumPackageId[]" onclick ="addPackage('AddOns',1, 0, 0, {{ addOnsPackage['Id'] }})" value="{{ addOnsPackage['Id'] }}" {{ disabled }}>
+                    {% endif %}
+                    <img class="addonsImage" src="{{ asset('uploads/addons/'~imagename) }}" alt="{{ addOnsPackage['packageName'] }}" />
+                    <input type="hidden" name="packageIdAddOns[{{ addOnsPackage['Id'] }}]" id="packageIdAddOns{{ addOnsPackage['Id'] }}" value="{{ addOnsPackage['packageId'] }}">
+                    <input type="hidden" name="packageValidityAddOns[{{ addOnsPackage['Id'] }}]" id="packageValidityAddOns{{ addOnsPackage['Id'] }}" value="{{ addOnsPackage['validity'] }}">
+                    {#{% else %}
+                        {% if isPlanFound == false %}
+                            {% set isPlanFound = true %}
+                        {% endif %}
+                     {% endif %}#}
+                </div>
+            {% endfor %}
+            {% else %}
+                No additional content available at this time.
+            {% endif %}
+            {#{% if isPlanFound == true %}
+                You cannot purchase add-on plans as your selected Bundle / IPTV plan has price less than $5!
+            {% endif %}#}
+        </div>
+        <input type="hidden" name="pid" value="1"/>
+        <input type="hidden" name="packageType" value="AddOns"/>
+        <input type="hidden" name="service" value="IPTV"/>
+        <input type="hidden" name="isAddonsPack" value="1"/>
+</form>
+<script>
+    $(document).ready(function(){
+        $('#ajax-loader-bx').show();
+        $('#ajax-loader-bx').hide();
+    });
+</script>

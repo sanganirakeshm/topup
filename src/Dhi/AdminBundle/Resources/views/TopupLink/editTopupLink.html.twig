@@ -1,0 +1,157 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link rel="stylesheet" href="{{ asset('bundles/dhiadmin/FCBKcomplete/style.css') }}" type="text/css" media="screen" charset="utf-8" />	
+<style>
+	.row-yellow {
+		background-color: #E2D85B !important;
+	}
+</style>
+{% endblock stylesheets %}
+
+{% block body %}
+    <section class="content-header">
+        <h1>Edit Topup Link</h1>
+    </section>		  
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-success">
+                    <form action="{{ path('dhi_admin_topup_link_edit', { 'id': app.request.get('id') }) }}" method="POST" {{ form_enctype(form) }}  class="form-horizontal" id="setting_form">
+                        <div class="box-body autofieldBox">
+
+                            <div class="col-xs-12">
+                                <div class="form-group col-md-4">
+                                    <label class="control-label">Service Location: </label>
+                                    {{ form_widget(form.serviceLocations, { 'attr': { 'placeholder': 'Setting Name', 'class': 'form-control'}}) }}
+                                    <div class="serverError">{{ form_errors(form.serviceLocations) }}</div>
+                                    <label id="dhi_topup_link_serviceLocations-error-msg" class="error"></label>
+                                </div>
+                                
+                                <div class="form-group col-md-4">
+                                    <label  class="control-label">Link Name: </label>
+                                    {{ form_widget(form.linkName, { 'attr': { 'placeholder': 'Link Name', 'class': 'form-control'}}) }}
+                                    <div class="serverError">{{ form_errors(form.linkName) }}</div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label  class="control-label">Url: </label>
+                                    {{ form_widget(form.url, { 'attr': { 'placeholder': 'Enter Url', 'class': 'form-control'}}) }}
+                                    <div class="serverError">{{ form_errors(form.url) }}</div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="form-group col-md-4">
+                                    <label  class="control-label">Status: </label>
+                                    {{ form_widget(form.status, { 'attr': { 'placeholder': 'Select Status', 'class': 'form-control'}}) }}
+                                    <div class="serverError">{{ form_errors(form.status) }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{ form_rest(form) }}
+
+                        <div class="box-footer">
+                            <div class="col-sm-4"> 
+                                <input type="submit" name="btnupdate" id="btnupdate" value="Update" class="btn btn-success"/>
+                                <a href="{{ path('dhi_admin_topup_link_list') }}" class="btn btn-default">Back</a>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/dhiadmin/js/jquery-ui-1.10.3.custom.min.js') }}"></script>
+    <script src="{{ asset('bundles/dhiadmin/FCBKcomplete/jquery.fcbkcomplete.js') }}" type="text/javascript" charset="utf-8"></script> 
+    <script type="text/javascript">
+        $(document).ready(function () {
+            
+           $.validator.addMethod("alphanumeric", function (value, element) {
+                    return this.optional(element) || /^[A-Za-z0-9]+$/i.test(value);
+                }, "Please enter only alphanumeric value.");
+            
+            $('#setting_form').validate({
+                rules: {
+                    "dhi_topup_link[serviceLocations]": {
+                        "required": true
+                    },
+                    "dhi_topup_link[linkName]": {
+                        "required": true,
+                        "alphanumeric" :true,
+                        "maxlength": 255
+                    },
+                    "dhi_topup_link[url]": {
+                        "required": true,
+                        "url": true
+                    },
+                    "dhi_topup_link[status]": {
+                        "required": true
+                    }
+                },
+                messages: {
+                    "dhi_topup_link[serviceLocations]": {
+                        "required": "Please select service location."
+                    },
+                    "dhi_topup_link[linkName]": {
+                        "required": "Please enter link name.",
+                        "alphanumeric": "Please enter only alphanumeric value.",
+                        "maxlength": "Please enter less than 255 characters."
+                    },
+                    "dhi_topup_link[url]": {
+                        "required": "Please enter url.",
+                        "url": "Enter valid url."
+                    },
+                    "dhi_topup_link[status]": {
+                        "required": "Please select status."
+                    }
+                }
+            });
+            
+           $("#setting_form").submit(function (event){
+                if($("#dhi_topup_link_serviceLocations").val() == null){
+                    $("#dhi_topup_link_serviceLocations-error-msg").html('Please select service location.');
+                    $("#dhi_topup_link_serviceLocations-error-msg").show();
+                    event.preventDefault();
+                    return false;
+                }
+                else
+                {
+                   $("#dhi_topup_link_serviceLocations-error").html('');
+                }
+            });
+                    
+            {% for serlocation in serviceLocation %}
+		$("#dhi_topup_link_serviceLocations").trigger("addItem",[{"title": "{{ serlocation }}", "value": "{{ serlocation }}"}]);
+	    {% endfor %}
+            $("#dhi_topup_link_serviceLocations").trigger("destroy");
+            $("#dhi_topup_link_serviceLocations").fcbkcomplete({
+                json_url: "{{ path('dhi_admin_topup_link_edit_search_service_location') }}",
+		addontab: true,
+                input_min_size: 0,
+                height: 15,
+                cache: true,
+                newel: false,
+                filter_selected: true,
+                oncreate: function() {},
+		onselect: function() {}
+            });
+            
+            {% if objTopupLink.serviceLocations %}			
+                {% for serviceLocation in objTopupLink.serviceLocations %}
+                    {% set name = serviceLocation.name %}
+                    {% set locationid = serviceLocation.id %}
+                        $("#dhi_topup_link_serviceLocations").trigger("addItem",[{"title": "{{ name }}", "value": "{{ locationid }}"}]);
+                {% endfor %}
+            {% endif %}
+            
+            });
+    </script>
+{% endblock javascripts %}
+

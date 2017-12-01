@@ -1,0 +1,171 @@
+{% block body %}
+	<h1>Aradial User Purchase History</h1>
+	{% if purchaseData|length > 0 %}
+	<table class="purchase_table" style="width:100%;" cellspacing="0" cellpadding="5">
+		<tr>
+			<th>Order Number</th>
+			<th>Transaction Id</th>
+			<th>Username</th>
+            <th>Purchase Service</th>
+			<th>Payment Method</th>
+			<th>Payment Status</th>
+			<th>Total Amount</th>
+			<th>Refund Amount</th>
+			<th>Purchase Date</th>
+			{% if (app.user.group == 'Super Admin') %}<th>IP Address</th>{% endif %}
+		</tr>
+		{% for purchaseOrder in purchaseData %}
+
+			<tr class="evenrow">
+				<td>{{ purchaseOrder.orderNumber }}</td>
+                <td>{{ purchaseOrder.transactionId }}</td>
+				<td>{{ purchaseOrder.username }}</td>
+				<td>{{ purchaseOrder.purchaseService|raw }}</td>
+				<td>{{ purchaseOrder.paymentMethod|raw }}</td>
+				<td>{{ purchaseOrder.paymentStatus }}</td>
+				<td>{{ purchaseOrder.totalAmount }}</td>
+				<td>{{ purchaseOrder.refundAmount }}</td>
+				<td>{{ purchaseOrder.purchaseDate }}</td>
+				{% if (app.user.group == 'Super Admin') %}<td>{{ purchaseOrder.ipAddress }}</td>{% endif %}
+			</tr>
+
+			{% if purchaseOrder.serviceData|length > 0 %}
+
+				{% for servicePurchase in purchaseOrder.serviceData %}
+				<tr>
+					<td colspan="10">
+						<table class="sub_table" style="width:100%;" cellspacing="0" cellpadding="5">
+
+							{% set ispArrLength = 0 %}
+							{% if 'ISP' in servicePurchase|keys %}
+								{% set ispArrLength = servicePurchase.ISP|length %}
+								{% if ispArrLength > 0 %}
+									<tr>
+										<th rowspan="{{ ispArrLength + 1 }}">ISP</th>
+										<th>Package</th>
+										<th>Package Amount</th>
+										<th>Purchase Amount</th>
+										<th>Payment Status</th>
+										<th>Date</th>
+
+									</tr>
+									{% for ispService in servicePurchase.ISP %}
+									<tr>
+										<td>{{ ispService.packageName }}</td>
+										<td>${{ ispService.packageActualAmount }}</td>
+										<td>${{ ispService.packagePaybleAmount }}</td>
+										<td>{{ ispService.paymentStatus }}</td>
+										<td>{{ ispService.activationDate }}</td>
+
+									</tr>
+									{% endfor %}
+								{% endif %}
+					 		{% endif %}
+
+
+					 		{% set iptvArrLength = 0 %}
+							{% if 'IPTV' in servicePurchase|keys %}
+								{% set iptvArrLength = servicePurchase.IPTV|length %}
+								{% if iptvArrLength > 0 %}
+									<tr>
+										<th rowspan="{{ iptvArrLength + 1 }}">ExchangeVUE packages</th>
+										<th>Package</th>
+										<th>Package Amount</th>
+										<th>Purchase Amount</th>
+										<th>Payment Status</th>
+										<th>Date</th>
+									</tr>
+									{% for iptvService in servicePurchase.IPTV %}
+									<tr>
+										<td>{{ iptvService.packageName }}</td>
+										<td>${{ iptvService.packageActualAmount }}</td>
+										<td>${{ iptvService.packagePaybleAmount }}</td>
+										<td>{{ iptvService.paymentStatus }}</td>
+
+										<td>{{ iptvService.activationDate }}</td>
+
+									</tr>
+									{% endfor %}
+								{% endif %}
+					 		{% endif %}
+
+					 		{% set addOnArrLength = 0 %}
+							{% if 'AddOn' in servicePurchase|keys %}
+								{% set addOnArrLength = servicePurchase.AddOn|length %}
+								{% if addOnArrLength > 0 %}
+									<tr>
+										<th rowspan="{{ addOnArrLength+ 1 }}">Premium Package</th>
+										<th>Package</th>
+										<th>Package Amount</th>
+										<th>Purchase Amount</th>
+										<th>Payment Status</th>
+										<th>Date</th>
+									</tr>
+									{% for addOnService in servicePurchase.AddOn %}
+									<tr>
+										<td>{{ addOnService.packageName }}</td>
+										<td>${{ addOnService.packageActualAmount }}</td>
+										<td>${{ addOnService.packagePaybleAmount }}</td>
+										<td>{{ addOnService.paymentStatus }}</td>
+										<td>{{ addOnService.activationDate }}</td>
+
+									</tr>
+									{% endfor %}
+								{% endif %}
+					 		{% endif %}
+
+					 		{% set creditArrLegnth = 0 %}
+							{% if 'Credit' in servicePurchase|keys %}
+
+								{% set creditArrLegnth = servicePurchase.Credit|length %}
+
+								{% if creditArrLegnth > 0 %}
+
+										<tr>
+											<th rowspan="{{ creditArrLegnth + 1 }}">Credit Purchase</th>
+											<th colspan="3">Description</th>
+											<th>Payment Status</th>
+											<th>Price</th>
+										</tr>
+									{% for creditPurchase in servicePurchase.Credit %}
+										<tr>
+											<td colspan="3">{{ creditPurchase.packageName }}</td>
+											<td>{{ creditPurchase.paymentStatus }}</td>
+											<td>${{ creditPurchase.packagePaybleAmount }}</td>
+										</tr>
+									{% endfor %}
+								{% endif %}
+							{% endif %}
+
+							{% set compensationArrLegnth = 0 %}
+							{% if 'Compensation' in servicePurchase|keys %}
+
+								{% set compensationArrLegnth = servicePurchase.Compensation|length %}
+
+								{% if compensationArrLegnth > 0 %}
+
+										<tr>
+											<th rowspan="{{ compensationArrLegnth + 1 }}">Compensation</th>
+											<th colspan="6">Service</th>
+											<th>Time</th>
+										</tr>
+									{% for compensationPurchase in servicePurchase.Compensation %}
+										<tr>
+											<td colspan="6">{{ compensationPurchase.service }}</td>
+											<td>{{ compensationPurchase.validity }}</td>
+										</tr>
+									{% endfor %}
+								{% endif %}
+							{% endif %}
+
+					 	</table>
+					</td>
+				</tr>
+				{% endfor %}
+			{% endif %}
+		{% endfor %}
+	</table>
+	{% endif %}
+
+
+{% endblock body %}

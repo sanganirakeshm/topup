@@ -1,0 +1,264 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+<!-- Content Header (Page header) -->
+<section class="content-header"><h1>Add New Customer</h1></section>
+{% include "DhiUserBundle::flashMessage.html.twig" %}
+<section class="content">
+	<div class="box box-success">
+		<form action="{{ path('dhi_user_new') }}" method="POST" {{ form_enctype(form) }} class="form-horizontal" id="add_admin_form" novalidate>
+		<div class="box-body form-group-section">
+			<div class="form-group col-sm-4 error_password">
+				<label class="control-label">Username: </label>
+				<div>
+				    {{ form_widget(form.username, { 'attr': { 'placeholder': 'Username', 'class': 'form-control'}}) }}
+				    <div class="serverError" id="usernameServerErr">{{ form_errors(form.username) }}</div>
+				</div>
+			</div>
+			<div class="form-group col-sm-4">
+			    <label class="control-label">Email: </label>
+			    <div>
+			        {{ form_widget(form.email, { 'attr': { 'placeholder': 'Email Address', 'class': 'form-control'}}) }}
+			        <div class="serverError" id="emailServerErr">{{ form_errors(form.email) }}</div>
+			    </div>
+			</div>
+            <div class="form-group col-sm-4 error_password">
+                <label class="control-label">Password: </label>
+                <div>
+                    {{ form_widget(form.plainPassword.first, { 'attr': { 'placeholder': 'Password', 'class': 'form-control'}}) }}
+                    <div class="serverError">{{ form_errors(form.plainPassword.first) }}</div>
+                </div>
+            </div>
+            <div class="form-group col-sm-4 error_password clearfix">
+                <label class="control-label">Confirm Password: </label>
+                <div>
+                    {{ form_widget(form.plainPassword.second, { 'attr': { 'placeholder': 'Confirm Password', 'class': 'form-control'}}) }}
+                    <div class="serverError">{{ form_errors(form.plainPassword.second) }}</div>
+                </div>
+            </div>
+				
+			<div class="form-group col-sm-4 error_password">
+			    <label class="control-label">First Name: </label>
+			    <div>
+			        {{ form_widget(form.firstname, { 'attr': { 'placeholder': 'First Name', 'class': 'form-control'}}) }}
+			        <div class="serverError">{{ form_errors(form.firstname) }}</div>
+			    </div>
+			</div>
+				
+			<div class="form-group col-sm-4 error_password">
+			    <label class="control-label">Last Name: </label>
+			    <div>
+			        {{ form_widget(form.lastname, { 'attr': { 'placeholder': 'Last Name', 'class': 'form-control'}}) }}
+			        <div class="serverError">{{ form_errors(form.lastname) }}</div>
+			    </div>
+			</div>
+				
+			<div class="form-group col-sm-4 clearfix">
+			    <label class="control-label">Phone: </label>
+			    <div>
+			        {{ form_widget(form.phone, { 'attr': { 'placeholder': 'Phone', 'class': 'form-control', 'maxlength': 10}}) }}
+			        <div class="serverError">{{ form_errors(form.phone) }}</div>
+			    </div>
+			</div>
+				
+			<div class="form-group col-sm-4">
+			    <label class="control-label">Address: </label>
+			    <div>
+			        {{ form_widget(form.address, { 'attr': { 'placeholder': 'Address', 'class': 'form-control'}}) }}
+			        <div class="serverError">{{ form_errors(form.address) }}</div>
+			    </div>
+			</div>
+				
+			<div class="form-group col-sm-4">
+			    <label class="control-label">City: </label>
+			    <div>
+			        {{ form_widget(form.city, { 'attr': { 'placeholder': 'City', 'class': 'form-control'}}) }}
+			        <div class="serverError">{{ form_errors(form.city) }}</div>
+			    </div>
+			</div>
+							
+			<div class="form-group col-sm-4">
+			    <label class="control-label">State: </label>
+			    <div>
+			        {{ form_widget(form.state, { 'attr': { 'placeholder': 'State', 'class': 'form-control'}}) }}
+			        <div class="serverError">{{ form_errors(form.state) }}</div>
+			    </div>
+			</div>
+							
+			<div class="form-group col-sm-4">
+			    <label class="control-label">Zip Code: </label>
+			    <div>
+			        {{ form_widget(form.zip, { 'attr': { 'placeholder': 'Zip Code', 'class': 'form-control'}}) }}
+			        <div class="serverError">{{ form_errors(form.zip) }}</div>
+			    </div>
+			</div>
+							
+			<div class="form-group col-sm-4">
+			    <label class="control-label">Country: </label>
+			    <div>
+			        {{ form_widget(form.country, { 'attr': { 'placeholder': 'Country', 'class': 'form-control'}}) }}
+			        <div class="serverError">{{ form_errors(form.country) }}</div>
+			    </div>
+			</div>
+			<div class="form-group col-sm-4">
+			    <label class="control-label">Service Location: </label>
+			    <div>
+			        {{ form_widget(form.userServiceLocation, { 'attr': {'class': 'form-control'}}) }}
+			        <div class="serverError">{{ form_errors(form.userServiceLocation) }}</div>
+			    </div>
+			</div>				
+			<div class="form-group col-sm-4">
+			    <label class="control-label">Active: </label>
+			    <div>
+			        {{ form_widget(form.enabled, { 'attr': { 'placeholder': 'Active', 'class': 'form-control'}}) }}
+			        <div class="serverError">{{ form_errors(form.enabled) }}</div>
+			    </div>
+			</div>
+			<div class="form-group col-sm-4">
+				<label class="control-label">Opt Out of Marketing Emails: </label>
+				<div>
+					{{ form_widget(form.is_email_optout, { 'attr': {'class': ''}}) }}
+					<div class="serverError"> {{ form_errors(form.is_email_optout) }} </div>
+				</div>
+			</div>
+		</div>
+		<div class="box-footer">	
+			{{ form_rest(form) }}
+			<div class="col-sm-6 add-btn-bx">
+			    <div>
+			        <input type="submit" name="add" value="Add" class="btn btn-success"/>
+			        <a href="{{ path('dhi_admin_user_list') }}" class="btn btn-default">Back</a>
+			    </div>
+			</div>
+		</div>	
+		</form>
+	</div>
+</section>   
+{% endblock body %}
+{% block javascripts %}
+    {{ parent() }}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $.validator.addMethod("regex_username", function(value, element, regexpr) {
+            return regexpr.test(value);
+        }, "Your username contain characters, numbers and these special characters only - _ ! @ . / $.");
+
+        $.validator.addMethod("regex_password", function(value, element, regexpr) {
+            return regexpr.test(value);
+        }, "Your current password contains invalid characters. Passwords can contain characters, numbers and only these special characters: ! @ # $");
+
+        $.validator.addMethod("regex_name", function(value, element, regexpr) {
+            return regexpr.test(value);
+        }, "Your name contain characters, numbers and these special character only - _");
+        
+        $.validator.addMethod("regex_valid_char", function(value, element, regexpr) {
+            return regexpr.test(value);
+        }, "Please enter valid email.");
+
+        $('#add_admin_form').validate({
+            rules: {
+                "dhi_admin_registration[username]": {
+                    "required": true,
+                    "regex_username": /^[A-Za-z0-9-_!@./$]+$/,
+                    "minlength": 6,
+                    "maxlength": 32,
+                },
+                "dhi_admin_registration[email]": {
+                    "required": true,
+                    {#"regex_valid_char": /^[^'"]*$/,#}
+                    "regex_valid_char": /^([\w-\.]+)([\w-]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+                    "email": true
+                },
+                "dhi_admin_registration[plainPassword][first]": {
+                    "required": true,
+                    "regex_password": /^[A-Za-z0-9!@#$_]+$/,
+                    "minlength": 8,
+                    "maxlength": 18,
+                },
+                "dhi_admin_registration[plainPassword][second]": {
+                    "required": true,
+                    "equalTo": "#dhi_admin_registration_plainPassword_first"
+                },
+                "dhi_admin_registration[phone]": {
+                    "required": true,
+                    "regex_username": /^[0-9+]+$/,
+                    "maxlength": 10
+                },
+                "dhi_admin_registration[firstname]": {
+                    "required": true,
+                    "regex_name": /^[A-Za-z0-9 _-]+$/
+                },
+                "dhi_admin_registration[lastname]": {
+                    "required": true,
+                    "regex_name": /^[A-Za-z0-9 _-]+$/
+                },
+                "dhi_admin_registration[address]": "required",
+                "dhi_admin_registration[city]": "required",
+                "dhi_admin_registration[state]": "required",
+                "dhi_admin_registration[zip]": {"required": true,"maxlength": 12},
+                "dhi_admin_registration[country]": "required",
+                "dhi_admin_registration[userServiceLocation]": "required"
+            },
+            messages: {
+                "dhi_admin_registration[username]": {
+                    "required": "Please enter username.",
+                    "minlength": "Your username must have minimum 6 characters.",
+                    "maxlength": "Your username can have maximum 32 characters."
+                  
+                },
+                "dhi_admin_registration[email]": {
+                    "required": "Please enter an email.",
+                    "email": "Please enter valid email."
+                },
+                "dhi_admin_registration[plainPassword][first]": {
+                    "required": "Please enter password.",
+                    "minlength": "Your password must have minimum 8 characters.",
+                    "maxlength": "Your password can have maximum 18 characters."
+                },
+                "dhi_admin_registration[plainPassword][second]": {
+                    "required": "Please enter confirm password.",
+                    "equalTo": "Password does not match the confirm password."
+                }, 
+                "dhi_admin_registration[phone]": {
+                    "required": "Please enter phone number.",                    
+                    "maxlength": "Phone number must have maximum 10 digit.",
+                    "regex_username": "Please enter valid phone number."
+                },
+                
+                "dhi_admin_registration[firstname]": {
+                    "required": "Please enter first name.",
+                    "regex_name": "Your first name contain characters, numbers and these special characters only - _"
+                },
+                "dhi_admin_registration[lastname]": {
+                    "required": "Please enter last name.",
+                    "regex_name": "Your last name contain characters, numbers and these special characters only - _"
+                },
+                "dhi_admin_registration[address]": "Please enter address.",
+                "dhi_admin_registration[city]": "Please enter city.",
+                "dhi_admin_registration[state]": "Please enter state.",
+                "dhi_admin_registration[zip]": {"required":"Please enter zip code.","maxlength":"Zip Code can have maximum 12 characters."},
+                "dhi_admin_registration[country]": "Please enter country.",
+                "dhi_admin_registration[userServiceLocation]": "Please select service location."
+            },
+            errorPlacement: function (error, element) {
+                    if (element.attr("id") == "dhi_admin_registration_username") {
+                        if(error.text()!='') {
+                            $("#usernameServerErr").html('');
+                        }
+                        error.insertAfter(element);
+                    }else if (element.attr("id") == "dhi_admin_registration_email") {
+                        if(error.text()!='') {
+                            $("#emailServerErr").html('');
+                        }
+                        error.insertAfter(element);
+                    } 
+                    else {
+                        error.insertAfter(element);
+                    }
+            }
+        });
+    });
+</script>
+
+{% endblock javascripts %}

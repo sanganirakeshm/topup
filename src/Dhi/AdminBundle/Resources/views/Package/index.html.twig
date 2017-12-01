@@ -1,0 +1,230 @@
+{% extends "DhiAdminBundle::layout.html.twig" %}
+
+{% block body %}
+
+        {% include "DhiUserBundle::flashMessage.html.twig" %}
+	<div class="delBoxCont"></div>		
+        
+         <section class="content-header">
+              <h1>Package</h1>
+            </section>
+            <section class="content">	
+		
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="box box-success">
+                            <form method="get">
+                                <div class="box-body">
+                                    <div class="form-group col-md-4">
+                                                        
+                                        <div class="row"><div class="col-sm-12" id="packageType"></div></div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <div class="row"><div class="col-sm-12" id="serviceLocation"></div></div>
+                                    </div>                                    
+                                    <div class="form-group col-md-4">
+                                        <div class="row"><div class="col-sm-12" id="tikiLivePlanName"></div></div>
+                                    </div>    
+                                    <div class="form-group col-sm-4" >
+                                        <select name="isAssignedTikiLivePlan" id="isAssignedTikiLivePlan">
+                                            <option value="">Tikilive Status</option>
+                                                <option value="Assigned">Assigned</option>
+                                                <option value="UnAssigned">UnAssigned</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <div class="row"><div class="col-sm-12" id="freeRechargeCard"></div></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>		
+                 
+                <div class="box box-success">
+                    <div class="box-body">
+			<div class="row">
+         		    <div class="col-xs-12">  
+                           
+			    <table id="packageTable" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>PackageName</th>
+                                        <th>PackageType</th>
+                                        <th>Amount</th>
+                                        <th>BandWidth</th>
+                                        <th>ServiceLocation</th>
+					<th>Validaity</th>
+					<th>TikiLive Plan Name</th>
+					<th>Free Recharge Card</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>        
+            </section>
+        <div class="modal fade" id="editTikilivePlan" tabindex="-1" role="dialog" aria-labelledby="editTikilivePlan" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content"></div>
+            </div>
+        </div>
+        <div id="ajax-loader-bx" style="display:none;">
+            <img id="loading" src="{{ asset('bundles/dhiuser/images/ajax_loader1.gif') }}"><br/>
+            <div id="loader-text">Please wait....</div>
+        </div>
+
+        
+{% endblock body %}
+{% block javascripts %}
+    
+    {{ parent() }}
+
+   <script type="text/javascript">
+        
+        $(document).ready(function () {
+            
+	    deleteAjaxSource = '{{ path('dhi_admin_package_wise_tikilive_plan_delete') }}';	
+            activeInactiveAjaxSource = '{{ path('dhi_admin_package_change_free_recharge_card_status') }}';
+            
+             dTable = $('#packageTable').dataTable({
+               
+                "oLanguage": {
+                    "sLengthMenu": "Display _MENU_ Records",
+                    "sZeroRecords": "<center>No Record Found!</center>",
+                    "sInfo": "Showing _START_ to _END_ of _TOTAL_ Records",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 records",
+                    "sInfoFiltered": "(filtered from _MAX_ total records)"
+                },
+                responsive: true,
+                bJQueryUI: false,
+                bProcessing: true,
+                bServerSide: true,
+                bFilter: true,
+                //multipleSelection: true,
+                iDisplayLength: {{ record_per_page }},
+                sAjaxSource: "{{ path('dhi_admin_package_list_json') }}",
+                "fnServerData": function ( sUrl, aoData, fnCallback, oSettings ) {
+                    aoData.push( { "name": "isAssignedTikiLivePlan", "value": $("#isAssignedTikiLivePlan").val() } );
+                    oSettings.jqXHR = $.ajax( {
+                        "url":  sUrl,
+                        "data": aoData,
+                        "success": function (json) {
+                            if ( json.sError ) {
+                                    oSettings.oApi._fnLog( oSettings, 0, json.sError );
+                            }
+                            $(oSettings.oInstance).trigger('xhr', [oSettings, json]);
+                            fnCallback( json );
+                        },
+                        "dataType": "json",
+                        "cache": false,
+                        "type": oSettings.sServerMethod,
+                        "error": function (xhr, error, thrown) {
+                            if ( error == "parsererror" ) {
+                                        window.location = "{{ path('dhi_admin_user_list') }}";
+                                }
+                        }
+                    } );
+		},
+                aoColumns: [
+                    {"sName": "Id", "bSearchable": false, "bSortable": true, "bVisible": false},
+                    {"sName": "PackageName","bSearchable": false,"bSortable": true},
+                    {"sName": "PackageType", "bSearchable": true, "bSortable": true},
+                    {"sName": "Amount", "bSearchable": false, "bSortable": true},
+                    {"sName": "BandWidth", "bSearchable": false, "bSortable": true},
+                    {"sName": "ServiceLocation", "bSearchable": true, "bSortable": true},
+                    {"sName": "Validaity", "bSearchable": false, "bSortable": true},                    
+                    {"sName": "TikiLivePlanName", "bSearchable": true, "bSortable": true},
+                    {"sName": "FreeRechargeCard", "bSearchable": true, "bSortable": true},
+                    {"sName": "Action", "bSearchable": false, "bSortable": false},
+                ],
+                aoColumnDefs: [
+                {
+                "mRender": function(data, type, row) {
+                    var actionFlag = row[9].split('^');
+                    var dataId = actionFlag[0]
+                    var packageId = actionFlag[1]
+                    var freeRechargeCard = actionFlag[2]
+                    
+                    var headTitle = "UnAssign TikiLive plan";
+                    var msg = 'Are you sure you want to unassign this tikilive plan?';
+                    var returnData = "<table><tr>";
+                    
+                    {% if admin_permission.checkPermission('package_wise_tikilive_plan_edit') %}
+                        if(row[7] == 'N/A'){
+                            var title = 'Assign';
+                        }else{
+                            var title = 'Edit';
+                        }    
+                        returnData +='<td><a href="javascript:void(0);" class="btn btn-success" onclick="showEditTikiLivePlanBox('+packageId+')" title='+title+'>'+title+'</a></td>';   
+                    {% endif %}
+                    if(row[7] != 'N/A'){    
+                        {% if admin_permission.checkPermission('package_wise_tikilive_plan_delete') %}
+                             returnData +='<td><a href="javascript:void(0)" class="btn btn-danger" title="UnAssign" onclick="return deleterecord(' + packageId + ',' + "'" + headTitle + "'" + ',' + "'" + msg + "'" +')">UnAssign</a></td>';
+                        {% endif %}
+                    }
+                    
+                    {% if admin_permission.checkPermission('package_update_free_recharge_card_status') %}
+                    
+                        var activeStatus = 'Enable';
+                        var title = 'Enable Free Recharge Card for this Package';
+                        var activeInactiveVal = 1;
+                        var className = "btn btn-success";
+                        if(freeRechargeCard == 1)
+                        {
+                            activeStatus = 'Disable';
+                            title = 'Disable Free Recharge Card for this Package';
+                            activeInactiveVal = 0;
+                            className = "btn btn-danger";
+                        }
+                        
+                        returnData +='<td><a href="javascript:void(0);" class="' + className + '" title="' + title + '" onclick="return activeInactiverecord(' + dataId + ',' + "'" + activeInactiveVal + "'" + ',' + "'" + activeInactiveAjaxSource + "'" +','+ "'" + activeStatus + " Free Recharge Card for this Package'" +','+"'Are you sure you want to "+ activeStatus +" free recharge card for this package ? '"+')">' + activeStatus + '</a></td>';
+                        
+                    {% endif %}
+                    return returnData;
+                    },
+                "aTargets": [9]
+                }],
+				aaSorting: [[10, 'asc']]
+            });
+             $('#packageTable').dataTable().columnFilter({
+            aoColumns: [
+            {#  null,#}
+              null,
+             {type: "select", sSelector: "#packageType", values: {{packageType|json_encode()|raw}}},
+			  null,
+			  null,
+             {type: "select", sSelector: "#serviceLocation", values: {{serviceLocation|json_encode()|raw}}},
+             null,
+             {type: "select", sSelector: "#tikiLivePlanName", values: {{tikiLivePlanName|json_encode()|raw}}},
+             {type: "select", sSelector: "#freeRechargeCard", values: ['Enable', 'Disable'] }
+            ]
+        });
+        
+        var packageTable = $('#packageTable').DataTable();
+        $('#isAssignedTikiLivePlan').change(function(){
+            packageTable.fnDraw(true);
+        });
+                             
+        $("input").addClass("form-control");
+        $("select").addClass("form-control");
+        });
+        
+    function showEditTikiLivePlanBox(packageId) {
+        var editUrl = '{{ path('dhi_admin_package_wise_tikilive_plan_edit', {'packageId': 'package_id'}) }}';
+            editUrl = editUrl.replace("package_id", packageId);
+        
+        $('#ajax-loader-bx').show();
+        $('#editTikilivePlan .modal-content').load(editUrl, { id:packageId},function (result) {
+            
+            $('#ajax-loader-bx').hide();
+            $('#editTikilivePlan').modal({show: true});
+        });
+
+    }
+    </script>
+    
+{% endblock javascripts %}
